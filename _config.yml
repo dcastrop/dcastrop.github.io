@@ -34,8 +34,9 @@ author:
   arxiv            : # URL - Update with the correct link to your profile
   googlescholar    : "https://scholar.google.com/citations?user=amY0bxEAAAAJ"
   impactstory      : # URL
-  orcid            : "http://orcid.org/yourorcidurl"
+  orcid            : https://orcid.org/0000-0002-6939-4189
   pubmed           : # "https://www.ncbi.nlm.nih.gov/pubmed/?term=john+snow"
+  dblp             : https://dblp.org/pid/259/3482.html
   researchgate     : # URL
 
   # Repositories and software development
