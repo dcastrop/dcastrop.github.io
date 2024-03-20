@@ -22,10 +22,12 @@ where I was part of the then called Functional Programming Group (today known
 as the 
 [Programming Languages Research group](https://plrg.cs.st-andrews.ac.uk/)).
 
----
+# Research Interests
+
 I am interested in _interactive theorem proving_, _programming language design
 and implementation_, _concurrency and distribution_, and _parallelism_. 
----
+
+<hr>
 
 My [research](/research) involves applying programming language-based
 techniques to the development of safe and predictable systems, with a strong
