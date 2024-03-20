@@ -29,7 +29,7 @@ as the
 I am interested in _interactive theorem proving_, _programming language design
 and implementation_, _concurrency and distribution_, and _parallelism_. 
 
-<hr>
+---
 
 My [research](/research) involves applying programming language-based
 techniques to the development of safe and predictable systems, with a strong
