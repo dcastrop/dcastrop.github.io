@@ -7,9 +7,9 @@ author_profile: true
 
 {% if site.author.googlescholar and site.author.dblp %}
   <div class="wordwrap">You can also find my articles on <a href="{{site.author.googlescholar}}">my Google Scholar profile</a> and <a href="{{site.author.dblp}}">DBLP</a>.</div>
-{% elseif site.author.googlescholar %}
+{% elsif site.author.googlescholar %}
   <div class="wordwrap">You can also find my articles on <a href="{{site.author.googlescholar}}">my Google Scholar profile</a>.</div>
-{% elseif site.author.dblp %}
+{% elsif site.author.dblp %}
   <div class="wordwrap">You can also find my articles on <a href="{{site.author.dblp}}">DBLP</a>.</div>
 {% endif %}
 
