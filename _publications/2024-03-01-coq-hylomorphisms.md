@@ -1,13 +1,11 @@
 ---
 title: "Mechanising Recursion Schemes with Magic-Free Coq Extraction"
 collection: publications
-draft: true
+authors: "David Castro-Perez, Marco Paviotti, and Michael Vollmer"
 permalink: /publication/2024-03-20-coq-hylomorphisms
-excerpt: ''
-date: 2024-03-20
-venue: 'ITP 2024'
-paperurl: 'http://dcastrop.github.io/files/2024-coq-hylos.pdf'
-citation: '<b>Mechanising Recursion Schemes with Magic-Free Coq Extraction</b>. David Castro-Perez, Marco Paviotti, and Michael Vollmer. <i> CoRR, 2024, Submitted to ITP</i>.'
+year: 2024
+venue: 'Submitted to ITP'
+paperurl: 'files/2024-coq-hylos.pdf'
 ---
 
 Generic programming with recursion schemes provides a powerful abstraction for
