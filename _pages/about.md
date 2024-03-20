@@ -7,7 +7,7 @@ redirect_from:
   - /about.html
 ---
 
-*Site in progress:* I am still updating this site. Please reach out if 
+**Site in progress:** I am still updating this site. Please reach out if 
 you have further questions.
 
 I am a Lecturer (Assistant Professor) at the 
