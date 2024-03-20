@@ -7,6 +7,8 @@ redirect_from:
   - /about.html
 ---
 
+{% include base_path %}
+
 **Site in progress:** I am still updating this site. Please reach out if 
 you have further questions.
 
