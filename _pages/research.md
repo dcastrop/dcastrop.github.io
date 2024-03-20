@@ -10,6 +10,9 @@ redirect_from:
 
 {% include base_path %}
 
+My [ongoing research projects](#ongoing-research-projects) are listed at
+the end of this page.
+
 # Research Areas
 
 ## Session Types
