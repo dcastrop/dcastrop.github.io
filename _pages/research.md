@@ -18,4 +18,4 @@ redirect_from:
 
 ## Parallel Programming Frameworks
 
-# Current Grants
+# Ongoing Research Projects
