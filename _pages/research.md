@@ -10,11 +10,12 @@ redirect_from:
 
 {% include base_path %}
 
-Session Types
-======
+# Research Areas
 
-Interactive Theorem Proving
-======
+## Session Types
 
-Parallel Programming Frameworks
-======
+## Interactive Theorem Proving
+
+## Parallel Programming Frameworks
+
+# Current Grants
