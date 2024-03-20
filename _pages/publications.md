@@ -16,8 +16,8 @@ author_profile: true
 {% include base_path %}
 
 {% for post in site.publications reversed %}
-  <a href="{{ base_path }}{{ post.url }}" rel="permalink">{{ post.title }}</a><br>
+  <b>{{ post.title }}</b><br>
   {{post.authors}}<br>
   <i>{{post.venue}}</i><br>
-  <a href="{{ post.paperurl | relative_url }}">[pdf]</a><br><br>
+  <a href="{{ base_path }}{{ post.url }}" rel="permalink">[abstract]</a> <a href="{{ post.paperurl | relative_url }}">[pdf]</a><br><br>
 {% endfor %}

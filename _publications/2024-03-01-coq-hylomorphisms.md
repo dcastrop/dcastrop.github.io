@@ -3,8 +3,8 @@ title: "Mechanising Recursion Schemes with Magic-Free Coq Extraction"
 collection: publications
 authors: "David Castro-Perez, Marco Paviotti, and Michael Vollmer"
 permalink: /publication/2024-03-20-coq-hylomorphisms
-year: 2024
-venue: 'Submitted to ITP'
+date: 2024-03-20
+venue: 'Submitted to ITP 2024'
 paperurl: 'files/2024-coq-hylos.pdf'
 ---
 
