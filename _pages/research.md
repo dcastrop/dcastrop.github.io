@@ -10,8 +10,11 @@ redirect_from:
 
 {% include base_path %}
 
-WIP1
+Session Types
 ======
 
-WIP2
+Interactive Theorem Proving
+======
+
+Parallel Programming Frameworks
 ======
