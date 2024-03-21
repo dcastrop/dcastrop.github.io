@@ -7,10 +7,11 @@
    ========================================================================== */
 
 .sidebar {
-  -webkit-transform: translate3d(0, 0 , 0);
-          transform: translate3d(0, 0 , 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
 
-  @include clearfix();
+  @include clearfix;
+
   margin-bottom: 1em;
 
   @media screen and (min-width: 1024px) {
@@ -20,18 +21,24 @@
 
   @include breakpoint($large) {
     @include span(2 of 12);
+
     opacity: 1;
     -webkit-transition: opacity 0.2s ease-in-out;
-            transition: opacity 0.2s ease-in-out;
+    transition: opacity 0.2s ease-in-out;
 
     &:hover {
       opacity: 1;
     }
   }
 
+
   @include breakpoint($x-large) {
     padding-right: 0;
+    width: 8%;
+
+    /* HACK to avoid overlap */
   }
+
 
   h2, h3, h4, h5, h6 {
     margin-bottom: 0;
@@ -64,6 +71,7 @@
     z-index: 10;
   }
 
+
   @include breakpoint($x-large) {
     width: $right-sidebar-width;
   }
@@ -77,6 +85,7 @@
   display: table-cell;
   vertical-align: top;
   width: 36px;
+
   // set width only, for non-square avatars
   // height: 36px;
 
@@ -85,6 +94,7 @@
     width: auto;
     height: auto;
   }
+
 
   img {
     max-width: 175px;
@@ -120,6 +130,7 @@
     margin-bottom: 10px;
   }
 }
+
 .sidebar .author__name {
   font-family: $sans-serif;
   font-size: $type-size-5;
@@ -127,6 +138,7 @@
 
 .sidebar .author__desktop {
   display: none;
+
   @media screen and (min-width: 1024px) {
     display: block;
   }
@@ -169,6 +181,7 @@
     display: block;
   }
 
+
   button {
     margin-bottom: 0;
 
@@ -201,6 +214,7 @@
     background: transparent;
     box-shadow: none;
   }
+
 
   &:before {
     display: block;
