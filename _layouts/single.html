@@ -45,7 +45,7 @@ layout: default
         {% if page.collection == 'publications' %}
           {{page.authors}}<br>
           <i>{{page.venue}}</i><br>
-          <a href="{{ page.paperurl | relative_url }}">[pdf]</a><br><br>
+          <a href="{{ base_path }}/{{ page.paperurl }}">[Download PDF]</a><br><br>
         {% endif %}
         </header>
       {% endunless %}
