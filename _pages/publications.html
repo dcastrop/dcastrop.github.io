@@ -12,12 +12,24 @@ author_profile: true
 {% elsif site.author.dblp %}
   <div class="wordwrap">You can also find my articles on <a href="{{site.author.dblp}}">DBLP</a>.</div>
 {% endif %}
+<hr>
 
 {% include base_path %}
 
 {% for post in site.publications reversed %}
   <b>{{ post.title }}</b><br>
   {{post.authors}}<br>
-  <i>{{post.venue}}</i><br>
+  <i>
+  {% if post.draft == true %}
+    Unpublished draft
+  {% elsif post.submission == true %}
+    Under submission ({{ post.venue }} {{ post.year }})
+  {% elsif post.toappear == true %}
+    To appear in {{ post.venue }} {{ post.year }}
+  {% else %}
+    {{ post.venue }} {{ post.year }}: {{ post.pages }}
+  {% endif %}
+  </i>
+  <br>
   <a href="{{ base_path }}{{ post.url }}" rel="permalink">[abstract]</a> <a href="{{ post.paperurl | relative_url }}">[pdf]</a><br><br>
 {% endfor %}

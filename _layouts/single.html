@@ -44,8 +44,19 @@ layout: default
 
         {% if page.collection == 'publications' %}
           {{page.authors}}<br>
-          <i>{{page.venue}}</i><br>
-          <a href="{{ base_path }}/{{ page.paperurl }}">[Download PDF]</a><br><br>
+          <i>
+          {% if page.draft == true %}
+            Unpublished draft
+          {% elsif page.submission == true %}
+            Under submission ({{ page.venue }} {{ page.year }})
+          {% elsif page.toappear == true %}
+            To appear in {{ page.venue }} {{ page.year }}
+          {% else %}
+            {{ page.venue }} {{ page.year }}: {{ page.pages }}
+          {% endif %}
+          </i>
+          <br>
+          <a href="{{ page.paperurl | relative_url }}">[pdf]</a><br><br>
         {% endif %}
         </header>
       {% endunless %}
