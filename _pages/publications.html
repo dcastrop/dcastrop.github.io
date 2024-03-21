@@ -20,6 +20,17 @@ author_profile: true
   <b>{{ post.title }}</b><br>
   {{post.authors}}<br>
   <i>
+  {% if post.journal %}
+  {% if post.draft == true %}
+    Unpublished draft
+  {% elsif post.submission == true %}
+    Under submission ({{ post.journal}} {{ post.year }})
+  {% elsif post.toappear == true %}
+    To appear in {{ post.journal}} ({{ post.year }})
+  {% else %}
+    {{ post.journal}}: {{ post.pages }} ({{ post.year }})
+  {% endif %}
+  {% else %}
   {% if post.draft == true %}
     Unpublished draft
   {% elsif post.submission == true %}
@@ -28,6 +39,7 @@ author_profile: true
     To appear in {{ post.venue }} {{ post.year }}
   {% else %}
     {{ post.venue }} {{ post.year }}: {{ post.pages }}
+  {% endif %}
   {% endif %}
   </i>
   <br>

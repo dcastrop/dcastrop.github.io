@@ -45,6 +45,17 @@ layout: default
         {% if page.collection == 'publications' %}
           {{page.authors}}<br>
           <i>
+          {% if page.journal %}
+          {% if page.draft == true %}
+            Unpublished draft
+          {% elsif page.submission == true %}
+            Under submission ({{ page.journal}} {{ page.year }})
+          {% elsif page.toappear == true %}
+            To appear in {{ page.journal}} ({{ page.year }})
+          {% else %}
+            {{ page.journal}}: {{ page.pages }} ({{ page.year }})
+          {% endif %}
+          {% else %}
           {% if page.draft == true %}
             Unpublished draft
           {% elsif page.submission == true %}
@@ -53,6 +64,7 @@ layout: default
             To appear in {{ page.venue }} {{ page.year }}
           {% else %}
             {{ page.venue }} {{ page.year }}: {{ page.pages }}
+          {% endif %}
           {% endif %}
           </i>
           <br>

@@ -1,0 +1,31 @@
+---
+title: "CAMP: cost-aware multiparty session protocols"
+collection: publications
+authors: "David Castro-Perez, Nobuko Yoshida"
+permalink: /publication/2020-oopsla-camp
+year: 2020
+journal: 'PACMPL 4(OOPSLA)'
+pages: '155:1-155:30'
+paperurl: 'files/2020-oopsla-camp.pdf'
+---
+
+This paper presents CAMP, a new static performance analysis framework for
+message-passing concurrent and distributed systems, based on the theory of
+multiparty session types (MPST). Understanding the run-time performance of
+concurrent and distributed systems is of great importance for the
+identification of bottlenecks and optimisation opportunities. In the
+message-passing setting, these bottlenecks are generally communication
+overheads and synchronisation times. Despite its importance, reasoning about
+these intensional properties of software, such as performance, has received
+little attention, compared to verifying extensional properties, such as
+correctness. Behavioural protocol specifications based on sessions types
+capture not only extensional, but also intensional properties of concurrent and
+distributed systems. CAMP augments MPST with annotations of communication
+latency and local computation cost, defined as estimated execution times, that
+we use to extract cost equations from protocol descriptions. CAMP is also
+extendable to analyse asynchronous communication optimisation built on a recent
+advance of session type theories. We apply our tool to different existing
+benchmarks and use cases in the literature with a wide range of communication
+protocols, implemented in C, MPI-C, Scala, Go, and OCaml. Our benchmarks show
+that, in most of the cases, we predict an upper-bound on the real execution
+costs with < 15% error.
