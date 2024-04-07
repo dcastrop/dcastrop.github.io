@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="{{ "/assets/reveal.js/dist/reveal.css" | prepend: site.baseurl }}"/>
     <link rel="stylesheet" href="{{ "/assets/reveal.js/dist/theme/custom.css" | prepend: site.baseurl }}"/>
     <link rel="stylesheet" href="{{ "/assets/reveal.js/plugin/highlight/monokai.css" | prepend: site.baseurl }}"/>
+
   </head>
   <body>
     <div class="reveal">
@@ -25,6 +26,9 @@
     <script src="{{ "/assets/reveal.js/plugin/notes/notes.js" | prepend: site.baseurl }}"></script>
     <script src="{{ "/assets/reveal.js/plugin/markdown/markdown.js" | prepend: site.baseurl }}"></script>
     <script src="{{ "/assets/reveal.js/plugin/highlight/highlight.js" | prepend: site.baseurl }}"></script>
+    <script src="{{ "/assets/reveal.js/plugin/math/math.js" | prepend: site.baseurl}}"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js-mermaid-plugin@2.3.0/plugin/mermaid/mermaid.js"></script>
 
     <script>
       // More info about initialization & config:
@@ -33,11 +37,18 @@
       Reveal.initialize({
         hash: true,
         transition: "slide",
-        width: 1280,
-        height: 720,
+        width: 1920,
+        height: 1080,
+        margin: 0.1,
+        mermaid: {
+        // flowchart: {
+        //   curve: 'linear',
+        // },
+        },
 
         // Learn about plugins: https://revealjs.com/plugins/
-        plugins: [RevealMarkdown, RevealHighlight, RevealNotes],
+        plugins: [RevealMarkdown, RevealHighlight, RevealNotes,
+                RevealMath.KaTeX, RevealMermaid],
       });
     </script>
   </body>

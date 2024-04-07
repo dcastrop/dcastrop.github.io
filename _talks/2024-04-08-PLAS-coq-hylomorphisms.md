@@ -30,7 +30,7 @@ tags:
 
 <ins>David Castro-Perez</ins>, [Marco Paviotti](mailto:m.paviotti@kent.ac.uk), [Michael Vollmer](mailto:m.vollmer@kent.ac.uk)
 
-<font size="-0.5">Email: [d.castro-perez@kent.ac.uk](maito:d-castro-perez@kent.ac.uk)</font>
+<font size="6">Email: [d.castro-perez@kent.ac.uk](maito:d-castro-perez@kent.ac.uk)</font>
 
 <br>
 <br>
@@ -42,11 +42,13 @@ tags:
 
 + Reasoning about nonstructural recursion in proof assistants is hard due
 to nontermination issues.
+<br>
 
 + Recursion schemes have easy-to-use associated equational theories, which can
   be used for *program calculation*. Such program calculation techniques can
 capture program optimisations such as *shortcut deforestation*, or
 *semi-automatic parallelisations*.
+<br>
 
 + Common encodings of recursion schemes in Coq come with compromises:
   - extracting to OCaml code with unsafe casts;
@@ -132,8 +134,14 @@ length smaller < length xs
 ---
 ### Coq's Well-founded Fixpoint Combinator
 
-If we prove that our function respects a *well-founded* relation, we can use
-Coq's `Fix` combinator to build non-structurally recursive functions:
+Coq's `Fix` combinator can be used to build a recursive function from a 
+non-recursive definition. 
+
+This non-recursive definition (line 7) is parameterised by the recursive call,
+and it can only be used on _smaller_ inputs (i.e. on the elements `y` such that
+`R y x`):
+
+<br>
 
 ```coq [1|5|6-7]
 About Fix.
@@ -147,7 +155,6 @@ Fix :
 
 ```
 
-<br><br>
 ---
 ## Well-founded Relations and Accessibility Proofs
 
@@ -216,21 +223,15 @@ foldr f z [] = z
 foldr f z (x : xs) = f x (foldr f z xs)
 ```
 
-+ Recursion schemes can capture more complex patterns of recursion, such as
-*divide and conquer* computations:
-```haskell
-dc :: ([b] -> b) -> (a -> [a]) -> a -> b
-dc conquer divide = h
-  where h x = conquer (map h (divide x))
-```
-
 ---
 ### Hylomorphisms
 
-We can generalise our divide and conquer recursion scheme.
+Divide-and-conquer computations are known in the functional programming
+literature as **hylomorphisms**.
 
-Instead of dividing our input into a list of sub-inputs, we can use an 
-arbitrary *functor* `f`:
+The `divide` function divides the input and produces a structure `f a`.  The
+`conquer` part combines already processed sub-inputs in a structure `f b` into
+the return type `b`.
 
 <br>
 
@@ -242,10 +243,14 @@ hylo conquer divide = h
 
 <br>
 
-These are called **hylomorphisms** in the literature.
+Note that we know nothing of the structure `f`, except that we can keep
+applying the divide and conquer computation recursively on every element that
+it contains. Furthermore, even if `f` was fully known, we cannot know how
+`divide` divides the inputs. Therefore, **we cannot guarantee termination** of
+hylomorphisms.
 
 ---
-## Recursion Schemes as Hylomorphisms
+### Recursion Schemes as Hylomorphisms
 
 Hylomorphisms are general enough to represent other recursion schemes, such as
 *maps*, *folds*, *unfolds*, *dynamic programming algorithms*,
@@ -262,13 +267,146 @@ In fact,
 <br>
 
 ---
-# "Extractable" Containers
+### Example: List foldr as a Hylomorphism
+
+```haskell
+in_list :: Maybe (a, [a]) -> [a]
+in_list Nothing = []
+in_list (Just (h, t)) = h : t
+
+out_list :: [a] -> Maybe (a, [a])
+out_list [] = Nothing
+out_list (h : t) = Just (h, t)
+
+fold_hylo :: (a -> b -> b) -> b -> [a] -> b
+fold_hylo f z = hylo alg out_list
+  where
+    alg :: Maybe (a, b) -> b
+    alg Nothing = z
+    alg (Just (h, t)) = f h t
+```
 
 ---
-# Mechanising Hylomorphisms in Coq
+### Algebras
+
+Recall the types of *alg* and *in_list*:
+
+```haskell
+in_list :: Maybe (a, [a]) -> [a]
+alg     :: Maybe (a,  b ) ->  b
+```
+
+We can generalise these types:
+```haskell
+data ListF a b = NilF | ConsF a b
+instance Functor (ListF a) where
+  fmap f NilF = NilF
+  fmap f (ConsF a b) = ConsF a (f b)
+
+in_list :: ListF a [a] -> [a]
+alg     :: ListF a  b  ->  b
+```
+
+<br>
+
+In general, given an endo-functor $F$, an **algebra** is an object $X$ (the
+*carrier* of the algebra), and a morphism $F\ X \to X$.
 
 ---
-# Example
+### Initial Algebras
+
+
+---
+### Coalgebras
+
+---
+## "Extractable" Containers
+
+---
+### Avoiding the Functional Extensionality Axiom (I)
+
+To avoid the functional extensionality axiom, we restrict to *setoids*:
+
+<br>
+<br>
+
+```coq
+Reserved Notation "f =e g" (at level 70, no associativity).
+Class setoid A : Type :=
+  MkSetoid
+    { eqRel : A -> A -> Prop;
+      e_refl : forall x, eqRel x x;
+      e_sym : forall x y, eqRel x y -> eqRel y x;
+      e_trans : forall x y z, eqRel x y -> eqRel y z -> eqRel x z;
+    }.
+
+Notation "f =e g" := (eqRel f g).
+```
+
+---
+### Avoiding the Functional Extensionality Axiom (and II)
+
+We only work with *morphisms* that are *respectful* (i.e. they map related
+inputs to related outputs):
+
+<br>
+<br>
+
+```coq
+Structure morph :=
+  MkMorph { app :> A -> B;
+            app_eq : forall x y, x =e y -> app x =e app y
+          }.
+
+Notation "x ~> y" := (morph x y).
+```
+
+---
+### Containers
+
+Containers are defined by a pair of a type of shapes `Sh`, and a family
+of positions in this shape `Pos`. 
+
+<br>
+
+In our work, we define the family of positions by requiring a type of **all**
+positions, together with a **decidable** predicate that determines whether a
+position is valid in a shape.
+
+<br>
+
+```coq
+Class Cont `{Esh : setoid Sh} (P : Type) :=
+  { valid : Sh * P ~> bool
+  }.
+
+Record Pos `{Cont Sh P} (s : Sh) :=
+  MkElem {
+      val : P;
+      Valid : valid (s, val)
+    }.
+
+
+```
+
+---
+### Containers and Functors
+
+Given a container `F`, its  **extension** (defined below) is a functor. 
+
+```coq
+Record App `{F : Cont Sh P} (X : Type) :=
+  MkCont
+    { shape : Sh;
+      cont : Pos shape -> X
+    }.
+```
+
+---
+## Mechanising Hylomorphisms in Coq
+
+---
+## Example
 
     </textarea>
 </section>
