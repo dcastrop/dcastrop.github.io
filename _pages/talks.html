@@ -12,5 +12,18 @@ author_profile: true
 {% endif %}
 
 {% for post in site.talks reversed %}
-  {% include archive-single-talk.html %}
+  <b>{{ post.title }}</b><br>
+  {% if post.venue %}
+  {% if post.venueurl %}<a href="{{ post.venueurl }}">{{post.venue}}</a>
+  {% else %}
+  {{post.venue}}
+  {% endif %}
+  {% elsif post.draft %}Draft
+  {% endif %}<br>
+  <i>{{ post.date | date: "%-d %B %Y" }}</i>
+  <br>
+  {% if post.slides %}
+    <a href="{{ base_path }}{{ post.url }}" rel="permalink">[slides]</a>
+  {% endif %}
+  <br><br>
 {% endfor %}

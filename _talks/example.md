@@ -1,0 +1,30 @@
+---
+layout: slide
+title: Example Reveal.js slides
+slides: true
+draft: true
+date: 2022-05-10
+author: David Castro-Perez
+description: Some slides for a git and GitHub workshop using reveal.js
+comments: true
+tags:
+  - education
+  - workshop
+  - slides
+---
+
+<section data-markdown>
+    <textarea data-template>
+        # First
+        slide
+        ---
+        <!-- .slide: data-background-image="/assets/img/2022-05-11-git-github-workshop/mangotime2.jpg" -->
+        ## A slide with a background image
+        ---
+        ## Third
+        - slide with
+        - some
+        - bullet points
+        ---
+    </textarea>
+</section>
