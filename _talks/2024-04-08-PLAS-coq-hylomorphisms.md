@@ -208,7 +208,7 @@ Fixpoint Fix_F (x : A) (a : Acc R x) : P x :=
 ---
 ## Divide and Conquer with Well-founded Recursion
 
-+ Equational reasoning is hard. E.g.
++ Equational reasoning is hard. E.g. `$\text{Fix}\ F = F\ (\text{Fix}\ F)$`:
 
 ```coq [7|9-10]
 About Fix_eq.
@@ -261,7 +261,7 @@ literature as **hylomorphisms**.
 
 `conquer` combines already processed elements in a structure `f b`.
 
-<br>
+<br><br>
 
 ```haskell
 hylo :: Functor f => (f b -> b) -> (a -> f a) -> a -> b
@@ -270,14 +270,6 @@ hylo conquer divide = h
 ```
 
 ##### <!-- .element: class="fragment" data-fragment-index="2" -->
-
-We know nothing of the structure `f`, except that we can keep applying the
-divide and conquer computation recursively on every element that it contains
-(i.e. it is a functor). 
-
-Furthermore, we cannot know how `divide` operates on inputs.
-
-Therefore, **we cannot guarantee termination**.
 
 ---
 ### Recursion Schemes as Hylomorphisms
@@ -310,6 +302,8 @@ out_list :: [a] -> Maybe (a, [a])
 out_list [] = Nothing
 out_list (h : t) = Just (h, t)
 ```
+
+<br><br>
 
 ```haskell
 fold_hylo :: (a -> b -> b) -> b -> [a] -> b
@@ -350,8 +344,7 @@ In general, given an endo-functor $F$, an **algebra** is an object $X$ (the
 
 <br>
 
-`([a], in_list)` and `(b, alg)` are examples of algebras. For simplicity, we
-will simply call `in_list` and `alg` algebras (omitting the carrier).
+`([a], in_list)` and `(b, alg)` are examples of algebras.
 
 
 ---
@@ -370,7 +363,9 @@ The unique morphism between the carriers of an initial algebra and some other
 algebra is called a **catamorphism**. They correspond to folds over inductive
 types.
 
-Example initial `ListF a`-algebra:
+<br>
+
+Example initial (`ListF a`)-algebra:
 
 ```haskell
 in_list :: ListF a [a] -> [a]
@@ -390,10 +385,10 @@ lcata a = f
 ---
 ### Least Fixed Point of a Functor
 
-Given a functor `$F$`, `$(\mu\; F, \text{in}_F)$` is an initial `$F$`-algebra.
+Given a functor `$F$`, `$(\mu\ F, \text{in}_F)$` is an initial `$F$`-algebra.
 
 `$$
-\text{in}_F : F \; (\mu F) \to \mu F
+\text{in}_F : F \ (\mu F) \to \mu F
 $$`
 
 + Not all functors have a fixed point.
@@ -475,14 +470,12 @@ A coalgebra is recursive if it can be applied only finitely many times:
 * When used to build an anamorphism, it only produces finite trees.
 
 ---
-
----
 ### Hylomorphisms
 
 Hylomorphisms are solutions to the equation
 
 $$
-f = a \circ F \; f \circ c
+f = a \circ F \ f \circ c
 $$
 
 <br>
@@ -502,6 +495,9 @@ hylo :: Functor f => (f b -> b) -> (a -> f a) -> a -> b
 hylo alg coalg = h
   where h = alg . fmap h . coalg 
 ```
+
+<br><br>
+
 
 
 * In Haskell, algebras and coalgebras coincide, but **not in Coq**.
@@ -679,8 +675,8 @@ Record App `{F : Cont Sh P} (X : Type) :=
 <br><br>
 
 + Coq can now extract `Pos s` equivalently to `P`
-+ We can also use the UIP for proofs of the form `valid(s, val) = true`, thanks
-  to the decidability of boolean equality proofs.
++ We can also use the UIP for proofs of the form `valid(s, val) = true`
+  **without axioms**, thanks to the decidability of boolean equality.
 
 ---
 ### Equality of Container Extensions
@@ -706,6 +702,18 @@ Lemma l_in_out : l_in \o l_out =e id.
 Lemma l_out_in : l_out \o l_in =e id.
 ```
 
+<br>
+Equality of `LFix`:
+<br>
+
+```coq
+Fixpoint LFixR (x y : LFix) : Prop :=
+  let f_x := LFix_out x in
+  let f_y := LFix_out y in
+  shape f_x =e shape f_y /\
+    (forall e1 e2, val e1 = val e2 -> LFixR (cont f_x e1) (cont f_y e2)).
+```
+
 ---
 ## Mechanising Hylomorphisms in Coq
 
@@ -716,10 +724,11 @@ Lemma l_out_in : l_out \o l_in =e id.
 Inductive RecF `{setoid A} (h : Coalg F A) : A -> Prop :=
   | RecF_fold x : (forall e, RecF h (cont (h x) e)) -> RecF h x.
 
+
 Structure RCoalg `{eA : setoid A} :=
   Rec {
       coalg :> Coalg F A;
-      recP : RecP coalg
+      recP : forall x, RecF coalg x
     }.
 ```
 
@@ -731,7 +740,7 @@ well-founded relation.
 ```coq
 Lemma wf_coalg_rec `{setoid A} {B}
   (m : A -> B) (R : B -> B -> Prop) (WF : well_founded R)
-  (c : Coalg F A) (RR : respects_relation c m R) : RecP c.
+  (c : Coalg F A) (RR : respects_relation c m R) : forall x, RecF c x.
 (**)
 Defined.
 ```
@@ -903,10 +912,11 @@ let rec qsort_times_two = function
 <br><br>
 
 **Future work:**
-* Side effects
-* N-ary containers
-* Improve Coq's code extraction (inlining!)
-* Deal with the "Setoid hell"
+* Side effects?
+* N-ary containers?
+* Improve Coq's code extraction? (inlining!)
+* Deal with the "Setoid hell"?
+* Ideas?
 
     </textarea>
 </section>
