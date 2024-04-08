@@ -95,7 +95,13 @@ Fixpoint qsort (xs : list nat) :=
 
 <br><br>
 
-<b>The problem</b>: The arguments to the recursive calls are not structurally smaller to `xs`.
+##### The problem <!-- .element: class="fragment" data-fragment-index="2" -->
+
+The arguments to the recursive calls are not structurally smaller to `xs`. 
+
+<!-- .element: class="fragment" data-fragment-index="2" -->
+
+<br>
 
 ```coq
 Error:
@@ -103,6 +109,8 @@ Recursive definition of qsort is ill-formed.
 ...
 Recursive call to qsort has principal argument equal to "smaller" instead of a subterm of "xs".
 ```
+
+<!-- .element: class="fragment" data-fragment-index="2" -->
 
 ---
 ### Well-founded Recursion in Coq
@@ -117,9 +125,13 @@ Program Fixpoint qsort (xs : list nat) {measure (length xs) } :=
 Next Obligation.
 ```
 
-<br><br>
+<br>
+
+##### <!-- .element: class="fragment" data-fragment-index="2" -->
 
 This leaves us with the following goal:
+
+<!-- .element: class="fragment" data-fragment-index="2" -->
 
 ```coq
 xs : list nat
@@ -130,6 +142,8 @@ Heq_anonymous : Some (pivot, (smaller, larger)) = divide xs
 ============================
 length smaller < length xs
 ```
+
+<!-- .element: class="fragment" data-fragment-index="2" -->
 
 ---
 ### Coq's Well-founded Fixpoint Combinator
@@ -156,7 +170,7 @@ Fix :
 ```
 
 ---
-## Well-founded Relations and Accessibility Proofs
+### Well-founded Relations and Accessibility Proofs
 
 A relation is _well-founded_ if it has no infinite decreasing chains.
 
@@ -173,18 +187,26 @@ Definition well_founded (R : A -> A -> Prop) := forall a:A, Acc R a.
 
 ```
 
-<br><br>
-The Fixpoint combinator in Coq uses recursion **on accessibility proofs** (`Acc_inv a h`):
-```coq [1-5|5]
+##### <!-- .element: class="fragment" data-fragment-index="3" -->
+
+
+The Fixpoint combinator in Coq uses recursion **on accessibility proofs**
+`Acc_inv a h`
+<!-- .element: class="fragment" data-fragment-index="3" -->
+
+<br>
+
+```coq
 Variable P : A -> Type.
 Variable F : forall x:A, (forall y:A, R y x -> P y) -> P x.
 
-Fixpoint Fix_F R (x : A) (a : Acc R x) : P x :=
+Fixpoint Fix_F (x : A) (a : Acc R x) : P x :=
     F (fun (y:A) (h:R y x) => Fix_F (Acc_inv a h)).
 ```
+<!-- .element: class="fragment" data-fragment-index="3" -->
 
 ---
-## Problems with Well-founded Recursion
+## Divide and Conquer with Well-founded Recursion
 
 + Equational reasoning is hard. E.g.
 
@@ -205,6 +227,9 @@ Fix_eq :
 
 + Non-compositional reasoning<!-- .element: class="fragment" -->
 
++ Other approaches exist (e.g. equations) with similar problems <!--
+  .element: class="fragment" -->
+
 ---
 ## Recursion Schemes
 
@@ -215,6 +240,8 @@ Fix_eq :
 
 + Familiar examples include common maps & folds (examples in Haskell syntax):
 
+#####
+
 ```haskell
 map f [] = []
 map f (x : xs) = f x : map f xs
@@ -224,14 +251,15 @@ foldr f z (x : xs) = f x (foldr f z xs)
 ```
 
 ---
-### Hylomorphisms
+### Hylomorphisms (informally)
 
 Divide-and-conquer computations are known in the functional programming
 literature as **hylomorphisms**.
 
-The `divide` function divides the input and produces a structure `f a`.  The
-`conquer` part combines already processed sub-inputs in a structure `f b` into
-the return type `b`.
+`divide` "splits" the input and produces a structure `f a`.
+
+
+`conquer` combines already processed elements in a structure `f b`.
 
 <br>
 
@@ -241,13 +269,15 @@ hylo conquer divide = h
   where h x = conquer (fmap h (divide x))
 ```
 
-<br>
+##### <!-- .element: class="fragment" data-fragment-index="2" -->
 
-Note that we know nothing of the structure `f`, except that we can keep
-applying the divide and conquer computation recursively on every element that
-it contains. Furthermore, even if `f` was fully known, we cannot know how
-`divide` divides the inputs. Therefore, **we cannot guarantee termination** of
-hylomorphisms.
+We know nothing of the structure `f`, except that we can keep applying the
+divide and conquer computation recursively on every element that it contains
+(i.e. it is a functor). 
+
+Furthermore, we cannot know how `divide` operates on inputs.
+
+Therefore, **we cannot guarantee termination**.
 
 ---
 ### Recursion Schemes as Hylomorphisms
@@ -255,6 +285,8 @@ hylomorphisms.
 Hylomorphisms are general enough to represent other recursion schemes, such as
 *maps*, *folds*, *unfolds*, *dynamic programming algorithms*,
 *mutual-recursion*, ... 
+
+<br><br>
 
 In fact,
 
@@ -277,7 +309,9 @@ in_list (Just (h, t)) = h : t
 out_list :: [a] -> Maybe (a, [a])
 out_list [] = Nothing
 out_list (h : t) = Just (h, t)
+```
 
+```haskell
 fold_hylo :: (a -> b -> b) -> b -> [a] -> b
 fold_hylo f z = hylo alg out_list
   where
@@ -287,7 +321,7 @@ fold_hylo f z = hylo alg out_list
 ```
 
 ---
-### Algebras
+### Algebras (slightly more formally)
 
 Recall the types of *alg* and *in_list*:
 
@@ -296,7 +330,9 @@ in_list :: Maybe (a, [a]) -> [a]
 alg     :: Maybe (a,  b ) ->  b
 ```
 
-We can generalise these types:
+<br>
+
+We can generalise them:
 ```haskell
 data ListF a b = NilF | ConsF a b
 instance Functor (ListF a) where
@@ -312,15 +348,168 @@ alg     :: ListF a  b  ->  b
 In general, given an endo-functor $F$, an **algebra** is an object $X$ (the
 *carrier* of the algebra), and a morphism $F\ X \to X$.
 
+<br>
+
+`([a], in_list)` and `(b, alg)` are examples of algebras. For simplicity, we
+will simply call `in_list` and `alg` algebras (omitting the carrier).
+
+
 ---
-### Initial Algebras
+### Initial Algebras and Catamorphisms
+
+Given an endo-functor `$F$`, an initial algebra is an `$F$`-algebra such that
+there is an unique morphism from this initial algebra to any other algebra.
+
+<br>
+
+Initial algebras are *unique up to isomorphism* (due to initiality).
+
+<br>
+
+The unique morphism between the carriers of an initial algebra and some other
+algebra is called a **catamorphism**. They correspond to folds over inductive
+types.
+
+Example initial `ListF a`-algebra:
+
+```haskell
+in_list :: ListF a [a] -> [a]
+in_list NilF        = []
+in_list (ConsF a b) = a : b
+
+out_list :: [a] -> ListF a [a]
+out_list []      = NilF
+out_list (a : b) = ConsF a b
+
+lcata :: (ListF a b -> b) -> [a] -> b
+lcata a = f
+  where
+    f = a . fmap f . out_list
+```
+
+---
+### Least Fixed Point of a Functor
+
+Given a functor `$F$`, `$(\mu\; F, \text{in}_F)$` is an initial `$F$`-algebra.
+
+`$$
+\text{in}_F : F \; (\mu F) \to \mu F
+$$`
+
++ Not all functors have a fixed point.
++ Defining least fixed points in Coq can be problematic (more in a few slides)
+
+
+##### In Haskell: <!-- .element: class="fragment" data-fragment-index="2" -->
+
+```haskell
+newtype Fix f = Fix (f (Fix f))
+
+in :: f (Fix f) -> Fix f
+in = Fix
+```
+<!-- .element: class="fragment" data-fragment-index="2" -->
+
+<br>
+
+`Fix (ListF a)` and `[a]` are isomorphic.
+
+<!-- .element: class="fragment" data-fragment-index="2" -->
+<!-- .element: class="fragment" data-fragment-index="2" -->
 
 
 ---
 ### Coalgebras
 
+`$f$`-coalgebras are morphisms from `$a \to f\; a$`. E.g.
+
+<br>
+
+```haskell
+out_list :: [a] -> ListF a [a]
+out_list []      = NilF
+out_list (a : b) = ConsF a b
+```
+
 ---
-## "Extractable" Containers
+### Terminal Coalgebras and Anamorphisms
+
+Given an endo-functor `$F$`, a terminal coalgebra is an `$F$`-coalgebra such
+that there is an unique morphism from any coalgebra to this terminal coalgebra.
+
+<br>
+
+The unique morphism between the carriers of any coalgebra and the terminal coalgebra
+is called an **anamorphism**. They correspond to unfolds over coinductive
+types.
+
+Example terminal `ListF a`-coalgebra:
+
+```haskell
+lana :: (b -> ListF a b) -> b -> [a]
+lana c = f
+  where
+    f = in_list . fmap f . c
+```
+
+---
+### Recursive Coalgebras
+
+Coalgebras do not necessarily terminate.
+
+<br>
+
+```haskell
+infiniteStreamOfOnes :: [Int]
+infiniteStreamOfOnes = lana (\x -> ConsF x x) 1
+```
+
+<br>
+
+The coalgebra `\x -> ConsF x x` is **not** recursive.
+
+<br>
+
+A coalgebra is recursive if it can be applied only finitely many times:
+
+* When used to build an anamorphism, it only produces finite trees.
+
+---
+
+---
+### Hylomorphisms
+
+Hylomorphisms are solutions to the equation
+
+$$
+f = a \circ F \; f \circ c
+$$
+
+<br>
+
+```haskell
+lhylo :: (b -> ListF t b) -> (a -> ListF t a) -> a -> b
+lhylo a c = f
+  where
+    f = a . fmap f . c
+```
+
+---
+### Problems Mechanising Hylomorphisms
+
+```haskell
+hylo :: Functor f => (f b -> b) -> (a -> f a) -> a -> b
+hylo alg coalg = h
+  where h = alg . fmap h . coalg 
+```
+
+
+* In Haskell, algebras and coalgebras coincide, but **not in Coq**.
+* We must prove termination if we want to build `hylo` in Coq
+* We need to define *least* and *greatest* fixed-points of functors.
+
+---
+## Formalising Hylomorphisms in Coq
 
 ---
 ### Avoiding the Functional Extensionality Axiom (I)
@@ -361,11 +550,100 @@ Structure morph :=
 Notation "x ~> y" := (morph x y).
 ```
 
+
 ---
-### Containers
+### Functors in Coq
+
+In Coq, we can represent functors as functions from `Type -> Type`, together
+with the `fmap` function:
+
+<br>
+
+```coq
+Class functor (F : Type -> Type) := {
+  fmap : forall A B, (A -> B) -> F A -> F B;
+  fmap_id : forall A, fmap (@id A) =e id;
+  fmap_comp : forall A B C (f : B -> C) (g : A -> B), fmap (f \o g) =e fmap f \o fmap g;
+}.
+```
+
+<br>
+
+However, we cannot take fixed-points of such functors due to the strict positivity requirement.
+
+<br>
+
+```coq
+Fail Inductive LFix (F : Type -> Type) := LFix_in { LFix_out : F (LFix F) }.
+
+The command has indeed failed with message:
+Non strictly positive occurrence of "LFix" in "F (LFix F) -> LFix F".
+```
+
+---
+### Containers (first attempt)
+
+We use containers to represent strictly positive types. These are equivalent to polynomial functors.
+
+<br>
 
 Containers are defined by a pair of a type of shapes `Sh`, and a family
 of positions in this shape `Pos`. 
+
+<br>
+<br>
+
+```coq
+Variable Shape : Type.
+Variable Position : Shape -> Type.
+```
+
+<br>
+
+Given a container, its **extension** (defined below) is a functor. 
+
+<br>
+
+```coq
+Record App (X : Type) :=
+  MkCont
+    { shape : Shape;
+      contents : Position shape -> X
+    }.
+
+Definition fmap (f : A -> B) (x : App A) : App B
+  := MkCont (shape x) (fun e => f (contents x e))
+```
+
+---
+### Problems with Extracting and Reasoning about Containers
+
++ Reasoning about container equality
+
+```coq [2,4]
+k : Pos C s -> X
+P1, P2 : valid s p
+---------------------------
+k (ValidPos p P1) = k (ValidPos p P2)
+```
+
+<br><br>
+
++ Extracting type families to OCaml leads to unsafe casts with `Obj.magic`
+
+```ocaml [4]
+let outT x =
+  let { shape = s; cont = p } = x in
+  (match s with
+   | Some x0 -> Some (Pair ((Pair (x0, (Obj.magic p True))), (Obj.magic p False)))
+   | None -> None)
+```
+
+
+
+---
+### Extractable Containers
+
 
 <br>
 
@@ -385,14 +663,10 @@ Record Pos `{Cont Sh P} (s : Sh) :=
       val : P;
       Valid : valid (s, val)
     }.
-
-
 ```
 
 ---
-### Containers and Functors
-
-Given a container `F`, its  **extension** (defined below) is a functor. 
+### Container Extensions (Functors)
 
 ```coq
 Record App `{F : Cont Sh P} (X : Type) :=
@@ -402,11 +676,237 @@ Record App `{F : Cont Sh P} (X : Type) :=
     }.
 ```
 
+<br><br>
+
++ Coq can now extract `Pos s` equivalently to `P`
++ We can also use the UIP for proofs of the form `valid(s, val) = true`, thanks
+  to the decidability of boolean equality proofs.
+
+---
+### Equality of Container Extensions
+
+```coq
+Inductive AppR `{F : Cont Sh P} (X : Type) {e : setoid X}
+           (x y : App F X) : Prop :=
+  | AppR_ext
+      (Es : shape x =e shape y)
+      (Ek : forall e1 e2, val e1 = val e2 -> cont x e1 =e cont y e2).
+```
+
+---
+### Fixed-points of Container Extensions
+
+```coq
+Inductive LFix  : Type := LFix_in { LFix_out : App F LFix }.
+
+Definition l_in : App F (LFix F) ~> LFix F := (* *)
+Definition l_out : LFix F ~> App F (LFix F) := (* *)
+
+Lemma l_in_out : l_in \o l_out =e id.
+Lemma l_out_in : l_out \o l_in =e id.
+```
+
 ---
 ## Mechanising Hylomorphisms in Coq
 
 ---
+### Recursive coalgebras
+
+```coq
+Inductive RecF `{setoid A} (h : Coalg F A) : A -> Prop :=
+  | RecF_fold x : (forall e, RecF h (cont (h x) e)) -> RecF h x.
+
+Structure RCoalg `{eA : setoid A} :=
+  Rec {
+      coalg :> Coalg F A;
+      recP : RecP coalg
+    }.
+```
+
+<br><br>
+
+We provide mechanisms for defining recursive coalgebras, if they respect a
+well-founded relation.
+
+```coq
+Lemma wf_coalg_rec `{setoid A} {B}
+  (m : A -> B) (R : B -> B -> Prop) (WF : well_founded R)
+  (c : Coalg F A) (RR : respects_relation c m R) : RecP c.
+(**)
+Defined.
+```
+
+---
+### Hylomorphisms in Coq
+
+```coq
+Definition hylo_def (a : Alg F B) (c : Coalg F A) : forall (x : A), RecF c x -> B
+ := fix f x H :=
+      match c x as h return (forall e : Pos (shape h), RecF c (cont h e)) -> B with 
+        | MkApp s_x c_x => fun H => a (MkApp s_x (fun e => f (c_x e) (H e)))
+      end (RecF_inv H).
+```
+
+---
+### Hylomorphism Properties
+
+Recursive hylomorphisms satisfy the following universal property:
+
+<br>
+
+```coq
+Lemma hylo_univ (g : Alg F B) (h : RCoalg F A) (f : A ~> B) 
+  : f =e hylo g h <-> f =e g \o fmap f \o h.
+(* *)
+Qed.
+```
+
+<br><br>
+
+Some useful corollaries:
+<br>
+```coq
+Lemma hylo_fusion_l (h1 : RCoalg F A) (g1 : Alg F B) (g2 : Alg F C)
+  (f2 : B ~> C) (E2 : f2 \o g1 =e g2 \o fmap f2)
+  : f2 \o hylo g1 h1 =e hylo g2 h1.
+Proof.
+(**)
+Qed.
+
+Lemma deforest (h1 : RCoalg F A) (g2 : Alg F C)
+  (g1 : Alg F B) (h2 : RCoalg F B) (INV: h2 \o g1 =e id)
+  : hylo g2 h2 \o hylo g1 h1 =e hylo g2 h1.
+Proof.
+(**)
+Qed.
+```
+
+---
 ## Example
+
+---
+### Specifying the Behaviour
+
+```coq
+Record Ext (f : A ~> B) :=
+  MkExt
+    { target :> A -> B;
+      tgt_eq : app f =e target;
+    }.
+```
+
+---
+### Quicksort Hylomorphism in Coq 
+
+##### merge
+
+```coq
+Definition merge : App (TreeF unit int) (list int) ~> list int.
+|{ x : (App (TreeF unit int) (list int)) ~>
+           match x with
+           | MkCont sx kx =>
+               match sx return (Container.Pos sx -> _) -> _ with
+               | Leaf _ _ => fun _ => nil
+               | Node _ h => fun k => List.app (k (posL h)) (h :: k (posR h))
+               end kx
+           end
+}|.
+Defined.
+```
+
+---
+### Quicksort Hylomorphism in Coq 
+
+##### split
+
+```coq
+Definition c_split : Coalg (TreeF unit int) (list int).
+|{ x ~> match x with
+        | nil => a_leaf tt
+        | cons h t =>
+            let (l, r) := List.partition (fun x => x <=? h) t in
+            a_node h l r
+        end
+}|.
+Defined.
+```
+
+---
+### Quicksort Hylomorphism in Coq 
+
+##### proving that c_split terminates
+
+```coq
+Lemma split_fin : respects_relation c_split (@length int) lt.
+Proof.
+(**)
+Qed.
+
+Definition tsplit : RCoalg (TreeF unit int) (list int)
+  := mk_wf_coalg wf_lt split_fin.
+```
+
+---
+### Quicksort Hylomorphism in Coq 
+
+##### Extraction
+
+```coq
+Definition qsort : Ext (cata merge \o rana tsplit).
+  calculate.
+  rewrite cata_ana_hylo.
+  simpl; reflexivity.
+Defined.
+```
+
+<br><br>
+
+```ocaml
+let rec qsort = function
+  | [] -> [] 
+  | h :: t ->
+    let (l, r) = partition (fun x0 -> leb x0 h) t in
+    let x0 = fun e -> qsort (match e with | Lbranch -> l | Rbranch -> r) in
+    app (x0 Lbranch) (h :: (x0 Rbranch))
+```
+
+---
+### Quicksort Hylomorphism in Coq 
+
+##### fusing a subsequent traversal
+
+```coq
+Definition qsort_times_two
+  : Ext (Lmap times_two \o cata merge \o rana tsplit).
+(*... applying hylo_fusion ... *)
+Qed.
+```
+
+<br><br>
+
+```ocaml
+let rec qsort_times_two = function 
+  | [] -> []
+  | h :: t ->
+      let (l, r) = partition (fun x0 -> leb x0 h) t in
+      let x0 = fun p -> qsort_times_two (match p with | Lbranch -> l | Rbranch -> r) in
+      app (x0 Lbranch) ((mul (Uint63.of_int (2)) h) :: (x0 Rbranch))
+```
+
+---
+## Wrap-up
+
+* (Recursive) Hylomorphisms in Coq.
+* Hylomorphism Laws enable program optimisations as Coq tactics.
+* Reasonable code extraction despite the extensive use of type families/indices in containers.
+
+<br><br>
+
+**Future work:**
+* Side effects
+* N-ary containers
+* Improve Coq's code extraction (inlining!)
+* Deal with the "Setoid hell"
 
     </textarea>
 </section>
