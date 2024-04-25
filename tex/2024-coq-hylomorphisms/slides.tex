@@ -1,0 +1,263 @@
+\documentclass[compress,usepdftitle=false,xcolor=pdftex,svgnames,table,aspectratio=169]{beamer}
+
+% Notes
+% \usepackage{pgfpages}
+% \setbeameroption{show notes on second screen=right}
+
+%\definecolor{bluegreen}{RGB}{3, 166, 155}
+%\definecolor{pitchblack}{RGB}{0, 0, 0}
+%\definecolor{lightbeige}{RGB}{255, 251, 241}
+%\definecolor{mediumgray}{RGB}{183, 183, 183}
+
+%\setbeamercolor{background canvas}{bg=pitchblack}
+\setbeamercolor{normal text}{fg=black}
+\setbeamercolor{frametitle}{bg=LightGrey, fg=black}
+\setbeamercolor{title}{fg=black, bg=white}
+\definecolor{blockcolor}{RGB}{250, 250, 200}
+\setbeamercolor{block}{fg=black, bg=blockcolor}
+\setbeamercolor{sticky}{fg=black, bg=blockcolor}
+%\usetheme{plain}
+%\useoutertheme[subsection=false]{miniframes}
+\usefonttheme{professionalfonts}
+%%\setbeamercolor{section in head/foot}{fg=white, bg=black}
+%% \setbeamercolor{mini frame}{fg=white, bg=black}
+\usebeamercolor[fg]{title in head/foot}
+\usefonttheme[onlylarge]{structurebold}
+\setbeamerfont*{frametitle}{size=\normalsize,series=\bfseries}
+\setbeamertemplate{navigation symbols}{}
+%%\setbeamertemplate{headline}[miniframes theme]{}
+%\setbeamertemplate{footline}[default]
+%\defbeamertemplate{footline}{centered page number}
+%{%
+%  \hspace*{\fill}%
+%  \usebeamercolor[fg]{page number in head/foot}%
+%  \usebeamerfont{page number in head/foot}%
+%  \insertpagenumber\,/\,\insertpresentationendpage%
+%  \hspace*{\fill}\vskip2pt%
+%}
+%\setbeamertemplate{footline}[centered page number]
+\setbeamertemplate{footline}[frame number]
+\setbeamertemplate{bibliography entry title}{}
+\setbeamertemplate{bibliography entry location}{}
+\setbeamertemplate{bibliography entry note}{}
+
+%\setbeamercolor{background canvas}{bg=LightGrey}
+
+\makeatletter
+\setbeamertemplate{title page}[default][left,colsep=-4bp,rounded=true]
+\makeatother
+\setbeamerfont{frametitle}{size=\LARGE}
+\setbeamerfont{title}{size=\Huge}
+\setbeamerfont{author}{size=\Large}
+\setbeamerfont{institute}{size=\large}
+
+\setbeamercolor*{block title alerted}{fg=black, bg=red!40}
+\setbeamercolor*{block body alerted}{fg=black, bg=red!25}
+\setbeamerfont{alerted text}{series=\bfseries}
+\setbeamercolor{alerted text}{fg=blue, bg=white}
+
+\setbeamercolor*{block title example}{fg=blue!50, bg=blue!10}
+\setbeamercolor*{block body example}{fg= blue, bg=blue!5}
+
+\newcommand\mailto[1]{\href{mailto: #1}{#1}}
+
+\newcommand\redbf[1]{{\color{red}\textbf{#1}}}
+
+\setbeamertemplate{itemize item}{\scriptsize\raise1.25pt\hbox{\textbullet}}
+\setbeamertemplate{itemize subitem}{\tiny\raise1.5pt\hbox{\textbf{--}}}
+\setbeamertemplate{itemize subsubitem}{\tiny\raise1.5pt\hbox{\textbf{--}}}
+\setbeamertemplate{enumerate item}{\insertenumlabel.}
+\setbeamertemplate{enumerate subitem}{\insertenumlabel.\insertsubenumlabel}
+\setbeamertemplate{enumerate subsubitem}{\insertenumlabel.\insertsubenumlabel.\insertsubsubenumlabel}
+\setbeamertemplate{enumerate mini template}{\insertenumlabel}
+\setbeamercolor{itemize item}{fg=gray}
+\setbeamercolor{itemize subitem}{fg=gray}
+\setbeamercolor{itemize subsubitem}{fg=gray}
+
+\newcommand{\highl}[1]{%
+  \colorbox{yellow!30}{$\displaystyle#1$}}
+
+\usepackage{tikz}
+  \usetikzlibrary{calc,decorations.pathreplacing,
+    decorations.pathmorphing,
+    decorations.markings,
+    shapes, fit,
+    arrows.meta
+    }
+  \usetikzlibrary{cd}
+  \usetikzlibrary{positioning}
+  \usetikzlibrary{arrows}
+
+\tikzset{
+    arrow at end/.style={
+        decorate,decoration={
+            markings,
+            mark=at position .999 with{
+                \arrow{#1};
+            }
+        }
+    }
+}
+
+\usepackage[skins]{tcolorbox}
+
+\newtcolorbox{sticky}[1][]
+{%
+  enhanced,
+  center upper,
+  fontupper=\strut,
+  drop fuzzy shadow southeast,
+  boxrule=0pt,
+  sharp corners,
+  colframe=yellow!80!black,
+  colback=yellow!10,
+  #1
+}
+
+\newtcolorbox{infobox}[1][]
+{%
+  enhanced,
+  %center upper,
+  %drop fuzzy shadow southeast,
+  boxrule=0.4pt,
+  sharp corners,
+  colframe=red!80!black,
+  colback=red!10,
+  #1
+}
+
+\newtcolorbox{bluebox}[1][]
+{%
+  enhanced,
+  %center upper,
+  %drop fuzzy shadow southeast,
+  boxrule=0.4pt,
+  sharp corners,
+  colframe=blue!80!black,
+  colback=blue!10,
+  #1
+}
+
+\newtcolorbox{greenbox}[1][]
+{%
+  enhanced,
+  %center upper,
+  %drop fuzzy shadow southeast,
+  boxrule=0pt,
+  sharp corners,
+  colframe=green!80!black,
+  colback=green!10,
+  #1
+}
+\usepackage{microtype}
+\newsavebox\CBox
+\newcommand<>*\textBF[1]{\sbox\CBox{#1}\resizebox{\wd\CBox}{\ht\CBox}{\textbf#2{#1}}}
+\usepackage{tabularx}
+\usepackage[framemethod=TikZ]{mdframed}
+
+\newmdenv[
+  topline=false,
+  bottomline=false,
+  rightline=false,
+  skipabove=\topsep,
+  skipbelow=\topsep,
+  linewidth=1pt,
+  linecolor=cyan
+]{titlerule}
+
+\setbeamertemplate{frametitle}{%
+  \begin{titlerule}
+    \usebeamerfont{frametitle}\insertframetitle\strut%
+    \vskip-.2\baselineskip%
+    % \leaders\vrule width \paperwidth\vskip0.4pt%
+    \vskip0pt%
+    \nointerlineskip
+  \end{titlerule}
+}
+
+
+%% Terms
+\newcommand\aWrap[1]{#1}
+\newcommand\aConst[1]{\kw{const} \; #1}
+\newcommand\aId{\kw{id}}
+\newcommand\aComp{\mathbin{\circ}}
+\newcommand\aProj[1]{\pi_{#1}}
+\newcommand\aSplit{\mathbin{\vartriangle}}
+\newcommand\aInj[1]{\kw{inj}_{#1}}
+\newcommand\aCase{\mathbin{\triangledown}}
+\newcommand\aIn{\kw{in}}
+\newcommand\aOut{\kw{out}}
+\newcommand\aRec{\kw{rec}}
+
+\newcommand\mSend{\mathtt{send}}
+\newcommand\mRecv{\mathtt{recv}}
+\newcommand\mRet{\mathtt{return}}
+\newcommand\mBind{\mathbin{{\tt >}\!\!{\tt >}\!{\tt =}}}
+\newcommand\mComp{\mathbin{{\tt >}\!\!{\tt =}\!\!{\tt >}}}
+\newcommand\mPar{\mathbin{\wedge}}
+\newcommand\mChoice{\mathtt{choice}}
+\newcommand\mBranch{\mathtt{branch}}
+
+\newcommand\WF{\mathsf{WF}}
+\newcommand\pexp{\text{\color{blue}{\tt e}}}
+\newcommand\Gen[1]{\left\llbracket #1 \right\rrbracket}
+\newcommand\AT{\text{\tt @}}
+
+\newcommand\lSend[1]{!\langle #1 \rangle}
+\newcommand\lRecv[1]{?(#1)}
+
+
+\definecolor{dgreen}{RGB}{0,160,0}
+
+\renewcommand\UrlFont{\color{red}\rmfamily\itshape}
+
+\newcommand\vc[1]{\mathsf{#1}}
+
+\usepackage{bm}
+  \newcommand\role[1]{\mathsf{\bm{#1}}}
+  \newcommand\kw[1]{\mathtt{#1}}
+  \newcommand\kww[1]{\bm{\mathsf{#1}}}
+  \newcommand\size[1]{\mathsf{#1}}
+  \newcommand\crecv{c_{\mathsf{i}}}
+  \newcommand\cost{C}
+  \newcommand\Time{\mathcal{T}}
+  \newcommand\Queue{\mathcal{Q}}
+  \newcommand\addcost{\hookrightarrow}
+  \newcommand\hasCost{\diamond}
+  \newcommand\csend{c_{\mathsf{o}}}
+  \newcommand\gMsgt{\rightsquigarrow}
+  \newcommand\gMsg{\to}
+  \newcommand\gFix{\mu}
+  \newcommand\gEnd{\kw{end}}
+  \newcommand\act{\alpha}
+  \newcommand\unroll{\mathsf{unfold}}
+  \newcommand\tRun{{\diamond}}
+  % \newcommand{\rulename}[1]{\lbrack \text{#1}\rbrack}
+  \newcommand\tSend{\mathbin{!}}
+  \newcommand\tRecv{\mathbin{?}}
+  \newcommand\tSelect{\mathbin{\oplus}}
+  \newcommand\tBranch{\mathbin{\&}}
+  \newcommand\gEval{\tRun}
+  \newcommand\gTy[1]{ : \{#1\}}
+
+\titlegraphic{%
+  \begin{picture}(382,0)
+    {\put(140,-10){\includegraphics[width=4cm]{figures/UoK_Logo.jpg}}}
+  \end{picture}
+  }
+
+\title{Dynamically Updatable Multiparty Session Protocols}
+\subtitle{Generating Concurrent Go Code from Unbounded Protocols}
+\author{\small\textbf{David Castro-Perez} and Nobuko Yoshida}
+\institute{\mailto{d.castro-perez@kent.ac.uk}}
+\date{%\put(0,-60){
+  \textbf{ECOOP23} \hspace{.2cm} 19-07-2023
+%}
+}
+
+\input{macros}
+
+\begin{document}
+\frame[plain]{\titlepage}
+\input{parts/contents.tex}
+\end{document}

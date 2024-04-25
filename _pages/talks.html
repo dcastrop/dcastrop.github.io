@@ -24,6 +24,8 @@ author_profile: true
   <br>
   {% if post.slides %}
     <a href="{{ base_path }}{{ post.url }}" rel="permalink">[slides]</a>
+  {% elsif post.pdf %}
+    <a href="{{ post.pdf | relative_url     }}">[slides]</a>
   {% endif %}
   <br><br>
 {% endfor %}
