@@ -82,7 +82,7 @@
     decorations.pathmorphing,
     decorations.markings,
     shapes, fit,
-    arrows.meta
+    arrows.meta, tikzmark
     }
   \usetikzlibrary{cd}
   \usetikzlibrary{positioning}
@@ -240,18 +240,19 @@
   \newcommand\gEval{\tRun}
   \newcommand\gTy[1]{ : \{#1\}}
 
+\usepackage{minted}
+
 \titlegraphic{%
   \begin{picture}(382,0)
-    {\put(140,-10){\includegraphics[width=4cm]{figures/UoK_Logo.jpg}}}
+    {\put(220,-10){\includegraphics[width=4cm]{figures/UoK_Logo.jpg}}}
   \end{picture}
   }
 
-\title{Dynamically Updatable Multiparty Session Protocols}
-\subtitle{Generating Concurrent Go Code from Unbounded Protocols}
-\author{\small\textbf{David Castro-Perez} and Nobuko Yoshida}
+\title{Mechanising Recursion Schemes with Magic-Free Coq Extraction}
+\author{\small\textbf{David Castro-Perez}, Marco Paviotti, and Michael Vollmer}
 \institute{\mailto{d.castro-perez@kent.ac.uk}}
 \date{%\put(0,-60){
-  \textbf{ECOOP23} \hspace{.2cm} 19-07-2023
+  02-05-2024
 %}
 }
 

@@ -1,4 +1,6 @@
+_minted-slides
 *.nav
+*.vrb
 *.out
 *.snm
 *.toc

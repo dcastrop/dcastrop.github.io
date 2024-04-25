@@ -1,0 +1,16 @@
+\newcommand{\embf}[1]{\emph{\textbf{#1}}}
+\newcommand{\mhask}[1]{\text{\mintinline{Haskell}{#1}}}
+\newmintinline[haskell]{haskell}{fontsize=\small}
+\newmintinline[coq]{coq}{fontsize=\small}
+\newmintinline[ocaml]{OCaml}{fontsize=\small}
+\newminted{coq}{fontsize=\small}
+\newminted{ocaml}{fontsize=\small}
+\newminted{haskell}{fontsize=\small}
+
+
+\newcommand\blfootnote[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
