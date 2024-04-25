@@ -77,7 +77,7 @@ fold a = a . fmap (fold a) . inOp
     \node[rectangle, rounded corners, fill=yellow!80!black] at (3.2,4) 
     {\begin{tabular}{@{}c@{}}
       Least Fixed-Point  \\
-      $\mhask{Fix f} \equiv \mhask{f (Fix f)}$
+      $\mhask{Fix f} \cong \mhask{f (Fix f)}$
     \end{tabular}}; 
   \end{tikzpicture}
   \end{onlyenv}
@@ -214,13 +214,13 @@ fold a = a?\tikzmark{fhalg1}? . fmap (fold a) . inOp?\tikzmark{fhcoalg1}?
 
  \begin{itemize}
    \item There is a correspondence of arrows 
-     $\lfloor\cdot\rfloor : \mathsf{Hom}_{\mathcal{D}}(L\, A,B) \equiv 
+     $\lfloor\cdot\rfloor : \mathsf{Hom}_{\mathcal{D}}(L\, A,B) \cong 
      \mathsf{Hom}_{\mathcal{C}}(A,R\, B) : \lceil\cdot\rceil$.
    \item An initial algebra on the right corresponds to an universal property
-     on the left ($\mu F \equiv F \mu F$):
+     on the left ($\mu F \cong F \mu F$):
      {\large
      \[
-       \mathsf{Hom}_{\mathcal{D}}(L\, \mu F, B) \equiv \mathsf{Hom}_{\mathcal{C}}(\mu F,R\, B)
+       \mathsf{Hom}_{\mathcal{D}}(L\, \mu F, B) \cong \mathsf{Hom}_{\mathcal{C}}(\mu F,R\, B)
      \]}
  \end{itemize}
 \end{frame}
