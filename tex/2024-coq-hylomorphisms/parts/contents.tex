@@ -164,7 +164,7 @@ hylo a c = a ?\tikzmark{halg1}? . fmap (hylo a c) . c ?\tikzmark{hcoalg1}?
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Example I: Folds as Hylomorphisms}
+  \frametitle{Folds as Hylomorphisms}
   \centering
   
   \begin{columns}
@@ -212,41 +212,29 @@ fold a = a?\tikzmark{fhalg1}? . fmap (fold a) . inOp?\tikzmark{fhcoalg1}?
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Example II: Nonstructural Recursion}
+  \frametitle{Example: Nonstructural Recursion}
   \centering
 
   \begin{columns}
-    \begin{column}{.4\textwidth}
+    \begin{column}{.5\textwidth}
       \begin{minted}[escapeinside=??, fontsize=\scriptsize]{Haskell}
 data TreeF a b = Leaf |  Node b a b
 
-instance Functor (TreeF a) where
-  fmap f Leaf = Leaf
-  fmap f (Node l x r) = Node (f l) x (f r)
-
-split :: [Int] -> TreeF Int [Int]?\tikzmark{qscoalg1}?
-split [] = Leaf
+split [] = Leaf?\tikzmark{qscoalg1}?
 split (h : t) = Node l h r
   where
     (l, r) = partition (\x -> x < h) t
 
-merge :: TreeF Int ([Int] -> [Int]) ->?\tikzmark{qsalg1}?
-         [Int] -> [Int]
 merge Leaf = \acc -> acc
-merge (Node l x r) = \acc -> l (x : r acc)
-
-qsort :: [Int] -> [Int]
-qsort = flip f []
-  where 
-    f = hylo merge split
+merge (Node l x r) = \acc -> l (x : r acc)?\tikzmark{qsalg1}?
       \end{minted}
     \end{column}
     \begin{column}{.47\textwidth}\scriptsize
       \begin{tikzcd}
-        \tikzmark{qscoalg2}\mhask{TreeF Int [Int]} \arrow[r, dotted] 
+        \tikzmark{qscoalg2}\mhask{TreeF Int [Int]} \arrow[r, dotted, "\mhask{fmap qsort}"] 
         & \mhask{TreeF Int ([Int] -> [Int])} \arrow[d, "\mhask{merge}"] 
         \\
-        \mhask{[Int]} \arrow[u, "\mhask{split}"] \arrow[r, dotted] 
+        \mhask{[Int]} \arrow[u, "\mhask{split}"] \arrow[r, dotted, "\mhask{qsort}"] 
         & \mhask{[Int] -> [Int]}\tikzmark{qsalg2}
 \end{tikzcd}
     \end{column}
@@ -275,35 +263,44 @@ qsort = flip f []
   \end{onlyenv}
 \end{frame}
 
-\begin{frame}[fragile]
-  \frametitle{Adjoint Folds}
-  Given an adjunction:
+% \begin{frame}[fragile]
+%   \frametitle{Adjoint Folds}
+%   Given an adjunction:
+% 
+%   \begin{center}\LARGE
+%   \begin{tikzcd}
+%     \mathcal{D} \arrow[r, swap, "\mathsf{R}"{name=G}, bend right=25] &
+%     \mathcal{C} \arrow[l, swap, "\mathsf{L}"{name=F}, bend right=25]
+%     \arrow[phantom, from=F, to=G, "\dashv" rotate=-90]
+%   \end{tikzcd}
+%   \end{center}
+% 
+%  \begin{itemize}
+%    \item There is a correspondence of arrows 
+%      $\lfloor\cdot\rfloor : \mathsf{Hom}_{\mathcal{D}}(L\, A,B) \cong 
+%      \mathsf{Hom}_{\mathcal{C}}(A,R\, B) : \lceil\cdot\rceil$.
+%    \item An initial algebra on the right corresponds to an universal property
+%      on the left:
+%      {\large
+%      \[
+%        \mathsf{Hom}_{\mathcal{D}}(L\, \mu F, B) \cong \mathsf{Hom}_{\mathcal{C}}(\mu F,R\, B)
+%      \]}\blfootnote{$\mu$ analogous to Haskell's \haskell{Fix}}\blfootnote{$F$
+%      is an endofunctor in $\mathcal{C}$}\blfootnote{$L$, $R$ are functors
+%      between $\mathcal{C}$ \& $\mathcal{D}$; the \emph{left} and \emph{right}
+%      adjoints.}
+%  \end{itemize}
+% \end{frame}
+%  %\arrow[phantom, from=F, to=G, "\dashv" rotate=-90, no line]
 
-  \begin{center}\LARGE
-  \begin{tikzcd}
-    \mathcal{D} \arrow[r, swap, "\mathsf{R}"{name=G}, bend right=25] &
-    \mathcal{C} \arrow[l, swap, "\mathsf{L}"{name=F}, bend right=25]
-    \arrow[phantom, from=F, to=G, "\dashv" rotate=-90]
-  \end{tikzcd}
-  \end{center}
+% NOTES:
+% - Every complex recursion scheme is an hylomorphism via its associated
+%   adjunction/conjugate pair 
 
- \begin{itemize}
-   \item There is a correspondence of arrows 
-     $\lfloor\cdot\rfloor : \mathsf{Hom}_{\mathcal{D}}(L\, A,B) \cong 
-     \mathsf{Hom}_{\mathcal{C}}(A,R\, B) : \lceil\cdot\rceil$.
-   \item An initial algebra on the right corresponds to an universal property
-     on the left:
-     {\large
-     \[
-       \mathsf{Hom}_{\mathcal{D}}(L\, \mu F, B) \cong \mathsf{Hom}_{\mathcal{C}}(\mu F,R\, B)
-     \]}\blfootnote{$\mu$ analogous to Haskell's \haskell{Fix}}\blfootnote{$F$
-     is an endofunctor in $\mathcal{C}$}\blfootnote{$L$, $R$ are functors
-     between $\mathcal{C}$ \& $\mathcal{D}$; the \emph{left} and \emph{right}
-     adjoints.}
- \end{itemize}
-\end{frame}
- %\arrow[phantom, from=F, to=G, "\dashv" rotate=-90, no line]
+% - (e.g) folds with parameters (accumulators) use the curry/uncurry adjunction 
 
+% - a recursion scheme from comonads (RSFCs, Uustalu, Vene, Pardo, 2001) is an
+%   conjugate hylomorphism via the coEilemberg-Moore category for the cofree
+%   comonad.
 \begin{frame}[fragile]
   \frametitle{Conjugate Hylomorphisms}
   \centering
