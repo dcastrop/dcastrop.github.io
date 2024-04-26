@@ -55,10 +55,11 @@ foldr g b (x : xs) = g x (foldr g b xs)
 data Fix f = In { inOp :: f (Fix f) }
 
 fold :: Functor f =>
-          (f x -> x) -> ?\tikzmark{alg1}?
+          (f x -> x) -> 
           Fix f -> 
           x
-fold a = a . fmap (fold a) . inOp
+fold a = f
+    where f (In?\tikzmark{algIni1}? x) = (a?\tikzmark{alg1}? . fmap f) x
       \end{minted}
     \end{column}
     \begin{column}{.37\textwidth}
@@ -66,31 +67,41 @@ fold a = a . fmap (fold a) . inOp
         \mhask{f (Fix f)} \arrow[r, dotted] \arrow[d, "\mhask{In}"] 
         & \mhask{f x} \arrow[d, "\mhask{a}"] 
         \\
-        \mhask{Fix f} \arrow[r, dotted] 
+        \mhask{Fix f}\tikzmark{algIni2} \arrow[r, dotted] 
         & \mhask{x}\tikzmark{alg2}
 \end{tikzcd}
     \end{column}
   \end{columns}
 
   \begin{onlyenv}<2>
-  \begin{tikzpicture}[overlay,remember picture]
-    \node[rectangle, rounded corners, fill=yellow!80!black] at (3.2,4) 
+  \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
+    \node[rectangle, rounded corners, fill=yellow!80!black] at (11,6.5) 
     {\begin{tabular}{@{}c@{}}
       Least Fixed-Point  \\
       $\mhask{Fix f} \cong \mhask{f (Fix f)}$
     \end{tabular}}; 
   \end{tikzpicture}
   \end{onlyenv}
-
   \begin{onlyenv}<3>
-  \begin{tikzpicture}[overlay,remember picture]
-    \node[rectangle, rounded corners, fill=yellow!80!black] at (9,0) (a) 
+  \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
+    \node[rectangle, rounded corners, fill=yellow!80!black] at (10,1) (a) 
       {\haskell{f}-algebra}; 
 
     \draw[overlay, yellow!80!black, arrows=->, line width=.5mm]
       (a.west) -- (pic cs:alg1);
     \draw[overlay, yellow!90!black, arrows=->, line width=.5mm]
       (a.east) -- ($(pic cs:alg2) + (-.1, -.2)$);
+  \end{tikzpicture}
+  \end{onlyenv}
+  \begin{onlyenv}<4>
+  \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
+    \node[rectangle, rounded corners, fill=yellow!80!black] at (7,1) (a) 
+      {initial \haskell{f}-algebra}; 
+
+    \draw[overlay, yellow!80!black, arrows=->, line width=.5mm]
+      (a) -- (pic cs:algIni1);
+    \draw[overlay, yellow!90!black, arrows=->, line width=.5mm]
+      (a) -- ($(pic cs:algIni2) + (-.8, -.2)$);
   \end{tikzpicture}
   \end{onlyenv}
 \end{frame}
@@ -104,10 +115,10 @@ fold a = a . fmap (fold a) . inOp
     \begin{column}{.52\textwidth}
       \begin{minted}[escapeinside=??]{Haskell}
 hylo :: Functor f =>
-          (f b -> b) -> ?\tikzmark{halg1}?
-          (a -> f a) -> ?\tikzmark{hcoalg1}?
+          (f b -> b) -> 
+          (a -> f a) -> 
           a -> b
-hylo a c = a . fmap (hylo a c) . c
+hylo a c = a ?\tikzmark{halg1}? . fmap (hylo a c) . c ?\tikzmark{hcoalg1}?
       \end{minted}
     \end{column}
     \begin{column}{.37\textwidth}
@@ -121,33 +132,33 @@ hylo a c = a . fmap (hylo a c) . c
     \end{column}
   \end{columns}
 
-  \begin{onlyenv}<2>
+  \begin{onlyenv}<3>
   \begin{tikzpicture}[overlay,remember picture]
     \node[rectangle, rounded corners, fill=yellow!80!black] at (2,-1) (ha) 
       {\begin{tabular}{@{}c@{}}
         \haskell{f}-algebra \\
-        (``divide'')
+        ``conquer''
       \end{tabular}}; 
 
     \draw[overlay, yellow!90!black, arrows=->, line width=.5mm]
-      (ha.west) -- (pic cs:halg1);
+      (ha) -- (pic cs:halg1);
     \draw[overlay, yellow!90!black, arrows=->, line width=.5mm]
-      (ha.east) -- ($(pic cs:halg2) + (-.1, -.2)$);
+      (ha) -- ($(pic cs:halg2) + (-.1, -.2)$);
   \end{tikzpicture}
   \end{onlyenv}
 
-  \begin{onlyenv}<3>
+  \begin{onlyenv}<2>
   \begin{tikzpicture}[overlay,remember picture]
     \node[rectangle, rounded corners, fill=yellow!80!black] at (9,-1.5) (hc) 
       {\begin{tabular}{@{}c@{}}
         \haskell{f}-coalgebra \\
-        (``conquer'')
+        ``divide''
       \end{tabular}}; 
 
     \draw[overlay, yellow!90!black, arrows=->, line width=.5mm]
-      (hc.west) -- (pic cs:hcoalg1);
+      (hc) -- (pic cs:hcoalg1);
     \draw[overlay, yellow!90!black, arrows=->, line width=.5mm]
-      (hc.north) -- ($(pic cs:hcoalg2) + (-.1, -.2)$);
+      (hc) -- ($(pic cs:hcoalg2) + (-.1, -.2)$);
   \end{tikzpicture}
   \end{onlyenv}
 \end{frame}
@@ -217,11 +228,14 @@ fold a = a?\tikzmark{fhalg1}? . fmap (fold a) . inOp?\tikzmark{fhcoalg1}?
      $\lfloor\cdot\rfloor : \mathsf{Hom}_{\mathcal{D}}(L\, A,B) \cong 
      \mathsf{Hom}_{\mathcal{C}}(A,R\, B) : \lceil\cdot\rceil$.
    \item An initial algebra on the right corresponds to an universal property
-     on the left ($\mu F \cong F \mu F$):
+     on the left:
      {\large
      \[
        \mathsf{Hom}_{\mathcal{D}}(L\, \mu F, B) \cong \mathsf{Hom}_{\mathcal{C}}(\mu F,R\, B)
-     \]}
+     \]}\blfootnote{$\mu$ analogous to Haskell's \haskell{Fix}}\blfootnote{$F$
+     is an endofunctor in $\mathcal{C}$}\blfootnote{$L$, $R$ are functors
+     between $\mathcal{C}$ \& $\mathcal{D}$; the \emph{left} and \emph{right}
+     adjoints.}
  \end{itemize}
 \end{frame}
  %\arrow[phantom, from=F, to=G, "\dashv" rotate=-90, no line]
@@ -246,18 +260,20 @@ fold a = a?\tikzmark{fhalg1}? . fmap (fold a) . inOp?\tikzmark{fhcoalg1}?
     \item Structured Recursion Schemes have been used in Haskell to structure
       functional programs, but they do not ensure termination/productivity
     \item On the other hand, Coq does not capture all recursive definitions
-    \item The benefits of formalising hylos in Coq is two fold:
+    \item The benefits of formalising hylos in Coq is three fold:
       \begin{itemize}
-        \item Giving the Coq programmer a library where for most recursion
-          schemes they do not have to prove termination properties
-        \item Extracting code into ML/Haskell to provide termination guarantees
-          even in languages with non-termination
+        \item Giving the Coq programmer a \embf{library} where for most
+          recursion schemes they do not have to prove termination properties
+        \item \embf{Extracting code} into ML/Haskell to provide termination
+          guarantees even in languages with non-termination
+        \item Using the laws of hylomorphisms as tactics for \embf{program
+          calculation} and \embf{optimisation}
       \end{itemize}
   \end{itemize}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Goals}
+  \frametitle{Challenges}
   \begin{enumerate}
     \item Avoiding axioms: functional extensionality, heterogeneous equality,
       \ldots.
@@ -269,7 +285,7 @@ fold a = a?\tikzmark{fhalg1}? . fmap (fold a) . inOp?\tikzmark{fhcoalg1}?
   \vspace{.5cm}
   
   \uncover<2->{%
-    Solutions (the remainder of this talk):
+    Our solutions (the remainder of this talk):
     \begin{enumerate}
       \item<2-> Machinery for building setoids, use of decidable predicates, \ldots
       \item<3-> Avoiding type families and indexed types.
