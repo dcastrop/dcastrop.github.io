@@ -216,7 +216,7 @@ fold a = a?\tikzmark{fhalg1}? . fmap (fold a) . inOp?\tikzmark{fhcoalg1}?
   \centering
 
   \begin{columns}
-    \begin{column}{.5\textwidth}
+    \begin{column}{.38\textwidth}
       \begin{minted}[escapeinside=??, fontsize=\scriptsize]{Haskell}
 data TreeF a b = Leaf |  Node b a b
 
@@ -229,8 +229,8 @@ merge Leaf = \acc -> acc
 merge (Node l x r) = \acc -> l (x : r acc)?\tikzmark{qsalg1}?
       \end{minted}
     \end{column}
-    \begin{column}{.47\textwidth}\scriptsize
-      \begin{tikzcd}
+    \begin{column}{.59\textwidth}\scriptsize
+      \begin{tikzcd}[nodes={column sep=5em}]
         \tikzmark{qscoalg2}\mhask{TreeF Int [Int]} \arrow[r, dotted, "\mhask{fmap qsort}"] 
         & \mhask{TreeF Int ([Int] -> [Int])} \arrow[d, "\mhask{merge}"] 
         \\
@@ -298,12 +298,17 @@ merge (Node l x r) = \acc -> l (x : r acc)?\tikzmark{qsalg1}?
 
 % - (e.g) folds with parameters (accumulators) use the curry/uncurry adjunction 
 
-% - a recursion scheme from comonads (RSFCs, Uustalu, Vene, Pardo, 2001) is an
-%   conjugate hylomorphism via the coEilemberg-Moore category for the cofree
-%   comonad.
+% - a recursion scheme from comonads (RSFCs, Uustalu, Vene, Pardo, 2001) is an conjugate hylomorphism via the coEilemberg-Moore category for the cofree comonad.
 \begin{frame}[fragile]
   \frametitle{Conjugate Hylomorphisms}
   \centering
+  \note[item]{Every complex recursion scheme is an hylomorphism via its
+  associated adjunction/conjugate pair}
+  \note[item]{(e.g) folds with parameters (accumulators) use the curry/uncurry
+  adjunction}
+  \note[item]{a recursion scheme from comonads (RSFCs, Uustalu, Vene, Pardo,
+  2001) is an conjugate hylomorphism via the coEilemberg-Moore category for the
+  cofree comonad}
   {\Large\emph{Every recursion scheme is a conjugate hylomorphism}}%
   \blfootnote{\tiny{}R. Hinze, N. Wu, J. Gibbons: \textbf{Conjugate
   Hylomorphisms - Or: The Mother of All Structured Recursion Schemes}. POPL
@@ -394,6 +399,243 @@ merge (Node l x r) = \acc -> l (x : r acc)?\tikzmark{qsalg1}?
 \end{frame}
 
 \begin{frame}
+  \frametitle{Setoids and Morphisms}
+  To avoid the functional extensionality axiom, we use:
+  \begin{itemize}
+    \item \embf{setoids}: types with an associated equivalence
+    \item \embf{proper morphisms} of the respectfulness relation: functions
+      that map related inputs to related outputs
+  \end{itemize}
+  \vspace{.6cm}
+  \begin{tabular}{@{}rl@{}}
+    \alert{Setoids:} & Given \colorbox{lime}{\coq{setoid A}}, and
+  \colorbox{lime}{\coq{x y : A}}, we write 
+  \colorbox{lime}{\coq{x =e y : Prop}}.
+    \\[.5cm]
+    \alert{Morphisms}: & Given 
+  \colorbox{lime}{\coq{setoid A}} and 
+  \colorbox{lime}{\coq{setoid B}}, we write
+  \colorbox{lime}{\coq{f : A ~> B}}.
+  \end{tabular}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Code Extraction for Setoids and Morphisms}
+  We add wrappers on top of Coq's standard Setoids and Proper Morphisms.
+  \vspace{.6cm}
+
+    Every type must have \embf{exactly one} associated equivalence.
+  \vspace{.6cm}
+
+    Morphisms are records with a function, and a proof that it respects
+    the relations.
+  \vspace{.3cm}
+      \begin{itemize}
+        \item<2-> We provide automatic coercion to functions.
+        \item<2-> Coq's extraction mechanism ignores the \coq{Prop} field.
+        \item<3-> We provide a (very basic!) mechanism to help building morphisms.
+        \item<4-> We allow the use of Coq's \alert{generalised rewriting} on any
+          morphism or morphism input. 
+      \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Containers}
+
+  Containers are defined by a  pair $S \triangleleft P$:
+  \begin{itemize}
+    \item a type of \alert{shapes} $S : \mathsf{Type}$
+    \item a \alert{family} of positions, indexed by shape $P : S \to \mathsf{Type}$
+  \end{itemize}
+
+  \vspace{.7cm}
+  \uncover<2>{%
+    A \alert{container extension} is a functor defined as follows
+    \[
+      \begin{array}{ll}
+        \llbracket S \triangleleft P \rrbracket\; X & = \Sigma_{s : S} P\;s \to X \\[.3cm]
+      \llbracket S \triangleleft P \rrbracket\; f & = \lambda (s, p). \; (s, f \circ p)
+      \end{array}
+    \]
+  }
+\end{frame}
+
+\begin{frame}
+  \frametitle{Example}
+
+  Container for $F\; X = 1\tikzmark{shape1} + X \times X\tikzmark{shape2}$?
+
+  \[
+    \begin{array}{l}
+      S_F = 1 + 1\tikzmark{shapeC} \hspace{.5cm} P_F =
+      \lambda \left\{\begin{array}{l}
+        \mathsf{inl}\;\sbullet, 0\tikzmark{pos0} \\
+        \mathsf{inr}\;\sbullet, 1 + 1\tikzmark{pos1}
+      \end{array}\right\}
+      \\\\
+      \begin{array}{r c l}
+        F\;\mathbb{N} &\cong& \llbracket S_F \triangleleft P_F \rrbracket\;\mathbb{N} \\[.2cm]
+        \hline\hline \\
+        \mathsf{inl}\;\sbullet & \cong &
+      (\mathsf{inl}\;\sbullet, !_{\mathbb{N}}) 
+      \\
+        \mathsf{inr}\;(7,9) & \cong &
+        (\mathsf{inr}\;\sbullet, \lambda\left\{%
+          \begin{array}{l}
+            \mathsf{inl}\;\sbullet, 7 \\
+            \mathsf{inr}\;\sbullet, 9 \\
+          \end{array}
+          \right\})
+      \end{array}
+    \end{array}
+  \]
+
+  \begin{onlyenv}<2>
+  \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
+    \node[rectangle, rounded corners, fill=yellow!80!black] at (10,8) (cos) 
+      {Two cases (``shapes'')}; 
+
+    \draw[overlay, yellow!80!black, arrows=<->, line width=.5mm]
+      ($(pic cs:shape1)+(.1,-.1)$) -- ($(pic cs:shapeC)+(-1,.4)$);
+    \draw[overlay, yellow!80!black, arrows=<->, line width=.5mm]
+      ($(pic cs:shape2)+(-.55,-.1)$) -- ($(pic cs:shapeC)+(-.2,.4)$);
+    \draw[overlay, yellow!80!black, line width=.5mm]
+      ($(pic cs:shape2)+(-1.2,-.1)$) rectangle ($(pic cs:shapeC)+(-.4,1.4)$);
+
+    \draw[overlay, yellow!80!black, line width=.5mm]
+      ($(pic cs:shape1)+(-.25,-.1)$) rectangle ($(pic cs:shape1)+(.1,.3)$);
+  \end{tikzpicture}
+  \end{onlyenv}
+
+
+  \begin{onlyenv}<3>
+  \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
+    \node[rectangle, rounded corners, fill=yellow!80!black] at (10,8) (copl) 
+      {No positions on the left shape}; 
+
+    \draw[overlay, yellow!80!black, line width=.5mm]
+      ($(pic cs:shape1)+(-.25,-.1)$) rectangle ($(pic cs:shape1)+(.1,.3)$);
+
+    \draw[overlay, yellow!80!black, arrows=->, line width=.5mm]
+      (copl) -- ($(pic cs:pos0)+(-.15,.3)$);
+  \end{tikzpicture}
+  \end{onlyenv}
+
+
+  \begin{onlyenv}<4>
+  \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
+    \node[rectangle, rounded corners, fill=yellow!80!black] at (10,8) (copl) 
+      {Two positions on the right shape}; 
+
+    \draw[overlay, yellow!80!black, line width=.5mm]
+      ($(pic cs:shape2)+(-1.2,-.1)$) rectangle ($(pic cs:shapeC)+(-.4,1.4)$);
+    \draw[overlay, yellow!80!black, arrows=->, line width=.5mm]
+      (copl) -- ($(pic cs:pos1)+(-.35,.3)$);
+  \end{tikzpicture}
+  \end{onlyenv}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Containers in Coq: A Bad Attempt}
+  \begin{minted}{coq}
+Record Cont := { Shape : Type; Pos : Shape -> Type };
+
+Record App (C : Cont) (X : Type) :=
+  MkCont { shape : Shape C; contents : Pos shape -> X }.
+  \end{minted}
+  \vspace{.2cm}
+
+  \begin{onlyenv}<2>
+  \begin{center}
+  \begin{minipage}{.8\columnwidth}
+    \begin{infobox}
+      \begin{itemize}
+        \item The above definition forces us to use dependent equality and
+          UIP/Axiom K/\ldots E.g.: dealing with  \coq{eq_dep s1 p1 s2 p2} if
+          \coq{p1 : Pos s1} and \coq{p2 : Pos s2}.
+        \item Type families lead to OCaml code with \ocaml{Obj.magic}.
+      \end{itemize}
+    \end{infobox}
+  \end{minipage}
+  \end{center}
+  \end{onlyenv}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Extractable Containers in Coq (I)}
+
+  Solutions:
+  \begin{enumerate}
+    \item UIP is \alert{not an axiom} for types with a \alert{decidable
+      equality}.
+    \item If a type family is defined as a \alert{predicate subtype}, Coq can
+      erase the predicate and extract code that is equivalent to the supertype.
+      E.g. \coq{{x | P x}} for some \coq{P : X -> Prop}.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Extractable Containers in Coq (and II)}
+  \centering
+
+  \begin{coqcode}
+Class Cont (Sh : Type) {_ : setoid Shape} (Po : Type)
+  := { valid : Sh * Po ~> bool };
+
+Record Pos `{Cont Sh Po} (s : Sh) 
+ := MkPos { elem : Po; Valid : valid (s, elem) };
+
+Record App `(Cont Sh Po) (X : Type) 
+ := MkCont { shape : Sh; contents : Pos shape -> X }.
+  \end{coqcode}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Example: $F\; X = 1 + X \times X$}
+\begin{coqcode}
+Inductive ShapeF := Lbranch | Rbranch.
+Inductive PosF := Lpos | Rpos.
+
+Definition validF : ShapeF * PosF ~> bool.
+|{ x ~> match fst x with | Lbranch => false | Rbranch => true end }|.
+Defined.
+Instance TreeC : Cont ShapeF PosF (* ... validF ... *)
+
+(** inr (7, 8) **)
+Example e1 : App TreeC nat :=
+  MkCont Rbranch (fun p =>
+    match elem p with
+    | Lpos => 7
+    | Rpos => 8
+    end).
+\end{coqcode}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Container Equality}
+\end{frame}
+
+
+\begin{frame}
+  We can define \ul{least/greatest fixed points of container extensions}.
+  \vspace{.5cm}
+
+  We provide a library of polynomial functors as containers, as well as custom
+  shapes that we use in our examples.
+  \vspace{.5cm}
+
+  \vspace{.5cm}
+  \textbf{Not discussed:}
+  \begin{itemize}
+    \item Container morphisms and \ul{natural transformations}
+    \item Container composition $S \triangleleft P = (S_1 \triangleleft P_1) \circ (S_2 \triangleleft P_2)$
+    \item ``Nesting'' of containers
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}
   \vfill
   \centering
   %\begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{block}
@@ -409,6 +651,30 @@ merge (Node l x r) = \acc -> l (x : r acc)?\tikzmark{qsalg1}?
 \end{frame}
 
 \begin{frame}
+  \frametitle{Container Initial Algebras}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Container Terminal Coalgebras}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Recursive Coalgebras}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Recursive Hylomorphisms}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Universal Property of Recursive Hylomorphisms}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Proving the Laws of Hylomorphisms}
+\end{frame}
+
+\begin{frame}
   \vfill
   \centering
   %\begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{block}
@@ -421,6 +687,38 @@ merge (Node l x r) = \acc -> l (x : r acc)?\tikzmark{qsalg1}?
   \end{sticky}
   %\end{beamercolorbox}
   \vfill
+\end{frame}
+
+\begin{frame}
+  \frametitle{A Tree Container for Divide-and-conquer Computations}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Quicksort Definition}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Quicksort Extraction}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Using Hylo-fusion for Program Optimisation}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Optimized Code Extraction}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Dynamorphisms}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Knapsack}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Knapsack Extraction}
 \end{frame}
 
 

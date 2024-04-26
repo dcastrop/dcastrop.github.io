@@ -1,5 +1,6 @@
 \documentclass[compress,usepdftitle=false,xcolor=pdftex,svgnames,table,aspectratio=169]{beamer}
 
+%\setbeameroption{show notes on second screen=right}
 % Notes
 % \usepackage{pgfpages}
 % \setbeameroption{show notes on second screen=right}
@@ -154,6 +155,8 @@
 \newcommand<>*\textBF[1]{\sbox\CBox{#1}\resizebox{\wd\CBox}{\ht\CBox}{\textbf#2{#1}}}
 \usepackage{tabularx}
 \usepackage[framemethod=TikZ]{mdframed}
+
+\usepackage{soul}
 
 \newmdenv[
   topline=false,

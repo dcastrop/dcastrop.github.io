@@ -1,4 +1,4 @@
-\newcommand{\embf}[1]{\emph{\textbf{#1}}}
+\newcommand{\embf}[1]{\textbf{\emph{#1}}}
 \newcommand{\mhask}[1]{\text{\mintinline{Haskell}{#1}}}
 \newmintinline[haskell]{haskell}{fontsize=\small}
 \newmintinline[coq]{coq}{fontsize=\small}
@@ -7,6 +7,9 @@
 \newminted{ocaml}{fontsize=\small}
 \newminted{haskell}{fontsize=\small}
 
+\newcommand\sbullet[1][.5]{\mathbin{\vcenter{\hbox{\scalebox{#1}{$\bullet$}}}}}
+
+\usepackage{stmaryrd}
 
 \newcommand\blfootnote[1]{%
   \begingroup
