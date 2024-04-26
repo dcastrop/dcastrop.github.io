@@ -164,7 +164,7 @@ hylo a c = a ?\tikzmark{halg1}? . fmap (hylo a c) . c ?\tikzmark{hcoalg1}?
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Folds as Hylomorphisms}
+  \frametitle{Example I: Folds as Hylomorphisms}
   \centering
   
   \begin{columns}
@@ -209,6 +209,70 @@ fold a = a?\tikzmark{fhalg1}? . fmap (fold a) . inOp?\tikzmark{fhcoalg1}?
     \draw[overlay, yellow!90!black, arrows=->, line width=.5mm]
       (fhc) -- ($(pic cs:fhcoalg2) + (.7, .4)$);
   \end{tikzpicture}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Example II: Nonstructural Recursion}
+  \centering
+
+  \begin{columns}
+    \begin{column}{.4\textwidth}
+      \begin{minted}[escapeinside=??, fontsize=\scriptsize]{Haskell}
+data TreeF a b = Leaf |  Node b a b
+
+instance Functor (TreeF a) where
+  fmap f Leaf = Leaf
+  fmap f (Node l x r) = Node (f l) x (f r)
+
+split :: [Int] -> TreeF Int [Int]?\tikzmark{qscoalg1}?
+split [] = Leaf
+split (h : t) = Node l h r
+  where
+    (l, r) = partition (\x -> x < h) t
+
+merge :: TreeF Int ([Int] -> [Int]) ->?\tikzmark{qsalg1}?
+         [Int] -> [Int]
+merge Leaf = \acc -> acc
+merge (Node l x r) = \acc -> l (x : r acc)
+
+qsort :: [Int] -> [Int]
+qsort = flip f []
+  where 
+    f = hylo merge split
+      \end{minted}
+    \end{column}
+    \begin{column}{.47\textwidth}\scriptsize
+      \begin{tikzcd}
+        \tikzmark{qscoalg2}\mhask{TreeF Int [Int]} \arrow[r, dotted] 
+        & \mhask{TreeF Int ([Int] -> [Int])} \arrow[d, "\mhask{merge}"] 
+        \\
+        \mhask{[Int]} \arrow[u, "\mhask{split}"] \arrow[r, dotted] 
+        & \mhask{[Int] -> [Int]}\tikzmark{qsalg2}
+\end{tikzcd}
+    \end{column}
+  \end{columns}
+
+  \begin{onlyenv}<2>
+  \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
+    \node[rectangle, rounded corners, fill=yellow!80!black] at (12,2) (qsa) 
+      {\haskell{TreeF Int}-algebra}; 
+
+    \draw[overlay, yellow!90!black, arrows=->, line width=.5mm]
+      (qsa) -- ($(pic cs:qsalg1) + (.2, 0)$);
+    \draw[overlay, yellow!90!black, arrows=->, line width=.5mm]
+      (qsa) -- ($(pic cs:qsalg2) + (-1, -.2)$);
+  \end{tikzpicture}
+
+  \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
+    \node[rectangle, rounded corners, fill=yellow!80!black] at (10,7) (qsc) 
+      {\haskell{TreeF Int}-coalgebra}; 
+
+    \draw[overlay, yellow!90!black, arrows=->, line width=.5mm]
+      (qsc) -- ($(pic cs:qscoalg1) + (.2, .3)$);
+    \draw[overlay, yellow!90!black, arrows=->, line width=.5mm]
+      (qsc) -- ($(pic cs:qscoalg2) + (1, .4)$);
+  \end{tikzpicture}
+  \end{onlyenv}
 \end{frame}
 
 \begin{frame}[fragile]
