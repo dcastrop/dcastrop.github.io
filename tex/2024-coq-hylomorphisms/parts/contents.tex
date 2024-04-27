@@ -553,7 +553,8 @@ Record App (X : Type) :=
   \end{minted}
   \vspace{.2cm}
 
-  \begin{onlyenv}<2>
+  \begin{overprint}
+    \onslide<2->
   \begin{center}
   \begin{minipage}{.8\columnwidth}
     \begin{infobox}
@@ -566,7 +567,7 @@ Record App (X : Type) :=
     \end{infobox}
   \end{minipage}
   \end{center}
-  \end{onlyenv}
+  \end{overprint}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -1014,12 +1015,42 @@ let rec qsort = function
     \end{overprint}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
   \frametitle{Using Hylo-fusion for Program Optimisation}
-\end{frame}
 
-\begin{frame}
-  \frametitle{Optimized Code Extraction}
+  \begin{onlyenv}<1>
+    \begin{minipage}{.86\columnwidth}
+    \begin{bluebox}
+    \begin{coqcode}
+Definition qsort_times_two
+  : {f | f =e map times_two \o hylo merge split}.
+  eapply exist.
+  (* ... *)
+  rewrite (hylo_fusion_l H); reflexivity.
+Defined.
+
+Extraction qsort_times_two.
+    \end{coqcode}
+    \end{bluebox}
+    \end{minipage}
+  \end{onlyenv}
+
+  \begin{onlyenv}<2>
+    \begin{minipage}{.92\columnwidth}
+    \begin{greenbox}
+    \begin{ocamlcode}
+let rec qsort_times_two = function
+| [] -> []
+| h :: t ->
+  let (l, r) = partition (fun x0 -> leb x0 h) t in
+  let x0 = fun p -> qsort_times_two (match p with
+                                     | Lbranch -> l
+                                     | Rbranch -> r) in
+  app (x0 Lbranch) ((mul (Uint63.of_int (2)) h) :: (x0 Rbranch))
+    \end{ocamlcode}
+    \end{greenbox}
+    \end{minipage}
+    \end{onlyenv}
 \end{frame}
 
 \begin{frame}
