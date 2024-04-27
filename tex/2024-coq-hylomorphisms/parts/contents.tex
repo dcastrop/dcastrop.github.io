@@ -75,7 +75,7 @@ fold a = f
 
   \begin{onlyenv}<2>
   \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
-    \node[rectangle, rounded corners, fill=yellow!80!black] at (11,6.5) 
+    \node[label] at (11,6.5)
     {\begin{tabular}{@{}c@{}}
       Least Fixed-Point  \\
       $\mhask{Fix f} \cong \mhask{f (Fix f)}$
@@ -84,23 +84,22 @@ fold a = f
   \end{onlyenv}
   \begin{onlyenv}<3>
   \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
-    \node[rectangle, rounded corners, fill=yellow!80!black] at (10,1) (a) 
-      {\haskell{f}-algebra}; 
+    \node[label] at (10,1) (a) {\haskell{f}-algebra};
 
-    \draw[overlay, yellow!80!black, arrows=->, line width=.5mm]
+    \draw[overlay, golden, arrows=->, line width=.5mm]
       (a.west) -- (pic cs:alg1);
-    \draw[overlay, yellow!90!black, arrows=->, line width=.5mm]
+    \draw[overlay, golden, arrows=->, line width=.5mm]
       (a.east) -- ($(pic cs:alg2) + (-.1, -.2)$);
   \end{tikzpicture}
   \end{onlyenv}
   \begin{onlyenv}<4>
   \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
-    \node[rectangle, rounded corners, fill=yellow!80!black] at (7,1) (a) 
+    \node[label] at (7,1) (a)
       {initial \haskell{f}-algebra}; 
 
-    \draw[overlay, yellow!80!black, arrows=->, line width=.5mm]
+    \draw[overlay, golden, arrows=->, line width=.5mm]
       (a) -- (pic cs:algIni1);
-    \draw[overlay, yellow!90!black, arrows=->, line width=.5mm]
+    \draw[overlay, golden, arrows=->, line width=.5mm]
       (a) -- ($(pic cs:algIni2) + (-.8, -.2)$);
   \end{tikzpicture}
   \end{onlyenv}
@@ -134,30 +133,30 @@ hylo a c = a ?\tikzmark{halg1}? . fmap (hylo a c) . c ?\tikzmark{hcoalg1}?
 
   \begin{onlyenv}<3>
   \begin{tikzpicture}[overlay,remember picture]
-    \node[rectangle, rounded corners, fill=yellow!80!black] at (2,-1) (ha) 
+    \node[label] at (2,-1) (ha)
       {\begin{tabular}{@{}c@{}}
         \haskell{f}-algebra \\
         ``conquer''
       \end{tabular}}; 
 
-    \draw[overlay, yellow!90!black, arrows=->, line width=.5mm]
+    \draw[overlay, golden, arrows=->, line width=.5mm]
       (ha) -- (pic cs:halg1);
-    \draw[overlay, yellow!90!black, arrows=->, line width=.5mm]
+    \draw[overlay, golden, arrows=->, line width=.5mm]
       (ha) -- ($(pic cs:halg2) + (-.1, -.2)$);
   \end{tikzpicture}
   \end{onlyenv}
 
   \begin{onlyenv}<2>
   \begin{tikzpicture}[overlay,remember picture]
-    \node[rectangle, rounded corners, fill=yellow!80!black] at (9,-1.5) (hc) 
+    \node[label] at (9,-1.5) (hc)
       {\begin{tabular}{@{}c@{}}
         \haskell{f}-coalgebra \\
         ``divide''
       \end{tabular}}; 
 
-    \draw[overlay, yellow!90!black, arrows=->, line width=.5mm]
+    \draw[overlay, golden, arrows=->, line width=.5mm]
       (hc) -- (pic cs:hcoalg1);
-    \draw[overlay, yellow!90!black, arrows=->, line width=.5mm]
+    \draw[overlay, golden, arrows=->, line width=.5mm]
       (hc) -- ($(pic cs:hcoalg2) + (-.1, -.2)$);
   \end{tikzpicture}
   \end{onlyenv}
@@ -191,22 +190,22 @@ fold a = a?\tikzmark{fhalg1}? . fmap (fold a) . inOp?\tikzmark{fhcoalg1}?
   \end{columns}
 
   \begin{tikzpicture}[overlay,remember picture]
-    \node[rectangle, rounded corners, fill=yellow!80!black] at (2,-1) (fha) 
+    \node[label] at (2,-1) (fha)
       {\haskell{f}-algebra}; 
 
-    \draw[overlay, yellow!90!black, arrows=->, line width=.5mm]
+    \draw[overlay, golden, arrows=->, line width=.5mm]
       (fha) -- ($(pic cs:fhalg1) + (.2, 0)$);
-    \draw[overlay, yellow!90!black, arrows=->, line width=.5mm]
+    \draw[overlay, golden, arrows=->, line width=.5mm]
       (fha) -- ($(pic cs:fhalg2) + (-.1, -.2)$);
   \end{tikzpicture}
 
   \begin{tikzpicture}[overlay,remember picture]
-    \node[rectangle, rounded corners, fill=yellow!80!black] at (9,4) (fhc) 
+    \node[label] at (9,4) (fhc)
       {\haskell{f}-coalgebra}; 
 
-    \draw[overlay, yellow!90!black, arrows=->, line width=.5mm]
+    \draw[overlay, golden, arrows=->, line width=.5mm]
       (fhc) -- ($(pic cs:fhcoalg1) + (-.2, .3)$);
-    \draw[overlay, yellow!90!black, arrows=->, line width=.5mm]
+    \draw[overlay, golden, arrows=->, line width=.5mm]
       (fhc) -- ($(pic cs:fhcoalg2) + (.7, .4)$);
   \end{tikzpicture}
 \end{frame}
@@ -242,22 +241,22 @@ merge (Node l x r) = \acc -> l (x : r acc)?\tikzmark{qsalg1}?
 
   \begin{onlyenv}<2>
   \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
-    \node[rectangle, rounded corners, fill=yellow!80!black] at (12,2) (qsa) 
+    \node[label] at (12,2) (qsa)
       {\haskell{TreeF Int}-algebra}; 
 
-    \draw[overlay, yellow!90!black, arrows=->, line width=.5mm]
+    \draw[overlay, golden, arrows=->, line width=.5mm]
       (qsa) -- ($(pic cs:qsalg1) + (.2, 0)$);
-    \draw[overlay, yellow!90!black, arrows=->, line width=.5mm]
+    \draw[overlay, golden, arrows=->, line width=.5mm]
       (qsa) -- ($(pic cs:qsalg2) + (-1, -.2)$);
   \end{tikzpicture}
 
   \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
-    \node[rectangle, rounded corners, fill=yellow!80!black] at (10,7) (qsc) 
+    \node[label] at (10,7) (qsc)
       {\haskell{TreeF Int}-coalgebra}; 
 
-    \draw[overlay, yellow!90!black, arrows=->, line width=.5mm]
+    \draw[overlay, golden, arrows=->, line width=.5mm]
       (qsc) -- ($(pic cs:qscoalg1) + (.2, .3)$);
-    \draw[overlay, yellow!90!black, arrows=->, line width=.5mm]
+    \draw[overlay, golden, arrows=->, line width=.5mm]
       (qsc) -- ($(pic cs:qscoalg2) + (1, .4)$);
   \end{tikzpicture}
   \end{onlyenv}
@@ -302,13 +301,6 @@ merge (Node l x r) = \acc -> l (x : r acc)?\tikzmark{qsalg1}?
 \begin{frame}[fragile]
   \frametitle{Conjugate Hylomorphisms}
   \centering
-  \note[item]{Every complex recursion scheme is an hylomorphism via its
-  associated adjunction/conjugate pair}
-  \note[item]{(e.g) folds with parameters (accumulators) use the curry/uncurry
-  adjunction}
-  \note[item]{a recursion scheme from comonads (RSFCs, Uustalu, Vene, Pardo,
-  2001) is an conjugate hylomorphism via the coEilemberg-Moore category for the
-  cofree comonad}
   {\Large\emph{Every recursion scheme is a conjugate hylomorphism}}%
   \blfootnote{\tiny{}R. Hinze, N. Wu, J. Gibbons: \textbf{Conjugate
   Hylomorphisms - Or: The Mother of All Structured Recursion Schemes}. POPL
@@ -317,6 +309,21 @@ merge (Node l x r) = \acc -> l (x : r acc)?\tikzmark{qsalg1}?
   \vspace{.4cm}
 
   \begin{sticky}\includegraphics[width=\textwidth]{figures/types-of-parahylos-crop.pdf}\end{sticky}
+
+  \Put(40,290){%
+    \begin{onlyenv}<2>
+    \begin{minipage}{.86\columnwidth}
+    \begin{greenbox}
+      \small
+      \begin{itemize}
+        \item Every complex recursion scheme is an hylomorphism via its associated adjunction/conjugate pair
+        \item (e.g) folds with parameters (accumulators) use the curry/uncurry adjunction
+        \item A recursion scheme from comonads (RSFCs, Uustalu, Vene, Pardo, 2001) is an conjugate hylomorphism via the coEilemberg-Moore category for the cofree comonad
+      \end{itemize}
+    \end{greenbox}
+    \end{minipage}
+    \end{onlyenv}
+  }
 \end{frame}
 
 \begin{frame}
@@ -358,6 +365,7 @@ merge (Node l x r) = \acc -> l (x : r acc)?\tikzmark{qsalg1}?
       \item<4-> \embf{Containers} \& \embf{recursive coalgebras}
     \end{enumerate}
    }
+
 \end{frame}
 
 
@@ -463,74 +471,69 @@ merge (Node l x r) = \acc -> l (x : r acc)?\tikzmark{qsalg1}?
 \begin{frame}
   \frametitle{Example}
 
-  Container for $F\; X = 1\tikzmark{shape1} + X \times X\tikzmark{shape2}$?
+  Consider the functor
+  \only<1>{$F\; X = 1\tikzmark{shape1} + X\times X\tikzmark{shape2}$}%
+  \only<2>{$F\; X = \mathcolorbox{golden}{1} + \mathcolorbox{golden}{X\times X}$}%
+  \only<3>{$F\; X = \mathcolorbox{golden}{1} + X\times X$}%
+  \only<4>{$F\; X = 1 + \mathcolorbox{golden}{X\times X}$}
+  \vspace{.2cm}
+
+  $S_{F}$ and $P_{F}$ define a container that is isomorphic to $F$
 
   \[
-    \begin{array}{l}
-      S_F = 1 + 1\tikzmark{shapeC} \hspace{.5cm} P_F =
-      \lambda \left\{\begin{array}{l}
-        \mathsf{inl}\;\sbullet, 0\tikzmark{pos0} \\
-        \mathsf{inr}\;\sbullet, 1 + 1\tikzmark{pos1}
-      \end{array}\right\}
-      \\\\
-      \begin{array}{r c l}
-        F\;\mathbb{N} &\cong& \llbracket S_F \triangleleft P_F \rrbracket\;\mathbb{N} \\[.2cm]
-        \hline\hline \\
-        \mathsf{inl}\;\sbullet & \cong &
-      (\mathsf{inl}\;\sbullet, !_{\mathbb{N}}) 
+    \only<1>{S_F = 1 + 1}%
+    \only<2>{S_F = \mathcolorbox{golden}{1} + \mathcolorbox{golden}{1}}%
+    \only<3>{S_F = \mathcolorbox{golden}{1} + 1}%
+    \only<4>{S_F = 1 + \mathcolorbox{golden}{1}}%
+    \tikzmark{shapeC}
+    \hspace{.5cm}
+      \begin{array}{l}
+        \only<1-2,4->{P_{F}\;(\mathsf{inl}\;\sbullet) = 0}%
+        \only<3>{\mathcolorbox{golden}{P_{F}\;(\mathsf{inl}\;\sbullet) = 0}}%
+        \tikzmark{pos0}
+        \\
+        \only<1-3>{P_{F}\;(\mathsf{inl}\;\sbullet) = 1+1}%
+        \only<4>{\mathcolorbox{golden}{P_{F}\;(\mathsf{inl}\;\sbullet) = 1+1}}%
+        \tikzmark{pos1}
+      \end{array}
+   \]
+   \vspace{.4cm}
+
+  Examples of objects of types $F\;\mathbb{N}$ (left) and
+$\llbracket S_F \triangleleft P_F \rrbracket\;\mathbb{N}$ (right):
+   \[\begin{array}{r c l}
+        \mathsf{inl}\;\sbullet & \cong & (\mathsf{inl}\;\sbullet, !_{\mathbb{N}})
       \\
         \mathsf{inr}\;(7,9) & \cong &
-        (\mathsf{inr}\;\sbullet, \lambda\left\{%
+        (\mathsf{inr}\;\sbullet, \lambda x, \mathsf{case}\;x\;\{%
           \begin{array}{l}
-            \mathsf{inl}\;\sbullet, 7 \\
-            \mathsf{inr}\;\sbullet, 9 \\
+            \mathsf{inl}\;\sbullet \Rightarrow 7;\;\;
+            \mathsf{inr}\;\sbullet \Rightarrow 9
           \end{array}
-          \right\})
+          \})
       \end{array}
-    \end{array}
   \]
 
   \begin{onlyenv}<2>
   \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
-    \node[rectangle, rounded corners, fill=yellow!80!black] at (10,8) (cos) 
+    \node[label] at (12,7) (cos)
       {Two cases (``shapes'')}; 
-
-    \draw[overlay, yellow!80!black, arrows=<->, line width=.5mm]
-      ($(pic cs:shape1)+(.1,-.1)$) -- ($(pic cs:shapeC)+(-1,.4)$);
-    \draw[overlay, yellow!80!black, arrows=<->, line width=.5mm]
-      ($(pic cs:shape2)+(-.55,-.1)$) -- ($(pic cs:shapeC)+(-.2,.4)$);
-    \draw[overlay, yellow!80!black, line width=.5mm]
-      ($(pic cs:shape2)+(-1.2,-.1)$) rectangle ($(pic cs:shapeC)+(-.4,1.4)$);
-
-    \draw[overlay, yellow!80!black, line width=.5mm]
-      ($(pic cs:shape1)+(-.25,-.1)$) rectangle ($(pic cs:shape1)+(.1,.3)$);
   \end{tikzpicture}
   \end{onlyenv}
 
 
   \begin{onlyenv}<3>
   \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
-    \node[rectangle, rounded corners, fill=yellow!80!black] at (10,8) (copl) 
+    \node[label] at (10,8) (copl)
       {No positions on the left shape}; 
-
-    \draw[overlay, yellow!80!black, line width=.5mm]
-      ($(pic cs:shape1)+(-.25,-.1)$) rectangle ($(pic cs:shape1)+(.1,.3)$);
-
-    \draw[overlay, yellow!80!black, arrows=->, line width=.5mm]
-      (copl) -- ($(pic cs:pos0)+(-.15,.3)$);
   \end{tikzpicture}
   \end{onlyenv}
 
 
   \begin{onlyenv}<4>
   \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
-    \node[rectangle, rounded corners, fill=yellow!80!black] at (10,8) (copl) 
+    \node[label] at (10,8) (copl)
       {Two positions on the right shape}; 
-
-    \draw[overlay, yellow!80!black, line width=.5mm]
-      ($(pic cs:shape2)+(-1.2,-.1)$) rectangle ($(pic cs:shapeC)+(-.4,1.4)$);
-    \draw[overlay, yellow!80!black, arrows=->, line width=.5mm]
-      (copl) -- ($(pic cs:pos1)+(-.35,.3)$);
   \end{tikzpicture}
   \end{onlyenv}
 
@@ -538,11 +541,13 @@ merge (Node l x r) = \acc -> l (x : r acc)?\tikzmark{qsalg1}?
 
 \begin{frame}[fragile]
   \frametitle{Containers in Coq: A Bad Attempt}
-  \begin{minted}{coq}
-Record Cont := { Shape : Type; Pos : Shape -> Type };
+  Assume a \coq{Shape : Type} and \coq{Pos : Shape -> Type}.
+  \vspace{.4cm}
 
-Record App (C : Cont) (X : Type) :=
-  MkCont { shape : Shape C; contents : Pos shape -> X }.
+  We can define a container extension in the straightforward way:
+  \begin{minted}{coq}
+Record App (X : Type) :=
+  MkCont { shape : Shape; contents : Pos shape -> X }.
   \end{minted}
   \vspace{.2cm}
 
@@ -567,7 +572,7 @@ Record App (C : Cont) (X : Type) :=
 
   Solutions:
   \begin{enumerate}
-    \item UIP is \alert{not an axiom} for types with a \alert{decidable
+    \item UIP is \alert{not an axiom} in Coq for types with a \alert{decidable
       equality}.
     \item If a type family is defined as a \alert{predicate subtype}, Coq can
       erase the predicate and extract code that is equivalent to the supertype.
@@ -577,52 +582,85 @@ Record App (C : Cont) (X : Type) :=
 
 \begin{frame}[fragile]
   \frametitle{Extractable Containers in Coq (and II)}
-  \centering
+  Our containers are defined by:
+  \begin{itemize}
+    \item \coq{Sh : Type}: type of shapes
+    \item \coq{Po : Type}: type of \alert{all} positions
+    \item \coq{valid : Sh * Po ~> bool}
+      \begin{itemize}
+        \item[] \alert{decidable} predicate stating when a pair shape/position is valid
+      \end{itemize}
+  \end{itemize}
+  \vspace{.6cm}
 
+  Container extensions that lead to ``clean'' code extraction:
   \begin{coqcode}
-Class Cont (Sh : Type) {_ : setoid Shape} (Po : Type)
-  := { valid : Sh * Po ~> bool };
-
-Record Pos `{Cont Sh Po} (s : Sh) 
- := MkPos { elem : Po; Valid : valid (s, elem) };
-
-Record App `(Cont Sh Po) (X : Type) 
- := MkCont { shape : Sh; contents : Pos shape -> X }.
+    Record App (X : Type)
+    := MkCont { shape : Sh;
+                contents : {p | valid (shape, p)} -> X
+              }.
   \end{coqcode}
+  \Put(40,290){%
+    \begin{onlyenv}<2>
+    \begin{minipage}{.86\columnwidth}
+    \begin{greenbox}
+      \small
+      \begin{itemize}
+        \item All proofs of the form \coq{V1 V2 : valid(s,p) = true} are
+              provably equal in Coq to \coq{eq_refl}.
+        \item Given \coq{p1 p2 : {p | valid(s, p)}}, \coq{p1 = p2} iff \coq{proj1_sig p1 = proj1_sig p2}.
+        \item Extraction will treat the contents of container extensions equivalently to
+              \coq{contents : Po -> X}
+              \item[] (\ul{no unsafe coercions}).
+      \end{itemize}
+    \end{greenbox}
+    \end{minipage}
+    \end{onlyenv}
+  }
 \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{Example: $F\; X = 1 + X \times X$}
+
+\begin{onlyenv}<1>
+  Container definition:
+  \vspace{.2cm}
+
 \begin{coqcode}
 Inductive ShapeF := Lbranch | Rbranch.
 Inductive PosF := Lpos | Rpos.
 
-Definition validF : ShapeF * PosF ~> bool.
-|{ x ~> match fst x with | Lbranch => false | Rbranch => true end }|.
-Defined.
-Instance TreeC : Cont ShapeF PosF (* ... validF ... *)
-
-(** inr (7, 8) **)
-Example e1 : App TreeC nat :=
-  MkCont Rbranch (fun p =>
-    match elem p with
-    | Lpos => 7
-    | Rpos => 8
-    end).
+Definition validF (x : ShapeF * PosF) : bool
+  := match fst x with | Lbranch => false | Rbranch => true end.
 \end{coqcode}
+\end{onlyenv}
+\begin{onlyenv}<2>
+  Example object equivalent to $\mathsf{inr}\;(7,8)$
+  \vspace{.2cm}
+
+\begin{coqcode}
+Example e1 : App nat :=
+  MkCont Rbranch (fun p => match elem p with
+                           | Lpos => 7 | Rpos => 8
+                           end).
+\end{coqcode}
+\end{onlyenv}
 \end{frame}
 
-\begin{frame}
-  \frametitle{Container Equality}
-\end{frame}
+%\begin{frame}
+%  \frametitle{Container Equality}
+%\end{frame}
 
 
 \begin{frame}
-  We can define \ul{least/greatest fixed points of container extensions}.
+  The argument of container extensions occurs in \ul{strictly positive} positions:
+  \begin{itemize}
+    \item[] We can define \ul{least/greatest fixed points of container extensions}.
+  \end{itemize}
   \vspace{.5cm}
 
   We provide a library of polynomial functors as containers, as well as custom
-  shapes that we use in our examples.
+  shapes (e.g. binary trees) that we use in our examples.
   \vspace{.5cm}
 
   \vspace{.5cm}
@@ -630,7 +668,7 @@ Example e1 : App TreeC nat :=
   \begin{itemize}
     \item Container morphisms and \ul{natural transformations}
     \item Container composition $S \triangleleft P = (S_1 \triangleleft P_1) \circ (S_2 \triangleleft P_2)$
-    \item ``Nesting'' of containers
+    \item Container equality
   \end{itemize}
 
 \end{frame}
@@ -650,28 +688,202 @@ Example e1 : App TreeC nat :=
   \vfill
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
   \frametitle{Container Initial Algebras}
+
+  The least fixed-point of a container extension \coq{App C} is:
+  \begin{coqcode}
+    Inductive LFix C := Lin { lin_op : App C (LFix C) }.
+  \end{coqcode}
+  \vspace{.4cm}
+
+  Algebras are of type \coq{Alg C X = App C X ~> X}.
+  \vspace{.4cm}
+
+  \textbf{Cartamorphisms:}
+  \begin{coqcode}
+cata : Alg C X ~> LFix C ~> X
+
+cata_univ : forall (a : Alg C X) (f : LFix C ~> X),
+  f \o Lin =e a \o fmap f <-> f =e cata a
+  \end{coqcode}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
   \frametitle{Container Terminal Coalgebras}
+
+  The \ul{greatest} fixed-point of a container extension \coq{App C} is:
+  \begin{coqcode}
+    CoInductive GFix C := Gin { gin_op : App C (GFix C) }.
+  \end{coqcode}
+  \vspace{.4cm}
+
+  Coalgebras are of type \coq{CoAlg C X = X ~> App C X}.
+  \vspace{.4cm}
+
+  \textbf{Anamorphisms:}
+  \begin{coqcode}
+ana : CoAlg C X ~> X ~> GFix C
+
+ana_univ : forall (c : CoAlg C X) (f : X ~> GFix C),
+  gin_op \o f =e fmap f \o c <-> f =e ana c
+  \end{coqcode}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Recursive Coalgebras}
+  \frametitle{Recursive Coalgebras (I)}
+
+  We cannot compose \coq{cata} and any arbitrary \coq{ana}...
+
+  \uncover<2->{But we can, if \coq{ana} is applied to a \textbf{recursive coalgebra}}.
+  \vspace{.6cm}
+
+  \uncover<3->{%
+    \textbf{Recursive coalgebras}: coalgebras (\coq{c : CoAlg C X}) that terminate in all inputs.
+    \begin{itemize}
+      \item<3-> i.e. their anamorphisms only produce \ul{finite trees}.
+      \item<4-> i.e. they decompose inputs into ``smaller'' values of type \coq{X}
+    \end{itemize}
+  }
 \end{frame}
 
 \begin{frame}
+  \frametitle{Recursive Coalgebras (and II)}
+
+  We define a predicate \coq{RecF c x} that states that \coq{c : CoAlg C X}
+terminates on \coq{x : X}.
+     \vspace{.4cm}
+
+  Using \coq{RecF}, we define:
+    \begin{itemize}
+      \item Recursive coalgebras:
+
+            \coq{RCoAlg C X = {c | forall x, RecF c x}}
+
+      \item Given a well-founded relation \coq{R}, well-founded coalgebras
+
+            \coq{WfCoalg C X = {c | forall x p, R x (contents (c x) p)}}
+     \end{itemize}
+     \vspace{.4cm}
+
+    \begin{itemize}
+    \item<2> Definitions (1) and (2) are equivalent
+    \item<3> Our mechanisation represents (2) in terms of (1)
+    \item<4> Termination proofs may be easier using (1) or (2), depending on the
+use case
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
   \frametitle{Recursive Hylomorphisms}
+
+  Recall: hylomorphisms are solutions to the equation
+$f = a \circ \mathsf{fmap}\;f \circ c$.
+
+\vspace{.4cm}
+  But, due to termination, this solution \ul{may not exist}, or \ul{may not be unique}.
+
+\vspace{.4cm}
+  However, if $c$ is recursive, then the solution \textbf{is unique, and guaranteed to exist}.
+\vspace{.4cm}
+
+  \begin{overprint}
+    \onslide<2->
+    \begin{minipage}{\textwidth}
+      \begin{bluebox}
+      \begin{coqcode}
+Definition hylo_def (a : Alg F B) (c : Coalg F A)
+  : forall (x : A), RecF c x -> B :=
+  fix f x H :=
+    match c x as cx
+          return (forall e : Pos (shape cx), RecF c (cont cx e)) -> B
+    with
+    | MkCont sx cx => fun H => a (MkCont sx (fun e => f (cx e) (H e)))
+    end (RecF_inv H).
+      \end{coqcode}
+      \end{bluebox}
+    \end{minipage}
+  \end{overprint}
+
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
   \frametitle{Universal Property of Recursive Hylomorphisms}
+
+  We define wrappers over \coq{hylo_def}:
+  \vspace{.2cm}
+
+  \begin{center}
+  \begin{minipage}{.6\textwidth}
+  \begin{bluebox}
+  \begin{coqcode}
+hylo : Alg C B ~> RCoAlg C A ~> A ~> B
+  \end{coqcode}
+  \end{bluebox}
+  \end{minipage}
+  \end{center}
+
+  \vspace{.6cm}
+  From this definition, we can prove the universal property of hylomorphisms.
+
+  Given \coq{a : Alg C B} and \coq{c : RCoAlg C A}:
+  \vspace{.2cm}
+
+  \begin{center}
+  \begin{minipage}{.6\textwidth}
+  \begin{bluebox}
+  \begin{coqcode}
+hylo_univ : forall f : A ~> B,
+  f =e a \o fmap f \o c <-> f = hylo a c
+  \end{coqcode}
+  \end{bluebox}
+  \end{minipage}
+  \end{center}
+
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
+  \frametitle{A Note on Recursive Anamorphisms}
+
+  For simplicity, we define \ul{recursive anamorphisms} as
+  \coq{rana c = hylo Lin c}.
+  \begin{itemize}
+  \item This way we avoid the need to convert \coq{GFix} to \coq{LFix}.
+  \item We prove (straightforward) that \coq{rana c} is equal to \coq{ana c},
+followed by converting the result to \coq{LFix}.
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
   \frametitle{Proving the Laws of Hylomorphisms}
+
+The following \coq{hylo_fusion} laws \ul{are straightforward
+consequences} of \coq{hylo_univ}.
+\vspace{.4cm}
+
+The proofs are exact copies of the pen-and-paper proofs.
+
+  \begin{center}
+  \begin{minipage}{.7\textwidth}
+  \begin{bluebox}
+  \begin{coqcode}
+Lemma hylo_fusion_l
+    : f2 \o g1 =e g2 \o fmap f2 ->
+          f2 \o hylo g1 h1 =e hylo g2 h1.
+
+Lemma hylo_fusion_r
+    : h1 \o f1 =e fmap f1 \o h2 ->
+          hylo g1 h1 \o f1 =e hylo g1 h2.
+
+Lemma deforest : cata a \o rana c =e hylo a c.
+  \end{coqcode}
+  \end{bluebox}
+  \end{minipage}
+  \end{center}
+
+
+
 \end{frame}
 
 \begin{frame}
@@ -690,7 +902,7 @@ Example e1 : App TreeC nat :=
 \end{frame}
 
 \begin{frame}
-  \frametitle{A Tree Container for Divide-and-conquer Computations}
+  \frametitle{A Tree Container for Divide \&Conquer}
 \end{frame}
 
 \begin{frame}

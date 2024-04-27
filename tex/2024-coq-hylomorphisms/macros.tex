@@ -17,3 +17,22 @@
   \addtocounter{footnote}{-1}%
   \endgroup
 }
+
+\definecolor{golden}{rgb}{0.99, 0.76, 0.0}
+
+\tikzstyle{label}=[%
+  shading = axis,
+  rectangle,
+  rounded corners,
+  left color=golden,
+  right color=golden!40!white,
+  shading angle=180,
+  anchor=north]
+
+\def\Put(#1,#2)#3{\leavevmode\makebox(0,0){\put(#1,#2){#3}}}
+
+\newcommand<>\highlightbox[2]{%
+  \alt#3{\makebox[\dimexpr\width-2\fboxsep]{\colorbox{#1}{#2}}}{#2}%
+}
+
+\newcommand{\mathcolorbox}[2]{\colorbox{#1}{$\displaystyle #2$}}
