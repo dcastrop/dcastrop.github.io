@@ -1,5 +1,6 @@
 _minted-slides
 *.nav
+*.synctex.gz
 *.pyg
 *.vrb
 *.out
