@@ -217,7 +217,7 @@ fold a = a?\tikzmark{fhalg1}? . fmap (fold a) . inOp?\tikzmark{fhcoalg1}?
   \begin{columns}
     \begin{column}{.38\textwidth}
       \begin{minted}[escapeinside=??, fontsize=\scriptsize]{Haskell}
-data TreeF a b = Leaf |  Node b a b
+data TreeC a b = Leaf |  Node b a b
 
 split [] = Leaf?\tikzmark{qscoalg1}?
 split (h : t) = Node l h r
@@ -230,8 +230,8 @@ merge (Node l x r) = \acc -> l (x : r acc)?\tikzmark{qsalg1}?
     \end{column}
     \begin{column}{.59\textwidth}\scriptsize
       \begin{tikzcd}[nodes={column sep=5em}]
-        \tikzmark{qscoalg2}\mhask{TreeF Int [Int]} \arrow[r, dotted, "\mhask{fmap qsort}"] 
-        & \mhask{TreeF Int ([Int] -> [Int])} \arrow[d, "\mhask{merge}"] 
+        \tikzmark{qscoalg2}\mhask{TreeC Int [Int]} \arrow[r, dotted, "\mhask{fmap qsort}"]
+        & \mhask{TreeC Int ([Int] -> [Int])} \arrow[d, "\mhask{merge}"]
         \\
         \mhask{[Int]} \arrow[u, "\mhask{split}"] \arrow[r, dotted, "\mhask{qsort}"] 
         & \mhask{[Int] -> [Int]}\tikzmark{qsalg2}
@@ -242,7 +242,7 @@ merge (Node l x r) = \acc -> l (x : r acc)?\tikzmark{qsalg1}?
   \begin{onlyenv}<2>
   \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
     \node[label] at (12,2) (qsa)
-      {\haskell{TreeF Int}-algebra}; 
+      {\haskell{TreeC Int}-algebra};
 
     \draw[overlay, golden, arrows=->, line width=.5mm]
       (qsa) -- ($(pic cs:qsalg1) + (.2, 0)$);
@@ -252,7 +252,7 @@ merge (Node l x r) = \acc -> l (x : r acc)?\tikzmark{qsalg1}?
 
   \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
     \node[label] at (10,7) (qsc)
-      {\haskell{TreeF Int}-coalgebra}; 
+      {\haskell{TreeC Int}-coalgebra};
 
     \draw[overlay, golden, arrows=->, line width=.5mm]
       (qsc) -- ($(pic cs:qscoalg1) + (.2, .3)$);
@@ -450,7 +450,9 @@ merge (Node l x r) = \acc -> l (x : r acc)?\tikzmark{qsalg1}?
 \begin{frame}
   \frametitle{Containers}
 
-  Containers are defined by a  pair $S \triangleleft P$:
+  Containers are defined by a  pair $S \triangleleft P$:\blfootnote{%
+    Abbott, Altenkirch, Ghani: \textbf{Categories of Containers}. FoSSaCS 2003.
+  }
   \begin{itemize}
     \item a type of \alert{shapes} $S : \mathsf{Type}$
     \item a \alert{family} of positions, indexed by shape $P : S \to \mathsf{Type}$
@@ -767,9 +769,9 @@ terminates on \coq{x : X}.
      \vspace{.4cm}
 
     \begin{itemize}
-    \item<2> Definitions (1) and (2) are equivalent
-    \item<3> Our mechanisation represents (2) in terms of (1)
-    \item<4> Termination proofs may be easier using (1) or (2), depending on the
+    \item<2-> Definitions (1) and (2) are equivalent
+    \item<3-> Our mechanisation represents (2) in terms of (1)
+    \item<4-> Termination proofs may be easier using (1) or (2), depending on the
 use case
     \end{itemize}
 \end{frame}
@@ -855,26 +857,23 @@ followed by converting the result to \coq{LFix}.
 
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[t,fragile]
   \frametitle{Proving the Laws of Hylomorphisms}
 
-The following \coq{hylo_fusion} laws \ul{are straightforward
-consequences} of \coq{hylo_univ}.
-\vspace{.4cm}
-
-The proofs are exact copies of the pen-and-paper proofs.
+The following \coq{hylo_fusion} laws \ul{are straightforward consequences} of
+\coq{hylo_univ}.\only<2>{\blfootnote{ Z. Yang, N. Wu: \textbf{Fantastic
+Morphisms and Where to Find Them - A Guide to Recursion Schemes}. MPC 2022.}}
+\vspace{.2cm}
 
   \begin{center}
-  \begin{minipage}{.7\textwidth}
+  \begin{minipage}{.82\textwidth}
   \begin{bluebox}
   \begin{coqcode}
 Lemma hylo_fusion_l
-    : f2 \o g1 =e g2 \o fmap f2 ->
-          f2 \o hylo g1 h1 =e hylo g2 h1.
+    : h \o a =e b \o fmap h -> h \o hylo a c =e hylo b c.
 
 Lemma hylo_fusion_r
-    : h1 \o f1 =e fmap f1 \o h2 ->
-          hylo g1 h1 \o f1 =e hylo g1 h2.
+    : c \o h =e fmap h \o d -> hylo a c \o h =e hylo a d.
 
 Lemma deforest : cata a \o rana c =e hylo a c.
   \end{coqcode}
@@ -883,7 +882,43 @@ Lemma deforest : cata a \o rana c =e hylo a c.
   \end{center}
 
 
+  \Put(40,90){%
+    \begin{onlyenv}<2>
+    \begin{minipage}{.86\columnwidth}
+      \small
+    \begin{greenbox}
+      The \ul{proofs in Coq are almost direct copies from pen-and-paper proofs}:
+By \coq{hylo_univ}, \coq{hylo b c} is the only arrow making the outer square
+commute.
+\[\begin{tikzcd}[ampersand replacement=\&, nodes={column sep=5em}]
+	{t b} \& { ta} \& {tc} \\
+	{f\; tb} \& {f\;ta} \& {f\;tc}
+	\arrow["h"', from=1-2, to=1-1]
+	\arrow["x"', from=1-3, to=1-2]
+	\arrow["c", from=1-3, to=2-3]
+	\arrow["b", from=2-1, to=1-1]
+	\arrow["a", from=2-2, to=1-2]
+	\arrow["{\mathsf{fmap}\;h}", from=2-2, to=2-1]
+	\arrow["{\mathsf{fmap}\;x}", from=2-3, to=2-2]
+\end{tikzcd}\]
+    \end{greenbox}
+    \end{minipage}
+    \end{onlyenv}
+  }
 
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{center}
+    \begin{itemize}
+    \item Our formalisation allows to do equational reasoning that closely
+mirrors pen-and-paper proofs.
+    \item \coq{hylo_fusion} can be applied to \emph{calculate} optimised
+programs by fusing simpler specifications in Coq.
+    \item This leads to more modular development and proofs, without affecting
+the performance of the extracted code.
+    \end{itemize}
+  \end{center}
 \end{frame}
 
 \begin{frame}
@@ -901,16 +936,82 @@ Lemma deforest : cata a \o rana c =e hylo a c.
   \vfill
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
   \frametitle{A Tree Container for Divide \&Conquer}
+
+  Our divide-and-conquer examples use a tree container \coq{TreeC A B} that is
+isomorphic to:
+  \[
+    T\; A\; B\; X = A + B \times X \times X
+  \]
+  \vspace{.3cm}
+
+  Given two setoids \coq{A} and \coq{B}, we define the following wrappers in
+Coq:
+\vspace{.4cm}
+
+\begin{center}
+\begin{minipage}{.65\textwidth}
+\begin{bluebox}
+  \begin{coqcode}
+a_node : B ~> X ~> X ~> App (TreeC A B) X
+a_leaf : A ~> App (TreeC A B) X
+a_out : App (TreeC A B) X ~> A + B * X * X
+  \end{coqcode}
+\end{bluebox}
+\end{minipage}
+\end{center}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
   \frametitle{Quicksort Definition}
+
+  \begin{coqcode}
+Definition mergeF (x : App (TreeC unit int) (list int)) : list int :=
+  match a_out x with
+  | inl _ => nil
+  | inr (p, l, r) => List.app l (h :: r)
+  end.
+
+Definition splitF (l : list int) : App (TreeC unit int) (list int) :=
+  match x with
+  | nil => a_leaf tt
+  | cons h t => let (l, r) := List.partition (fun x => x <=? h) t in
+                a_node h l r
+  end.
+  \end{coqcode}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
   \frametitle{Quicksort Extraction}
+    \begin{minipage}{.86\columnwidth}
+    \begin{bluebox}
+    \begin{coqcode}
+Definition qsort := hylo merge split.
+Extraction qsort.
+    \end{coqcode}
+    \end{bluebox}
+    \end{minipage}
+
+  \vspace{.6cm}
+
+    \begin{overprint}
+    \onslide<2->
+    \begin{minipage}{.86\columnwidth}
+    \begin{greenbox}
+    \begin{ocamlcode}
+let rec qsort = function
+| [] -> []
+| h :: t ->
+  let (l, r) = partition (fun x0 -> leb x0 h) t in
+  let x0 = fun e -> qsort (match e with
+                           | Lbranch -> l
+                           | Rbranch -> r) in
+  app (x0 Lbranch) (h :: (x0 Rbranch))
+    \end{ocamlcode}
+    \end{greenbox}
+    \end{minipage}
+    \end{overprint}
 \end{frame}
 
 \begin{frame}
