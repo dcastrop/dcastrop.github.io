@@ -72,7 +72,6 @@ fold a = f
 \end{tikzcd}
     \end{column}
   \end{columns}
-
   \begin{onlyenv}<2>
   \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
     \node[label] at (11,6.5)
@@ -239,7 +238,8 @@ merge (Node l x r) = \acc -> l (x : r acc)?\tikzmark{qsalg1}?
     \end{column}
   \end{columns}
 
-  \begin{onlyenv}<2>
+  \begin{overprint}
+    \onslide<2>
   \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
     \node[label] at (12,2) (qsa)
       {\haskell{TreeC Int}-algebra};
@@ -259,7 +259,7 @@ merge (Node l x r) = \acc -> l (x : r acc)?\tikzmark{qsalg1}?
     \draw[overlay, golden, arrows=->, line width=.5mm]
       (qsc) -- ($(pic cs:qscoalg2) + (1, .4)$);
   \end{tikzpicture}
-  \end{onlyenv}
+  \end{overprint}
 \end{frame}
 
 % \begin{frame}[fragile]
@@ -474,28 +474,28 @@ merge (Node l x r) = \acc -> l (x : r acc)?\tikzmark{qsalg1}?
   \frametitle{Example}
 
   Consider the functor
-  \only<1>{$F\; X = 1\tikzmark{shape1} + X\times X\tikzmark{shape2}$}%
+  \only<1>{$F\; X = \mathcolorbox{white}{1} + \mathcolorbox{white}{X\times X}$}%
   \only<2>{$F\; X = \mathcolorbox{golden}{1} + \mathcolorbox{golden}{X\times X}$}%
-  \only<3>{$F\; X = \mathcolorbox{golden}{1} + X\times X$}%
-  \only<4>{$F\; X = 1 + \mathcolorbox{golden}{X\times X}$}
+  \only<3>{$F\; X = \mathcolorbox{golden}{1} + \mathcolorbox{white}{X\times X}$}%
+  \only<4>{$F\; X = \mathcolorbox{white}{1} + \mathcolorbox{golden}{X\times X}$}%
   \vspace{.2cm}
 
   $S_{F}$ and $P_{F}$ define a container that is isomorphic to $F$
 
   \[
-    \only<1>{S_F = 1 + 1}%
+    \only<1>{S_F = \mathcolorbox{white}{1} + \mathcolorbox{white}{1}}%
     \only<2>{S_F = \mathcolorbox{golden}{1} + \mathcolorbox{golden}{1}}%
-    \only<3>{S_F = \mathcolorbox{golden}{1} + 1}%
-    \only<4>{S_F = 1 + \mathcolorbox{golden}{1}}%
+    \only<3>{S_F = \mathcolorbox{golden}{1} + \mathcolorbox{white}{1}}%
+    \only<4>{S_F = \mathcolorbox{white}{1} + \mathcolorbox{golden}{1}}%
     \tikzmark{shapeC}
     \hspace{.5cm}
       \begin{array}{l}
-        \only<1-2,4->{P_{F}\;(\mathsf{inl}\;\sbullet) = 0}%
+        \only<1-2,4->{\mathcolorbox{white}{P_{F}\;(\mathsf{inl}\;\sbullet) = 0}}%
         \only<3>{\mathcolorbox{golden}{P_{F}\;(\mathsf{inl}\;\sbullet) = 0}}%
         \tikzmark{pos0}
         \\
-        \only<1-3>{P_{F}\;(\mathsf{inl}\;\sbullet) = 1+1}%
-        \only<4>{\mathcolorbox{golden}{P_{F}\;(\mathsf{inl}\;\sbullet) = 1+1}}%
+        \only<1-3>{\mathcolorbox{white}{P_{F}\;(\mathsf{inr}\;\sbullet) = 1+1}}%
+        \only<4>{\mathcolorbox{golden}{P_{F}\;(\mathsf{inr}\;\sbullet) = 1+1}}%
         \tikzmark{pos1}
       \end{array}
    \]
@@ -516,29 +516,25 @@ $\llbracket S_F \triangleleft P_F \rrbracket\;\mathbb{N}$ (right):
       \end{array}
   \]
 
-  \begin{onlyenv}<2>
+  \begin{overprint}
+    \onslide<2>
   \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
     \node[label] at (12,7) (cos)
       {Two cases (``shapes'')}; 
   \end{tikzpicture}
-  \end{onlyenv}
-
-
-  \begin{onlyenv}<3>
+  \end{overprint}
+  \begin{overprint}\onslide<3>
   \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
     \node[label] at (10,8) (copl)
       {No positions on the left shape}; 
   \end{tikzpicture}
-  \end{onlyenv}
-
-
-  \begin{onlyenv}<4>
+  \end{overprint}
+  \begin{overprint}\onslide<4>
   \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
     \node[label] at (10,8) (copl)
       {Two positions on the right shape}; 
   \end{tikzpicture}
-  \end{onlyenv}
-
+  \end{overprint}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -758,15 +754,15 @@ terminates on \coq{x : X}.
      \vspace{.4cm}
 
   Using \coq{RecF}, we define:
-    \begin{itemize}
+    \begin{enumerate}
       \item Recursive coalgebras:
 
             \coq{RCoAlg C X = {c | forall x, RecF c x}}
 
       \item Given a well-founded relation \coq{R}, well-founded coalgebras
 
-            \coq{WfCoalg C X = {c | forall x p, R x (contents (c x) p)}}
-     \end{itemize}
+            \coq{WfCoalg C X = {c | forall x p, R (contents (c x) p) x}}
+     \end{enumerate}
      \vspace{.4cm}
 
     \begin{itemize}
@@ -891,16 +887,16 @@ Lemma deforest : cata a \o rana c =e hylo a c.
       The \ul{proofs in Coq are almost direct copies from pen-and-paper proofs}:
 By \coq{hylo_univ}, \coq{hylo b c} is the only arrow making the outer square
 commute.
-\[\begin{tikzcd}[ampersand replacement=\&, nodes={column sep=5em}]
+\[\begin{tikzcd}[ampersand replacement=\&, nodes={column sep=5.5em}]
 	{t b} \& { ta} \& {tc} \\
 	{f\; tb} \& {f\;ta} \& {f\;tc}
 	\arrow["h"', from=1-2, to=1-1]
-	\arrow["x"', from=1-3, to=1-2]
+	\arrow["\mathsf{hylo}\;a\;c"', from=1-3, to=1-2]
 	\arrow["c", from=1-3, to=2-3]
 	\arrow["b", from=2-1, to=1-1]
 	\arrow["a", from=2-2, to=1-2]
 	\arrow["{\mathsf{fmap}\;h}", from=2-2, to=2-1]
-	\arrow["{\mathsf{fmap}\;x}", from=2-3, to=2-2]
+	\arrow["{\mathsf{fmap}\;(\mathsf{hylo}\;a\;c)}", from=2-3, to=2-2]
 \end{tikzcd}\]
     \end{greenbox}
     \end{minipage}
@@ -1072,7 +1068,7 @@ let rec qsort_times_two = function
 
   \vspace{.2cm}
   Given an algebra $a : G(G_{\ast}A)\to A$, we can construct
-  \[ a'= \mathsf{in} \circ \mathsf{Cons} \circ \mathsf{pair}\; a\; \mathsf{id} : G(G_{\ast} A) \to G_{\ast} A
+  \[ a'= \mathsf{Cons} \circ \mathsf{pair}\; a\; \mathsf{id} : G(G_{\ast} A) \to G_{\ast} A
   \]
   $a'$ computes the current value, as well as storing it
   in the memoisation table.

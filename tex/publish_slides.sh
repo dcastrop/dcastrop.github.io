@@ -4,7 +4,7 @@ pushd $1
 rm -f slides.tgz
 latexmk -pdf slides.tex
 latexmk -c slides.tex
-rm -rf _minted-slides slides.nav slides.snm slides.vrb
+rm -rf _minted-slides slides.nav slides.snm slides.vrb .auctex-auto
 popd
 
 tar -cvzpf slides.tgz $1
