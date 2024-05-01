@@ -74,7 +74,7 @@ fold a = f
   \end{columns}
   \begin{onlyenv}<2>
   \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
-    \node[label] at (11,6.5)
+    \node[label] at (11,7.5)
     {\begin{tabular}{@{}c@{}}
       Least Fixed-Point  \\
       $\mhask{Fix f} \cong \mhask{f (Fix f)}$
@@ -83,17 +83,17 @@ fold a = f
   \end{onlyenv}
   \begin{onlyenv}<3>
   \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
-    \node[label] at (10,1) (a) {\haskell{f}-algebra};
+    \node[label] at (10,1.5) (a) {\haskell{f}-algebra};
 
     \draw[overlay, golden, arrows=->, line width=.5mm]
-      (a.west) -- (pic cs:alg1);
+      (a) -- (pic cs:alg1);
     \draw[overlay, golden, arrows=->, line width=.5mm]
-      (a.east) -- ($(pic cs:alg2) + (-.1, -.2)$);
+      (a) -- ($(pic cs:alg2) + (-.1, -.2)$);
   \end{tikzpicture}
   \end{onlyenv}
   \begin{onlyenv}<4>
   \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
-    \node[label] at (7,1) (a)
+    \node[label] at (7,1.5) (a)
       {initial \haskell{f}-algebra}; 
 
     \draw[overlay, golden, arrows=->, line width=.5mm]
@@ -147,7 +147,7 @@ hylo a c = a ?\tikzmark{halg1}? . fmap (hylo a c) . c ?\tikzmark{hcoalg1}?
 
   \begin{onlyenv}<2>
   \begin{tikzpicture}[overlay,remember picture]
-    \node[label] at (9,-1.5) (hc)
+    \node[label] at (9,-1) (hc)
       {\begin{tabular}{@{}c@{}}
         \haskell{f}-coalgebra \\
         ``divide''
@@ -199,7 +199,7 @@ fold a = a?\tikzmark{fhalg1}? . fmap (fold a) . inOp?\tikzmark{fhcoalg1}?
   \end{tikzpicture}
 
   \begin{tikzpicture}[overlay,remember picture]
-    \node[label] at (9,4) (fhc)
+    \node[label] at (9,5) (fhc)
       {\haskell{f}-coalgebra}; 
 
     \draw[overlay, golden, arrows=->, line width=.5mm]
@@ -407,47 +407,6 @@ merge (Node l x r) = \acc -> l (x : r acc)?\tikzmark{qsalg1}?
 \end{frame}
 
 \begin{frame}
-  \frametitle{Setoids and Morphisms}
-  To avoid the functional extensionality axiom, we use:
-  \begin{itemize}
-    \item \embf{setoids}: types with an associated equivalence
-    \item \embf{proper morphisms} of the respectfulness relation: functions
-      that map related inputs to related outputs
-  \end{itemize}
-  \vspace{.6cm}
-  \begin{tabular}{@{}rl@{}}
-    \alert{Setoids:} & Given \colorbox{lime}{\coq{setoid A}}, and
-  \colorbox{lime}{\coq{x y : A}}, we write 
-  \colorbox{lime}{\coq{x =e y : Prop}}.
-    \\[.5cm]
-    \alert{Morphisms}: & Given 
-  \colorbox{lime}{\coq{setoid A}} and 
-  \colorbox{lime}{\coq{setoid B}}, we write
-  \colorbox{lime}{\coq{f : A ~> B}}.
-  \end{tabular}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Code Extraction for Setoids and Morphisms}
-  We add wrappers on top of Coq's standard Setoids and Proper Morphisms.
-  \vspace{.6cm}
-
-    Every type must have \embf{exactly one} associated equivalence.
-  \vspace{.6cm}
-
-    Morphisms are records with a function, and a proof that it respects
-    the relations.
-  \vspace{.3cm}
-      \begin{itemize}
-        \item<2-> We provide automatic coercion to functions.
-        \item<2-> Coq's extraction mechanism ignores the \coq{Prop} field.
-        \item<3-> We provide a (very basic!) mechanism to help building morphisms.
-        \item<4-> We allow the use of Coq's \alert{generalised rewriting} on any
-          morphism or morphism input. 
-      \end{itemize}
-\end{frame}
-
-\begin{frame}
   \frametitle{Containers}
 
   Containers are defined by a  pair $S \triangleleft P$:\blfootnote{%
@@ -520,21 +479,59 @@ $\llbracket S_F \triangleleft P_F \rrbracket\;\mathbb{N}$ (right):
     \onslide<2>
   \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
     \node[label] at (12,7) (cos)
-      {Two cases (``shapes'')}; 
+      {Two cases (``shapes'')};
   \end{tikzpicture}
   \end{overprint}
   \begin{overprint}\onslide<3>
   \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
     \node[label] at (10,8) (copl)
-      {No positions on the left shape}; 
+      {No positions on the left shape};
   \end{tikzpicture}
   \end{overprint}
   \begin{overprint}\onslide<4>
   \begin{tikzpicture}[overlay,remember picture,shift=(current page.south west)]
     \node[label] at (10,8) (copl)
-      {Two positions on the right shape}; 
+      {Two positions on the right shape};
   \end{tikzpicture}
   \end{overprint}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Mechanising Containers: Setoids and Morphisms}
+  To avoid the functional extensionality axiom, we use:
+  \begin{itemize}
+    \item \embf{setoids}: types with an associated equivalence
+    \item \embf{proper morphisms} of the respectfulness relation: functions
+      that map related inputs to related outputs
+  \end{itemize}
+  \vspace{.6cm}
+  \begin{tabular}{@{}rl@{}}
+    \alert{Setoids:} & Given \colorbox{lime}{\coq{setoid A}}, and
+  \colorbox{lime}{\coq{x y : A}}, we write 
+  \colorbox{lime}{\coq{x =e y : Prop}}.
+    \\[.5cm]
+    \alert{Morphisms}: & Given 
+  \colorbox{lime}{\coq{setoid A}} and 
+  \colorbox{lime}{\coq{setoid B}}, we write
+  \colorbox{lime}{\coq{f : A ~> B}}.
+  \end{tabular}
+
+  \Put(30,160){%
+    \begin{onlyenv}<2>
+    \begin{minipage}{.86\columnwidth}
+    \begin{greenbox}
+      \small
+      \begin{itemize}
+        \item We provide automatic coercion from \coq{A ~> B} to \coq{A -> B}.
+        \item Coq's extraction mechanism ignores the \coq{Prop} field.
+        \item We provide a (very basic!) mechanism to help building morphisms.
+        \item Building on top of setoids \& morphisms allows the  use of Coq's
+\alert{generalised rewriting}.
+      \end{itemize}
+    \end{greenbox}
+    \end{minipage}
+    \end{onlyenv}
+  }
 \end{frame}
 
 \begin{frame}[fragile]
@@ -569,7 +566,7 @@ Record App (X : Type) :=
 \begin{frame}[fragile]
   \frametitle{Extractable Containers in Coq (I)}
 
-  Solutions:
+  Observations:
   \begin{enumerate}
     \item UIP is \alert{not an axiom} in Coq for types with a \alert{decidable
       equality}.
@@ -688,7 +685,7 @@ Example e1 : App nat :=
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Container Initial Algebras}
+  \frametitle{Algebras \& Container Initial Algebras}
 
   The least fixed-point of a container extension \coq{App C} is:
   \begin{coqcode}
@@ -709,7 +706,7 @@ cata_univ : forall (a : Alg C X) (f : LFix C ~> X),
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Container Terminal Coalgebras}
+  \frametitle{Coalgebras \& Container Terminal Coalgebras}
 
   The \ul{greatest} fixed-point of a container extension \coq{App C} is:
   \begin{coqcode}
@@ -779,14 +776,17 @@ use case
 \begin{frame}[fragile]
   \frametitle{Recursive Hylomorphisms}
 
-  Recall: hylomorphisms are solutions to the equation
+  \textbf{Recall:}
+\vspace{.2cm}
+
+  Hylomorphisms are solutions to the equation
 $f = a \circ \mathsf{fmap}\;f \circ c$.
 
-\vspace{.4cm}
-  But, due to termination, this solution \ul{may not exist}, or \ul{may not be unique}.
+\vspace{.2cm}
+  Due to termination, this solution \ul{may not exist}, or \ul{may not be unique}.
 
-\vspace{.4cm}
-  However, if $c$ is recursive, then the solution \textbf{is unique, and guaranteed to exist}.
+\vspace{.2cm}
+  If $c$ is recursive, then the solution \textbf{is unique, and guaranteed to exist}.
 \vspace{.4cm}
 
   \begin{overprint}
