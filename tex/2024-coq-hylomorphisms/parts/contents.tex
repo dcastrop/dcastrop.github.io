@@ -732,9 +732,12 @@ ana_univ : forall (c : CoAlg C X) (f : X ~> GFix C),
 \begin{frame}
   \frametitle{Recursive Coalgebras (I)}
 
-  We cannot compose \coq{cata} and any arbitrary \coq{ana}...
+  We cannot define a \coq{hylo} using arbitrary coalgebras...
 
-  \uncover<2->{But we can, if \coq{ana} is applied to a \textbf{recursive coalgebra}}.
+  \uncover<2->{But it exists for \textbf{recursive coalgebras}.%
+    \blfootnote{J. Adámek, S. Milius, L.S. Moss:
+\textbf{On Well-Founded and Recursive Coalgebras}. FoSSaCS 2020.}
+  }
   \vspace{.6cm}
 
   \uncover<3->{%
@@ -858,8 +861,11 @@ followed by converting the result to \coq{LFix}.
   \frametitle{Proving the Laws of Hylomorphisms}
 
 The following \coq{hylo_fusion} laws \ul{are straightforward consequences} of
-\coq{hylo_univ}.\only<2>{\blfootnote{ Z. Yang, N. Wu: \textbf{Fantastic
-Morphisms and Where to Find Them - A Guide to Recursion Schemes}. MPC 2022.}}
+\coq{hylo_univ}.\only<2>{%
+  \blfootnote{\tiny{}R. Hinze, N. Wu, J. Gibbons: \textbf{Conjugate
+  Hylomorphisms - Or: The Mother of All Structured Recursion Schemes}. POPL
+  2015.}
+  }
 \vspace{.2cm}
 
   \begin{center}
@@ -1053,9 +1059,6 @@ let rec qsort_times_two = function
   \frametitle{A Recursion Scheme for Dynamic Programming}
   Given a functor $G$, we can construct a
   memoisation table $G_{\ast} A = \mu X. A \times G X$.
-  \blfootnote{\tiny{}R. Hinze, N. Wu, J. Gibbons: \textbf{Conjugate
-  Hylomorphisms - Or: The Mother of All Structured Recursion Schemes}. POPL
-  2015.}
 
   We can index the memoisation table, extract its head, and insert a new element:
   \[
