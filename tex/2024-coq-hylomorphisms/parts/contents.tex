@@ -104,9 +104,29 @@ fold a = f
   \end{onlyenv}
 \end{frame}
 
+\begin{frame}[fragile]
+  \frametitle{Folds as Initial Algebras: Lists}
+    \begin{minipage}{.86\columnwidth}
+    \begin{greenbox}
+      \small
+      \begin{haskellcode}
+data ListF a b = NilF | ConsF a b
+type List a = Fix (ListF a)
+
+foldAlg :: (a -> b -> b) -> b -> ListF a b -> b
+foldAlg _ z NilF        = z
+foldAlg f _ (ConsF a b) = f a b
+
+foldr :: (a -> b -> b) -> b -> List a -> b
+foldr f z = fold (foldAlg f z)
+      \end{haskellcode}
+    \end{greenbox}
+    \end{minipage}
+\end{frame}
+
 
 \begin{frame}[fragile]
-  \frametitle{Hylomorphisms: Divide-and-conquer Computations}
+  \frametitle{Hylomorphisms: Divide-and-conquer Recursion}
   \centering
   
   \begin{columns}
@@ -316,9 +336,9 @@ merge (Node l x r) = \acc -> l (x : r acc)?\tikzmark{qsalg1}?
     \begin{greenbox}
       \small
       \begin{itemize}
-        \item Every complex recursion scheme is an hylomorphism via its associated adjunction/conjugate pair
-        \item (e.g) folds with parameters (accumulators) use the curry/uncurry adjunction
-        \item A recursion scheme from comonads (RSFCs, Uustalu, Vene, Pardo, 2001) is an conjugate hylomorphism via the coEilemberg-Moore category for the cofree comonad
+        \item Every complex recursion scheme is a hylomorphism via its associated adjunction/conjugate pair
+        \item (e.g) Folds with parameters (accumulators) use the curry/uncurry adjunction
+        \item A recursion scheme from comonads (RSFCs, Uustalu, Vene, Pardo, 2001) is an conjugate hylomorphism via the coEilenberg-Moore category for the cofree comonad
       \end{itemize}
     \end{greenbox}
     \end{minipage}
@@ -726,12 +746,12 @@ ana_univ : forall (c : CoAlg C X) (f : X ~> GFix C),
   \end{coqcode}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
   \frametitle{Recursive Coalgebras (I)}
 
-  We cannot define a \coq{hylo} using arbitrary coalgebras...
+  We cannot define \coq{hylo} in Coq using arbitrary coalgebras, because they may not exist...
 
-  \uncover<2->{But it exists for \textbf{recursive coalgebras}.%
+  \uncover<2->{But they exist for \textbf{recursive coalgebras}.%
     \blfootnote{J. Adámek, S. Milius, L.S. Moss:
 \textbf{On Well-Founded and Recursive Coalgebras}. FoSSaCS 2020.}
   }
