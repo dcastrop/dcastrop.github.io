@@ -716,7 +716,7 @@ Example e1 : App nat :=
   Algebras are of type \coq{Alg C X = App C X ~> X}.
   \vspace{.4cm}
 
-  \textbf{Cartamorphisms:}
+  \textbf{Catamorphisms:}
   \begin{coqcode}
 cata : Alg C X ~> LFix C ~> X
 
@@ -830,7 +830,7 @@ Definition hylo_def (a : Alg F B) (c : Coalg F A)
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Universal Property of Recursive Hylomorphisms}
+  \frametitle{Uniqueness of Recursive Hylomorphisms}
 
   We define wrappers over \coq{hylo_def}:
   \vspace{.2cm}
@@ -846,7 +846,7 @@ hylo : Alg C B ~> RCoAlg C A ~> A ~> B
   \end{center}
 
   \vspace{.6cm}
-  From this definition, we can prove the universal property of hylomorphisms.
+  From this definition, we can prove the uniqueness of recursive hylomorphisms.
 
   Given \coq{a : Alg C B} and \coq{c : RCoAlg C A}:
   \vspace{.2cm}
