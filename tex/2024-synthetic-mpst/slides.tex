@@ -1,0 +1,331 @@
+\documentclass[compress,usepdftitle=false,xcolor=pdftex,svgnames,table,aspectratio=169]{beamer}
+
+%\setbeameroption{show notes on second screen=right}
+% Notes
+% \usepackage{pgfpages}
+% \setbeameroption{show notes on second screen=right}
+
+%\definecolor{bluegreen}{RGB}{3, 166, 155}
+%\definecolor{pitchblack}{RGB}{0, 0, 0}
+%\definecolor{lightbeige}{RGB}{255, 251, 241}
+%\definecolor{mediumgray}{RGB}{183, 183, 183}
+
+\usepackage{mathtools}
+%\setbeamercolor{background canvas}{bg=pitchblack}
+\setbeamercolor{normal text}{fg=black}
+\setbeamercolor{frametitle}{bg=LightGrey, fg=black}
+\setbeamercolor{title}{fg=black, bg=white}
+\definecolor{blockcolor}{RGB}{250, 250, 200}
+\setbeamercolor{block}{fg=black, bg=blockcolor}
+\setbeamercolor{sticky}{fg=black, bg=blockcolor}
+%\usetheme{plain}
+%\useoutertheme[subsection=false]{miniframes}
+\usepackage[scaled]{beramono}
+\usepackage[T1]{fontenc}
+\usefonttheme{professionalfonts}
+%%\setbeamercolor{section in head/foot}{fg=white, bg=black}
+%% \setbeamercolor{mini frame}{fg=white, bg=black}
+\usebeamercolor[fg]{title in head/foot}
+\usefonttheme[onlylarge]{structurebold}
+\setbeamerfont*{frametitle}{size=\normalsize,series=\bfseries}
+\setbeamertemplate{navigation symbols}{}
+%%\setbeamertemplate{headline}[miniframes theme]{}
+%\setbeamertemplate{footline}[default]
+%\defbeamertemplate{footline}{centered page number}
+%{%
+%  \hspace*{\fill}%
+%  \usebeamercolor[fg]{page number in head/foot}%
+%  \usebeamerfont{page number in head/foot}%
+%  \insertpagenumber\,/\,\insertpresentationendpage%
+%  \hspace*{\fill}\vskip2pt%
+%}
+%\setbeamertemplate{footline}[centered page number]
+\setbeamertemplate{footline}[frame number]
+\setbeamertemplate{bibliography entry title}{}
+\setbeamertemplate{bibliography entry location}{}
+\setbeamertemplate{bibliography entry note}{}
+
+%\setbeamercolor{background canvas}{bg=LightGrey}
+
+\makeatletter
+\setbeamertemplate{title page}[default][left,colsep=-4bp,rounded=true]
+\makeatother
+\setbeamerfont{frametitle}{size=\LARGE}
+\setbeamerfont{title}{size=\Huge}
+\setbeamerfont{author}{size=\Large}
+\setbeamerfont{institute}{size=\large}
+
+\setbeamercolor*{block title alerted}{fg=black, bg=red!40}
+\setbeamercolor*{block body alerted}{fg=black, bg=red!25}
+\setbeamerfont{alerted text}{series=\bfseries}
+\setbeamercolor{alerted text}{fg=blue, bg=white}
+
+\setbeamercolor*{block title example}{fg=blue!50, bg=blue!10}
+\setbeamercolor*{block body example}{fg= blue, bg=blue!5}
+
+\newcommand\mailto[1]{\href{mailto: #1}{#1}}
+
+\newcommand\redbf[1]{{\color{red}\textbf{#1}}}
+
+\setbeamertemplate{itemize item}{\scriptsize\raise1.25pt\hbox{\textbullet}}
+\setbeamertemplate{itemize subitem}{\tiny\raise1.5pt\hbox{\textbf{--}}}
+\setbeamertemplate{itemize subsubitem}{\tiny\raise1.5pt\hbox{\textbf{--}}}
+\setbeamertemplate{enumerate item}{\insertenumlabel.}
+\setbeamertemplate{enumerate subitem}{\insertenumlabel.\insertsubenumlabel}
+\setbeamertemplate{enumerate subsubitem}{\insertenumlabel.\insertsubenumlabel.\insertsubsubenumlabel}
+\setbeamertemplate{enumerate mini template}{\insertenumlabel}
+\setbeamercolor{itemize item}{fg=gray}
+\setbeamercolor{itemize subitem}{fg=gray}
+\setbeamercolor{itemize subsubitem}{fg=gray}
+
+\newcommand{\highl}[1]{%
+  \colorbox{yellow!30}{$\displaystyle#1$}}
+
+\usepackage{tikz}
+  \usetikzlibrary{calc,decorations.pathreplacing,
+    decorations.pathmorphing,
+    decorations.markings,
+    shapes, fit,
+    arrows.meta, tikzmark
+    }
+  \usetikzlibrary{cd}
+  \usetikzlibrary{positioning}
+  \usetikzlibrary{arrows}
+\tikzset{
+    arrow at end/.style={
+        decorate,decoration={
+            markings,
+            mark=at position .999 with{
+                \arrow{#1};
+            }
+        }
+    }
+}
+
+\usepackage[skins]{tcolorbox}
+
+\newtcolorbox{sticky}[1][]
+{%
+  enhanced,
+  center upper,
+  fontupper=\strut,
+  drop fuzzy shadow southeast,
+  boxrule=0pt,
+  sharp corners,
+  colframe=yellow!80!black,
+  colback=yellow!10,
+  #1
+}
+
+\newtcolorbox{infobox}[1][]
+{%
+  enhanced,
+  %center upper,
+  drop fuzzy shadow southeast,
+  boxrule=0pt,
+  %sharp corners,
+  colframe=red!10,
+  colback=red!10,
+  #1
+}
+
+\newtcolorbox{bluebox}[1][]
+{%
+  enhanced,
+  %center upper,
+  drop fuzzy shadow southeast,
+  boxrule=0pt,
+  %sharp corners,
+  colframe=blue!10,
+  colback=blue!10,
+  #1
+}
+
+\newtcolorbox{greenbox}[1][]
+{%
+  enhanced,
+  %center upper,
+  drop fuzzy shadow southeast,
+  boxrule=0pt,
+  %sharp corners,
+  colframe=green!10,
+  colback=green!10,
+  #1
+}
+\usepackage{microtype}
+\newsavebox\CBox
+\newcommand<>*\textBF[1]{\sbox\CBox{#1}\resizebox{\wd\CBox}{\ht\CBox}{\textbf#2{#1}}}
+\usepackage{tabularx}
+\usepackage[framemethod=TikZ]{mdframed}
+
+\usepackage{soul}
+
+\newmdenv[
+  topline=false,
+  bottomline=false,
+  rightline=false,
+  skipabove=\topsep,
+  skipbelow=\topsep,
+  linewidth=1pt,
+  linecolor=cyan
+]{titlerule}
+
+\setbeamertemplate{frametitle}{%
+  \begin{titlerule}
+    \usebeamerfont{frametitle}\insertframetitle\strut%
+    \vskip-.2\baselineskip%
+    % \leaders\vrule width \paperwidth\vskip0.4pt%
+    \vskip0pt%
+    \nointerlineskip
+  \end{titlerule}
+}
+
+
+%% Terms
+\newcommand\aWrap[1]{#1}
+\newcommand\aConst[1]{\kw{const} \; #1}
+\newcommand\aId{\kw{id}}
+\newcommand\aComp{\mathbin{\circ}}
+\newcommand\aProj[1]{\pi_{#1}}
+\newcommand\aSplit{\mathbin{\vartriangle}}
+\newcommand\aInj[1]{\kw{inj}_{#1}}
+\newcommand\aCase{\mathbin{\triangledown}}
+\newcommand\aIn{\kw{in}}
+\newcommand\aOut{\kw{out}}
+\newcommand\aRec{\kw{rec}}
+
+\newcommand\mSend{\mathtt{send}}
+\newcommand\mRecv{\mathtt{recv}}
+\newcommand\mRet{\mathtt{return}}
+\newcommand\mBind{\mathbin{{\tt >}\!\!{\tt >}\!{\tt =}}}
+\newcommand\mComp{\mathbin{{\tt >}\!\!{\tt =}\!\!{\tt >}}}
+\newcommand\mPar{\mathbin{\wedge}}
+\newcommand\mChoice{\mathtt{choice}}
+\newcommand\mBranch{\mathtt{branch}}
+
+\newcommand\WF{\mathsf{WF}}
+\newcommand\pexp{\text{\color{blue}{\tt e}}}
+\newcommand\Gen[1]{\left\llbracket #1 \right\rrbracket}
+\newcommand\AT{\text{\tt @}}
+
+\newcommand\lSend[1]{!\langle #1 \rangle}
+\newcommand\lRecv[1]{?(#1)}
+
+
+\definecolor{dgreen}{RGB}{0,160,0}
+
+\renewcommand\UrlFont{\color{red}\rmfamily\itshape}
+
+\newcommand\vc[1]{\mathsf{#1}}
+
+\usepackage{bm}
+  \newcommand\role[1]{\mathsf{\bm{#1}}}
+  \newcommand\kw[1]{\mathtt{#1}}
+  \newcommand\kww[1]{\bm{\mathsf{#1}}}
+  \newcommand\size[1]{\mathsf{#1}}
+  \newcommand\crecv{c_{\mathsf{i}}}
+  \newcommand\cost{C}
+  \newcommand\Time{\mathcal{T}}
+  \newcommand\Queue{\mathcal{Q}}
+  \newcommand\addcost{\hookrightarrow}
+  \newcommand\hasCost{\diamond}
+  \newcommand\csend{c_{\mathsf{o}}}
+  \newcommand\gMsgt{\rightsquigarrow}
+  \newcommand\gMsg{\to}
+  \newcommand\gFix{\mu}
+  \newcommand\gEnd{\kw{end}}
+  \newcommand\act{\alpha}
+  \newcommand\unroll{\mathsf{unfold}}
+  \newcommand\tRun{{\diamond}}
+  % \newcommand{\rulename}[1]{\lbrack \text{#1}\rbrack}
+  \newcommand\tSend{\mathbin{!}}
+  \newcommand\tRecv{\mathbin{?}}
+  \newcommand\tSelect{\mathbin{\oplus}}
+  \newcommand\tBranch{\mathbin{\&}}
+  \newcommand\gEval{\tRun}
+  \newcommand\gTy[1]{ : \{#1\}}
+
+\usepackage{minted}
+%\setminted{fontfamily=courier}
+%
+\definecolor{keywordcolour}{rgb}{0.5,0,0.35}
+\definecolor{newkeywordcolour}{rgb}{0,0,0.5}
+\definecolor{greencomments}{rgb}{0,0.5,0}
+\definecolor{codegengray}{rgb}{0.92, 0.92, 0.92}
+
+\definecolor{gokeyword1}{rgb}{0.043, 0.066, 0.717}
+\definecolor{gokeyword2}{rgb}{0.109, 0.490, 0.145}
+% \definecolor{gocomments}{rgb}{0.549, 0.549, 0.549} % gray
+\definecolor{gocomments}{rgb}{0.654, 0.352, 0.086} % brown
+\definecolor{pkgaccesscolour}{rgb}{0, 0.643, 0.701} % blue
+\definecolor{gostrings}{rgb}{0.384, 0.737, 0.003}
+
+\usepackage{listings}
+\lstdefinelanguage{Golang}{
+  % Definition from https://github.com/julienc91/listings-golang
+  morekeywords=[1]{package,import,func,type,struct,return,defer,panic,%
+    recover,select,var,const,iota,interface,},%
+  morekeywords=[2]{string,uint,uint8,uint16,uint32,uint64,int,int8,int16,%
+    int32,int64,bool,float32,float64,complex64,complex128,byte,rune,uintptr,%
+    error,chan,},%
+  morekeywords=[3]{map,slice,make,new,nil,len,cap,copy,close,true,false,%
+    delete,append,real,imag,complex,},%
+  morekeywords=[4]{for,break,continue,range,go,goto,switch,case,fallthrough,if,%
+    else,default,},%
+  morekeywords=[5]{Printf,Print,},%
+  % pkg names
+  morekeywords=[6]{channels, messages, sync, fibonacci, invitations, protocol,%
+    fibonacci_2, roles, callbacks, results, boundedfib_2, boundedfib, fmt, dyntg,%
+    dyntg_2, bfib_2},%
+  % function names
+  morekeywords=[7]{Fibonacci_F2, StartFib2_From_Start, To_Fib_F2_Env, Fib_F2, ResultFrom_Fib_F2,%
+    Done, BoundedFib_F2, Fib2_To_F3, End_From_F3, To_BoundedFib_F1_Env, BoundedFib_F1,%
+    ResultFrom_BoundedFib_F1, BFib_F1, Worker, Master, Client, Println, ResultFrom_BFib_F1,%
+    Req_To_W, DynTG_SendChannels, To_DynTG_S_Env, DynTG_S, ResultFrom_DynTG_S,%
+    Resp_From_W, Error},%
+  % pkg access
+  morekeywords=[8]{WaitGroup, F2_Chan, Fibonacci_F2_InviteChan, Fibonacci_F2_Env,%
+    F2_Result,BoundedFib_F2_InviteChan, BoundedFib_F2_Env, S_Chan, DynTG_S_InviteChan,%
+    DynTG_S_Env, S_Result, BFib_F2_InviteChan, BFib_F2_Env, DynTG_RoleSetupChan, DynTG_InvSetupChan},%
+  keywordstyle=[1]\color{gokeyword1}\ttfamily\bfseries,
+  keywordstyle=[2]\color{gokeyword2}\ttfamily\bfseries,
+  keywordstyle=[3]\color{keywordcolour}\ttfamily\bfseries,
+  keywordstyle=[4]\color{gokeyword1}\ttfamily\bfseries,
+  keywordstyle=[5]\color{black}\ttfamily\bfseries,
+  keywordstyle=[6]\color{gokeyword2}\ttfamily\bfseries,
+  keywordstyle=[7]\color{keywordcolour}\ttfamily\bfseries,
+  keywordstyle=[8]\color{pkgaccesscolour}\ttfamily\bfseries,
+  % basicstyle=ttfamily
+  sensitive=true,%
+  morecomment=[l][\color{gocomments}]{//},%
+  morecomment=[s][\color{gocomments}]{/*}{*/},%
+  morestring=[b]',%
+  morestring=[b]",%
+  morestring=[s]{`}{`},%
+  stringstyle=\color{gostrings},%
+  mathescape=true,
+  escapeinside={@}{@},
+  literate={<-}{{{\color{gokeyword1}\ttfamily\textbf{<-}}}}1,
+}
+
+
+\titlegraphic{%
+  \begin{picture}(382,0)
+    {\put(220,-10){\includegraphics[width=4cm]{figures/UoK_Logo.jpg}}}
+  \end{picture}
+  }
+
+\title{Towards A Synthetic Formulation of Multiparty Session Types}
+\author{David Castro-Perez, Francisco Ferreira}
+\institute{\mailto{d.castro-perez@kent.ac.uk}}
+\date{%\put(0,-60){
+  06-12-2024
+%}
+}
+
+\input{macros}
+
+\begin{document}
+\frame[plain]{\titlepage}
+\input{parts/contents.tex}
+\end{document}
