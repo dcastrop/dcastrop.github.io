@@ -778,6 +778,41 @@ we will check that we are again in a bisimilar state.}}
 
 
 \begin{frame}{Properties of Synthetic MPST}
+
+  Some key lemmas:
+  \begin{displaymath}
+    \begin{array}{@{}l@{}}
+    \bullet\; \text{If } \globalt{G} \bisim \globalt{G'} \text{ and } \poft {\Gamma} {P} {G} \Rr \text{ then } \poft {\Gamma} {P} {G'} \Rr \\[.3cm]
+      \bullet\;
+      \only<1-2>{\text{If } \greduce G \alpha {G'}\text{, with }\Rr \not\in \alpha\text{, and } \poft {\Gamma} {P} {G} \Rr\text{, then } \poft {\Gamma} {P} {G'} \Rr}
+      \only<3>{\highlight{\text{If } \greduce G \alpha {G'}\text{, with }\Rr \not\in \alpha\text{, and } \poft {\Gamma} {P} {G} \Rr\text{, then } \poft {\Gamma} {P} {G'} \Rr}}
+    \end{array}
+  \end{displaymath}
+
+  \vspace{.5cm}
+
+  These are needed for proving progress and preservation.
+
+  If $\Sm$ is a collection of processes that implement all of the roles in $\globalt{G}$:
+  \begin{displaymath}
+    \begin{array}{@{}l@{}}
+      \bullet\; \text{If }\soft \Sm G {\sf Ps}\text{ and }\Sm \sstepsto \Sm'\text{, then there exists }\globalt{G'}\text{ and }\alpha\text{ such that }\\
+      \quad \greduce G \alpha {G'}\text{ and }\soft {\Sm'} {G'} {\sf Ps} \\[.4cm]
+      \bullet\; \text{If }\soft \Sm G {\sf Ps}\text{ and }\globalt{G}\text{ is not ended, then there exists }\Sm'\text{ such that }\Sm \sstepsto \Sm'.
+    \end{array}
+  \end{displaymath}
+  \Put(40,170){%
+    \begin{onlyenv}<2-3>
+    \begin{minipage}{.86\columnwidth}
+    \begin{infobox}
+      \Large
+      \bfseries
+      I am going to be annoying again ... \\\\
+      One of the above lemmas is false! It should be obvious which one ... But why?
+    \end{infobox}
+    \end{minipage}
+    \end{onlyenv}
+  }
 \end{frame}
 
 \begin{frame}
@@ -795,9 +830,27 @@ we will check that we are again in a bisimilar state.}}
 \end{frame}
 
 \begin{frame}{Benefits of Synthetic Typing}
+
+  \begin{enumerate}
+  \item Decoupling behavioural typing from the syntactic objects that describe the protocols.
+  \item No need for complex projections, merging, \ldots
+  \item As long as the protocol specifications satisfy certain required
+properties, they can be extended without affecting the typing, or the progress
+and preservation of the type system.
+  \item (Hopefully) easier integration in a mainstream programming language: we would need to
+  walk throught the AST, and step through the semantics of the protocol as needed.
+  \end{enumerate}
+
 \end{frame}
 
 \begin{frame}{TODO}
+
+  We reached (somewhat) stable definitions in our Agda mechanisation, but we need to fix (or reformulate) the following (incorrect) property:
+
+    $\text{If } \greduce G \alpha {G'}\text{, with }\Rr \not\in \alpha\text{, and } \poft {\Gamma} {P} {G} \Rr\text{, then } \poft {\Gamma} {P} {G'} \Rr$
+
+    \vspace{1cm}
+  We still need to show that type inhabitation subsumes common well-formedness criteria for global types.
 \end{frame}
 
 
