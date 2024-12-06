@@ -814,14 +814,14 @@ we will check that we are again in a bisimilar state.}}
       \Large
       \bfseries
       I am going to be annoying again ... \\\\
-      One of the above lemmas is problematic (we are not sure if it is false...)! It should be obvious which one ... But why?
+      One of the above lemmas is wrong! It should be obvious which one ... But why?
     \end{infobox}
     \end{minipage}
     \end{onlyenv}
   }
 \end{frame}
 
-\begin{frame}{Why is the Previous Lemma Problematic?}
+\begin{frame}{Why is the Previous Lemma False?}
   \begin{center}
     \begin{minipage}{.34\columnwidth}
     \begin{bluebox}
@@ -836,16 +836,16 @@ we will check that we are again in a bisimilar state.}}
           ]
 \node[state,
 onslide=<1>{highlight},
+onslide=<5>{highlight},
 initial] (1) {$1$};
-\node[state,
-right=3cm of 1] (2) {$2$};
 \node[state,
 onslide=<2>{highlight},
 onslide=<3>{highlight},
 onslide=<4>{highlight},
+right=3cm of 1] (2) {$2$};
+\node[state,
 below=.8cm of 1] (4) {$4$};
 \node[state,
-onslide=<5>{highlight},
 right=3cm of 4, accepting] (5) {$5$};
 \draw[->]
 (1) edge[bend right, below] node{$\annlbl \Rp \Rq {\dlbl{\mathsf{REQ}}(\snat)}$} (2)
@@ -866,17 +866,17 @@ right=3cm of 4, accepting] (5) {$5$};
       \tikzmarkin<3>{bb}(0.1, -.9)(-0.1, 0.6)
 \sum\left\{
     \begin{array}{@{}l@{}}
-    \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{process}(\pvar{x})\proc{.}\;
-      \pvar{X}
-      }
-      \\
       \tikzmarkin<4>{cc}(0.1, -.6)(-0.1, 0.3)
-      \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {%
+    \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{process}(\pvar{x})\proc{.}\;
       \tikzmarkin<5>{dd}
-      \pfinish
+      \pvar{X}
       \tikzmarkend{dd}
       }
       \tikzmarkend{cc}
+      \\
+      \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {%
+      \pfinish
+      }
     \end{array}\right\}
       \tikzmarkend{bb}
       }
@@ -884,10 +884,10 @@ right=3cm of 4, accepting] (5) {$5$};
   \end{displaymath}
 
   \vspace{.5cm}
-  \only<3->{Recursion state $\pvar{X}$: $\globalt{4}$}
+  \only<3->{Recursion state $\pvar{X}$: $\globalt{2}$}
 
   \vspace{.5cm}
-  \only<5>{We finished, but we never checked whether the other branch is well-typed!}
+  \only<5>{We should be at $\globalt{2}$, but we are at $\globalt{1}$!}
 \end{frame}
 
 
