@@ -82,25 +82,20 @@
   \colorbox{yellow!30}{$\displaystyle#1$}}
 
 \usepackage{tikz}
-  \usetikzlibrary{calc,decorations.pathreplacing,
-    decorations.pathmorphing,
-    decorations.markings,
-    shapes, fit,
-    arrows.meta, tikzmark
-    }
-  \usetikzlibrary{cd}
-  \usetikzlibrary{positioning}
-  \usetikzlibrary{arrows}
-\tikzset{
-    arrow at end/.style={
-        decorate,decoration={
-            markings,
-            mark=at position .999 with{
-                \arrow{#1};
-            }
-        }
-    }
+\usetikzlibrary{automata, positioning, arrows}
+
+\tikzstyle{highlight}=[fill=red,opacity=0.5,ultra thick]
+\tikzset{%
+  ->, % makes the edges directed
+  >=stealth', % makes the arrow heads bold
+  node distance=3cm, % specifies the minimum distance between two nodes. Change if necessary.
+  every state/.style={thick, fill=gray!10}, % sets the properties for each ’state’ node
+  initial text=$ $, % sets the text that appears on the start arrow
+  onslide/.code args={<#1>#2}{%
+  \only<#1>{\pgfkeysalso{#2}}}
 }
+
+\usepackage[beamer]{hf-tikz}
 
 \usepackage[skins]{tcolorbox}
 

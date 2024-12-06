@@ -193,7 +193,9 @@ L \mathbin{\lmerge} L = L
 \end{frame}
 
 \begin{frame}{What is the point of $\lmerge$?}
-  Example:
+  Consider the following protocol
+
+  -- {\small this is similar to the behaviour of the previous Go code snippet:}
 
   \begin{displaymath}
     \grecur X {
@@ -283,7 +285,27 @@ L \mathbin{\lmerge} L = L
           \end{itemize}
         \item Hard to extend
       \end{itemize}
+    \item \textbf{Imprecise} about the uses of coinduction
   \end{enumerate}
+\end{frame}
+
+\begin{frame}{Example of Imprecision in Classic MPST}
+  \boxed{\text{``We identify $\grecur X G$ with $[\grecur X G / \pvar{X}] \globalt{G}$''}}
+
+  \vspace{.4cm}
+
+  This is a common statement in proofs about MPST, which clearly specifies an equirecursive formulation, but...
+  \begin{enumerate}
+    \item The rules still refer to open global types with variables $\pvar{X}$
+    \item The rules specify when and how to unfold $\grecur X G$ -- if we are using equirecursion, $\grecur{}{}$ should not be in the syntax ouf our language!
+  \end{enumerate}
+
+  \vspace{.4cm}
+  Moreover, this ``identification'' of a global type and its unfolding is not powerful enough. E.g.
+  \[
+    \gmsg \Rp \Rq {\gmsg {\Rp'} {\Rq'} G} \neq \gmsg {\Rp'} {\Rq'} {\gmsg \Rp \Rq G}
+  \]
+  This forces the use of tedious syntactic proofs about how the swapping of unrelated actions does not affect the protocol.
 \end{frame}
 
 \begin{frame}{A Few Attempts at Simplifying the Theory}
@@ -366,31 +388,28 @@ L \mathbin{\lmerge} L = L
   \begin{array}{c}
   \uncover<1-2>{%
   \infer[T-SEND]
-  {\greduce G {\annlbl \Rp \Rq {\lbl(\expt{S})}} {G'} \and \poft \Gamma P {G'} \Rp \and
+  {\poft \Gamma P {G'} \Rp \and \greduce G {\annlbl \Rp \Rq {\lbl(\expt{S})}} {G'} \and
   \toft \Gamma e S}
   {\poft \Gamma {\psend \Rq \lbl e P} G \Rp}
   }
 
-  \\[.4cm]
+  \hspace{.6cm}
 
   \infer[T-RECV]
-  {
-    \only<1-4>{\forall (i \in I) \;{\text{s.t.}}\;
-    \greduce G {\annlbl \Rq \Rp {\lbl_i(\expt{S_i})}} {G'}}
-    \only<5->{\boxed{\forall (i \in I) \;{\text{s.t.}}\;
-    \greduce G {\annlbl \Rq \Rp {\lbl_i(\expt{S_i})}} {G'}}}
-    \;\text{ we have }\; \poft {\Gamma, {\pvar{x_i}} : {\expt{S_i}}} {P_i} {G'} \Rp}
+  {  \poft {\Gamma, {\pvar{x_i}} : {\expt{S_i}}} {P_i} {G'} \Rp \and
+    \only<1-4>{\forall\; \greduce G {\annlbl \Rq \Rp {\lbl_i(\expt{S_i})}} {G'}}
+    \only<5->{\boxed{\forall\; \greduce G {\annlbl \Rq \Rp {\lbl_i(\expt{S_i})}} {G'}}}
+  }
   {\poft \Gamma {\precv i I {\precbr q {\lbl_i} {x_i} {P_i}}} G \Rp}
 
   \\[.4cm]
 
   \uncover<1-3>{%
   \infer[T-SKIP]
-  {
-    \forall (i \in I) \; \text{s.t.} \; \greduce G {\annlbl \Rq \Rp {\lbl_i(\expt{S_i})}} {G'}
-    \; \text{and} \; \Rp \neq \Rr \wedge \Rq \neq \Rr
-    \;\text{ we have }\;
-    \poft \Gamma {P} {G'} \Rr }
+  { \poft \Gamma {P} {G'} \Rr  \and
+    \forall \; \greduce G {\alpha} {G'}
+    \; \text{s.t.} \; \Rr \not\in\mathsf{parts}(\alpha)
+  }
   {\poft \Gamma P G \Rr}
   }
   \end{array}
@@ -442,40 +461,51 @@ L \mathbin{\lmerge} L = L
 
 
 \begin{frame}{(Hopefully) Fixed Typing Rules}
-  Let $\mathcal{R}(\Rp, \Rq, \{\ell_i(\expt{S_i})\}_{i\in I},\globalt{G}) = \exists (i \in I)
-  \globalt{G'}, \greduce G {\annlbl \Rp \Rq {\lbl_i(\expt{S_i})}}
-             {G'}$ -- this means that an interaction between $\Rp$ and $\Rq$ is
+  \small
+  Let $\mathcal{R}(\alpha, \globalt{G}) = \exists \globalt{G'}
+  ,\; \greduce G {\alpha} {G'}$
+
+  -- this means that an interaction $\alpha$ is
              ``ready'' (i.e. can happen) in $\globalt{G}$.
+
+  Let $\mathcal{W}(\Rr, \globalt{G}) = \exists \alpha
+  ,\; \greduce G {\alpha} {G'} \wedge \Rr \not\in\mathsf{ports}(\alpha)$
+
+  -- this means that an interaction $\Rr$ can ``wait'' for
+    another (possibly unrelated) interaction in $\globalt{G}$.
 
 \begin{displaymath}
   \begin{array}{@{}c@{}}
-    \uncover<1,4->{%
+  \uncover<1,4->{%
   \infer[T-SEND]
-  {\greduce G {\annlbl \Rp \Rq {\lbl(\expt{S})}} {G'} \and \poft \Gamma P {G'} \Rp \and
+  {\poft \Gamma P {G'} \Rp \and \greduce G {\annlbl \Rp \Rq {\lbl(\expt{S})}} {G'} \and
   \toft \Gamma e S}
   {\poft \Gamma {\psend \Rq \lbl e P} G \Rp}
   }
 
   \\[.4cm]
 
-    \uncover<2,4->{%
+  \uncover<2,4->{%
   \infer[T-RECV]
-  { \mathcal{R}(\Rq, \Rp, \{\ell_i(\expt{S_i})\}_{i \in I}, G) \and
-    \forall (i \in I) \;{\text{s.t.}}\;
-    \greduce G {\annlbl \Rq \Rp {\lbl_i(\expt{S_i})}} {G'}
-    \;\text{ we have }\; \poft {\Gamma, {\pvar{x_i}} : {\expt{S_i}}} {P_i} {G'} \Rp}
+    { \only<1-3>{\exists (j \in I), \mathcal{R}(\annlbl \Rq \Rp {\lbl_j(\expt{S_j})}, \globalt{G})}
+      \only<4->{\boxed{\exists (j \in I), \mathcal{R}(\annlbl \Rq \Rp {\lbl_j(\expt{S_j})}, \globalt{G})}}
+      \and
+      \poft {\Gamma, {\pvar{x_i}} : {\expt{S_i}}} {P_i} {G'} \Rp \and
+    \forall\; \greduce G {\annlbl \Rq \Rp {\lbl_i(\expt{S_i})}} {G'}
+  }
   {\poft \Gamma {\precv i I {\precbr q {\lbl_i} {x_i} {P_i}}} G \Rp}
   }
 
   \\[.4cm]
 
-    \uncover<3,4->{%
+  \uncover<3,4->{%
   \infer[T-SKIP]
-  { \mathcal{R}(\Rq, \Rp, \{\ell_i(\expt{S_i})\}_{i \in I}, G) \wedge
-    (\Rr \not\in \{\Rp, \Rq\}) \\\\
-    \forall (i \in I) \; \text{s.t.} \; \greduce G {\annlbl \Rq \Rp {\lbl_i(\expt{S_i})}} {G'}
-    \;\text{ we have }\;
-    \poft \Gamma {P} {G'} \Rr }
+    { \only<1-3>{\mathcal{W}(\Rr, \globalt{G})}
+      \only<4->{\boxed{\mathcal{W}(\Rr, \globalt{G})}}
+      \and
+      \poft \Gamma {P} {G'} \Rr  \and
+    \forall \; \greduce G {\alpha} {G'} \;\text{s.t.} \Rr \not\in \mathsf{parts}(\alpha)
+  }
   {\poft \Gamma P G \Rr}
   }
   \end{array}
@@ -499,13 +529,192 @@ L \mathbin{\lmerge} L = L
 \end{frame}
 
 \begin{frame}{Semantics}
-\end{frame}
+  The semantics of global types is defined in a standard way.
 
-\begin{frame}{Examples}
+  \vspace{.2cm}
+
+  Although the semantics is synchronous, this does not prevent us from defining an asynchronous semantics for processes.
+
+  \vspace{.2cm}
+
+  It deals with recursion: in our typing rules we do not need to deal with recursion variables or global type unfolding -- a true equirecursive formulation in our type system.
+
+  \vspace{.2cm}
+
+  \begin{displaymath}
+    \begin{array}{@{}c@{}}
+      \greduce {\gmsg \Rp \Rq {{\gmsgbr {\lbl_i} {S_i} {G_i}}_{i\in I}}}
+      {\annlbl \Rp \Rq {\lbl_{i}(\expt{S_{i}})}}
+      {G_{i}}
+      \hspace{1cm}
+      \infer{
+      \greduce {[\grecur X G / \pvar{X}] \globalt{G}}
+      {\alpha}
+      {G'}
+      }{
+      \greduce {\grecur X G}
+      {\alpha}
+      {G'}
+      }
+      \\[.7cm]
+      \infer{
+      \forall (i \in I), \greduce {G_{i}} {\alpha} {G_{i}'}
+      \and
+      \mathsf{parts}(\alpha) \cap \{\Rp, \Rq \} = \emptyset
+      }{
+      \greduce {\gmsg \Rp \Rq {{\gmsgbr {\lbl_i} {S_i} {G_i}}_{i\in I}}}
+      {\alpha}
+      {\gmsg \Rp \Rq {{\gmsgbr {\lbl_i} {S_i} {G_i'}}_{i\in I}}}
+      }
+    \end{array}
+  \end{displaymath}
+
 \end{frame}
 
 \begin{frame}{Global Type Bisimilarity}
+
+  We define our own custom equality for global types. In particular, our global  type equality is a coinductive definition of \textbf{strong bisimilarity}:
+
+  \vspace{.4cm}
+
+  $G_{1} \bisim G_{2}$ iff:
+  \begin{itemize}
+          \item $\forall \alpha, \; \greduce{G_{1}}{\alpha}{G_{1}'} \Rightarrow \exists {G_{2}'}, \; \greduce{G_{2}}{\alpha}{G_{2}'} \wedge G_{1}' \bisim G_{2}'$
+          \item $\forall \alpha, \; \greduce{G_{2}}{\alpha}{G_{2}'} \Rightarrow \exists {G_{1}'}, \; \greduce{G_{1}}{\alpha}{G_{1}'} \wedge G_{1}' \bisim G_{2}'$
+  \end{itemize}
+
+  \vspace{.4cm}
+  It is straightforward that $[\grecur X G / \pvar{X}] \globalt{G} \bisim \grecur X G$
+
+  \Put(40,290){%
+    \begin{onlyenv}<2>
+    \begin{minipage}{.86\columnwidth}
+    \begin{greenbox}
+      \Huge
+      We \textbf{never} use syntactic equality, in our type system, only $\globalt{G} \bisim \globalt{G'}$
+    \end{greenbox}
+    \end{minipage}
+    \end{onlyenv}
+  }
+
 \end{frame}
+
+\begin{frame}{Example}
+
+  Consider again:
+  \begin{displaymath}
+    \globalt{G} = \grecur X {
+\gmsg \Rp \Rq {\left\{%
+  \begin{array}{l@{}l}
+   \dlbl{\mathsf{REQ}}(\snat) &. \gmsg \Rq \Rr {\dlbl{\mathsf{REQ}}(\sbool). \pvar{X}} \\
+   \dlbl{\mathsf{END}}() &. \gmsg \Rq \Rr {\dlbl{\mathsf{END}}(). \pfinish}
+  \end{array}
+   \right\}}}
+  \end{displaymath}
+
+  We are going to typecheck a process implementing role $\Rr$...
+
+  \uncover<2>{\textbf{but first, let's get rid of the syntax for $\globalt{G}$!}}
+\end{frame}
+
+\begin{frame}{Example: Semantic View of Global Types}
+
+  \begin{displaymath}
+    \grecur X {
+\gmsg \Rp \Rq {\left\{%
+  \begin{array}{l@{}l}
+   \dlbl{\mathsf{REQ}}(\snat) &. \gmsg \Rq \Rr {\dlbl{\mathsf{REQ}}(\sbool). \pvar{X}} \\
+   \dlbl{\mathsf{END}}() &. \gmsg \Rq \Rr {\dlbl{\mathsf{END}}(). \pfinish}
+  \end{array}
+   \right\}}}
+  \end{displaymath}
+
+  \vspace{.3cm}
+
+  \begin{center}
+  \begin{tikzpicture}
+\node[state, initial] (1) {$1$};
+\node[state, right=3cm of 1] (2) {$2$};
+\node[state, below=1.5cm of 1] (4) {$4$};
+\node[state, right=3cm of 4, accepting] (5) {$5$};
+\draw[->]
+(1) edge[bend right, below] node{$\annlbl \Rp \Rq {\dlbl{\mathsf{REQ}}(\snat)}$} (2)
+(1) edge[left] node{$\annlbl \Rp \Rq {\dlbl{\mathsf{END}}()}$} (4)
+(2) edge[bend right, above] node{$\annlbl \Rq \Rr {\dlbl{\mathsf{REQ}}(\sbool)}$} (1)
+(4) edge[below] node{$\annlbl \Rq \Rr {\dlbl{\mathsf{END}}()}$} (5);
+\end{tikzpicture}
+\end{center}
+
+  \Put(40,290){%
+    \begin{onlyenv}<2>
+    \begin{minipage}{.86\columnwidth}
+    \begin{greenbox}
+      \large
+      (Small parenthesis, and shameless advertising: I am working with Jonah
+       -- and hopefully joining efforts with Francisco, Marco Carbone, Alceste Scalas, any of you that is interested ... -- on
+       automating the mechanisation of this semantic view of LTS in Coq/OCaml.)
+    \end{greenbox}
+    \end{minipage}
+    \end{onlyenv}
+  }
+\end{frame}
+
+\begin{frame}[t]{Example: Process \& Typing}
+  \Put(280,60){%
+    \begin{minipage}{.32\columnwidth}
+    \begin{bluebox}
+      \vspace{-.3cm}
+      \resizebox{\columnwidth}{!}{%
+  \begin{tikzpicture}
+\node[state,
+onslide=<2>{highlight},
+onslide=<3>{highlight},
+initial] (1) {$1$};
+\node[state, right=3cm of 1] (2) {$2$};
+\node[state, below=.8cm of 1] (4) {$4$};
+\node[state, right=3cm of 4, accepting] (5) {$5$};
+\draw[->]
+(1) edge[bend right, below] node{$\annlbl \Rp \Rq {\dlbl{\mathsf{REQ}}(\snat)}$} (2)
+(1) edge[left] node{$\annlbl \Rp \Rq {\dlbl{\mathsf{END}}()}$} (4)
+(2) edge[bend right, above] node{$\annlbl \Rq \Rr {\dlbl{\mathsf{REQ}}(\sbool)}$} (1)
+(4) edge[below] node{$\annlbl \Rq \Rr {\dlbl{\mathsf{END}}()}$} (5);
+\end{tikzpicture}
+}\vspace{-.3cm}
+    \end{bluebox}
+    \end{minipage}
+  }
+
+  \vspace{1.5cm}
+
+  \begin{displaymath}
+    \proc{P} = \proc{\sum}\left\{
+    \begin{array}{@{}l@{}}
+    \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{print}(\pvar{x})\proc{.}\;
+      \precur X {%
+\sum\left\{
+    \begin{array}{@{}l@{}}
+    \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{process}(\pvar{x})\proc{.}\;
+      \pvar{X}}
+      \\
+    \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {\pfinish}
+    \end{array}\right\}
+      }}
+      \\
+    \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {\pfinish}
+    \end{array}\right\}
+  \end{displaymath}
+
+  \vspace{.5cm}
+
+  \only<2,3>{Goal: $\boxed{\poft {\cdot} {P} {\globalt{1}} \Rr}$ -- for simplicity, this example uses LTS state numbers as global types.}
+  \only<3>{
+
+    \vspace{.1cm}
+    --We have a $\proc{\sum}$, so we can only apply either T-RECV or
+T-SKIP. At $\globalt{1}$, $\Rr$ cannot receive from $\Rq$, so we must use
+T-SKIP.}
+\end{frame}
+
 
 \begin{frame}{Properties of Synthetic MPST}
 \end{frame}
@@ -518,7 +727,6 @@ L \mathbin{\lmerge} L = L
     \usebeamerfont{title}
     {\normalfont \textbf{Wrap Up}}
 
-    {\normalfont\Large A Crash Course on Classic Multiparty Session Types}
     \par%
   \end{sticky}
   %\end{beamercolorbox}
