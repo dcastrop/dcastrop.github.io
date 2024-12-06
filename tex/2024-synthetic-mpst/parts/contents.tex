@@ -669,10 +669,26 @@ L \mathbin{\lmerge} L = L
 \node[state,
 onslide=<2>{highlight},
 onslide=<3>{highlight},
+onslide=<8>{highlight},
+onslide=<9>{highlight},
+onslide=<10>{highlight},
+onslide=<13>{highlight},
+onslide=<14>{highlight},
 initial] (1) {$1$};
-\node[state, right=3cm of 1] (2) {$2$};
-\node[state, below=.8cm of 1] (4) {$4$};
-\node[state, right=3cm of 4, accepting] (5) {$5$};
+\node[state,
+onslide=<4>{highlight},
+onslide=<7>{highlight},
+onslide=<12>{highlight},
+right=3cm of 1] (2) {$2$};
+\node[state,
+onslide=<4>{highlight},
+onslide=<5>{highlight},
+onslide=<11>{highlight},
+below=.8cm of 1] (4) {$4$};
+\node[state,
+onslide=<6>{highlight},
+onslide=<11>{highlight},
+right=3cm of 4, accepting] (5) {$5$};
 \draw[->]
 (1) edge[bend right, below] node{$\annlbl \Rp \Rq {\dlbl{\mathsf{REQ}}(\snat)}$} (2)
 (1) edge[left] node{$\annlbl \Rp \Rq {\dlbl{\mathsf{END}}()}$} (4)
@@ -689,18 +705,32 @@ initial] (1) {$1$};
   \begin{displaymath}
     \proc{P} = \proc{\sum}\left\{
     \begin{array}{@{}l@{}}
+      \tikzmarkin<7>{c}(0.1, -0.4)(-0.1, 0.6)
     \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{print}(\pvar{x})\proc{.}\;
+      \tikzmarkin<8-9>{d}(0.1, -0.4)(-0.1, 0.6)
       \precur X {%
+      \tikzmarkin<10>{e}(0.1, -0.4)(-0.1, 0.6)
 \sum\left\{
     \begin{array}{@{}l@{}}
+      \tikzmarkin<12>{g}
     \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{process}(\pvar{x})\proc{.}\;
-      \pvar{X}}
+      \tikzmarkin<13,14>{h}
+      \pvar{X}
+      \tikzmarkend{h}
+      }
+      \tikzmarkend{g}
       \\
+      \tikzmarkin<11>{f}
     \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {\pfinish}
+      \tikzmarkend{f}
     \end{array}\right\}
-      }}
+      \tikzmarkend{e}
+      }
+      \tikzmarkend{d}
+      }
+      \tikzmarkend{c}
       \\
-    \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {\pfinish}
+    \tikzmarkin<5>{a}\precbr \Rq {\dlbl{\mathsf{END}}} {\_} {\tikzmarkin<6>{b}\pfinish\tikzmarkend{b}}\tikzmarkend{a}
     \end{array}\right\}
   \end{displaymath}
 
@@ -713,6 +743,37 @@ initial] (1) {$1$};
     --We have a $\proc{\sum}$, so we can only apply either T-RECV or
 T-SKIP. At $\globalt{1}$, $\Rr$ cannot receive from $\Rq$, so we must use
 T-SKIP.}
+  \only<4-8>{Two cases: $\globalt{1} \to \globalt{2}$, and $\globalt{1} \to \globalt{4}$}
+  \only<5,6>{
+
+    \vspace{.1cm}
+    -- At $\globalt{4}$, we have that $\annlbl \Rq \Rr {\dlbl{\mathsf{END}}()}$
+
+  \vspace{.1cm}
+    -- We transition to $\globalt{5}$, where the process is ended, and $\Rr$ can no longer take any action in $\globalt{G}$. }
+  \only<7,8>{
+
+    \vspace{.1cm}
+    -- At $\globalt{2}$, we have that $\annlbl \Rq \Rr {\dlbl{\mathsf{REQ}}(\sbool)}$
+
+  \vspace{.1cm}
+    -- We transition back to $\globalt{1}$. }
+  \only<9-14>{With a $\precur X {}$, we need to remember the state of the
+protocol, $\tikzmarkin<14>{last}\boxed{\globalt{1}}\tikzmarkend{last}$. \only<9>{Whenever we jump back to $\pvar{X}$,
+we will check that we are again in a bisimilar state.}}
+\only<10-13>{
+
+    \vspace{.1cm}
+    -- We use again T-SKIP and T-RECV.
+  }\only<14>{
+
+    \vspace{.1cm}
+    -- We landed in the same state where we used recursion.
+  }
+  \only<15>{
+    \begin{greenbox}
+      We finished building our type derivation: the process is well typed
+    \end{greenbox}}
 \end{frame}
 
 
