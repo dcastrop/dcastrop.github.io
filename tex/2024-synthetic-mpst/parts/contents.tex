@@ -86,8 +86,8 @@ func Master(reqCh chan int, respCh chan []int, cErrCh chan error) {
     \item \underline{Global types:} protocol specifications among a fixed number of different \emph{roles}.
     \item \underline{Role:} sets of interactions that processes can do in a protocol.
     \item \underline{Local types:} protocol specifications \emph{from the point of view of a single role}.
-    \item \underline{Projection:} a \emph{partial function} that extracts
-      \emph{local type} given a \emph{global types} and a \emph{role}.
+    \item \underline{Projection:} a \emph{partial function} that extracts a
+      \emph{local type} given a \emph{global type} and a \emph{role}.
     \item[]
     \item \underline{Well-formedness:} guarantees \textbf{deadlock-freedom},
       usually defined in terms of \emph{projectability}.
@@ -469,9 +469,9 @@ L \mathbin{\lmerge} L = L
              ``ready'' (i.e. can happen) in $\globalt{G}$.
 
   Let $\mathcal{W}(\Rr, \globalt{G}) = \exists \alpha
-  ,\; \greduce G {\alpha} {G'} \wedge \Rr \not\in\mathsf{ports}(\alpha)$
+  ,\; \mathcal{R}(\alpha, G) \wedge \Rr \not\in\mathsf{parts}(\alpha)$
 
-  -- this means that an interaction $\Rr$ can ``wait'' for
+  -- this means that $\Rr$ can ``wait'' for
     another (possibly unrelated) interaction in $\globalt{G}$.
 
 \begin{displaymath}
@@ -518,9 +518,8 @@ L \mathbin{\lmerge} L = L
         \item The rules look more complex than with a syntactic approach, but
           computing $\greduce G {\annlbl \Rq \Rp {\lbl_i(\expt{S_i})}} {G'}$ is
           entirely mechanical by using the semantics of global types.
-         \item The proof of subject reduction is greatly simplified (more in a
-           few slides) with this formulation.
-          \item No need of projection/merging.
+         \item The proof of subject reduction is greatly simplified with this formulation.
+          \item There is no need of projection/merging.
       \end{itemize}
     \end{greenbox}
     \end{minipage}
@@ -543,10 +542,11 @@ L \mathbin{\lmerge} L = L
 
   \begin{displaymath}
     \begin{array}{@{}c@{}}
+      \infer{  j \in I }{
       \greduce {\gmsg \Rp \Rq {{\gmsgbr {\lbl_i} {S_i} {G_i}}_{i\in I}}}
-      {\annlbl \Rp \Rq {\lbl_{i}(\expt{S_{i}})}}
-      {G_{i}}
-      \hspace{1cm}
+      {\annlbl \Rp \Rq {\lbl_{j}(\expt{S_{j}})}}
+      {G_{j}}}
+      \hspace{1.5cm}
       \infer{
       \greduce {[\grecur X G / \pvar{X}] \globalt{G}}
       {\alpha}
@@ -556,7 +556,7 @@ L \mathbin{\lmerge} L = L
       {\alpha}
       {G'}
       }
-      \\[.7cm]
+      \\[1.3cm]
       \infer{
       \forall (i \in I), \greduce {G_{i}} {\alpha} {G_{i}'}
       \and
@@ -573,20 +573,20 @@ L \mathbin{\lmerge} L = L
 
 \begin{frame}{Global Type Bisimilarity}
 
-  We define our own custom equality for global types. In particular, our global  type equality is a coinductive definition of \textbf{strong bisimilarity}:
+  We use a coinductive definition of \textbf{strong bisimilarity}:
 
   \vspace{.4cm}
 
-  $G_{1} \bisim G_{2}$ iff:
+  $\globalt{G_{1}} \bisim \globalt{G_{2}}$ iff:
   \begin{itemize}
-          \item $\forall \alpha, \; \greduce{G_{1}}{\alpha}{G_{1}'} \Rightarrow \exists {G_{2}'}, \; \greduce{G_{2}}{\alpha}{G_{2}'} \wedge G_{1}' \bisim G_{2}'$
-          \item $\forall \alpha, \; \greduce{G_{2}}{\alpha}{G_{2}'} \Rightarrow \exists {G_{1}'}, \; \greduce{G_{1}}{\alpha}{G_{1}'} \wedge G_{1}' \bisim G_{2}'$
+          \item $\forall \alpha, \; \greduce{G_{1}}{\alpha}{G_{1}'} \Rightarrow \exists {G_{2}'}, \; \greduce{G_{2}}{\alpha}{G_{2}'} \wedge \globalt{G_{1}'} \bisim \globalt{G_{2}'}$
+          \item $\forall \alpha, \; \greduce{G_{2}}{\alpha}{G_{2}'} \Rightarrow \exists {G_{1}'}, \; \greduce{G_{1}}{\alpha}{G_{1}'} \wedge \globalt{G_{1}'} \bisim \globalt{G_{2}'}$
   \end{itemize}
 
   \vspace{.4cm}
   It is straightforward that $[\grecur X G / \pvar{X}] \globalt{G} \bisim \grecur X G$
 
-  \Put(40,290){%
+  \Put(20,180){%
     \begin{onlyenv}<2>
     \begin{minipage}{.86\columnwidth}
     \begin{greenbox}
@@ -749,18 +749,18 @@ right=3cm of 4, accepting] (5) {$5$};
     --We have a $\proc{\sum}$, so we can only apply either T-RECV or
 T-SKIP. At $\globalt{1}$, $\Rr$ cannot receive from $\Rq$, so we must use
 T-SKIP.}
-  \only<4-8>{Two cases: $\globalt{1} \to \globalt{2}$, and $\globalt{1} \to \globalt{4}$}
+  \only<4-8>{Two cases: $\tikzmarkin<7,8>{gtL}\globalt{1} \to \globalt{2}\tikzmarkend{gtL}$, and $\tikzmarkin<5,6>{gtR}\globalt{1} \to \globalt{4}\tikzmarkend{gtR}$}
   \only<5,6>{
 
-    \vspace{.1cm}
-    -- At $\globalt{4}$, we have that $\annlbl \Rq \Rr {\dlbl{\mathsf{END}}()}$
+    \vspace{.2cm}
+    -- We have that $\greduce 4 {\annlbl \Rq \Rr {\dlbl{\mathsf{END}}()}} 5$
 
   \vspace{.1cm}
-    -- We transition to $\globalt{5}$, where the process is ended, and $\Rr$ can no longer take any action in $\globalt{G}$. }
+    -- At $\globalt{5}$, $\Rr$ can no longer take any action in $\globalt{G}$, so $\pfinish$ is well typed. }
   \only<7,8>{
 
-    \vspace{.1cm}
-    -- At $\globalt{2}$, we have that $\annlbl \Rq \Rr {\dlbl{\mathsf{REQ}}(\sbool)}$
+    \vspace{.2cm}
+    -- We have that $\greduce 2 {\annlbl \Rq \Rr {\dlbl{\mathsf{REQ}}(\sbool)}} 1$
 
   \vspace{.1cm}
     -- We transition back to $\globalt{1}$. }
@@ -802,9 +802,9 @@ we will check that we are again in a bisimilar state.}}
   If $\Sm$ is a collection of processes that implement all of the roles in $\globalt{G}$:
   \begin{displaymath}
     \begin{array}{@{}l@{}}
-      \bullet\; \text{If }\soft \Sm G {\sf Ps}\text{ and }\Sm \sstepsto \Sm'\text{, then there exists }\globalt{G'}\text{ and }\alpha\text{ such that }\\
-      \quad \greduce G \alpha {G'}\text{ and }\soft {\Sm'} {G'} {\sf Ps} \\[.4cm]
-      \bullet\; \text{If }\soft \Sm G {\sf Ps}\text{ and }\globalt{G}\text{ is not ended, then there exists }\Sm'\text{ such that }\Sm \sstepsto \Sm'.
+      \bullet\; \text{If }\soft \Sm G\text{ and }\Sm \sstepsto \Sm'\text{, then there exists }\globalt{G'}\text{ and }\alpha\text{ such that }\\
+      \quad \greduce G \alpha {G'}\text{ and }\soft {\Sm'} {G'} \\[.4cm]
+      \bullet\; \text{If }\soft \Sm G \text{ and }\globalt{G}\text{ is not ended, then there exists }\Sm'\text{ such that }\Sm \sstepsto \Sm'.
     \end{array}
   \end{displaymath}
   \Put(40,170){%
@@ -814,12 +814,82 @@ we will check that we are again in a bisimilar state.}}
       \Large
       \bfseries
       I am going to be annoying again ... \\\\
-      One of the above lemmas is false! It should be obvious which one ... But why?
+      One of the above lemmas is problematic (we are not sure if it is false...)! It should be obvious which one ... But why?
     \end{infobox}
     \end{minipage}
     \end{onlyenv}
   }
 \end{frame}
+
+\begin{frame}{Why is the Previous Lemma Problematic?}
+  \begin{center}
+    \begin{minipage}{.34\columnwidth}
+    \begin{bluebox}
+      \vspace{-.3cm}
+      \resizebox{\columnwidth}{!}{%
+        \begin{tikzpicture}[
+  ->, % makes the edges directed
+  >=stealth', % makes the arrow heads bold
+  node distance=3cm, % specifies the minimum distance between two nodes. Change if necessary.
+  every state/.style={thick, fill=gray!10}, % sets the properties for each ’state’ node
+  initial text=$ $ % sets the text that appears on the start arrow
+          ]
+\node[state,
+onslide=<1>{highlight},
+initial] (1) {$1$};
+\node[state,
+right=3cm of 1] (2) {$2$};
+\node[state,
+onslide=<2>{highlight},
+onslide=<3>{highlight},
+onslide=<4>{highlight},
+below=.8cm of 1] (4) {$4$};
+\node[state,
+onslide=<5>{highlight},
+right=3cm of 4, accepting] (5) {$5$};
+\draw[->]
+(1) edge[bend right, below] node{$\annlbl \Rp \Rq {\dlbl{\mathsf{REQ}}(\snat)}$} (2)
+(1) edge[left] node{$\annlbl \Rp \Rq {\dlbl{\mathsf{END}}()}$} (4)
+(2) edge[bend right, above] node{$\annlbl \Rq \Rr {\dlbl{\mathsf{REQ}}(\sbool)}$} (1)
+(4) edge[below] node{$\annlbl \Rq \Rr {\dlbl{\mathsf{END}}()}$} (5);
+\end{tikzpicture}
+}\vspace{-.3cm}
+    \end{bluebox}
+    \end{minipage}
+  \end{center}
+
+  \vspace{0.8cm}
+
+  \begin{displaymath}
+      \tikzmarkin<1,2>{aa}(0.1, -.95)(-0.1, 0.6)
+      \precur X {%
+      \tikzmarkin<3>{bb}(0.1, -.9)(-0.1, 0.6)
+\sum\left\{
+    \begin{array}{@{}l@{}}
+    \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{process}(\pvar{x})\proc{.}\;
+      \pvar{X}
+      }
+      \\
+      \tikzmarkin<4>{cc}(0.1, -.6)(-0.1, 0.3)
+      \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {%
+      \tikzmarkin<5>{dd}
+      \pfinish
+      \tikzmarkend{dd}
+      }
+      \tikzmarkend{cc}
+    \end{array}\right\}
+      \tikzmarkend{bb}
+      }
+      \tikzmarkend{aa}
+  \end{displaymath}
+
+  \vspace{.5cm}
+  \only<3->{Recursion state $\pvar{X}$: $\globalt{4}$}
+
+  \vspace{.5cm}
+  \only<5>{We finished, but we never checked whether the other branch is well-typed!}
+\end{frame}
+
 
 \begin{frame}
   \vfill
