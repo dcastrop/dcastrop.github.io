@@ -665,7 +665,13 @@ L \mathbin{\lmerge} L = L
     \begin{bluebox}
       \vspace{-.3cm}
       \resizebox{\columnwidth}{!}{%
-  \begin{tikzpicture}
+        \begin{tikzpicture}[
+  ->, % makes the edges directed
+  >=stealth', % makes the arrow heads bold
+  node distance=3cm, % specifies the minimum distance between two nodes. Change if necessary.
+  every state/.style={thick, fill=gray!10}, % sets the properties for each ’state’ node
+  initial text=$ $ % sets the text that appears on the start arrow
+          ]
 \node[state,
 onslide=<2>{highlight},
 onslide=<3>{highlight},
