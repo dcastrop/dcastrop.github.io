@@ -263,6 +263,26 @@ L \mathbin{\lmerge} L = L
   {\loft \Gamma {\precv i I {\precbr p {\lbl_i} {x_i} {P_i}}} (\lrecv \Rp {{\lmsgbr {\lbl_i} {S_i} {L_i}}_{i\in I}})}
   \end{array}
 \end{displaymath}
+\Put(20,250){
+  \begin{onlyenv}<2->
+    \begin{minipage}{.55\columnwidth}
+      \begin{infobox}
+        \large
+        Local types and processes are so similar that some developments omit
+them, and projection produces directly processes.
+      \end{infobox}
+    \end{minipage}
+  \end{onlyenv}
+}
+\Put(40,200){
+  \begin{onlyenv}<3>
+    \begin{minipage}{.75\columnwidth}
+      \begin{sticky}
+        \includegraphics[width=\columnwidth]{figures/deconfined-session-types.pdf}
+      \end{sticky}
+    \end{minipage}
+  \end{onlyenv}
+}
 
 \end{frame}
 
@@ -310,21 +330,32 @@ L \mathbin{\lmerge} L = L
 
 \begin{frame}{A Few Attempts at Simplifying the Theory}
 
+  \begin{center}
+    \begin{minipage}{.86\columnwidth}
+    \begin{sticky}
+        \includegraphics[width=\columnwidth]{figures/deconfined-session-types.pdf}
+    \end{sticky}
+    \end{minipage}
+  \end{center}
+
+  \Put(40,210){%
+    \begin{onlyenv}<2->
     \begin{minipage}{.86\columnwidth}
     \begin{sticky}
   \includegraphics[width=\textwidth]{figures/less-is-more.pdf}
     \end{sticky}
     \end{minipage}
-
-  \Put(40,40){%
-    \begin{onlyenv}<2->
-    \begin{minipage}{.86\columnwidth}
-    \begin{sticky}
-  \includegraphics[width=\textwidth]{figures/less-is-more-revisite.pdf}
-    \end{sticky}
-    \end{minipage}
     \end{onlyenv}
    }
+\Put(60,140){
+  \begin{onlyenv}<3->
+    \begin{minipage}{.75\columnwidth}
+      \begin{sticky}
+  \includegraphics[width=\textwidth]{figures/less-is-more-revisite.pdf}
+      \end{sticky}
+    \end{minipage}
+  \end{onlyenv}
+}
 
 \end{frame}
 
@@ -532,7 +563,7 @@ L \mathbin{\lmerge} L = L
 
   \vspace{.2cm}
 
-  Although the semantics is synchronous, this does not prevent us from defining an asynchronous semantics for processes.
+  Although the current semantics is synchronous, this does not prevent us from defining an asynchronous semantics for processes.
 
   \vspace{.2cm}
 
