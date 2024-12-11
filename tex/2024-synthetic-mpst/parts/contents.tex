@@ -922,6 +922,97 @@ right=3cm of 4, accepting] (5) {$5$};
 \end{frame}
 
 
+\begin{frame}{A Potential Solution: Unfolding the Process}
+  \begin{center}
+    \begin{minipage}{.34\columnwidth}
+    \begin{bluebox}
+      \vspace{-.3cm}
+      \resizebox{\columnwidth}{!}{%
+        \begin{tikzpicture}[
+  ->, % makes the edges directed
+  >=stealth', % makes the arrow heads bold
+  node distance=3cm, % specifies the minimum distance between two nodes. Change if necessary.
+  every state/.style={thick, fill=gray!10}, % sets the properties for each ’state’ node
+  initial text=$ $ % sets the text that appears on the start arrow
+          ]
+\node[state,
+onslide=<1>{highlight},
+onslide=<4>{highlight},
+onslide=<5>{highlight},
+onslide=<9>{highlight},
+initial] (1) {$1$};
+\node[state,
+onslide=<2>{highlight},
+onslide=<3>{highlight},
+onslide=<8>{highlight},
+right=3cm of 1] (2) {$2$};
+\node[state,
+onslide=<6>{highlight},
+below=.8cm of 1] (4) {$4$};
+\node[state,
+onslide=<7>{highlight},
+right=3cm of 4, accepting] (5) {$5$};
+\draw[->]
+(1) edge[bend right, below] node{$\annlbl \Rp \Rq {\dlbl{\mathsf{REQ}}(\snat)}$} (2)
+(1) edge[left] node{$\annlbl \Rp \Rq {\dlbl{\mathsf{END}}()}$} (4)
+(2) edge[bend right, above] node{$\annlbl \Rq \Rr {\dlbl{\mathsf{REQ}}(\sbool)}$} (1)
+(4) edge[below] node{$\annlbl \Rq \Rr {\dlbl{\mathsf{END}}()}$} (5);
+\end{tikzpicture}
+}\vspace{-.3cm}
+    \end{bluebox}
+    \end{minipage}
+  \end{center}
+
+  \vspace{0.8cm}
+
+  \begin{displaymath}
+    \tikzmarkin<1-2>{a}(0.2,-0.8)(-0.2,0.9)
+    \sum\left\{
+    \begin{array}{@{}l@{}}
+    \tikzmarkin<3>{b}(0.1,-0.5)(-0.1,0.6)
+    \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {%
+    \mathsf{process}(\pvar{x})\proc{.}\;
+    \tikzmarkin<4>{c}(0.1,-0.5)(-0.1,0.6)
+    \precur X {%
+    \tikzmarkin<5>{d}(0.1,-0.5)(-0.1,0.6)
+    \sum\left\{
+       \begin{array}{@{}l@{}}
+    \tikzmarkin<8>{g}
+         \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {%
+         \mathsf{process}(\pvar{x})\proc{.}\;
+    \tikzmarkin<9>{h}
+         \pvar{X}
+    \tikzmarkend{h}
+         }
+    \tikzmarkend{g}
+         \\
+    \tikzmarkin<6>{e}
+         \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {%
+    \tikzmarkin<7>{f}
+         \pfinish
+    \tikzmarkend{f}
+         }
+    \tikzmarkend{e}
+       \end{array}
+    \right\}
+    \tikzmarkend{d}
+    }
+    \tikzmarkend{c}
+    }
+    \tikzmarkend{b}
+    \\
+    \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {%
+    \pfinish
+    }
+    \end{array}\right\}
+    \tikzmarkend{a}
+  \end{displaymath}
+
+  \vspace{.5cm}
+  \only<5->{Recursion state $\pvar{X}$: $\globalt{1}$}
+
+\end{frame}
+
 \begin{frame}
   \vfill
   \centering
