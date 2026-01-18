@@ -1,0 +1,200 @@
+\newcommand{\embf}[1]{\textbf{\emph{#1}}}
+\newcommand\sbullet[1][.5]{\mathbin{\vcenter{\hbox{\scalebox{#1}{$\bullet$}}}}}
+
+\usepackage{stmaryrd}
+\usepackage{mathpartir}
+
+\newcommand\blfootnote[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
+
+\definecolor{golden}{rgb}{0.99, 0.76, 0.0}
+
+\tikzstyle{label}=[%
+  shading = axis,
+  rectangle,
+  rounded corners,
+  left color=golden,
+  right color=golden!40!white,
+  shading angle=180,
+  anchor=north]
+
+\def\Put(#1,#2)#3{\leavevmode\makebox(0,0){\put(#1,#2){#3}}}
+
+\newcommand{\mathcolorbox}[2]{\colorbox{#1}{$\displaystyle #2$}}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{latexsym}
+\usepackage{amstext}
+\usepackage{xspace}
+\usepackage[svgnames]{xcolor}
+\usepackage{mathtools}
+\usepackage{cleveref}
+
+\usepackage{etoolbox}
+
+%% macros for colours in the syntax
+
+% \def\NOCOLOR{} % define to remove color from the syntax
+
+\ifdefined\NOCOLOR%
+  \newcommand{\withcolor}[2]{#2} % no color selected
+\else
+  % sets and restores the color
+  \newcommand{\withcolor}[2]{\colorlet{currbkp}{.}\color{#1}{#2}\color{currbkp}}
+\fi
+
+
+% colours for syntactic categories
+
+\definecolor{amethyst}{rgb}{0.6, 0.4, 0.8}
+
+\newcommand{\colorch}{Green} % colour for channel vars
+\newcommand{\colorex}{Blue} % colour for expresion vars % Tomato was too bright
+\newcommand{\colorexpvar}{Red} % colour for expression variables
+\newcommand{\colorpart}{Teal} % colour for participants
+\newcommand{\colorlbl}{Indigo} % colour for labels
+
+\newcommand{\colorproc}{Maroon} % colour for processes
+\newcommand{\colorprocvar}{Red} % colour for process variable (recursion)
+
+\newcommand{\colorexp}{Blue} % colour for expressions
+
+\newcommand{\colortpexp}{Orchid} % colour for the types of expressions
+\newcommand{\colorgt}{VioletRed} % colour ofr global types
+
+\newcommand{\colorsess}{DarkOrchid} % colour for multiparty sessions
+\newcommand{\colorlt}{NavyBlue} % colour for local types
+
+% Judgments and general macros
+
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\enc}[1]{\llbracket #1 \rrbracket}
+\newcommand{\proj}{\upharpoonright}
+% \newcommand{\setof}[1]{\{{#1}\}}
+\newcommand{\subj}[1]{\operatorname{subj}(#1)}
+\newcommand{\parts}[1]{\operatorname{parts}(#1)}
+
+\newcommand{\bigstepsto}[1]{\ensuremath{\mathrel{\Downarrow}{#1}}}
+\newcommand{\stepsto}[1]{\xrightarrow{#1}}
+\newcommand{\evalsto}{\mathrel{\longrightarrow^*}}
+\newcommand{\sstepsto}{\mathrel{\longrightarrow}} % static evaluation (expressions without communications)
+\newcommand{\oft}[0]{\ensuremath{\mathrel{:}}}
+\renewcommand{\emptyset}{\varnothing}
+\newcommand{\freen}[1]{\ensuremath{\operatorname{fn}(#1)}}
+\newcommand{\subst}[2]{\ensuremath{[\dex{#1}\mathrel{:=}{#2}]}}
+
+\newcommand{\ie}[0]{i.e.\xspace}
+\newcommand{\eg}[0]{e.g.\xspace}
+\newcommand{\cf}[0]{cf.\xspace}
+
+% Syntactic categories
+
+\newcommand{\globalt}[1]{\withcolor{\colorgt}{#1}} % colour for global types
+\newcommand{\localt}[1]{\withcolor{\colorlt}{#1}} % colour for local types
+
+\newcommand{\expt}[1]{\withcolor{\colortpexp}{#1}} % colour for types of expressions and comm. types
+
+% \newcommand{\dlt}[1]{\withcolor{\colorlt}{#1}} % colour for local types
+
+\newcommand{\dev}[1]{\withcolor{\colorexpvar}{#1}} % colour for process variables
+
+\newcommand{\dlbl}[1]{\withcolor{\colorlbl}{#1}} % colour for labels
+
+\newcommand{\dpart}[1]{\withcolor{\colorpart}{\mathsf{#1}}} % colour for participants
+
+\newcommand{\expr}[1]{\withcolor{\colorex}{#1}} % colour for expressions
+\newcommand{\proc}[1]{\withcolor{\colorproc}{#1}} % colour for processes
+\newcommand{\sess}[1]{\withcolor{\colorproc}{#1}} % colour for sessions
+\newcommand{\pvar}[1]{\withcolor{\colorprocvar}{#1}} % colour for  process variables
+
+% Some roles and labels
+
+\newcommand{\Rp}{\dpart{p}}
+\newcommand{\Rq}{\dpart{q}}
+\newcommand{\Rr}{\dpart{r}}
+\newcommand{\Rs}{\dpart{s}}
+\newcommand{\Rpi}{\dpart{p'}}
+\newcommand{\Rqi}{\dpart{q'}}
+\newcommand{\Rri}{\dpart{r'}}
+\newcommand{\Rsi}{\dpart{s'}}
+
+\newcommand{\Sm}{\sess{\mathcal{M}}}
+\newcommand{\Smi}{\sess{\mathcal{M}'}}
+
+\newcommand{\lbl}{\ensuremath\dlbl{\ell}}
+\newcommand{\lbli}{\ensuremath\dlbl{\ell'}}
+
+% Process syntax
+
+\newcommand{\psend}[4]{\ensuremath{\proc{\dpart{#1} \mathrel{!} \dlbl{#2}\langle\expr{#3}\rangle.\proc{#4}}}}
+\newcommand{\precv}[3]{\ensuremath{\proc{\displaystyle\sum_{#1\in#2}\,{#3}}}}
+\newcommand{\precbr}[4]{\ensuremath{\proc{\dpart{#1}?\dlbl{#2}(\dev{#3}).\proc{#4}}}}
+\newcommand{\pif}[3]{\ensuremath{\proc{\code{if}\,\expr{#1}\,\code{then}\,\proc{#2}\,\code{else}\,\proc{#3}}}}
+\newcommand{\precur}[2]{\ensuremath{\proc{\code{rec}\,\pvar{#1}\,.\,\proc{#2}}}}
+\newcommand{\pfinish}{\ensuremath{\proc{\code{done}}}}
+
+\newcommand{\snil}{\ensuremath{\sess{\cdot}}}
+\newcommand{\scons}[3]{\ensuremath{\sess{\dpart{#1}\triangleleft\proc{#2}\mathrel{::}\sess{#3}}}}
+
+\newcommand{\supdate}[3]{\ensuremath{\sess{{#1}[\dpart{#2}\triangleleft\proc{#3}]}}}
+
+\newcommand{\spart}[2]{\ensuremath{\sess{\dpart{#1}\triangleleft\proc{#2}}}}
+% \newcommand{\spar}[2]{\ensuremath{\sess{#1 \parallel #2}}}
+
+% Global types
+
+\newcommand{\gmsg}[3]{\ensuremath{\globalt{\dpart{#1}\to\dpart{#2}:{#3}}}}
+\newcommand{\gmsgbr}[3]{\ensuremath{\globalt{\{\dlbl{#1}(\expt{#2}).{\globalt{#3}\}}}}}
+\newcommand{\grecur}[2]{\ensuremath{\globalt{\mu{\pvar{#1}.\globalt{#2}}}}}
+\newcommand{\gfinish}{\ensuremath{\globalt{\varnothing}}}
+
+% Local types
+
+\newcommand{\lsend}[2]{\ensuremath{\localt{\dpart{#1} ! {#2}}}}
+\newcommand{\lrecv}[2]{\ensuremath{\localt{\dpart{#1} ? {#2}}}}
+\newcommand{\lmsgbr}[3]{\ensuremath{\localt{\{\dlbl{#1}(\expt{#2}).{\localt{#3}\}}}}}
+\newcommand{\lrecur}[2]{\ensuremath{\localt{\mu{\pvar{#1}.\localt{#2}}}}}
+\newcommand{\lfinish}{\ensuremath{\localt{\varnothing}}}
+
+% expression sorts
+
+\newcommand{\sbool}[0]{\ensuremath{\expt{\code{bool}}}}
+\newcommand{\snat}[0]{\ensuremath{\expt{\code{nat}}}}
+
+% Global type LTS
+
+\newcommand{\annlbl}[3]{\ensuremath{\dlbl{{{\dpart{#1}\!\to\!\dpart{#2}}} : \dlbl{#3}}}}
+
+\newcommand{\greduceX}[4]{\ensuremath{\globalt{#2}\mathrel{\backslash}_{\mathsf{#1}}\!\dlbl{#3}\ifblank{#4}{}{=\globalt{#4}}}}
+
+\newcommand{\greducehd}[3]{\greduceX {H} {#1}{#2}{#3}}
+\newcommand{\greducetl}[3]{\greduceX {T} {#1}{#2}{#3}}
+\newcommand{\greduce}[3]{\globalt{#1} \xrightarrow{#2} \globalt{#3}}
+\newcommand{\gredskip}[3]{\globalt{#1} \xrightarrow{\overline{\{#2\}}}\ast \globalt{#3} \xrightarrow{\{#2\}}}
+
+
+\newcommand{\lmerge}{\ensuremath{\localt{\sqcap}}}
+
+\newcommand{\loft}[3]{\ensuremath{\globalt{#1}\vdash\proc{#2}\oft{\localt{#3}}}}
+\newcommand{\toft}[3]{\ensuremath{\globalt{#1}\vdash\expr{#2}\oft{\expt{#3}}}}
+
+% Typing judgments
+
+\newcommand{\gproj}[2]{\ensuremath{\globalt{#1}\proj\dpart{#2}}}
+
+\newcommand{\poft}[4]{\ensuremath{\globalt{#1}\vdash\proc{#2}\oft\gproj{#3}{#4}}}
+\newcommand{\soft}[2]{\ensuremath{\vdash\sess{#1}\oft\globalt{#2}}}
+
+% Other expressions
+
+\newcommand{\bisim}{\ensuremath{\mathrel{\,\sim\,}}}
+
+%% Local Variables:
+%% mode: latex
+%% TeX-master: "main"
+%% End:

@@ -1,0 +1,1040 @@
+\DocumentMetadata{
+  lang        = en-UK,
+  pdfstandard = ua-2,
+  pdfstandard = a-4f, %or a-4
+  tagging=off,
+  tagging-setup={math/setup=mathml-SE}
+}
+\documentclass{ltx-talk}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{pagecolor}
+\usepackage{alltt}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% TikZ libraries
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning, arrows}
+
+\usetikzlibrary{calc,decorations.pathreplacing,
+  decorations.pathmorphing,
+  decorations.markings,
+  shapes, fit, shadows.blur,
+  arrows.meta, tikzmark
+  }
+\usetikzlibrary{cd}
+\usetikzlibrary{positioning}
+\usetikzlibrary{arrows}
+\tikzset{
+    arrow at end/.style={
+        decorate,decoration={
+            markings,
+            mark=at position .999 with{
+                \arrow{#1};
+            }
+        }
+    }
+}
+\tikzstyle{highlight}=[fill=red,opacity=0.5,ultra thick]
+\tikzset{
+  onslide/.code args={<#1>#2}{%
+  \only<#1>{\pgfkeysalso{#2}}}
+}
+
+\usepackage[framemethod=TikZ]{mdframed}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[skins]{tcolorbox}
+
+\newtcolorbox{sticky}[1][]
+{%
+  enhanced,
+  center upper,
+  %fontupper=\strut,
+  drop fuzzy shadow southeast,
+  boxrule=0pt,
+  %sharp corners,
+  colframe=yellow!80!black,
+  colback=yellow!20,
+  #1
+}
+
+
+\newtcolorbox{bluebox}[1][]
+{%
+  enhanced,
+  %center upper,
+  drop fuzzy shadow southeast,
+  boxrule=0pt,
+  %sharp corners,
+  colframe=blue!10,
+  colback=blue!10,
+  #1
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Macros
+
+\input{macros.tex}
+
+\newcommand\aWrap[1]{#1}
+\newcommand\aConst[1]{\kw{const} \; #1}
+\newcommand\aId{\kw{id}}
+\newcommand\aComp{\mathbin{\circ}}
+\newcommand\aProj[1]{\pi_{#1}}
+\newcommand\aSplit{\mathbin{\vartriangle}}
+\newcommand\aInj[1]{\kw{inj}_{#1}}
+\newcommand\aCase{\mathbin{\triangledown}}
+\newcommand\aIn{\kw{in}}
+\newcommand\aOut{\kw{out}}
+\newcommand\aRec{\kw{rec}}
+
+\newcommand\mSend{\mathtt{send}}
+\newcommand\mRecv{\mathtt{recv}}
+\newcommand\mRet{\mathtt{return}}
+\newcommand\mBind{\mathbin{{\tt >}\!\!{\tt >}\!{\tt =}}}
+\newcommand\mComp{\mathbin{{\tt >}\!\!{\tt =}\!\!{\tt >}}}
+\newcommand\mPar{\mathbin{\wedge}}
+\newcommand\mChoice{\mathtt{choice}}
+\newcommand\mBranch{\mathtt{branch}}
+
+\newcommand\WF{\mathsf{WF}}
+\newcommand\pexp{\text{\color{blue}{\tt e}}}
+\newcommand\Gen[1]{\left\llbracket #1 \right\rrbracket}
+\newcommand\AT{\text{\tt @}}
+
+\newcommand\lSend[1]{!\langle #1 \rangle}
+\newcommand\lRecv[1]{?(#1)}
+
+
+\definecolor{dgreen}{RGB}{0,160,0}
+
+\renewcommand\UrlFont{\color{red}\rmfamily\itshape}
+
+\newcommand\vc[1]{\mathsf{#1}}
+
+\usepackage{bm}
+  \newcommand\role[1]{\mathsf{\bm{#1}}}
+  \newcommand\kw[1]{\mathtt{#1}}
+  \newcommand\kww[1]{\bm{\mathsf{#1}}}
+  \newcommand\size[1]{\mathsf{#1}}
+  \newcommand\crecv{c_{\mathsf{i}}}
+  \newcommand\cost{C}
+  \newcommand\Time{\mathcal{T}}
+  \newcommand\Queue{\mathcal{Q}}
+  \newcommand\addcost{\hookrightarrow}
+  \newcommand\hasCost{\diamond}
+  \newcommand\csend{c_{\mathsf{o}}}
+  \newcommand\gMsgt{\rightsquigarrow}
+  \newcommand\gMsg{\to}
+  \newcommand\gFix{\mu}
+  \newcommand\gEnd{\kw{end}}
+  \newcommand\act{\alpha}
+  \newcommand\unroll{\mathsf{unfold}}
+  \newcommand\tRun{{\diamond}}
+  % \newcommand{\rulename}[1]{\lbrack \text{#1}\rbrack}
+  \newcommand\tSend{\mathbin{!}}
+  \newcommand\tRecv{\mathbin{?}}
+  \newcommand\tSelect{\mathbin{\oplus}}
+  \newcommand\tBranch{\mathbin{\&}}
+  \newcommand\gEval{\tRun}
+  \newcommand\gTy[1]{ : \{#1\}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\EditInstance{footer}{std}{
+  color         = black!50,
+  separator     = \hfill,
+  element-order = {date, author, title, institute, framenumber, totalframes},
+  right-hspace  = 3mm,
+  left-hspace   = 3mm,
+}
+\title{A Synthetic Reconstruction of Multiparty Session Types}
+\author{David Castro-P\'erez}
+\date{PLAS Seminar, 19-01-2026}
+
+\pagecolor{lightgray!30}
+%\color{white}
+\begin{document}
+
+\begin{frame}
+    \begin{center}
+    \Huge
+    A Synthetic Reconstruction of Multiparty Session Types        
+
+    \vspace{1cm}
+
+    {\large
+    \begin{tabular}{l @{\hspace{3em}} l @{\hspace{3em}} l}
+    \underline{David Castro-P\'erez} & Francisco Ferreira & Sung-Shik Jongmans \\
+    \scriptsize\href{mailto:d.castro-perez@kent.ac.uk}{\ttfamily d.castro-perez@kent.ac.uk} &
+    \scriptsize\href{mailto:francisco.ferreiraruiz@rhul.ac.uk}{\ttfamily francisco.ferreiraruiz@rhul.ac.uk} &
+    \scriptsize\href{mailto:s.s.t.q.jongmans@rug.nl}{\ttfamily s.s.t.q.jongmans@rug.nl} \\[.1cm]
+    \hspace{2em}\includegraphics[width=4em]{images/KentLogo.png} & 
+    \hspace{3em}\includegraphics[width=4em]{images/RHULLogo.png} & 
+    \hspace{2.4em}\includegraphics[width=4em]{images/RUGLogo.png} \\
+    \end{tabular}
+    }
+
+    \end{center}
+
+    \vspace{1cm}
+
+    {\small 
+    PLAS Seminar, 19-01-2026}
+\end{frame}
+
+\begin{frame}
+    \begin{columns}
+    \begin{column}{0.35\textwidth}
+    \begin{sticky}
+    \textbf{Concurrency is hard!}
+    \begin{itemize}
+    \item \underline{Deadlocks}
+    \item \underline{Protocol violations}
+    \item Resource contention
+    \item etc.
+    \end{itemize}
+    \end{sticky}
+    \end{column}
+    \hspace{1cm}
+
+    \begin{column}{0.58\textwidth}
+    \begin{sticky}
+    \textbf{Our work:}
+    \begin{itemize}
+    \item Safety and liveness of message-passing concurrent programs
+    \item A novel Multiparty Session Type system
+    \item Full Agda mechanisation
+    \item An implementation in Rascal 
+    \end{itemize}
+    \end{sticky}
+    \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}
+    \frametitle{The Problem}
+    \LARGE
+
+    \begin{alltt}
+    P := send Q; ... 
+
+    Q := receive P; \only<1-2>{receive S}\only<3>{{\color{red!80!black}receive S}}; send R; \only<1-2>{send S}\only<3>{{\color{red!80!black}send S}}; ... 
+    
+    R := receive Q; send S; ... 
+    
+    S := receive R;  \only<1-2>{receive Q}\only<3>{{\color{red!80!black}receive Q}}; \only<1-2>{send Q}\only<3>{{\color{red!80!black}send Q}}; ...
+    
+    system := P | Q | R | S 
+    \end{alltt}
+    \begin{uncoverenv}<2->
+        \begin{center}
+        {\textbf{Question:} Is \texttt{system} safe?} \only<3>{\color{red!80!black}\Large\bfseries NO!}
+        \end{center}
+    \end{uncoverenv}
+\end{frame}
+
+
+\begin{frame}
+    \frametitle{Multiparty Session Types (in a nutshell)}
+    \begin{center}
+    \begin{onlyenv}<1>
+        \includegraphics[width=.8\textwidth,page=1]{images/MPST.pdf}
+    \end{onlyenv}
+    \begin{onlyenv}<2>
+        \includegraphics[width=.8\textwidth,page=2]{images/MPST.pdf}
+    \end{onlyenv}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{MPST in more detail}
+    \[\begin{array}{l l l l l}
+      \text{Roles} & & & \Rp, \Rq, \ldots & \\\\
+      \text{Sorts} & \expt{S} & \mathrel{\coloneqq} & \sbool \mid \snat \mid \ldots & \text{Basic data types.} \\\\
+      \text{Global Types} & \globalt{G} & \mathrel{\coloneqq} &
+      \gmsg{\Rp}{\Rq}{{\gmsgbr{\lbl_i}{S_i}{G_i}}_{i \in I}} & \text{Communication.} \\
+      & & \mid & \grecur{X}{G} & \text{Recursion.} \\
+      & & \mid & \pvar{X} & \text{Variable.} \\
+      & & \mid & \gfinish & \text{End of protocol.} \\\\
+      \text{Local Types} & \localt{L} & \mathrel{\coloneqq} &
+      \lsend{\Rp}{{\lmsgbr{\lbl_i}{S_i}{L_i}}_{i \in I}} & \text{Send.} \\
+      & & \mid & \lrecv{\Rq}{{\lmsgbr{\lbl_i}{S_i}{L_i}}_{i \in I}} & \text{Receive.} \\
+      & & \mid & \lrecur{X}{L} & \text{Recursion.} \\
+      & & \mid & \pvar{X} & \text{Recursion variable.} \\
+      & & \mid & \lfinish & \text{End of protocol.}
+    \end{array}
+    \]
+\end{frame}
+
+\begin{frame}\frametitle{Projection}
+
+\begin{displaymath}
+  \begin{array}{c}
+\gproj{\gmsg{\Rp}{\Rq}{{\gmsgbr{\lbl_i}{S_i}{G_i}}_{i\in I}}}{\Rr} =
+\left\{%
+\begin{array}{l l}
+\lsend{\Rq}{{\lmsgbr{\lbl_i}{S_i}{\gproj{G_i}{\Rr}}}_{i\in I}} & (\Rr = \Rp \wedge \phantom{\Rr = \Rq} \wedge \Rp \neq \Rq) \\
+\lrecv{\Rp}{{\lmsgbr{\lbl_i}{S_i}{\gproj{G_i}{\Rr}}}_{i\in I}} & (\phantom{\Rr = \Rp} \wedge \Rr = \Rq \wedge \Rp \neq \Rq) \\
+\lmerge_{i \in I}(\gproj{G_i}{\Rr}) & (\Rr \neq \Rp \wedge \Rr \neq \Rq \wedge \Rp \neq \Rq) \\
+\end{array}
+\right.
+\\[1cm]
+\gproj{\grecur{X}{G}}{\Rr} =
+\left\{%
+\begin{array}{l l}
+  \lrecur{X}{\gproj{G}{\Rr}} & (\Rr \in G) \\
+  \lfinish & (\Rr \not\in G)
+\end{array}
+\right.
+\hspace{1cm}
+\gproj{\pvar{X}}{\Rr} = \pvar{X}
+\hspace{1cm}
+\gproj{\gfinish}{\Rr} = \lfinish
+  \end{array}
+\end{displaymath}
+
+\noindent\makebox[\linewidth]{\rule{\columnwidth}{0.4pt}}
+
+\uncover<2->{%
+\begin{displaymath}
+  \begin{array}{c}
+    \begin{array}{l}
+\lrecv{\Rp}{{\lmsgbr{\lbl_i}{S_i}{L_i}}_{i\in I}}
+\mathbin{\lmerge}
+\lrecv{\Rp}{{\lmsgbr{\lbl_j}{S_j}{L'_j}}_{j\in J}}
+\\\quad
+= \lrecv{\Rp}{{\lmsgbr{\lbl_i}{S_i}{L_i}}_{i\in I\setminus J}
+  \cup {\lmsgbr{\lbl_j}{S_j}{L'_j}}_{j\in J\setminus I}
+\cup {\lmsgbr{\lbl_i}{S_i}{L_i \mathbin{\lmerge} L'_i}}_{i\in I \cap J}}
+\\[.5cm]
+\lsend{\Rp}{{\lmsgbr{\lbl_i}{S_i}{L_i}}_{i\in I}}
+\mathbin{\lmerge}
+\lsend{\Rp}{{\lmsgbr{\lbl_i}{S_i}{L'_i}}_{i\in I}}
+=
+\lsend{\Rp}{{\lmsgbr{\lbl_i}{S_i}{L_i \lmerge L'_i}}_{i\in I}}
+\\[.5cm]
+\lrecur{X}{L} \mathbin{\lmerge} \lrecur{X}{L'} = \lrecur{X}{(L \mathbin{\lmerge} L')}
+\hspace{1cm}
+L \mathbin{\lmerge} L = L
+\end{array}
+  \end{array}
+\end{displaymath}
+}
+  \Put(40,290){%
+    \begin{onlyenv}<3>
+    \begin{minipage}{.86\columnwidth}
+    \begin{sticky}
+      \Large
+      \textbf{It gets complicated very quickly!}
+    \end{sticky}
+    \end{minipage}
+    \end{onlyenv}
+  }
+\end{frame}
+
+
+\begin{frame}\frametitle{Projection (Example)}
+  Consider the following protocol
+
+  \begin{displaymath}
+    \grecur{X}{%
+\gmsg{\Rp}{\Rq}{\left\{%
+  \begin{array}{l@{}l}
+   \dlbl{\mathsf{REQ}}(\snat) &. \gmsg{\Rq}{\Rr}{\dlbl{\mathsf{REQ}}(\sbool). \pvar{X}} \\
+   \dlbl{\mathsf{END}}() &. \gmsg{\Rq}{\Rr}{\dlbl{\mathsf{END}}(). \pfinish}
+  \end{array}
+   \right\}}}
+  \end{displaymath}
+
+  \vspace{1cm}
+  \uncover<2->{%
+    Projecting $\Rr$
+  \[
+    \begin{array}{l}
+    \lrecur{X}{%
+      (\lrecv{\Rq}{\dlbl{\mathsf{REQ}}(\sbool). \pvar{X}})
+        \mathbin{\lmerge}
+      (\lrecv{\Rq}{\dlbl{\mathsf{END}}(). \lfinish})
+   }
+    \\[.3cm] \qquad =
+    \uncover<3>{%
+    \lrecur{X}{%
+      \lrecv{\Rq}{\left\{%
+  \begin{array}{l@{}l}
+   \dlbl{\mathsf{REQ}}(\sbool) &. \pvar{X} \\
+   \dlbl{\mathsf{END}}() &. \pfinish
+  \end{array}
+   \right\}}
+    }}
+    \end{array}
+  \]
+%   }
+  }
+\end{frame}
+
+
+
+\begin{frame}\frametitle{Processes and Typing}
+\begin{displaymath}
+  \begin{array}{lrcll}
+    \text{Process} & \proc{P} & \mathrel{:=} & \psend{p}{\lbl}{e}{P} & \text{Send a message.} \\
+    & & \mid & \precv{i}{I}{\precbr{p}{\lbl_i}{x_i}{P_i}} & \text{Receive a message.} \\
+    & & \mid & \pif{e}{P}{P'} & \text{Conditional process.} \\
+    & & \mid & \precur{X}{P} & \text{Recursive process.} \\
+    & & \mid & \pvar{X} & \text{Recursion variable.} \\
+    & & \mid & \pfinish & \text{Inactive process.} \\
+  \end{array}
+\end{displaymath}
+
+\end{frame}
+
+\begin{frame}\frametitle{Process Typing (simplified)}
+  Once we have local types, process typing is simple:
+  \vspace{.4cm}
+
+\[
+  \begin{array}{c}
+    \infer[T-SEND]{%
+      \loft{\Gamma}{P}{L_i} \and \toft{\Gamma}{e}{S_i} \and i \in I
+    }{%
+      \loft{\Gamma}{\psend{\Rq}{\lbl_i}{e}{P}}{(\lsend{\Rp}{{\lmsgbr{\lbl_i}{S_i}{L_i}}_{i\in I}})}
+    }
+    %
+    \hspace{1cm}
+    \infer[T-RECV]{%
+      \forall (i \in I), \left[\loft{\Gamma ,{\pvar{x_i}}:{\expt{S_i}}}{P_i}{L_i}\right]z
+    }{%
+      \loft{\Gamma}{\precv{i}{I}{\precbr{p}{\lbl_i}{x_i}{P_i}}}{(\lrecv{\Rp}{{\lmsgbr{\lbl_i}{S_i}{L_i}}_{i\in I}})}
+    }
+  \end{array}
+\]
+\Put(20,250){
+  \begin{onlyenv}<2->
+    \begin{minipage}{.55\columnwidth}
+      \begin{sticky}
+        \large
+        Local types and processes are so similar that some developments omit
+them, and projection produces directly processes.
+      \end{sticky}
+    \end{minipage}
+  \end{onlyenv}
+}
+\Put(40,200){
+  \begin{onlyenv}<3>
+    \begin{minipage}{.75\columnwidth}
+      \begin{sticky}
+        \includegraphics[width=\columnwidth]{images/deconfined-session-types.pdf}
+      \end{sticky}
+    \end{minipage}
+  \end{onlyenv}
+}
+\end{frame}
+
+\begin{frame}\frametitle{Problems with Classical Formulation}
+  \begin{enumerate}
+    \item \textbf{Too syntactic:}
+      \begin{itemize}
+        \item Processes and local types must align
+        \item Too restrictive, rules out correct processes
+        \item \ldots
+      \end{itemize}
+    \item \textbf{Unnecessarily complex:}
+      \begin{itemize}
+        \item Hard to implement/mechanise, e.g.:
+          \begin{itemize}
+            \item Use of runtime coinductive global types: Our PLDI 2021 paper, Jacobs et al. (2022).
+            \item Graph-based reasoning and decision procedure for the equality
+              of recursive types: Tirore et al. (2023)
+          \end{itemize}
+        \item Hard to extend
+      \end{itemize}
+    \item \textbf{Imprecise} (coinduction, safety)
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}\frametitle{Example of Imprecision in Classical MPST}
+  \boxed{\text{Equirecursion: ``We identify $\grecur{X}{G}$ with $[\grecur{X}{G} / \pvar{X}] \globalt{G}$''}}
+
+  \vspace{.4cm}
+
+  Common statement in proofs about MPST, but...
+  \begin{enumerate}
+    \item The rules specify how to deal with variables $\pvar{X}$
+    \item The rules specify when and how to unfold $\grecur{X}{G}$
+  \end{enumerate}
+
+  \vspace{.4cm}
+  Moreover: Equirecursion alone distinguishes too many protocols that ``are the same'':
+  \[
+    \gmsg{\Rp}{\Rq}{\gmsg{\Rp'}{\Rq'}{G}} \neq \gmsg{\Rp'}{\Rq'}{\gmsg{\Rp}{\Rq}{G}}
+  \]
+
+  \vspace{.4cm}
+  Mechanising the classical theory of MPST is notoriously hard, in part due to this.
+
+\end{frame}
+
+
+\begin{frame}\frametitle{Another Example of Imprecision in Classical MPST}
+  This source of imprecision \textbf{did} cause flawed proofs in the literature.
+
+  \vspace{1cm}
+  \textbf{Preservation theorem:}
+  \[
+  \begin{array}{l}
+       \varphi (\localt{L_1}, \ldots, \localt{L_n}) \wedge (\proc{P_1} \mid \ldots \mid \proc{P_n} \xrightarrow{\alpha} \proc{P_1'} \mid \ldots \mid \proc{P_n'}) \\
+       \wedge (\loft{}{P_1}{\localt{L_1}} \wedge \ldots \wedge \loft{}{P_n}{\localt{L_n}})
+  \end{array}
+  \quad\Longrightarrow\quad
+  \begin{array}{l}
+       \exists \localt{L_1}' \cdots \localt{L_n}' \wedge (\proc{L_1} \mid \ldots \mid \proc{L_n} \xrightarrow{\alpha} \proc{L_1'} \mid \ldots \mid \proc{L_n'}) \\
+       \wedge (\loft{}{P_1'}{\localt{L_1}'} \wedge \ldots \wedge \loft{}{P_n'}{\localt{L_n}'})
+  \end{array}
+  \]
+  \vspace{1cm}
+  \begin{uncoverenv}<2->
+  Implicit assumption:
+  \[
+  (\forall i, \localt{L_i} = \gproj{\globalt{G}}{\role{r_i}}) \Longrightarrow \varphi (\localt{L_1}, \ldots, \localt{L_n})
+  \]
+  \end{uncoverenv}
+  \Put(40,200){
+  \begin{onlyenv}<3>
+    \begin{minipage}{.75\columnwidth}
+      \begin{sticky}
+        This assumption is \textbf{wrong} (Scalas \& Yoshida, POPL'19)!
+        \begin{itemize}
+          \item Trivially holds for the basic case.
+          \item Breaks as soon as you extend the theory slightly (e.g. full merge).
+        \end{itemize}
+      \end{sticky}
+    \end{minipage}
+  \end{onlyenv}
+}
+\end{frame}
+
+\begin{frame}\frametitle{A Few Attempts at Simplifying the Theory}
+
+  \begin{center}
+    \begin{minipage}{.86\columnwidth}
+    \begin{sticky}
+        \includegraphics[width=\columnwidth]{images/deconfined-session-types.pdf}
+    \end{sticky}
+    \end{minipage}
+  \end{center}
+
+  \Put(40,210){%
+    \begin{onlyenv}<2->
+    \begin{minipage}{.86\columnwidth}
+    \begin{sticky}
+  \includegraphics[width=\textwidth]{images/less-is-more.pdf}
+    \end{sticky}
+    \end{minipage}
+    \end{onlyenv}
+   }
+\Put(60,190){
+  \begin{onlyenv}<3->
+    \begin{minipage}{.75\columnwidth}
+      \begin{sticky}
+  \includegraphics[clip, width=\textwidth, trim= 0 18cm 0 0]{images/less-is-more-revisited.pdf}
+      \end{sticky}
+    \end{minipage}
+  \end{onlyenv}
+}
+
+\end{frame}
+
+
+\begin{frame}\frametitle{Our Approach: Synthetic Typing}
+    \begin{minipage}{.86\columnwidth}
+    \begin{sticky}
+  \includegraphics[width=\textwidth]{images/fs-synthetic.pdf}
+    \end{sticky}
+    \end{minipage}
+
+  \Put(40,140){%
+    \begin{onlyenv}<2->
+    \begin{minipage}{.86\columnwidth}
+      \begin{sticky}
+        \textbf{\underline{Our Contributions}:}
+        \begin{itemize}
+          \item ``Free'' typing from being tied up to the syntax of local types.
+          \item An MPST system that avoids projection/merging/etc.
+          \item Type-checking against arbitrary (well-formed) LTSs.
+          \item Well-formedness/deadlock-freedom is decided by typeability, not by projectability.
+          \item Mechanisation in Agda.
+          \item Implementation in Rascal.
+        \end{itemize}
+      \end{sticky}
+    \end{minipage}
+    \end{onlyenv}
+   }
+\end{frame}
+
+\begin{frame}\frametitle{(Slightly Simplified) Core SyntheticTyping Rules}
+\[
+  \infer[T-SEND]
+  {%
+  \poft{\Gamma}{P}{G'}{\Rp} \and 
+  \greduce{G}{\annlbl{\Rp}{\Rq}{\lbl(\expt{S})}}{G'} \and
+  \toft{\Gamma}{e}{S}
+  }{%
+    \poft{\Gamma}{\psend{\Rq}{\lbl}{e}{P}}{G}{\Rp}
+  }
+\]
+\begin{displaymath}
+  \infer[T-RECV]
+    { \text{($\globalt{G}$ allows $\Rp \to \Rq : \lbl_j$, for some j)}
+      \\ \\
+      \forall\; i\;\globalt{G}'\;(\greduce{G}{\annlbl \Rq \Rp {\lbl_i(\expt{S_i})}}{G'});
+      \left[\poft{\Gamma, {\pvar{x_i}} : {\expt{S_i}}}{P_i}{G'}{\Rp}\right]
+  }
+  {\poft \Gamma {\precv{i}{I}{\precbr q {\lbl_i} {x_i} {P_i}}}{G}{\Rp}}
+\end{displaymath}
+
+\begin{displaymath}
+  \infer[T-SKIP]
+    {  \text{(It is safe for $\Rp$ to wait in $\globalt{G}$)}
+      \and
+      \forall (\gredskip{G}{\Rp}{G'}); \left[\poft{\Gamma}{P}{G'}{\Rp}\right]
+  }
+  {\poft \Gamma P G \Rp}
+\end{displaymath}
+\end{frame}
+
+\begin{frame}\frametitle{Synthetic Behavioural Typing}
+  \Large 
+
+  \begin{center}
+  \textbf{Key idea:}
+    The syntax of $\globalt{G}$ is irrelevant!
+  
+    \vspace{2cm}
+  \uncover<2->{%
+  $\globalt{G}$ is just the state of a \textbf{labelled transition system (LTS)}!
+  }
+  \end{center}
+\end{frame}
+
+\begin{frame}\frametitle{Well-behavedness}
+  Our type system is parameterised by an LTS, where labels must specify send/receive interactions.
+
+  \vspace{.4cm}
+  \uncover<2->{%
+  \alert{But not all LTSs are valid types!} We can only guarantee safety/liveness for \textbf{well-behaved} LTSs.
+  }
+
+  \vspace{.4cm}
+
+  \uncover<3->{%
+  \textbf{Well-behavedness:}
+  \begin{enumerate}
+    \item \textbf{Sender determinacy}: If a state allows multiple transitions, these cannot have the same receiver but different senders.
+    \item \textbf{Determinism}: A state can have at most one transition with the same action label.
+    \item \textbf{Conditional commutativity}: In any state, if a later independent action has an earlier enabled branch, it can be commuted earlier.
+    \item \textbf{Diamond property}.
+    \item \textbf{"Stepback" property?} (not in the paper -- likely an artifact of our mechanisation only used to prove one minor case in our mechanisation). ``Bisimilarity is preserved when moving to past states'' (?)
+  \end{enumerate}  
+  }
+  \Put(40,220){%
+    \begin{onlyenv}<4>
+    \begin{minipage}{.86\columnwidth}
+    \begin{sticky}
+      \Large
+      \textbf{Every syntactic global type in the classical theory of MPST is well-behaved!}
+    \end{sticky}
+    \end{minipage}
+    \end{onlyenv}
+  }
+\end{frame}
+
+
+\begin{frame}\frametitle{Example}
+
+  \begin{displaymath}
+    \globalt{G} = \grecur X {
+\gmsg \Rp \Rq {\left\{%
+  \begin{array}{l@{}l}
+   \dlbl{\mathsf{REQ}}(\snat) &. \gmsg \Rq \Rr {\dlbl{\mathsf{REQ}}(\sbool). \pvar{X}} \\
+   \dlbl{\mathsf{END}}() &. \gmsg \Rq \Rr {\dlbl{\mathsf{END}}(). \pfinish}
+  \end{array}
+   \right\}}}
+  \end{displaymath}
+
+  We are going to typecheck a process implementing role $\Rr$...
+
+  \uncover<2>{\textbf{but first, let's get rid of the syntax for $\globalt{G}$!}}
+\end{frame}
+
+\begin{frame}\frametitle{Example: Semantic View of Global Types}
+
+  \begin{displaymath}
+    \grecur X {
+\gmsg \Rp \Rq {\left\{%
+  \begin{array}{l@{}l}
+   \dlbl{\mathsf{REQ}}(\snat) &. \gmsg \Rq \Rr {\dlbl{\mathsf{REQ}}(\sbool). \pvar{X}} \\
+   \dlbl{\mathsf{END}}() &. \gmsg \Rq \Rr {\dlbl{\mathsf{END}}(). \pfinish}
+  \end{array}
+   \right\}}}
+  \end{displaymath}
+
+  \vspace{.3cm}
+
+  \begin{center}
+  \begin{tikzpicture}
+\node[state, initial] (1) {$1$};
+\node[state, right=3cm of 1] (2) {$2$};
+\node[state, below=1.5cm of 1] (4) {$4$};
+\node[state, right=3cm of 4, accepting] (5) {$5$};
+\draw[->]
+(1) edge[bend right, below] node{$\annlbl \Rp \Rq {\dlbl{\mathsf{REQ}}(\snat)}$} (2)
+(1) edge[left] node{$\annlbl \Rp \Rq {\dlbl{\mathsf{END}}()}$} (4)
+(2) edge[bend right, above] node{$\annlbl \Rq \Rr {\dlbl{\mathsf{REQ}}(\sbool)}$} (1)
+(4) edge[below] node{$\annlbl \Rq \Rr {\dlbl{\mathsf{END}}()}$} (5);
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+
+\begin{frame}[t]\frametitle{Example: Process \& Typing}
+  \Put(320,130){%
+    \begin{minipage}{.32\columnwidth}
+    \begin{bluebox}
+      \vspace{-.3cm}
+      \resizebox{\columnwidth}{!}{%
+        \begin{tikzpicture}[
+  ->, % makes the edges directed
+  >=stealth', % makes the arrow heads bold
+  node distance=3cm, % specifies the minimum distance between two nodes. Change if necessary.
+  every state/.style={thick, fill=gray!10}, % sets the properties for each ’state’ node
+  initial text=$ $ % sets the text that appears on the start arrow
+          ]
+\node[state,
+onslide=<2>{highlight},
+onslide=<3>{highlight},
+onslide=<8>{highlight},
+onslide=<9>{highlight},
+onslide=<10>{highlight},
+onslide=<13>{highlight},
+onslide=<14>{highlight},
+initial] (1) {$1$};
+\node[state,
+onslide=<4>{highlight},
+onslide=<7>{highlight},
+onslide=<12>{highlight},
+right=3cm of 1] (2) {$2$};
+\node[state,
+onslide=<4>{highlight},
+onslide=<5>{highlight},
+onslide=<11>{highlight},
+below=.8cm of 1] (4) {$4$};
+\node[state,
+onslide=<6>{highlight},
+onslide=<11>{highlight},
+right=3cm of 4, accepting] (5) {$5$};
+\draw[->]
+(1) edge[bend right, below] node{$\annlbl \Rp \Rq {\dlbl{\mathsf{REQ}}(\snat)}$} (2)
+(1) edge[left] node{$\annlbl \Rp \Rq {\dlbl{\mathsf{END}}()}$} (4)
+(2) edge[bend right, above] node{$\annlbl \Rq \Rr {\dlbl{\mathsf{REQ}}(\sbool)}$} (1)
+(4) edge[below] node{$\annlbl \Rq \Rr {\dlbl{\mathsf{END}}()}$} (5);
+\end{tikzpicture}
+}\vspace{-.3cm}
+    \end{bluebox}
+    \end{minipage}
+  }
+
+  \vspace{1.5cm}
+
+  \only<1>{%
+    $
+    \proc{P} = \proc{\sum}\left\{
+    \begin{array}{@{}l@{}}
+    \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{print}(\pvar{x})\proc{.}\;
+      \precur X {%
+\sum\left\{
+    \begin{array}{@{}l@{}}
+    \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{process}(\pvar{x})\proc{.}\;
+      \pvar{X}
+      }
+      \\
+    \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {\pfinish}
+    \end{array}\right\}
+      }
+      }
+      \\
+    \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {\pfinish}
+    \end{array}\right\}$
+  }
+  \only<2-4>{%
+    \colorbox{orange!30}{%
+    $
+    \proc{P} = \proc{\sum}\left\{
+    \begin{array}{@{}l@{}}
+    \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{print}(\pvar{x})\proc{.}\;
+      \precur X {%
+\sum\left\{
+    \begin{array}{@{}l@{}}
+    \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{process}(\pvar{x})\proc{.}\;
+      \pvar{X}
+      }
+      \\
+    \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {\pfinish}
+    \end{array}\right\}
+      }
+      }
+      \\
+    \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {\pfinish}
+    \end{array}\right\}
+    $
+    }
+  }
+  \only<5>{%
+    $
+    \proc{P} = \proc{\sum}\left\{
+    \begin{array}{@{}l@{}}
+    \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{print}(\pvar{x})\proc{.}\;
+      \precur X {%
+\sum\left\{
+    \begin{array}{@{}l@{}}
+    \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{process}(\pvar{x})\proc{.}\;
+      \pvar{X}
+      }
+      \\
+    \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {\pfinish}
+    \end{array}\right\}
+      }
+      }
+      \\
+    \colorbox{orange!30}{\precbr \Rq {\dlbl{\mathsf{END}}} {\_} {\pfinish}}
+    \end{array}\right\}
+    $
+    }
+    \only<6>{%
+    $
+    \proc{P} = \proc{\sum}\left\{
+    \begin{array}{@{}l@{}}
+    \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{print}(\pvar{x})\proc{.}\;
+      \precur X {%
+\sum\left\{
+    \begin{array}{@{}l@{}}
+    \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{process}(\pvar{x})\proc{.}\;
+      \pvar{X}
+      }
+      \\
+    \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {\pfinish}
+    \end{array}\right\}
+      }
+      }
+      \\
+    \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {\colorbox{orange!30}{\pfinish}}
+    \end{array}\right\}
+    $
+    }
+    \only<7>{%
+    $
+    \proc{P} = \proc{\sum}\left\{
+    \begin{array}{@{}l@{}}
+    \colorbox{orange!30}{\precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{print}(\pvar{x})\proc{.}\;
+      \precur X {%
+\sum\left\{
+    \begin{array}{@{}l@{}}
+    \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{process}(\pvar{x})\proc{.}\;
+      \pvar{X}
+      }
+      \\
+    \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {\pfinish}
+    \end{array}\right\}
+      }
+      }}
+      \\
+    \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {\pfinish}
+    \end{array}\right\}
+    $
+    }
+    \only<8,9>{%
+    $
+    \proc{P} = \proc{\sum}\left\{
+    \begin{array}{@{}l@{}}
+    \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{print}(\pvar{x})\proc{.}\;
+      \colorbox{orange!30}{\precur X {%
+\sum\left\{
+    \begin{array}{@{}l@{}}
+    \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{process}(\pvar{x})\proc{.}\;
+      \pvar{X}
+      }
+      \\
+    \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {\pfinish}
+    \end{array}\right\}
+      }
+      }}
+      \\
+    \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {\pfinish}
+    \end{array}\right\}
+    $
+    }
+  \only<10>{%
+    $
+    \proc{P} = \proc{\sum}\left\{
+    \begin{array}{@{}l@{}}
+    \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{print}(\pvar{x})\proc{.}\;
+      \precur X {%
+\text{\colorbox{orange!30}{$\sum\left\{
+    \begin{array}{@{}l@{}}
+    \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{process}(\pvar{x})\proc{.}\;
+      \pvar{X}
+      }
+      \\
+    \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {\pfinish}
+    \end{array}\right\}$
+      }
+      }}}
+      \\
+    \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {\pfinish}
+    \end{array}\right\}
+    $
+    }
+  \only<11>{%
+    $
+    \proc{P} = \proc{\sum}\left\{
+    \begin{array}{@{}l@{}}
+    \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{print}(\pvar{x})\proc{.}\;
+      \precur X {%
+\sum\left\{
+    \begin{array}{@{}l@{}}
+    \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{process}(\pvar{x})\proc{.}\;
+      \pvar{X}
+      }
+      \\
+      \colorbox{orange!30}{
+    \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {\pfinish}
+      }
+    \end{array}\right\}
+      }
+      }
+      \\
+    \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {\pfinish}
+    \end{array}\right\}
+    $
+    }
+    \only<12>{%
+    $
+    \proc{P} = \proc{\sum}\left\{
+    \begin{array}{@{}l@{}}
+    \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{print}(\pvar{x})\proc{.}\;
+      \precur X {%
+\sum\left\{
+    \begin{array}{@{}l@{}}
+            \colorbox{orange!30}{%
+    \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{process}(\pvar{x})\proc{.}\;
+      \pvar{X}
+      }}
+      \\
+    \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {\pfinish}
+    \end{array}\right\}
+      }
+      }
+      \\
+    \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {\pfinish}
+    \end{array}\right\}
+    $
+    }
+  \only<13,14>{%
+    $
+    \proc{P} = \proc{\sum}\left\{
+    \begin{array}{@{}l@{}}
+    \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{print}(\pvar{x})\proc{.}\;
+      \precur X {%
+\sum\left\{
+    \begin{array}{@{}l@{}}
+    \precbr \Rq {\dlbl{\mathsf{REQ}}} {x} {\mathsf{process}(\pvar{x})\proc{.}\;
+      \colorbox{orange!30}{\pvar{X}
+      }}
+      \\
+    \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {\pfinish}
+    \end{array}\right\}
+      }
+      }
+      \\
+    \precbr \Rq {\dlbl{\mathsf{END}}} {\_} {\pfinish}
+    \end{array}\right\}
+    $
+    }
+
+  \vspace{.5cm}
+
+  \uncover<3,9->{
+    \only<3>{Our goal is to show that $\poft{}{P}{\globalt{1}}{\Rr}$}
+    \only<9>{$\poft{\cdot}{\precur{X}{\colorbox{orange!30}{\ldots}}}{1}{\Rr}$}
+    \only<10-13>{$\poft{\pvar{X} : \globalt{1}}{\colorbox{orange!30}{\ldots}}{\colorbox{red!50}{\ldots}}{\Rr}$}
+        \only<14>{$\poft{\pvar{X} : \globalt{1}}{\colorbox{orange!30}{\pvar{X}}}{\colorbox{red!50}{\globalt{1}}}{\Rr}$}
+
+
+  }
+\end{frame}
+
+
+\begin{frame}\frametitle{Properties of Synthetic MPST}
+
+  Some key lemmas:
+  \begin{displaymath}
+    \begin{array}{@{}l@{}}
+    \bullet\; \text{If } \globalt{G} \bisim \globalt{G'} \text{ and } \poft {\Gamma} {P} {G} \Rr \text{ then } \poft {\Gamma} {P} {G'} \Rr \\[.3cm]
+      \bullet\;
+      \text{If } \greduce G \alpha {G'}\text{, with }\Rr \not\in \alpha\text{, and } \poft {\Gamma} {P} {G} \Rr\text{, then } \poft {\Gamma} {P} {G'} \Rr
+    \end{array}
+  \end{displaymath}
+
+  \vspace{.5cm}
+
+  \uncover<2->{%
+  These are needed for proving safety and liveness theorems (i.e. preservation andf progress). Suppose that $\Sm$ is a collection of 
+  processes, and $\globalt{G}$ is \alert{well-behaved}:
+  \begin{displaymath}
+    \begin{array}{@{}l@{}}
+      \bullet\; \text{If }\soft \Sm G\text{ and }\Sm \stepsto{\alpha} \Sm'\text{, then there exists }\globalt{G'}\text{ such that }
+      \greduce G \alpha {G'}\text{ and }\soft {\Sm'} {G'} \\[.4cm]
+      \bullet\; \text{If }\soft \Sm G \text{ and }\globalt{G}\text{ is not ended, then there exists }\Sm'\text{ and }\alpha\text{ such that }\Sm \stepsto{\alpha} \Sm'.
+    \end{array}
+  \end{displaymath}
+  }
+
+  \uncover<3>{%
+  \vspace{.5cm}
+  Finally, we proved that for all global type $\globalt{G}$, the LTS of $\globalt{G}$ is well-behaved.
+  }
+\end{frame}
+
+\begin{frame}\frametitle{Contributions}
+  \begin{itemize}
+  \item Special case: MPST system with global types (without projection, merging, local types)
+  \item Special case: Expressive enough to capture all benchmarks of (Scalas \& Yoshida 2019)
+  \item[] 
+  \item General case: MPST system with \emph{well-behaved LTSs} 
+  \item Type soundness -- much simpler than the literature (roughly 550 LOC of Agda!)
+  \item[]
+  \item Artifact: Full mechanisation in Agda. 
+  \item Artifact: Implementation of the special case in Rascal (Thanks, Sung!)
+  \end{itemize}
+  \Put(80,360){%
+    \begin{onlyenv}<2>
+    \begin{minipage}{.56\columnwidth}
+    \begin{sticky}
+      \Huge
+      \textbf{THANKS!}
+    \end{sticky}
+    \end{minipage}
+    \end{onlyenv}
+  }
+\end{frame}
+
+
+
+\end{document}
