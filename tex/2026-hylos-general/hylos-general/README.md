@@ -1,4 +1,4 @@
-# Talk: Calculating Correct and Efficient Programs
+# Talk: Calculating Correct and Efficient Programs in Rocq
 
 A general-CS version of the hylomorphisms seminar (`../../2026-hylos-seminar`),
 for an audience outside programming languages (machine learning, security,
@@ -16,8 +16,8 @@ Same toolchain and style as the seminar (`../template/dcptalk.sty`, TeX Live
 2026, LuaLaTeX, `pygmentize`). `make` also writes `main.pdfpc` and
 `main-notes.md` from the `\speakernote`s (50-minute timer). Notes are
 terse cues, not a script: `\\` separates bullet points (this deck's copy of
-`make-notes.py` turns them into a Markdown list), and `[click]` marks each
-overlay step.
+`make-notes.py` turns them into a Markdown list). They are reminders and
+pointers only, with no click markers.
 
 ## Slides with notes
 
@@ -26,8 +26,8 @@ overlay step.
 
 `main-presenter.pdf` puts each slide on the left half of a double-width page
 and its notes on the right (`../template/make-presenter.py`, from
-`main.notes`). On frames with overlays, the current step's bullets are bold
-and later ones grey. Present with `pdfpc -n right main-presenter.pdf`, or
+`main.notes`). On frames with overlays, the header shows the step
+("step 2 of 3"). Present with `pdfpc -n right main-presenter.pdf`, or
 read it in any viewer. It is tagged, with each slide image's alt text naming
 the slide.
 
@@ -47,10 +47,12 @@ tool output or library source is followed by `\simplified` (a grey
   `qsort2.ml` (rebuilt from the seminar's `qsort_code`), `mss.ml`,
   `knap-calc.v` and `knap.ml`.
 
-`knap-calc.v` follows the ongoing library work (`deps/rocq-hylomorphisms` in
-arrays-as-hylos, uncommitted as of 2026-10-20): arrays are one more initial
-algebra of `Memo` (`ATab_initial`), `dyna_iso` swaps memo tables, and a
-`Derive` goes from the naive exponential hylo to the array dyna.
+`knap-calc.v` and `knap.ml` follow rocq-hylomorphisms 9e4d3cf
+(`examples/Knapsack.v`): a `Derive` makes the naive algebra read its
+subproblems through a lookup (`knap_look`), then `reenumerate` turns the naive
+hylo over items into a dynamorphism over capacities with `ATab` (persistent
+array) tables, and `dyna_memo` shares the table. The extracted lookups still
+walk the table, so O(1) lookups are shown as in progress.
 
 ## Structure and timing (about 50 min of talk, then questions)
 

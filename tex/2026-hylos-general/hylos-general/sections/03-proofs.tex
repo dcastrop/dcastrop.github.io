@@ -34,7 +34,7 @@
   \speakernote{Green box: checked by Rocq's small kernel \\
     Trusted: spec, kernel, extraction, OCaml compiler \\
     steps can come from anyone: person, script, model \\
-    [click] wrong step = rejected}
+    wrong step = rejected}
 \end{frame}
 
 \begin{frame}
@@ -61,7 +61,7 @@
   \speakernote{Termination: Rocq only accepts recursion that provably stops \\
     Axioms: function equality needs one; we avoid it \\
     Clean code: textbook encoding extracts badly (next slide) \\
-    [click] Haskell has the laws, no termination}
+    Haskell has the laws, no termination}
 \end{frame}
 
 \begin{frame*}
@@ -77,7 +77,7 @@
   \end{onlyenv}
   \par
   \speakernote{Real extraction output, trimmed \\
-    [click] point at \code{Obj.magic}: unchecked casts everywhere}
+    point at \code{Obj.magic}: unchecked casts everywhere}
 \end{frame*}
 
 \begin{frame}
@@ -112,7 +112,7 @@
   \speakernote{Data = shape + positions (containers) \\
     Point at the table: one position type, yes/no validity \\
     plain OCaml types \\
-    [click] proofs erased at extraction: no casts}
+    proofs erased at extraction: no casts}
 \end{frame}
 
 \begin{frame}
@@ -149,7 +149,7 @@
   \end{itemize}
   \speakernote{Proof tree has the same shape as the call tree; recurse on it \\
     one proof per split, e.g. pieces are shorter \\
-    [click] proof erased: code is just the recursion}
+    proof erased: code is just the recursion}
 \end{frame}
 
 \begin{frame*}
@@ -163,5 +163,5 @@
   \speakernote{Point at Closed under the global context \\
     Only Rocq's machine integers otherwise \\
     equality = same results on equal inputs \\
-    [click] laws usable as rewrite rules}
+    laws usable as rewrite rules}
 \end{frame*}

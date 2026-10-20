@@ -37,10 +37,10 @@
   \uncover<5->{\textbf{Hylomorphism} $\hylo{a}{c}$: the recursion is
     \emph{generic}; only $a$ and $c$ change.}
   \speakernote{Pipeline: split, recurse, combine \\
-    [click] quicksort: partition, concatenate \\
-    [click] mergesort: the work moves to combine \\
-    [click] power: split off the last bit \\
-    [click] recursion written once: the hylomorphism}
+    quicksort: partition, concatenate \\
+    mergesort: the work moves to combine \\
+    power: split off the last bit \\
+    recursion written once: the hylomorphism}
 \end{frame}
 
 \begin{frame}
@@ -72,7 +72,7 @@
   \end{center}
   \uncover<2->{The tree is \emph{virtual}: it is never built in memory.}
   \speakernote{Split goes down, combine comes up \\
-    [click] the tree is only the call stack, never in memory}
+    the tree is only the call stack, never in memory}
 \end{frame}
 
 \begin{frame}
@@ -106,7 +106,7 @@
   \end{itemize}
   \speakernote{Top: build then consume; easy to read, wastes memory \\
     Bottom: hylo, no tree (deforestation, Wadler 1990) \\
-    [click] specs look like the top, programs like the bottom}
+    specs look like the top, programs like the bottom}
 \end{frame}
 
 \begin{frame}
@@ -144,7 +144,7 @@
   \speakernote{Fusion: push post-processing into combine, if it distributes \\
     Deforestation: build then take apart cancels out \\
     proved once, for every data type \\
-    [click] an optimisation is a chain of these}
+    an optimisation is a chain of these}
 \end{frame}
 
 \begin{frame}
@@ -179,7 +179,7 @@
   \end{center}
   \uncover<4->{Each $=$ is a \textbf{theorem} applied by a proof assistant.}
   \speakernote{Quicksort = hylo with partition and concat \\
-    [click] doubling distributes over concat: fusion \\
-    [click] result: the hand-written program \\
-    [click] each step a theorem, applied in Rocq}
+    doubling distributes over concat: fusion \\
+    result: the hand-written program \\
+    each step a theorem, applied in Rocq}
 \end{frame}

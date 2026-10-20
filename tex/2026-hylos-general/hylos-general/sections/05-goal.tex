@@ -50,8 +50,8 @@
     low-level form; extraction is a direct print.}
   \speakernote{Box = verified in Rocq \\
     Today: exit through OCaml (GC, closures, boxed integers) \\
-    [click] Goal: more laws to a low-level form, printed directly \\
-    [click] layout and scheduling become calculation steps, not a compiler pass}
+    Goal: more laws to a low-level form, printed directly \\
+    layout and scheduling become calculation steps, not a compiler pass}
 \end{frame}
 
 \begin{frame}
@@ -75,8 +75,8 @@
   \end{itemize}
   \speakernote{Read the goal box \\
     you choose laws, not indices \\
-    [click] every step proved \\
-    [click] cost model picks among equal programs}
+    every step proved \\
+    cost model picks among equal programs}
 \end{frame}
 
 \begin{frame}
@@ -106,9 +106,9 @@
   \uncover<4->{Today's laws change the \emph{algorithm}; these change
     \emph{where data lives} and \emph{how work is scheduled}.}
   \speakernote{Today's laws only know trees \\
-    [click] recursion to loops \\
-    [click] independent pieces run in parallel \\
-    [click] all proved once, used as rewrites}
+    recursion to loops \\
+    independent pieces run in parallel \\
+    all proved once, used as rewrites}
 \end{frame}
 
 \begin{frame}
@@ -149,8 +149,8 @@
   \end{itemize}
   \speakernote{Low-level fragment: no closures, explicit memory, machine integers \\
     Laws keep programs inside it \\
-    [click] printing is almost syntactic: small trusted base \\
-    [click] overflow and bounds as side conditions}
+    printing is almost syntactic: small trusted base \\
+    overflow and bounds as side conditions}
 \end{frame}
 
 \begin{frame}
@@ -179,8 +179,8 @@
   \uncover<3->{The laws say what is \emph{equal}; a cost model says what is
     \emph{better}.}
   \speakernote{Two equal programs from one spec \\
-    [click] fused saves memory; split enables parallelism \\
-    [click] laws say equal, cost model says better}
+    fused saves memory; split enables parallelism \\
+    laws say equal, cost model says better}
 \end{frame}
 
 \begin{frame}
@@ -217,7 +217,7 @@
   \end{itemize}
   \speakernote{Search: heuristics, e-graphs, or an ML model \\
     Rocq checks the chain of laws \\
-    [click] wrong proposals rejected; output correct regardless \\
+    wrong proposals rejected; output correct regardless \\
     ML: like a model proposing proofs; security: small trusted base}
 \end{frame}
 

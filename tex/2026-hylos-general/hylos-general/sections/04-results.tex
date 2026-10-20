@@ -7,8 +7,8 @@
   \callout<2->{14,7.6}{specification}{spec}
   \callout<3->{14,2.4}{the laws}{laws}
   \speakernote{\code{Derive}: the program starts as an unknown \\
-    [click] the spec: quicksort, then double \\
-    [click] one line of laws; Rocq fills in the program}
+    the spec: quicksort, then double \\
+    one line of laws; Rocq fills in the program}
 \end{frame*}
 
 \begin{frame*}
@@ -22,7 +22,7 @@
   \end{onlyenv}
   \par
   \speakernote{Extracted: one pass, doubles each pivot \\
-    [click] compare: same as the hand-written one, now with a proof}
+    compare: same as the hand-written one, now with a proof}
 \end{frame*}
 
 \begin{frame}
@@ -51,7 +51,7 @@
   \uncover<2->{A hylomorphism, but it \textbf{recomputes}: exponential.}
   \speakernote{Classic DP recurrence \\
     Point at red nodes: the same capacities computed again and again \\
-    [click] naive recursion is a hylo, but exponential}
+    naive recursion is a hylo, but exponential}
 \end{frame}
 
 \begin{frame}
@@ -76,8 +76,9 @@
   \begin{itemize}[<+->]
     \item \textbf{Dynamorphism}: a hylomorphism that keeps a \emph{table}
       of earlier results.
-    \item A law: naive recursion $=$ table version, if each step only
-      \emph{reads} the table.
+    \item A law: recursion over \emph{items} $=$ recursion over
+      \emph{capacities} with a table, if each step \emph{looks up} its
+      subproblems.
     \item Exponential $\Longrightarrow$ one entry per capacity.
   \end{itemize}
   \slideref{R. Hinze, N. Wu, J. Gibbons. \textbf{Conjugate Hylomorphisms, or:
@@ -85,32 +86,43 @@
   \speakernote{Keep a table of results for every capacity \\
     Point at arrows: K(6) reads K(4) and K(3) from the table \\
     dynamorphism (Hinze, Wu, Gibbons) \\
-    [click] a law turns naive recursion into the table version \\
-    [click] exponential to one entry per capacity}
+    law (\code{reenumerate}): change what we recurse on, items to capacities \\
+    exponential to one entry per capacity}
 \end{frame}
 
 \begin{frame*}
-  \frametitle{From $O(n)$ to $O(1)$ Lookups, by Rewriting}
+  \frametitle{From Recomputation to a Table, by Rewriting}
   \begin{onlyenv}<1>
   \begin{center}
-    \begin{tikzpicture}[alt={The table as a linked list, newest result
-        first, where reading the entry for c minus w walks w steps. The
-        same table as an array indexed by capacity, where reading any entry
-        takes one step.},
-      every node/.style = {box, minimum width = 11mm, font = \small},
-      node distance = 0mm]
-      \node (l0) {$K(c)$};
-      \node[right = of l0] (l1) {$K(c{-}1)$};
-      \node[right = of l1] (l2) {$\cdots$};
-      \node[right = of l2] (l3) {$K(0)$};
-      \node[draw = none, fill = none, note, left = 3mm of l0, align = right]
-        {table:\\ walk, $O(n)$};
-      \node[below = 10mm of l0] (a0) {$K(0)$};
-      \node[right = of a0] (a1) {$\cdots$};
-      \node[right = of a1] (a2) {$K(c{-}1)$};
-      \node[hot, right = of a2] (a3) {$K(c)$};
-      \node[draw = none, fill = none, note, left = 3mm of a0, align = right,
-        text = good] {array:\\ index, $O(1)$};
+    \begin{tikzpicture}[alt={Left: the naive recursion over items, a tree
+        in which K(6) calls K(4) and K(3), which call further capacities,
+        with repeats. Right: the recursion over capacities, a chain from
+        K(6) down to K(0); each entry looks up the entries it needs further
+        down the chain instead of calling them.},
+      every node/.style = {box, font = \small}]
+      \begin{scope}[level distance = 10mm,
+          level 1/.style = {sibling distance = 22mm},
+          level 2/.style = {sibling distance = 11mm}]
+        \node[hot] {$K(6)$}
+          child {node {$K(4)$} child {node {$K(2)$}} child {node {$K(1)$}}}
+          child {node {$K(3)$} child {node {$K(1)$}} child {node {$K(0)$}}};
+        \node[draw = none, fill = none, note] at (0, 0.8)
+          {over items: recompute};
+      \end{scope}
+      \node[draw = none, fill = none, font = \Large] at (3.4, -1)
+        {$=$};
+      \begin{scope}[xshift = 45mm, node distance = 3mm]
+        \node[hot] (c6) at (0, 0) {$K(6)$};
+        \foreach \i/\j in {5/6, 4/5, 3/4, 2/3, 1/2, 0/1} {
+          \node[right = of c\j] (c\i) {$K(\i)$};
+          \draw[->] (c\j) -- (c\i);
+        }
+        \draw[->, accent2, thick] (c6.south) to[bend right = 35]
+          node[below, draw = none, fill = none, note] {look up} (c4.south);
+        \draw[->, accent2, thick] (c6.north) to[bend left = 35] (c3.north);
+        \node[draw = none, fill = none, note] at (3.6, 1.5)
+          {over capacities: look up};
+      \end{scope}
     \end{tikzpicture}
   \end{center}
   \end{onlyenv}
@@ -120,11 +132,11 @@
     \simplified
   \end{onlyenv}
   \par
-  \speakernote{Generic table, like a list: each lookup walks, O(n) \\
-    As an array: each lookup is one index, O(1) \\
-    [click] arrays are just another memo table; dyna does not care which \\
-    \code{Derive}: naive exponential hylo to array dyna, three rewrites \\
-    No hand-written index arithmetic}
+  \speakernote{Left: naive recursion over items; repeats \\
+    Right: count down capacities; each entry looks up earlier ones \\
+    step 1: a Derive makes the algebra read through a lookup \\
+    step 2: \code{reenumerate} switches the recursion; tables are persistent arrays \\
+    \code{dyna\_memo}: share the table; no hand-written index arithmetic}
 \end{frame*}
 
 \begin{frame*}
@@ -133,24 +145,24 @@
   \simplified
   \begin{center}
     \begin{tikzpicture}[alt={The cost ladder: naive recursion is
-        exponential; with a generic table, every lookup walks it; with
-        an array table, every lookup is constant time, so the whole
-        program is linear in the capacity for a fixed set of items.},
+        exponential; the calculated dynamorphism keeps one entry per
+        capacity, and each lookup walks down the table; indexing the array
+        directly, for constant-time lookups, is work in progress.},
       stage/.style = {box, text width = 30mm, align = center,
         minimum height = 10mm}]
       \node[stage, draw = bad, fill = bad!8] (e) {naive:\\ exponential};
-      \node[stage, right = 12mm of e] (l) {generic table:\\ $O(n)$ lookups};
-      \node[stage, right = 12mm of l, draw = good, fill = good!8] (a)
-        {array table:\\ $O(1)$ lookups};
-      \draw[->, thick] (e) -- node[above, note] {law} (l);
-      \draw[->, thick] (l) -- node[above, note] {law} (a);
+      \node[stage, right = 12mm of e, draw = good, fill = good!8] (l)
+        {table: one entry\\ per capacity};
+      \node[stage, right = 12mm of l, dashed] (a)
+        {$O(1)$ lookups:\\ in progress};
+      \draw[->, thick] (e) -- node[above, note] {laws} (l);
+      \draw[->, thick, dashed] (l) -- (a);
     \end{tikzpicture}
   \end{center}
-  \speakernote{Simplified from the extracted code \\
-    \code{table}: one entry per capacity, built bottom-up \\
-    Point at \code{get}: constant-time lookup \\
-    Ladder: exponential, table, array; each step a law \\
-    Linear in the capacity, for fixed items}
+  \speakernote{\code{table}: one entry per capacity, built bottom-up \\
+    \code{look}: walks w steps down; the array table is persistent \\
+    Ladder: exponential to one entry per capacity, all by laws \\
+    Next: index the array directly for O(1) lookups (in progress)}
 \end{frame*}
 
 \begin{frame}
@@ -177,7 +189,7 @@
     \end{tikzpicture}
   \end{center}
   \speakernote{Fast power: deforest the list of binary digits \\
-    [click] max segment sum: Bird's classic, cubic to linear}
+    max segment sum: Bird's classic, cubic to linear}
 \end{frame}
 
 \begin{frame*}
@@ -202,7 +214,7 @@
   \end{onlyenv}
   \par
   \speakernote{Spec is the definition: all segments, sum, max \\
-    [click] one pass, two accumulators; not obviously correct, but proved}
+    one pass, two accumulators; not obviously correct, but proved}
 \end{frame*}
 
 \begin{frame}
