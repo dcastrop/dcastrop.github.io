@@ -1,0 +1,78 @@
+% ~6 min
+\partframe{Part III}{Program Calculation and Extraction}
+
+\begin{frame*}
+  \frametitle{Calculating a Program with \texttt{Derive}}
+  \rocqblock{qsort-derive.v}
+  \ocamlblock{qsort-extr.ml}
+  \speakernote{Derive leaves qsort as an unknown; the rewrites build it,
+    and finished fills it in. qsort is transparent, so it extracts;
+    qsort\_calc is the proof that it meets the specification. The OCaml is
+    what one would write by hand.}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Fusing a Map into Quicksort}
+  \rocqblock{qsort2-derive.v}
+  \ocamlblock{qsort2.ml}
+  \speakernote{The opening example. One rewrite chain: fuse the map into
+    merge (left fusion), then deforest. The extracted code doubles each
+    pivot in a single traversal.}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Coalgebras Need Not Follow the Data}
+  \rocqblock{digits.v}
+  \begin{center}
+    \begin{tikzpicture}[alt={The digits coalgebra on 13 in base 2: 13
+        gives digit 1 and seed 6, 6 gives digit 0 and seed 3, 3 gives
+        digit 1 and seed 1, 1 gives digit 1 and seed 0, and 0 stops.},
+      node distance = 12mm]
+      \node[box] (a) {$13$};
+      \node[box, right = of a] (b) {$6$};
+      \node[box, right = of b] (c) {$3$};
+      \node[box, right = of c] (d) {$1$};
+      \node[box, right = of d] (e) {$0$};
+      \draw[->] (a) -- node[above, note] {1} (b);
+      \draw[->] (b) -- node[above, note] {0} (c);
+      \draw[->] (c) -- node[above, note] {1} (d);
+      \draw[->] (d) -- node[above, note] {1} (e);
+      \node[note, right = 3mm of e] {digits of $13 = 1101_2$};
+    \end{tikzpicture}
+  \end{center}
+  \ocamlblock{fastpow.ml}
+  \speakernote{digits splits a number, no list is ever built. Power as a
+    fold over the binary digits; deforestation gives fast exponentiation.
+    The same laws can also move the map to the other side and introduce a
+    list (sum of squares example in the library).}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Challenge: Inlining for Extraction}
+  Plain \code{Recursive Extraction qsort}:
+  \ocamlblock{raw-extr.ml}
+  \callout<2->{14.5,8.2}{dictionaries at run time}{dict}
+  \callout<3->{14,2.6}{a record per call}{rec}
+  \speakernote{Shown partially. Type-safe, but generic: setoid and
+    container dictionaries are passed around at run time, and a record is
+    built and taken apart at every call. The fix: Eval simpl on the derived
+    program, Extraction Inline for the container wrappers, and Set
+    Extraction Flag 2047. The result is the qsort\_code from before.}
+\end{frame*}
+
+\begin{frame}
+  \frametitle{Since the Paper: Usability}
+  \begin{itemize}
+    \item<1-> Properness and termination: \textbf{instance search}.
+    \item<2-> Rewriting modulo associativity: \code{arewrite}.
+    \item<3-> Diverging instance search: \code{\#[mode = "!"]}.
+  \end{itemize}
+  \speakernote{Before: every function needed a properness proof, every
+    coalgebra a termination proof; now found by instance search, and a
+    tactic proves properness out of container values. Calculations are
+    long chains of compositions; rewrite needs a syntactic match up to
+    associativity; arewrite finds the law anywhere in the chain and proves
+    the step by conversion. An unannotated statement made Rocq search for
+    setoid ?A; some instances recurse on a fresh evar, so the search never
+    ended and ate all memory; the mode annotation stops it.}
+\end{frame}

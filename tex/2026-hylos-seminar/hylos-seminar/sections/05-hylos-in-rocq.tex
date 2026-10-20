@@ -1,0 +1,140 @@
+% ~7 min
+\partframe{Part II}{Recursive Coalgebras and Hylomorphisms}
+
+\begin{frame*}
+  \frametitle{Why Not Just Write Quicksort?}
+  \rocqblock{naive-qsort.v}
+  \badblock{naive-qsort-err.txt}
+  \speakernote{Rocq's structural check rejects it: the recursive calls are
+    not on subterms of l. Program Fixpoint, Function or Equations accept it,
+    but each function needs its own termination proof, and we get none of
+    the laws.}
+\end{frame*}
+
+\begin{frame}
+  \frametitle{Recursive Coalgebras (I)}
+  \[ h = a \circ F\,h \circ c \qquad \text{with } F\,X = X,
+     \text{ so } F\,h = h \]
+  \[
+    \renewcommand\arraystretch{1.6}
+    \begin{array}{l@{\qquad}l@{\qquad}l}
+      \uncover<2->{c = \op{id},\ a = \op{succ}} &
+        \uncover<2->{h\,x = h\,x + 1} &
+        \uncover<2->{\text{\textbf{no} solution}} \\
+      \uncover<3->{c = a = \op{id}} &
+        \uncover<3->{h\,x = h\,x} &
+        \uncover<3->{\text{\textbf{every} $h$ is a solution}}
+    \end{array}
+  \]
+  \begin{uncoverenv}<4->
+    The culprit: $c = \op{id}$ never shrinks its input,
+    $x \mapsto x \mapsto x \mapsto \cdots$
+
+    \textbf{Recursive} $c$: every input reaches the leaves; then there is
+    exactly one $h$, for every $a$.
+  \end{uncoverenv}
+  \slideref{J. Ad\'amek, S. Milius, L. S. Moss. \textbf{On Well-Founded and
+    Recursive Coalgebras}. FoSSaCS 2020.\\
+    V. Capretta, T. Uustalu, V. Vene. \textbf{Recursive Coalgebras from
+    Comonads}. 2006.}
+  \speakernote{Why hylo cannot be defined for arbitrary coalgebras. With
+    the identity functor the hylo equation is just an equation on
+    functions. succ: no number equals its successor, so no h. id: the
+    equation says nothing, so every h fits. In both cases the call tree is
+    the infinite chain x, x, x, ... Recursive coalgebras are those whose
+    unfolds are finite trees (they terminate on every input); for them the
+    solution exists and is unique.}
+\end{frame}
+
+\begin{frame*}
+  \frametitle{Recursive Coalgebras (and II)}
+  \rocqblock{recf.v}
+  \begin{center}
+    \begin{tikzpicture}[alt={A proof of RecF c x is a finite tree that
+        mirrors the call tree: one node for x, with a sub-proof for each
+        child of c x, down to leaves with no valid positions.},
+      level distance = 9mm, sibling distance = 22mm,
+      every node/.style = {box, font = \small}]
+      \node {$\op{RecF}\,c\,x$}
+        child {node {$\op{RecF}\,c\,x_1$}
+          child {node {leaf}}}
+        child {node {$\op{RecF}\,c\,x_2$}
+          child {node {leaf}} child {node {leaf}}};
+    \end{tikzpicture}
+  \end{center}
+  Equivalent to \code{well\_founded (child c)}, but the induction
+  hypothesis is \emph{per position}, as in \code{fmap}.
+  \speakernote{RecF: c terminates on x if it terminates on every child of
+    c x. A proof is a finite tree shaped like the call tree. In practice it
+    comes from a well-founded measure that c decreases (mk\_wf\_coalg),
+    e.g. list length for quicksort. Why not standard accessibility? RecF c
+    x is equivalent to Acc (child c) x, where child y x says y is at some
+    position of c x (RecP\_well\_founded, so Equations and the standard
+    library can use our proofs). Same hylo, same extracted code, same
+    termination proofs. The difference is in correctness proofs: RecF's
+    induction hypothesis is forall e, P (cont (c x) e), exactly what the
+    unfolded hylo exposes, so it is applied at a position directly; with
+    Acc it is forall y, child y x -> P y, and each use must build the
+    witness and unfold child.}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Recursive Hylomorphisms}
+  Recursion on the termination proof (simplified):
+  \rocqblock[width = .8\textwidth]{hylo-def.v}
+  \callout<2->{4,2.4}{termination proof\\ (in \code{Prop}: erased)}{recf}
+  \callout<3->{13,2.4}{structurally smaller proof}{He}
+  \speakernote{Structural recursion on the proof H, not on x. The proof is
+    in Prop, so extraction erases it. RecF\_inv gives the structurally
+    smaller proof for each child. The real definition needs a dependent
+    match; this is simplified. The result does not depend on the proof.}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Uniqueness and the Laws}
+  \rocqblock{hylo-laws.v}
+  \popup<2>(10,60)[.9][greenbox]{%
+    Proofs follow the paper proofs:
+    \[
+      \begin{tikzcd}[alt={Proof of left fusion: the squares for the hylo of
+          a and c and for the homomorphism h paste into a rectangle whose
+          top is h after the hylo, so by uniqueness it equals the hylo of b
+          and c.}, column sep = 24mm, row sep = 8mm]
+        F\,C \arrow[r, "F\,\hylo{a}{c}"] \& F\,A \arrow[r, "F\,h"] \&
+          F\,B \\
+        C \arrow[u, "c"] \arrow[r, "\hylo{a}{c}"'] \& A \arrow[u, "a"',
+          leftarrow] \arrow[r, "h"'] \& B \arrow[u, "b"', leftarrow]
+      \end{tikzcd}
+    \]}
+  \speakernote{hylo\_uniq is the universal property; the three laws
+    follow from it. The Rocq proof of fusion is this diagram: paste the
+    squares, apply uniqueness; four rewrite steps.}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Folds after Unfolds}
+  \rocqblock{cata-ana.v}
+  \[
+    \begin{tikzcd}[alt={The specification goes from A to LFix F by rana c,
+        then to B by cata a. The hylomorphism goes directly from A to B and
+        never builds the tree.}, column sep = 30mm]
+      A \arrow[r, "\code{rana c}"] \arrow[rr, bend right = 25,
+        "\code{hylo a c}"', dashed] \& \code{LFix F}
+        \arrow[r, "\code{cata a}"] \& B
+    \end{tikzcd}
+  \]
+  \speakernote{rana builds the call tree (a hylo into the initial
+    algebra). Specifications are written as fold after unfold; the
+    calculated program never builds the tree. Correctness proofs: induction
+    on termination, unroll the hylo once; they carry over along every
+    calculation step.}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{No Axioms}
+  \outblock{assumptions.txt}
+  \speakernote{Print Assumptions output. The core laws depend on nothing:
+    no functional extensionality, no axiom K, no proof irrelevance. The
+    examples with machine integers only depend on Rocq's own primitive
+    integer axioms, which extract to native OCaml integers.}
+\end{frame*}

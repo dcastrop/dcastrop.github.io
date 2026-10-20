@@ -1,0 +1,138 @@
+% ~7 min. Outputs of the bad attempt are real (Rocq 9.3, extraction).
+\partframe{Part I}{Extractable Containers in Rocq}
+
+\begin{frame}
+  \frametitle{Containers}
+  \[ \ext{S \triangleleft P}\,X = \textstyle\sum_{s : S}\,(P\,s \to X)
+     \qquad
+     \ext{S \triangleleft P}\,f\,(s, g) = (s, f \circ g) \]
+  \begin{center}
+    \begin{tikzpicture}[alt={A value of the quicksort container: the shape
+        Node 3 has two positions, true and false, which the function maps
+        to the lists 1, 2 and 4, 5. The shape Leaf has no positions.},
+      node distance = 6mm and 14mm]
+      \node[hot] (s) {shape: $\op{Node}\;3$};
+      \node[box, above right = 0mm and 16mm of s] (l) {$[1,2]$};
+      \node[box, below right = 0mm and 16mm of s] (r) {$[4,5]$};
+      \draw[->] (s) -- node[above, note] {\code{true}} (l);
+      \draw[->] (s) -- node[below, note] {\code{false}} (r);
+      \node[hot, right = 34mm of s] (lf) {shape: $\op{Leaf}$};
+      \node[note, right = 2mm of lf] {no positions};
+    \end{tikzpicture}
+  \end{center}
+  \slideref{M. Abbott, T. Altenkirch, N. Ghani. \textbf{Categories of
+    Containers}. FoSSaCS 2003.}
+  \speakernote{A container: shapes S, and for each shape a type of
+    positions P s. A value is a shape plus a function from its positions
+    to elements; fmap is post-composition. Picture: Node 3 has two
+    positions, Leaf has none. Every polynomial functor is a container, so
+    fold, unfold and fusion are defined once for all of them.}
+\end{frame}
+
+\begin{frame*}
+  \frametitle{Containers in Rocq: A Bad Attempt}
+  \rocqblock{naive-cont.v}
+  \par
+  \begin{onlyenv}<2>
+    \begin{infobox}Positions are a type \emph{family}.\end{infobox}
+  \end{onlyenv}
+  \par
+  \speakernote{The textbook encoding: Pos depends on the shape. It
+    typechecks; the trouble starts when we extract and when we prove
+    equalities (next slide).}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{A Bad Attempt: Extraction and Equality}
+  \par
+  \begin{onlyenv}<1>
+    \badblock{naive-extr.ml}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+    \rocqblock{naive-eq.v}
+    \badblock{naive-eq.txt}
+  \end{onlyenv}
+  \par
+  \speakernote{Real output. OCaml cannot type Pos C shape, so every shape
+    and position goes through Obj.magic: unsafe as soon as this code meets
+    hand-written code. Equality: injection only gives an equality of
+    dependent pairs (existT); getting k1 = k2 needs inj\_pair2, which
+    assumes axiom K. And fmap id = id as functions needs functional
+    extensionality.}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Extractable Containers in Rocq (I)}
+  \begin{enumerate}
+    \item Decidable equality gives UIP: \alert{no axiom}.
+    \item Proofs in \code{Prop} are \alert{erased}.
+  \end{enumerate}
+  \par
+  \begin{onlyenv}<2->
+    \rocqblock{elem-val-eq.v}
+  \end{onlyenv}
+  \par
+  \callout<3->{12,2.4}{UIP on \code{bool}}{uip}
+  \speakernote{Two observations. Hedberg: for a type with decidable
+    equality, uniqueness of identity proofs is a theorem, not an axiom.
+    A predicate subtype \{x | P x\} with P in Prop extracts to the
+    supertype. Our lemma: two positions are equal when their values are,
+    because validity proofs are equalities on bool.}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Extractable Containers in Rocq (and II)}
+  \rocqblock{cont-class.v}
+  \callout<2->{13,7.6}{decidable validity}{valid}
+  \callout<3->{13,4.6}{unique, erased}{Valid}
+  \speakernote{One type P of all positions for every shape, and a boolean
+    saying which are valid in a shape. Valid is a proof of b = true:
+    unique (no axiom K) and erased (extraction sees cont as a plain
+    function P -> X, no casts). Shapes are a setoid.}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Example: the Recursion of Quicksort}
+  \rocqblock{qsort-shapes.v}
+  \begin{center}
+    \renewcommand\arraystretch{1.3}
+    \begin{tabular}{lcc}
+      \textbf{\code{t\_dom}} & \textbf{\code{Lbranch}} &
+        \textbf{\code{Rbranch}} \\
+      \code{Leaf tt} & \textcolor{bad}{false} & \textcolor{bad}{false} \\
+      \code{Node h}  & \textcolor{good}{true} & \textcolor{good}{true} \\
+    \end{tabular}
+  \end{center}
+  \speakernote{Shapes: Leaf, or Node with the pivot. Positions: left and
+    right branch. The table is the validity predicate: a leaf has no
+    children, a node two.}
+\end{frame*}
+
+\begin{frame}
+  \frametitle{Setoids and Morphisms}
+  \begin{itemize}
+    \item Every type has an equivalence \code{=e}.
+    \item \code{A \textasciitilde> B}: functions that respect it.
+    \item Laws become \code{rewrite} steps.
+  \end{itemize}
+  \speakernote{This is how we avoid functional extensionality. A ~> B is
+    a function packed with a properness proof, coerced to a plain function.
+    Container values are equal when shapes are equal and equal positions
+    hold equal elements. Setoids enable Rocq's generalised rewriting.
+    Optional slide.}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Part I in One Slide}
+  \begin{center}
+    \renewcommand\arraystretch{1.5}
+    \begin{tabular}{lll}
+      \textbf{\textcolor{bad}{Problem}} & \textbf{Cause} &
+        \textbf{\textcolor{good}{Fix}} \\
+      \code{Obj.magic} & dependent positions & one type of positions \\
+      axiom K & dependent pairs & boolean validity \\
+      function extensionality & \code{=} on functions & setoids \\
+    \end{tabular}
+  \end{center}
+  \speakernote{Recap. Good moment for a quick question.}
+\end{frame}

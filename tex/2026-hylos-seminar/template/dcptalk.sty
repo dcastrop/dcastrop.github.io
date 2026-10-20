@@ -1,0 +1,340 @@
+% dcptalk: an ltx-talk style after the 2025-ITP / 2026 seminar decks.
+% Grey page, yellow sticky notes, shadowed code boxes, golden callouts,
+% "Part" divider frames, title frame with author logos.
+%
+% Load after \documentclass{ltx-talk}:   \usepackage{dcptalk}
+\NeedsTeXFormat{LaTeX2e}[2025-11-01]
+\ProvidesPackage{dcptalk}[2026-10-19 v0.1 ltx-talk style]
+
+\DeclareKeys[dcptalk]{
+  fonts.store   = \dcp@fonts,
+  fonts.usage   = load,
+  math.store    = \dcp@math,
+  math.usage    = load,
+  footer.if     = dcp@footer,
+  footer.usage  = load,
+  titlebar.if   = dcp@titlebar,
+  titlebar.usage = load,
+  codedir.store = \dcp@codedir,
+  codedir.usage = load,
+}
+\SetKeys[dcptalk]{fonts = lm, math = auto, footer = false, titlebar = true,
+  codedir = gen}
+\ProcessKeyOptions[dcptalk]
+
+\RequirePackage{xcolor}
+\RequirePackage{pagecolor}
+\RequirePackage{graphicx}
+\RequirePackage{array}
+\RequirePackage{fancyvrb}
+\RequirePackage[skins]{tcolorbox}
+\RequirePackage{tikz}
+\usetikzlibrary{arrows.meta, calc, positioning, fit, shapes, trees, tikzmark,
+  cd}
+
+% ---------------------------------------------------------------- fonts
+% fonts = paper: as the LIPIcs paper: Latin Modern Roman text, Latin Modern
+%   Sans for frame titles and \textsf;
+% fonts = lm: Latin Modern Sans text (as the old pdfLaTeX decks);
+% fonts = fira: Fira Sans text;
+% fonts = default: ltx-talk's fonts (nothing below applies).
+% Code is JetBrains Mono (else Fira Mono).
+% math = auto: Latin Modern Math with fonts = paper, else cmsans;
+% math = lm | cmsans (New Computer Modern Sans Math, the OpenType form of
+%   the sansmathfonts maths of the old decks) | fira (Fira Math).
+% Optical sizes follow the Latin Modern design sizes.
+\newcommand\dcp@setsans[1]{% #1 = \setmainfont, \setsansfont, ...
+  #1{lmsans10}[
+    Extension      = .otf,
+    UprightFont    = *-regular,
+    BoldFont       = *-bold,
+    ItalicFont     = *-oblique,
+    BoldItalicFont = *-boldoblique,
+    UprightFeatures = {SizeFeatures = {
+      {Size = -8.5,    Font = lmsans8-regular},
+      {Size = 8.5-9.5, Font = lmsans9-regular},
+      {Size = 9.5-11,  Font = lmsans10-regular},
+      {Size = 11-15,   Font = lmsans12-regular},
+      {Size = 15-,     Font = lmsans17-regular}}},
+    ItalicFeatures = {SizeFeatures = {
+      {Size = -8.5,    Font = lmsans8-oblique},
+      {Size = 8.5-9.5, Font = lmsans9-oblique},
+      {Size = 9.5-11,  Font = lmsans10-oblique},
+      {Size = 11-15,   Font = lmsans12-oblique},
+      {Size = 15-,     Font = lmsans17-oblique}}}]}
+\newcommand\dcp@setroman[1]{%
+  #1{lmroman10}[
+    Extension      = .otf,
+    UprightFont    = *-regular,
+    BoldFont       = *-bold,
+    ItalicFont     = *-italic,
+    BoldItalicFont = *-bolditalic,
+    UprightFeatures = {SizeFeatures = {
+      {Size = -8.5,    Font = lmroman8-regular},
+      {Size = 8.5-9.5, Font = lmroman9-regular},
+      {Size = 9.5-11,  Font = lmroman10-regular},
+      {Size = 11-15,   Font = lmroman12-regular},
+      {Size = 15-,     Font = lmroman17-regular}}},
+    BoldFeatures = {SizeFeatures = {
+      {Size = -8.5,    Font = lmroman8-bold},
+      {Size = 8.5-9.5, Font = lmroman9-bold},
+      {Size = 9.5-11,  Font = lmroman10-bold},
+      {Size = 11-,     Font = lmroman12-bold}}},
+    ItalicFeatures = {SizeFeatures = {
+      {Size = -8.5,    Font = lmroman8-italic},
+      {Size = 8.5-9.5, Font = lmroman9-italic},
+      {Size = 9.5-11,  Font = lmroman10-italic},
+      {Size = 11-,     Font = lmroman12-italic}}}]}
+\newcommand\dcp@setmono{%
+  \IfFontExistsTF{JetBrains Mono NL}
+    {\setmonofont{JetBrains Mono NL}[Scale = MatchLowercase]}
+    {\setmonofont{Fira Mono}[Scale = MatchLowercase]}}
+\newcommand\dcp@setfira{%
+  \setmainfont{Fira Sans}\setsansfont{Fira Sans}%
+  \setmathsf{Fira Sans}\setmathrm{Fira Sans}}
+\ExplSyntaxOn
+\sys_if_engine_luatex:T
+  {
+    \str_case:Vn \dcp@fonts
+      {
+        { paper }
+          {
+            \dcp@setroman \setmainfont
+            \dcp@setroman \setmathrm
+            \dcp@setsans \setsansfont
+            \dcp@setsans \setmathsf
+            \str_if_eq:VnT \dcp@math { auto } { \def \dcp@math { lm } }
+          }
+        { lm }
+          {
+            \dcp@setsans \setmainfont
+            \dcp@setsans \setsansfont
+            \dcp@setsans \setmathsf
+            \dcp@setsans \setmathrm
+          }
+        { fira } { \dcp@setfira }
+      }
+    \str_if_eq:VnF \dcp@fonts { default }
+      {
+        \str_case:Vn \dcp@math
+          {
+            { lm } { \setmathfont { latinmodern-math.otf } }
+            { auto } { \setmathfont { NewCMSansMath-Regular.otf } }
+            { cmsans } { \setmathfont { NewCMSansMath-Regular.otf } }
+            { fira } { \setmathfont { Fira~Math } }
+          }
+        \dcp@setmono
+      }
+  }
+\ExplSyntaxOff
+
+% ---------------------------------------------------------------- titles
+% A vertical bar left of the frame title (titlebar = false removes it).
+% With fonts = paper, frame titles are in the sans font, like the paper's
+% headings.
+\colorlet{dcptitlebar}{cyan}
+\newcommand\dcp@titlebar{%
+  \ifdcp@titlebar
+    {\color{dcptitlebar}\vrule width 1.2pt height 1em depth .3em}%
+    \hspace{.5em}%
+  \fi}
+\ExplSyntaxOn
+\str_if_eq:VnT \dcp@fonts { paper }
+  { \EditInstance { frametitle } { header }
+      { font = \Large \sffamily \bfseries } }
+% The bar goes with the title text, so frames without a title get none.
+% (Patches an ltx-talk internal: check after ltx-talk updates.)
+\cs_new_eq:NN \__dcp_frame_title:n \__talk_frame_title:n
+\cs_set_protected:Npn \__talk_frame_title:n #1
+  { \__dcp_frame_title:n { \dcp@titlebar #1 } }
+\ExplSyntaxOff
+
+% ---------------------------------------------------------------- colours
+\definecolor{golden}{rgb}{0.99, 0.76, 0.0}
+\definecolor{dgreen}{RGB}{0, 160, 0}
+\colorlet{dcpbad}{red!75!black}
+\colorlet{dcpgood}{green!50!black}
+\pagecolor{lightgray!30}
+
+% ---------------------------------------------------------------- footer
+% footer = true: date, author, title, institute, frame number and total.
+\ifdcp@footer
+  \EditInstance{footer}{std}{
+    color         = black!50,
+    separator     = \hfill,
+    element-order = {date, author, title, institute, framenumber,
+                     totalframes},
+    right-hspace  = 3mm,
+    left-hspace   = 3mm,
+  }
+\else
+  \EditInstance{footer}{std}{element-order = {}}
+\fi
+
+% ---------------------------------------------------------------- spacing
+% Air between paragraphs, list items and around lists (tagged lists are
+% template instances).
+\setlength\parskip{.6em plus .2em}
+\EditInstance{list}{itemize-1}{item-vspace = 6pt}
+\EditInstance{list}{itemize-2}{item-vspace = 3pt}
+\EditInstance{list}{enumerate-1}{item-vspace = 6pt}
+\EditInstance{block}{std-list-1}{begin-vspace = 6pt, end-vspace = 6pt}
+
+% ---------------------------------------------------------------- boxes
+\newtcolorbox{sticky}[1][]{enhanced, drop fuzzy shadow southeast,
+  boxrule = 0pt, colframe = yellow!80!black, colback = yellow!20,
+  halign = flush left, #1}
+\newtcolorbox{bluebox}[1][]{enhanced, drop fuzzy shadow southeast,
+  boxrule = 0pt, colframe = blue!10, colback = blue!10,
+  halign = flush left, #1}
+\newtcolorbox{greenbox}[1][]{enhanced, drop fuzzy shadow southeast,
+  boxrule = 0pt, colframe = green!10, colback = green!10,
+  halign = flush left, #1}
+\newtcolorbox{infobox}[1][]{enhanced, drop fuzzy shadow southeast,
+  boxrule = 0pt, colframe = red!10, colback = red!10,
+  halign = flush left, #1}
+\newtcolorbox{greybox}[1][]{enhanced, drop fuzzy shadow southeast,
+  boxrule = 0pt, colframe = black!8, colback = black!8,
+  halign = flush left, #1}
+
+% ---------------------------------------------------------------- code
+% Highlighted snippets live in <codedir>/<name>.tex (e.g. from pygmentize
+% -f latex). Rocq in blue, OCaml in green, errors in red, output in grey.
+% Frames that use them must be frame*.
+\fvset{fontsize = \small}
+\newcommand\dcp@code[3]{%
+  \begin{#1}[left = 2mm, right = 2mm, top = 1mm, bottom = 1mm, #2]%
+    \input{\dcp@codedir/#3.tex}%
+  \end{#1}}
+\NewDocumentCommand\rocqblock{O{} m}{\dcp@code{bluebox}{#1}{#2}}
+\NewDocumentCommand\ocamlblock{O{} m}{\dcp@code{greenbox}{#1}{#2}}
+\NewDocumentCommand\badblock{O{} m}{\dcp@code{infobox}{#1}{#2}}
+\NewDocumentCommand\outblock{O{} m}{\dcp@code{greybox}{#1}{#2}}
+\newcommand\code[1]{\texttt{#1}}
+
+% ---------------------------------------------------------------- pop-ups
+% \Put(x,y){...}: place material at an offset (pt) from the current point.
+\def\Put(#1,#2)#3{\leavevmode\makebox(0,0){\put(#1,#2){#3}}}
+% \popup<overlay>(x,y)[width][box]{content}: a box shown over the slide.
+\NewDocumentCommand\popup{D<>{2-} r() O{.86} O{sticky} +m}{%
+  \Put(#2){%
+    \begin{onlyenv}<#1>%
+      \begin{minipage}{#3\columnwidth}\begin{#4}#5\end{#4}\end{minipage}%
+    \end{onlyenv}}\par}
+
+% ---------------------------------------------------------------- callouts
+% Mark points with \tikzmark{name} (also inside code: pygmentize's
+% escapeinside), then
+%   \callout<overlay>{x,y}{text}{name1, name2}
+% puts a golden label at (x,y) cm from the bottom-left corner of the slide
+% with an arrow to each mark. Needs two runs.
+\tikzset{
+  callout/.style = {shading = axis, rectangle, rounded corners,
+    left color = golden, right color = golden!40!white,
+    shading angle = 180, align = center, inner sep = 4pt},
+  callout arrow/.style = {golden, -{Stealth}, line width = .5mm},
+}
+\NewDocumentCommand\callout{D<>{1-} m m m}{%
+  \begin{onlyenv}<#1>%
+    \begin{tikzpicture}[overlay, remember picture,
+        shift = (current page.south west), alt = {Note: #3}]
+      \node[callout] (dcp-callout) at (#2) {#3};
+      \foreach \dcp@m in {#4} {
+        % a box from \hlmark: arrow to its edge; else to the \tikzmark
+        \ifcsname pgf@sh@ns@hl-\dcp@m\endcsname
+          \draw[callout arrow] (dcp-callout) -- (hl-\dcp@m);
+        \else
+          \draw[callout arrow] (dcp-callout) -- (pic cs:\dcp@m);
+        \fi
+      }
+    \end{tikzpicture}\par
+  \end{onlyenv}}
+
+% ---------------------------------------------------------------- notes
+% \speakernote{text} inside a frame: not shown on the slides. Each note is
+% written to <jobname>.notes with the page it lands on (once per slide of the
+% frame); make-notes.py turns that file into <jobname>.pdfpc (pdfpc's
+% presenter console) and <jobname>-notes.md (a printable sheet).
+\ExplSyntaxOn
+\iow_new:N \g__dcp_notes_iow
+\AtBeginDocument { \iow_open:Nn \g__dcp_notes_iow { \c_sys_jobname_str .notes } }
+\NewDocumentCommand \speakernote { +m }
+  {
+    \iow_shipout_e:Ne \g__dcp_notes_iow
+      {
+        \exp_not:N \thepage |||
+        \tl_to_str:V \g__talk_frame_title_tl |||
+        \tl_to_str:n {#1}
+      }
+  }
+\ExplSyntaxOff
+
+% Inside code (via escapeinside): ^\hlmark{name}{text}^ highlights text in a
+% box named hl-name; \callout{...}{...}{name} points at the box's edge.
+\newcommand\hlmark[2]{%
+  \tikz[remember picture, baseline = (hl-#1.base)]
+    \node[fill = golden!35, inner sep = 1pt, outer sep = 1pt,
+      font = \ttfamily] (hl-#1) {#2};}
+
+% A reference at the bottom of the slide, in place of a footnote.
+\NewDocumentCommand\slideref{+m}{%
+  \begin{tikzpicture}[overlay, remember picture, alt = {Reference: #1}]
+    \node[anchor = south west, font = \tiny, text width = 150mm,
+      align = left] at ($(current page.south west) + (10mm, 7mm)$) {#1};
+  \end{tikzpicture}\par}
+
+% ---------------------------------------------------------------- frames
+% \partframe{Part I}{Title}
+\NewDocumentCommand\partframe{m m}{%
+  \begin{frame}
+    \vfill
+    \begin{center}
+      \begin{minipage}{.8\textwidth}
+        \begin{sticky}[halign = center]
+          {\Huge #1\par}\medskip{\Large #2\par}
+        \end{sticky}
+      \end{minipage}
+    \end{center}
+    \vfill
+  \end{frame}}
+
+% \titleframe{title}{authors}{venue and date}, with \authorblock for each
+% author: \authorblock*{name}{email}{logo file}{institution} (* = speaker).
+\NewDocumentCommand\authorblock{s m m m m}{%
+  \begin{tabular}[t]{@{}c@{}}
+    \IfBooleanTF{#1}{\underline{#2}}{#2} \\
+    \scriptsize\href{mailto:#3}{\ttfamily #3} \\[2mm]
+    \includegraphics[height = 12mm, alt = {#5 logo}]{#4}
+  \end{tabular}}
+\NewDocumentCommand\titleframe{+m +m +m}{%
+  \begin{frame}
+    \begin{center}
+      {\Huge #1\par}
+      \vspace{1cm}
+      {\large\noindent\hfill #2\hfill\null\par}
+    \end{center}
+    \vfill
+    {\small #3\par}
+  \end{frame}}
+
+% ---------------------------------------------------------------- diagrams
+\tikzset{
+  >=Stealth,
+  box/.style  = {draw = blue!40, fill = blue!8, rounded corners = 2pt,
+                 inner sep = 3pt, minimum height = 1.4em},
+  hot/.style  = {draw = golden!80!black, fill = yellow!25,
+                 rounded corners = 2pt, inner sep = 3pt,
+                 minimum height = 1.4em},
+  note/.style = {font = \small, text = orange!70!black},
+}
+% Frame bodies are read as arguments, so tikz-cd needs \& for &.
+\tikzcdset{ampersand replacement = \&, arrows = {-Stealth},
+  column sep = 18mm, row sep = 13mm,
+  cells = {nodes = {font = \large}},
+  every label/.append style = {font = \normalsize}}
+
+% ---------------------------------------------------------------- text
+\newcommand\embf[1]{\textbf{\emph{#1}}}
+\newcommand\highl[1]{\colorbox{yellow!30}{$\displaystyle #1$}}
+\newcommand\mathcolorbox[2]{\colorbox{#1}{$\displaystyle #2$}}
+\newcommand\redbf[1]{{\color{dcpbad}\textbf{#1}}}

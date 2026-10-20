@@ -1,0 +1,10 @@
+*.aux
+*.log
+*.out
+*.fls
+*.fdb_latexmk
+*-luamml-mathml.html
+example.pdf
+*.notes
+*.pdfpc
+*-notes.md

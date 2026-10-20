@@ -1,0 +1,157 @@
+% ~7 min. The open questions hint at ongoing work.
+\partframe{Wrap-up}{\phantom{Wrap-up}}
+
+\begin{frame}
+  \frametitle{Summary}
+  \begin{itemize}
+    \item Hylomorphisms in Rocq: \underline{axiom-free}, extractable.
+    \item Laws are theorems; calculations are \code{rewrite} proofs.
+    \item Termination proved once per coalgebra.
+    \item Idiomatic OCaml, down to native arrays.
+  \end{itemize}
+  \speakernote{Containers with boolean validity give extraction without
+    unsafe casts; setoids avoid functional extensionality. Dynamorphisms:
+    memo tables refined to native arrays by calculation. Monoid algebras:
+    one fusion law for every finite container and coalgebra.}
+\end{frame}
+
+\begin{frame}
+  \frametitle{What Changed Since the Paper}
+  \begin{itemize}
+    \item Rocq 9; properness and termination by instance search.
+    \item \code{Derive} and \code{arewrite} for calculations.
+    \item Finite containers and monoid algebras.
+    \item New examples: MSS, fast power, knapsack with arrays.
+  \end{itemize}
+  \speakernote{Also: GFix equality with Paco; mode annotations that stop
+    instance search from diverging; new laws hylo\_map\_shift,
+    hylo\_map\_fusion, everywhere. Skip this slide if short on time.}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Open Question 1: Which Intermediate Structure?}
+  \[
+    \begin{tikzcd}[alt={Deforestation read backwards: the hylomorphism from
+        A to B is split into rana c, from A to LFix F, followed by cata a,
+        from LFix F to B.}, column sep = 30mm]
+      A \arrow[rr, bend left = 20, "\hylo{a}{c}"] \arrow[r, "\ana{c}"']
+        \& \op{LFix}\,F \arrow[r, "\cata{a}"'] \& B
+    \end{tikzcd}
+  \]
+  \begin{itemize}
+    \item<2-> A law that splits through a \textbf{buffer}, not a tree?
+    \item<3-> Fused or split: a question of \textbf{cost}.
+  \end{itemize}
+  \speakernote{Deforestation read right to left is fission: it puts an
+    intermediate structure back, but only LFix F, a tree. A machine wants
+    the intermediate in flat memory, or nowhere. Open: such a law, proved
+    once, still an =e equation. Choosing fused or split depends on cost,
+    which the laws do not see; could an untrusted search choose and hand
+    Rocq the chain of laws as a certificate?}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Open Question 2: Algebras that Write}
+  \begin{center}
+    \begin{tikzpicture}[alt={A call tree whose leaves write to locations 0
+        to 3 of a buffer. The two subtrees write disjoint sets of
+        locations, 0 and 1 on the left, 2 and 3 on the right.},
+      level distance = 9mm,
+      level 1/.style = {sibling distance = 40mm},
+      level 2/.style = {sibling distance = 20mm},
+      every node/.style = {box, font = \small}]
+      \node {$\cdot$}
+        child {node {$\cdot$}
+          child {node {$b[0] := x_0$}} child {node {$b[1] := x_1$}}}
+        child {node {$\cdot$}
+          child {node {$b[2] := x_2$}} child {node {$b[3] := x_3$}}};
+    \end{tikzpicture}
+  \end{center}
+  \begin{itemize}
+    \item Writes form a monoid: \code{malg\_fusion} applies.
+    \item<2-> Which equivalence on buffers?
+    \item<3-> Exactly once, proved per coalgebra?
+  \end{itemize}
+  \speakernote{Some programs return no value, they write into a buffer.
+    Writes b -> b[i := x] compose into a monoid, so a writing program is a
+    monoid algebra. Comparing buffers by their reads avoids functional
+    extensionality, but the laws must hold up to it. Which property of the
+    coalgebra makes every location written exactly once, proved once per
+    coalgebra, and does it justify running subtrees at the same time? Do
+    not say more than the slide.}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Open Question 3: Programs Without Closures}
+  \begin{itemize}
+    \item \code{cont} is a function: extraction gives closures.
+    \item<2-> A first-order syntax, \textbf{closed under the laws}?
+    \item<3-> Where do overflow and bounds conditions live?
+  \end{itemize}
+  \speakernote{Closures are fine for OCaml; printing for a target without
+    closures needs a first-order syntax for cont (e.g. arithmetic on
+    positions). fmap composes functions and fusion substitutes one into
+    another: every calculated program must stay in the syntax, so that only
+    the printer is trusted. The laws hold over naturals, the code runs on
+    machine integers: where do the side conditions go so they do not get in
+    the way of rewriting?}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Open Question 4: Changing the Coalgebra}
+  \begin{center}
+    \begin{tikzpicture}[alt={Two call trees for the same monoid algebra on
+        four elements: a list-shaped tree of depth four, and a balanced
+        tree of depth two. Both visit x0, x1, x2, x3 in the same order.},
+      every node/.style = {box, font = \small}]
+      \begin{scope}[level distance = 8mm, sibling distance = 12mm]
+        \node {$\oplus$}
+          child {node {$x_0$}}
+          child {node {$\oplus$}
+            child {node {$x_1$}}
+            child {node {$\oplus$}
+              child {node {$x_2$}}
+              child {node {$x_3$}}}};
+      \end{scope}
+      \node[draw = none, fill = none, font = \Large] at (35mm, -1.2)
+        {$=$};
+      \begin{scope}[xshift = 70mm, level distance = 10mm,
+          level 1/.style = {sibling distance = 24mm},
+          level 2/.style = {sibling distance = 12mm}]
+        \node {$\oplus$}
+          child {node {$\oplus$} child {node {$x_0$}} child {node {$x_1$}}}
+          child {node {$\oplus$} child {node {$x_2$}} child {node {$x_3$}}};
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+  \begin{itemize}
+    \item<2-> A generic law: same leaves, same order, same result?
+    \item<3-> And if the order differs?
+  \end{itemize}
+  \speakernote{By associativity both trees agree; today this is proved per
+    coalgebra, by fusing each one through the list of leaves it visits.
+    Open: one law, usable as a rewrite step (split k ways, split in two
+    levels). If the order differs: commutative monoids, or writes to
+    distinct locations (question 2).}
+\end{frame}
+
+\begin{frame}
+  \vfill
+  \begin{center}
+    \begin{minipage}{.6\textwidth}
+      \begin{sticky}[halign = center]
+        {\Huge Thank you!\par}
+        \bigskip
+        {\large Questions?\par}
+        \medskip
+        \url{https://github.com/dcastrop/rocq-hylomorphisms}
+        \medskip
+
+        {\small Based on joint work with Marco Paviotti and Michael
+        Vollmer.\par}
+      \end{sticky}
+    \end{minipage}
+  \end{center}
+  \vfill
+  \speakernote{Based on joint work with Marco and Michael. Questions.}
+\end{frame}

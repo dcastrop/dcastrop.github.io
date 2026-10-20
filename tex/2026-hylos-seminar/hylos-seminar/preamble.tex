@@ -1,0 +1,21 @@
+% Style: ../template/dcptalk.sty (found through TEXINPUTS, see Makefile)
+\usepackage[fonts = paper, codedir = gen]{dcptalk}
+\input{gen/pygments}
+\graphicspath{{images/}{../template/images/}}
+
+% Colour names used by the diagrams
+\colorlet{accent}{blue!60!black}
+\colorlet{accent2}{orange!80!black}
+\colorlet{bad}{dcpbad}
+\colorlet{good}{dcpgood}
+
+% Recursion schemes
+% Latin Modern Math has no banana brackets: built as in the paper's lensbans
+\newcommand\cata[1]{\mathopen{(\mkern-3.5mu|}#1\mathclose{|\mkern-3.5mu)}}
+\newcommand\ana[1]{\mathopen{[\mkern-2mu(}#1\mathclose{)\mkern-2mu]}}
+\newcommand\hylo[2]{\lBrack #1, #2 \rBrack}
+\newcommand\ext[1]{\lBrack #1 \rBrack}
+\newcommand\op[1]{\mathsf{#1}}
+\newcommand\List{\op{List}}
+\newcommand\inn{\op{in}}
+\newcommand\out{\op{out}}

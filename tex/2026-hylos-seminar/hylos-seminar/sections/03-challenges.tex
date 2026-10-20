@@ -1,0 +1,54 @@
+% ~3 min
+\begin{frame}
+  \frametitle{Why Hylomorphisms in Rocq?}
+  \begin{itemize}
+    \item Haskell: the schemes, but no termination.
+    \item Rocq: termination, but these definitions are rejected.
+    \item We want: a \embf{library}, \embf{extracted code}, and the
+      \embf{laws as tactics}.
+  \end{itemize}
+  \speakernote{Library: termination is proved once per coalgebra, not per
+    function. Extracted code: OCaml or Haskell with a termination
+    guarantee. Laws as tactics: program calculation and optimisation by
+    rewriting.}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Challenges}
+  \begin{enumerate}
+    \item \textbf{No axioms}
+    \item \textbf{Clean extracted code}
+    \item \textbf{Non-structural recursion}
+  \end{enumerate}
+  \uncover<2->{%
+    Solutions:
+    \begin{enumerate}
+      \item<2-> Setoids; decidable validity.
+      \item<3-> One type of positions, not a family.
+      \item<4-> Recursion on a termination proof.
+    \end{enumerate}}
+  \uncover<5->{\textbf{Since the paper:} usability.}
+  \speakernote{The axioms to avoid: functional extensionality, axiom K,
+    heterogeneous equality. Clean code: what a programmer would write,
+    no Obj.magic. Divide-and-conquer recursion is not structural. The
+    solutions are Parts I and II. Since the paper the hard part has been
+    usability (instance search, rewriting, inlining): end of Part III.}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Roadmap}
+  \begin{center}
+    \Large
+    \begin{sticky}
+      \begin{tabular}{@{}rl}
+        \textbf{\color{gray}Part I:} & Extractable Containers \\
+        \textbf{\color{gray}Part II:} & Recursive Coalgebras \\
+        \textbf{\color{gray}Part III:} & Calculation and Extraction \\
+        \textbf{\color{gray}Part IV:} & Dynamic Programming \\
+        \textbf{\color{gray}Part V:} & Monoid Algebras \\
+      \end{tabular}
+    \end{sticky}
+  \end{center}
+  \speakernote{Parts I and II are the ITP paper; Parts III to V include
+    newer material.}
+\end{frame}

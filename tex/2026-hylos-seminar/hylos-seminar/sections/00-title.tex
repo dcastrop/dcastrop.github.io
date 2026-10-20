@@ -1,0 +1,45 @@
+% ~2 min
+\titleframe{Program Calculation with Hylomorphisms in Rocq}{%
+  \authorblock{David Castro-Perez}{David.CastroPerez@rhul.ac.uk}
+    {RHULLogo.png}{Royal Holloway, University of London}}{%
+  \par\medskip
+  {\footnotesize Based on joint work with Marco Paviotti and Michael Vollmer
+    (University of Kent):\\ \emph{Program Optimisations via Hylomorphisms
+    for Extraction of Executable Code}, ITP 2025.}%
+  \speakernote{Joint work with Marco Paviotti and Michael Vollmer (ITP
+    2025), updated to the current library.}}
+
+\begin{frame}
+  \begin{columns}
+    \begin{column}{0.42\textwidth}
+      \begin{sticky}
+        \textbf{Program calculation:}
+        \begin{itemize}
+          \item Simple specification
+          \item \underline{Rewrite with laws}
+          \item Efficient program
+        \end{itemize}
+      \end{sticky}
+    \end{column}
+    \hspace{5mm}
+    \begin{column}{0.48\textwidth}
+      \begin{sticky}
+        \textbf{Our work:}
+        \begin{itemize}
+          \item Hylomorphisms in Rocq
+          \item \underline{Axiom-free}
+          \item \underline{Idiomatic} OCaml extraction
+        \end{itemize}
+      \end{sticky}
+    \end{column}
+  \end{columns}
+  \slideref{D. Castro-Perez, M. Paviotti, M. Vollmer. \textbf{Program
+    Optimisations via Hylomorphisms for Extraction of Executable Code}. ITP
+    2025. Library: \url{https://github.com/dcastrop/rocq-hylomorphisms}}
+  \speakernote{Program calculation: start from an obviously correct
+    specification, rewrite it with laws; the result is correct by
+    construction. Our contribution: the laws and the recursion scheme in
+    Rocq, without axioms, and calculated programs extract to OCaml a
+    programmer would recognise. The calculations themselves are Rocq
+    \code{rewrite} proofs.}
+\end{frame}

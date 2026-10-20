@@ -1,0 +1,106 @@
+% ~5 min
+\partframe{Part IV}{Dynamic Programming}
+
+\begin{frame}
+  \frametitle{Knapsack}
+  \[ K(0) = 0 \qquad K(c) = \max\,\bigl(\{0\} \cup \{\,K(c - w_i) + v_i
+     \mid 0 < w_i \le c\,\}\bigr) \]
+  \begin{center}
+    \begin{tikzpicture}[alt={Capacities 0 to 6 in a row. The entry for
+        capacity 6 reads the entries for capacities 4 and 3, that is 6
+        minus weight 2 and 6 minus weight 3. Every entry is computed once
+        and read many times.},
+      every node/.style = {box, minimum width = 9mm, font = \small}]
+      \foreach \i in {0, ..., 6} {
+        \node (k\i) at (1.3 * \i, 0) {$K(\i)$};
+      }
+      \node[hot, minimum width = 9mm] at (k6) {$K(6)$};
+      \draw[->, accent2, thick] (k6.north) to[bend right = 40]
+        node[above, draw = none, fill = none, note] {$w = 2$} (k4.north);
+      \draw[->, accent2, thick] (k6.south) to[bend left = 40]
+        node[below, draw = none, fill = none, note] {$w = 3$} (k3.south);
+    \end{tikzpicture}
+  \end{center}
+  A plain hylomorphism recomputes: exponential.
+  \speakernote{Items with weights w\_i and values v\_i; K(c) is the best
+    value for capacity c. K(6) reads K(4) and K(3) (weights 2 and 3). As a
+    plain hylomorphism on c -> c - 1, every K(c - w) is recomputed. We want
+    the algebra to look earlier results up.}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Dynamorphisms: Algebras with a Memory}
+  \begin{center}
+    \begin{tikzpicture}[alt={A table for G X = 1 + X is a list of results:
+        the head is the result for c, followed by the results for c minus
+        1, down to 0.},
+      every node/.style = {box, minimum width = 12mm, font = \small},
+      node distance = 0mm]
+      \node[hot] (h) {$K(c)$};
+      \node[right = of h] (a) {$K(c-1)$};
+      \node[right = of a] (b) {$\cdots$};
+      \node[right = of b] (c) {$K(0)$};
+      \node[draw = none, fill = none, note, above = 1mm of h] {head};
+      \node[draw = none, fill = none, note, above = 1mm of b] {tail};
+    \end{tikzpicture}
+  \end{center}
+  \[
+    \begin{tikzcd}[alt={The dynamorphism goes from B to the table by a
+        hylomorphism, then to A by taking the head.}, column sep = 40mm]
+      B \arrow[r, "\hylo{\op{cons} \circ \langle a, \op{id} \rangle}{c}"]
+        \arrow[rr, bend right = 25, "\op{dyna}\,a\,c"', dashed]
+        \& G_\infty\,A \arrow[r, "\op{head}"] \& A
+    \end{tikzcd}
+  \]
+  \speakernote{The table of all results below a seed is the cofree comonad,
+    G\_infinity A = A x G (G\_infinity A); for G X = 1 + X it is a list,
+    newest first. A dynamorphism is a hylomorphism into the table whose
+    algebra reads the table; finally take the head. (Hinze, Wu, Gibbons.)}
+\end{frame}
+
+\begin{frame*}
+  \frametitle{Knapsack in Rocq}
+  \rocqblock{memo.v}
+  \rocqblock{knap-alg.v}
+  \speakernote{Memo puts an A at every node; Table is its least fixed
+    point, so tables are finite. The algebra: 0 at the base; otherwise the
+    best over the items, each reading K(c - w) from the table. knapsack is
+    one line: dyna with the coalgebra that counts down on machine integers
+    (termination from the measure to\_nat).}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{From Tables to Native Arrays}
+  \rocqblock{knap-calc.v}
+  \begin{center}
+    \begin{tikzpicture}[alt={The table, as a list with the newest result
+        first, is replaced by a persistent array indexed by capacity, with
+        the newest result at the end. The function tl reads the array back
+        as the list.},
+      every node/.style = {box, minimum width = 11mm, font = \small},
+      node distance = 0mm]
+      \node (l0) {$K(c)$};
+      \node[right = of l0] (l1) {$\cdots$};
+      \node[right = of l1] (l2) {$K(0)$};
+      \node[draw = none, fill = none, note, left = 2mm of l0] {list};
+      \node[below = 9mm of l0] (a0) {$K(0)$};
+      \node[right = of a0] (a1) {$\cdots$};
+      \node[hot, right = of a1] (a2) {$K(c)$};
+      \node[draw = none, fill = none, note, left = 2mm of a0] {array};
+      \draw[->, accent] (a1.north) -- node[right, draw = none,
+        fill = none, note] {\code{tl}} (l1.south);
+    \end{tikzpicture}
+  \end{center}
+  \speakernote{Two calculation steps. Table to list: left fusion with
+    to\_list. List to persistent array: a lemma about the array encoding
+    (newest result at the end, read back by tl). knapsack\_arr is derived
+    from knapsack, and the algebra now reads t.[c - w] directly.}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Knapsack: the Extracted Program}
+  \ocamlblock{knap.ml}
+  \speakernote{Constant-time lookups with Parray.get; Parray.set grows the
+    table. Integer operations are Uint63; the slide writes +, -, <= for
+    readability.}
+\end{frame*}

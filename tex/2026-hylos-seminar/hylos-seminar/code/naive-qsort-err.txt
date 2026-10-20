@@ -1,0 +1,2 @@
+Error: Recursive call to qsort has principal argument equal to
+"filter (fun x : nat => negb (x <? h)) t" instead of "t".

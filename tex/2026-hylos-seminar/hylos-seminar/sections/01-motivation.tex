@@ -1,0 +1,40 @@
+% ~3 min
+\begin{frame*}
+  \frametitle{A Specification and a Program}
+  \[ \op{map}\,(\lambda x.\, 2x) \circ \op{sort} \]
+  \ocamlblock{sort-times-two.ml}
+  \begin{uncoverenv}<2->
+    \begin{center}
+      Can we \emph{derive} the program from the specification?
+    \end{center}
+  \end{uncoverenv}
+  \speakernote{Top: sort, then double every element (two traversals).
+    Bottom: one traversal that doubles each pivot as it goes. They are
+    equal, but proving it by hand is fiddly. Goal of the talk: derive the
+    second from the first, every step checked by Rocq.}
+\end{frame*}
+
+\begin{frame}
+  \frametitle{Program Calculation}
+  \begin{center}
+    \begin{tikzpicture}[alt={A simple specification is rewritten by
+        algebraic laws, step by step, into an efficient program; each step
+        is an equation.},
+      stage/.style = {text width = 26mm, align = center,
+        minimum height = 12mm}]
+      \node[box, stage] (s) {simple\\ specification};
+      \node[box, stage, right = 14mm of s] (m) {intermediate\\ program};
+      \node[hot, stage, right = 14mm of m] (p) {efficient\\ program};
+      \draw[->, thick] (s) -- node[above, note] {$=$} (m);
+      \draw[->, thick] (m) -- node[above, note] {$=$} (p);
+    \end{tikzpicture}
+  \end{center}
+  \begin{itemize}[<+->]
+    \item Every step is an equation: correct by construction.
+    \item The laws come from \embf{recursion schemes}.
+  \end{itemize}
+  \speakernote{Equational reasoning in the style of Bird and Meertens
+    (Algebra of Programming); GHC's fusion rules are the same idea. Every
+    arrow is an equation, so the final program equals the specification.
+    The laws we need come from recursion schemes: next part.}
+\end{frame}

@@ -20,7 +20,7 @@ author_profile: true
   {% endif %}
   {% elsif post.draft %}Draft
   {% endif %}<br>
-  <i>{{ post.date | date: "%-d %B %Y" }}</i>
+  <i>{% if post.upcoming %}Upcoming{% else %}{{ post.date | date: "%-d %B %Y" }}{% endif %}</i>
   <br>
   {% if post.slides %}
     <a href="{{ base_path }}{{ post.url }}" rel="permalink">[slides]</a>

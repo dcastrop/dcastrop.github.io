@@ -1,0 +1,63 @@
+% ~3 min
+\partframe{Part V}{Monoid Algebras}
+
+\begin{frame*}
+  \frametitle{Monoid Algebras}
+  \begin{center}
+    \begin{tikzpicture}[alt={A monoid algebra at a node of shape s: the
+        node's own value leaf s, if any, is combined with the results of
+        the children at positions p1 to pn, in the order of members, using
+        the monoid operation.}, node distance = 8mm]
+      \node[hot] (s) {$\op{leaf}\,s$};
+      \node[box, right = 12mm of s] (k1) {$k\,p_1$};
+      \node[box, right = of k1] (k2) {$k\,p_2$};
+      \node[right = of k2] (dd) {$\cdots$};
+      \node[box, right = of dd] (kn) {$k\,p_n$};
+      \node[above = 12mm of k2, box, draw = good, fill = good!8] (r)
+        {$\op{leaf}\,s \oplus k\,p_1 \oplus k\,p_2 \oplus \cdots \oplus
+         k\,p_n$};
+      \foreach \n in {s, k1, k2, kn} { \draw[->] (\n.north) -- (r.south); }
+      \node[note, below = 2mm of k2] {children, in the order of
+        \code{members}};
+    \end{tikzpicture}
+  \end{center}
+  \rocqblock{malg.v}
+  \speakernote{New since the paper. Finite containers list the positions of
+    a shape in order (members). A monoid algebra combines a shape's own
+    value, if any, with its children's results, in that order. reduce on
+    lists is the simplest instance.}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{One Fusion Law for Every Monoid Algebra}
+  \rocqblock{malg-fusion.v}
+  \[
+    \begin{tikzcd}[alt={Fusion with a monoid homomorphism h: h after the
+        hylomorphism with the monoid M equals the hylomorphism with the
+        monoid N.}, column sep = 30mm]
+      A \arrow[r, "\hylo{\op{malg}_M}{c}"] \arrow[rr, bend right = 20,
+        "\hylo{\op{malg}_N}{c}"', dashed] \& W \arrow[r, "h"] \& V
+    \end{tikzcd}
+  \]
+  \speakernote{Any monoid homomorphism fuses into any monoid algebra, for
+    any finite container and any recursive coalgebra. One-line proof from
+    hylo\_fusion\_l. Instances: reduce fusion, the promotion laws, Horner's
+    rule.}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Maximum Segment Sum}
+  \par
+  \begin{onlyenv}<1>
+    \rocqblock{mss.v}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+    \ocamlblock{mss.ml}
+  \end{onlyenv}
+  \par
+  \speakernote{Bird's classic calculation, machine-checked: from cubic to
+    linear. Each step is a library law; Horner's rule comes from the
+    max-plus semiring; the last steps are scan and tupling. Second click:
+    the extracted program, one pass with a pair accumulator (Bigint
+    operations written as max and +).}
+\end{frame*}
