@@ -292,6 +292,13 @@ defaults:
 sass:
   sass_dir: _sass
   style: compressed # https://sass-lang.com/documentation/file.SASS_REFERENCE.html#output_style
+  # The vendored Susy/Breakpoint libraries and the upstream theme partials use
+  # Sass features deprecated for Dart Sass 3 (@import, global built-ins,
+  # if()). Silence them until upstream migrates; the Gemfile pins
+  # sass-embedded to 1.x so the build cannot break before then.
+  quiet_deps: true
+  silence_deprecations:
+    - import
 
 
 # Outputting
