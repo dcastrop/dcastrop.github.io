@@ -48,19 +48,10 @@
   \end{center}
   \uncover<3->{Not ``OCaml, then lower'': \textbf{more calculation} reaches the
     low-level form; extraction is a direct print.}
-  \speakernote{What we have today exits Rocq through OCaml extraction:
-    idiomatic and safe, but it relies on a garbage collector, linked data
-    structures, closures, boxed integers. [click] Fast code for numerical
-    kernels, cryptography, embedded systems, ML runtimes looks different:
-    data in flat buffers, loops instead of recursion, machine integers, no
-    allocation in the hot path, work split across cores or vector units.
-    The aim is to get there directly: calculate, inside Rocq, into a
-    representation that is already low-level, and print that, without
-    going through OCaml. [click] So the low-level decisions (where data
-    lives, how work is scheduled) are calculation steps, proved like the
-    others, not a separate compiler pass. Today this step is done by hand
-    (and is where bugs live), or not at all: a compiler will not change
-    your data layout or parallelise your algorithm for you.}
+  \speakernote{Box = verified in Rocq \\
+    Today: exit through OCaml (GC, closures, boxed integers) \\
+    [click] Goal: more laws to a low-level form, printed directly \\
+    [click] layout and scheduling become calculation steps, not a compiler pass}
 \end{frame}
 
 \begin{frame}
@@ -82,16 +73,10 @@
     \item Every step proved; the output is machine-level code.
     \item A cost model says \emph{which} equal program to pick.
   \end{itemize}
-  \speakernote{This is the work in progress: the direction, not
-    finished results. The programmer, or a tool, works
-    at the level of the laws we have seen: fuse this, split that, memoise
-    here. The output is not OCaml but low-level code: explicit memory,
-    loops, machine arithmetic. Every step between the two is a proved
-    equation, so the low-level code is correct by construction, and no
-    hand-written proof about pointers or indices is needed. Many programs
-    are equal to the specification; which one is best depends on the
-    machine, so the choice should be guided by a cost model. Next: three
-    pieces we are working on.}
+  \speakernote{Read the goal box \\
+    you choose laws, not indices \\
+    [click] every step proved \\
+    [click] cost model picks among equal programs}
 \end{frame}
 
 \begin{frame}
@@ -120,15 +105,10 @@
   \end{center}
   \uncover<4->{Today's laws change the \emph{algorithm}; these change
     \emph{where data lives} and \emph{how work is scheduled}.}
-  \speakernote{The laws we have remove or add intermediate structures, but
-    the only intermediate structure they know is a tree. Low-level code
-    needs laws whose right-hand side is a flat buffer in memory. [click]
-    Divide and conquer with a known shape can become a loop. [click] When
-    pieces of the work are independent (for instance, they write to
-    disjoint parts of a buffer), they can run at the same time; that
-    independence should itself be a proved property of the split, once,
-    not per program. [click] Same style as before: general equations,
-    proved once, used as rewrite steps.}
+  \speakernote{Today's laws only know trees \\
+    [click] recursion to loops \\
+    [click] independent pieces run in parallel \\
+    [click] all proved once, used as rewrites}
 \end{frame}
 
 \begin{frame}
@@ -167,16 +147,10 @@
     \item<2-> Only a \textbf{small printer} is trusted.
     \item<3-> Overflow and bounds: \textbf{side conditions} of the laws.
   \end{itemize}
-  \speakernote{Extraction to OCaml is a large trusted step. For low-level
-    code we want a first-order fragment (no closures, explicit memory,
-    machine integers) such that the laws, applied to programs in the
-    fragment, stay in it. Then the calculation moves the specification
-    into the fragment, and keeps it there. [click] Printing a program in
-    that fragment as C or assembly is almost syntactic, so the trusted
-    base is small. [click] The laws are true for mathematical integers and
-    unbounded memory; the code runs with 64-bit integers and fixed buffers.
-    Those facts become proof obligations attached to the steps, ideally
-    discharged automatically so they do not get in the way of rewriting.}
+  \speakernote{Low-level fragment: no closures, explicit memory, machine integers \\
+    Laws keep programs inside it \\
+    [click] printing is almost syntactic: small trusted base \\
+    [click] overflow and bounds as side conditions}
 \end{frame}
 
 \begin{frame}
@@ -204,13 +178,9 @@
   \end{center}
   \uncover<3->{The laws say what is \emph{equal}; a cost model says what is
     \emph{better}.}
-  \speakernote{Deforestation can be used in both directions: fuse two
-    passes, or split one pass through an intermediate buffer. Both are
-    equal to the specification. [click] Fused saves memory traffic; split
-    may enable parallelism or vectorisation, at the price of a buffer and
-    synchronisation. Which is better depends on the hardware and the input
-    size. [click] The laws cannot see that. A cost model over the low-level
-    fragment can, and can rank the candidate derivations.}
+  \speakernote{Two equal programs from one spec \\
+    [click] fused saves memory; split enables parallelism \\
+    [click] laws say equal, cost model says better}
 \end{frame}
 
 \begin{frame}
@@ -245,16 +215,10 @@
     \item The derivation is a \textbf{certificate}.
     \item<2-> Search can be as clever, or as wrong, as it likes.
   \end{itemize}
-  \speakernote{How the pieces fit. Finding a good derivation is a search
-    problem over equal programs, guided by the cost model: hand-written
-    heuristics, equality saturation with e-graphs, or a learned model
-    proposing the next rewrite. None of that needs to be trusted: what it
-    produces is a chain of laws, which Rocq checks. [click] If a proposed
-    step is wrong, the check fails and the search tries again; the output
-    is correct by construction no matter how it was found. For ML people:
-    the same pattern as a model proposing proofs to a proof checker. For
-    security people: the trusted base is the kernel and a small printer,
-    not the optimiser.}
+  \speakernote{Search: heuristics, e-graphs, or an ML model \\
+    Rocq checks the chain of laws \\
+    [click] wrong proposals rejected; output correct regardless \\
+    ML: like a model proposing proofs; security: small trusted base}
 \end{frame}
 
 \begin{frame}
@@ -295,17 +259,9 @@
       \end{itemize}
     \end{column}
   \end{columns}
-  \speakernote{Honest status: early. In Rocq, without axioms: index ranges
-    split into k pieces, with a proof that the pieces cover the range
-    exactly with no overlap (the basis for exactly-once writes and for
-    independent pieces). Indices are abstract, so the same code works for
-    unbounded naturals and for machine integers, with overflow as explicit
-    side conditions; extraction specialises to native integers. Buffers
-    with an equality that compares reads, so no axioms. A tree reduction
-    over a range as a hylomorphism. Writes into a buffer as a monoid
-    algebra driven by any terminating split, so the fusion law applies.
-    Not yet: the laws that introduce or remove a buffer, the exactly-once
-    property, the low-level target, the cost model and search.}
+  \speakernote{Early stage; be honest \\
+    Done: exact-cover splits, machine integers, buffers, tree reductions, writes \\
+    Not yet: buffer laws, exactly-once, target, cost model}
 \end{frame}
 
 \begin{frame}
@@ -317,11 +273,7 @@
     \item Ongoing: \textbf{low-level, correct-by-construction code} from
       high-level steps, guided by a \textbf{cost model}.
   \end{itemize}
-  \speakernote{Recap. The calculation style is old; the contribution is
-    making it work in a proof assistant without extra axioms and with
-    runnable output. The ongoing work is to push the output down to low-level
-    code, with the cost model choosing between equal programs and an
-    untrusted search proposing the steps.}
+  \speakernote{Recap the four bullets}
 \end{frame}
 
 \begin{frame}
@@ -342,5 +294,5 @@
     \end{minipage}
   \end{center}
   \vfill
-  \speakernote{Based on joint work with Marco and Michael. Questions.}
+  \speakernote{Thank Marco and Michael; questions}
 \end{frame}

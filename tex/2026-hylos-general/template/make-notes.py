@@ -40,7 +40,11 @@ def read_notes(job):
             page = int(page.strip())
             title = tex_to_md(title)
             entry = pages.setdefault(page, (title, []))
-            entry[1].append(tex_to_md(text))
+            # \\ separates bullet points
+            parts = [tex_to_md(t) for t in text.split('\\\\')]
+            parts = [t for t in parts if t]
+            entry[1].append(parts[0] if len(parts) == 1
+                            else '\n'.join('- ' + t for t in parts))
     return pages
 
 

@@ -36,15 +36,11 @@
   \end{center}
   \uncover<5->{\textbf{Hylomorphism} $\hylo{a}{c}$: the recursion is
     \emph{generic}; only $a$ and $c$ change.}
-  \speakernote{The key abstraction. Many algorithms have the same
-    skeleton: split the input into smaller pieces (a coalgebra, c), solve
-    the pieces recursively, combine the results (an algebra, a). [click]
-    Quicksort: split = partition, combine = concatenate. [click] Mergesort:
-    the work moves from split to combine. [click] Fast exponentiation: split
-    a number into its last bit and the rest. [click] The recursion itself
-    is written once, as a higher-order function of a and c. This is a
-    hylomorphism (Greek: matter and form). Laws about hylomorphisms then
-    hold for every algorithm of this shape.}
+  \speakernote{Pipeline: split, recurse, combine \\
+    [click] quicksort: partition, concatenate \\
+    [click] mergesort: the work moves to combine \\
+    [click] power: split off the last bit \\
+    [click] recursion written once: the hylomorphism}
 \end{frame}
 
 \begin{frame}
@@ -75,11 +71,8 @@
     \end{tikzpicture}
   \end{center}
   \uncover<2->{The tree is \emph{virtual}: it is never built in memory.}
-  \speakernote{Splitting goes down, combining comes up. Conceptually the
-    algorithm builds this tree, then folds it. [click] But the hylomorphism
-    consumes every node as soon as it is produced, so the tree only exists
-    as the call stack. Whether an intermediate structure exists or not is
-    exactly what the laws let us control.}
+  \speakernote{Split goes down, combine comes up \\
+    [click] the tree is only the call stack, never in memory}
 \end{frame}
 
 \begin{frame}
@@ -111,13 +104,9 @@
       Easy to read.
     \item Program: do both at once. Fast.
   \end{itemize}
-  \speakernote{An unfold produces a data structure (here the call tree);
-    a fold consumes one. Specifications are naturally written as
-    build-then-consume pipelines, like the sort-then-double example: each
-    stage is simple. Programs should not materialise the intermediate
-    structure: that is allocation, memory traffic, and garbage. A
-    hylomorphism is the fused version. Removing the intermediate structure
-    is called deforestation (Wadler, 1990).}
+  \speakernote{Top: build then consume; easy to read, wastes memory \\
+    Bottom: hylo, no tree (deforestation, Wadler 1990) \\
+    [click] specs look like the top, programs like the bottom}
 \end{frame}
 
 \begin{frame}
@@ -152,14 +141,10 @@
     \item Proved \textbf{once}, for every split, combine, data type.
     \item Each use is a \emph{rewrite step}.
   \end{itemize}
-  \speakernote{Fusion: if a post-processing function h commutes with the
-    combine step (h after a equals b after applying h to the pieces), then
-    the post-processing can be pushed into the combine step: one pass
-    instead of two. Deforestation: building a structure and immediately
-    taking it apart cancel out. Both follow from one fact: a hylomorphism
-    with a terminating split has exactly one solution. [click] These hold
-    generically, for any data type with a well-behaved split. [click] An
-    optimisation is a sequence of such steps.}
+  \speakernote{Fusion: push post-processing into combine, if it distributes \\
+    Deforestation: build then take apart cancels out \\
+    proved once, for every data type \\
+    [click] an optimisation is a chain of these}
 \end{frame}
 
 \begin{frame}
@@ -193,12 +178,8 @@
     \end{tikzpicture}
   \end{center}
   \uncover<4->{Each $=$ is a \textbf{theorem} applied by a proof assistant.}
-  \speakernote{The opening example in this vocabulary. Quicksort is a
-    hylomorphism: split = partition, combine = concatenate. [click]
-    Doubling distributes over concatenation (doubling a concatenation is
-    concatenating the doubled parts), so fusion applies. [click] The result
-    doubles each pivot as it is placed: the hand-written program from the
-    start. [click] In our work each of these steps is a rewrite in Rocq,
-    checked by its kernel. The rest of the talk: what it takes to make that
-    work, and what comes out.}
+  \speakernote{Quicksort = hylo with partition and concat \\
+    [click] doubling distributes over concat: fusion \\
+    [click] result: the hand-written program \\
+    [click] each step a theorem, applied in Rocq}
 \end{frame}

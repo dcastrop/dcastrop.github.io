@@ -6,46 +6,167 @@
   \rocqblock{qsort2-derive.v}
   \callout<2->{14,7.6}{specification}{spec}
   \callout<3->{14,2.4}{the laws}{laws}
-  \speakernote{The opening example, for real. Derive leaves the program as
-    an unknown, qsort\_times\_two. [click] The specification: quicksort
-    (fold after unfold) followed by doubling every element. [click] One
-    line of rewrites: fuse the map into the combine step, then deforest.
-    Rocq fills in the unknown with the result and checks every step.}
+  \speakernote{\code{Derive}: the program starts as an unknown \\
+    [click] the spec: quicksort, then double \\
+    [click] one line of laws; Rocq fills in the program}
 \end{frame*}
 
 \begin{frame*}
   \frametitle{What Comes Out}
-  Extracted from the calculation:
   \ocamlblock{qsort2.ml}
+  \simplified
   \par
   \begin{onlyenv}<2->
-    Hand-written, from the start of the talk:
+    Hand-written (start of the talk):
     \ocamlblock{sort-times-two.ml}
   \end{onlyenv}
   \par
-  \speakernote{Extracted OCaml: a single traversal that doubles each pivot.
-    The x0 function picks the left or right recursive result; integers are
-    native 63-bit machine integers. [click] Essentially the hand-written
-    program from the start, but now with a proof that it equals sort then
-    double.}
+  \speakernote{Extracted: one pass, doubles each pivot \\
+    [click] compare: same as the hand-written one, now with a proof}
+\end{frame*}
+
+\begin{frame}
+  \frametitle{Dynamic Programming: Knapsack}
+  \[ K(0) = 0 \qquad K(c) = \max\,\bigl(\{0\} \cup \{\,K(c - w_i) + v_i
+     \mid 0 < w_i \le c\,\}\bigr) \]
+  \begin{center}
+    \begin{tikzpicture}[alt={The call tree of the naive knapsack recursion
+        for capacity 6 with weights 2 and 3. K(6) calls K(4) and K(3); K(4)
+        calls K(2) and K(1); K(3) calls K(1) and K(0); K(2) calls K(0). The
+        same capacities appear many times: K(1) twice, K(0) twice.},
+      level distance = 11mm,
+      level 1/.style = {sibling distance = 50mm},
+      level 2/.style = {sibling distance = 24mm},
+      level 3/.style = {sibling distance = 14mm},
+      every node/.style = {box, font = \small}]
+      \node[hot] {$K(6)$}
+        child {node {$K(4)$}
+          child {node {$K(2)$} child {node[draw = bad, fill = bad!8] {$K(0)$}}}
+          child {node[draw = bad, fill = bad!8] {$K(1)$}}}
+        child {node {$K(3)$}
+          child {node[draw = bad, fill = bad!8] {$K(1)$}}
+          child {node[draw = bad, fill = bad!8] {$K(0)$}}};
+    \end{tikzpicture}
+  \end{center}
+  \uncover<2->{A hylomorphism, but it \textbf{recomputes}: exponential.}
+  \speakernote{Classic DP recurrence \\
+    Point at red nodes: the same capacities computed again and again \\
+    [click] naive recursion is a hylo, but exponential}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Remember, Don't Recompute}
+  \begin{center}
+    \begin{tikzpicture}[alt={A table of results for every capacity from 0
+        up to c. The entry for c is computed from entries already in the
+        table, for c minus w for each weight w, and is then added to the
+        table.},
+      every node/.style = {box, minimum width = 11mm, font = \small},
+      node distance = 0mm]
+      \foreach \i in {0, ..., 6} {
+        \node (k\i) at (1.4 * \i, 0) {$K(\i)$};
+      }
+      \node[hot, minimum width = 11mm] at (k6) {$K(6)$};
+      \draw[->, accent2, thick] (k4.north) to[bend left = 40]
+        node[above, draw = none, fill = none, note] {read $w = 2$} (k6.north);
+      \draw[->, accent2, thick] (k3.south) to[bend right = 40]
+        node[below, draw = none, fill = none, note] {read $w = 3$} (k6.south);
+    \end{tikzpicture}
+  \end{center}
+  \begin{itemize}[<+->]
+    \item \textbf{Dynamorphism}: a hylomorphism that keeps a \emph{table}
+      of earlier results.
+    \item A law: naive recursion $=$ table version, if each step only
+      \emph{reads} the table.
+    \item Exponential $\Longrightarrow$ one entry per capacity.
+  \end{itemize}
+  \slideref{R. Hinze, N. Wu, J. Gibbons. \textbf{Conjugate Hylomorphisms, or:
+    The Mother of All Structured Recursion Schemes}. POPL 2015.}
+  \speakernote{Keep a table of results for every capacity \\
+    Point at arrows: K(6) reads K(4) and K(3) from the table \\
+    dynamorphism (Hinze, Wu, Gibbons) \\
+    [click] a law turns naive recursion into the table version \\
+    [click] exponential to one entry per capacity}
+\end{frame}
+
+\begin{frame*}
+  \frametitle{From $O(n)$ to $O(1)$ Lookups, by Rewriting}
+  \begin{onlyenv}<1>
+  \begin{center}
+    \begin{tikzpicture}[alt={The table as a linked list, newest result
+        first, where reading the entry for c minus w walks w steps. The
+        same table as an array indexed by capacity, where reading any entry
+        takes one step.},
+      every node/.style = {box, minimum width = 11mm, font = \small},
+      node distance = 0mm]
+      \node (l0) {$K(c)$};
+      \node[right = of l0] (l1) {$K(c{-}1)$};
+      \node[right = of l1] (l2) {$\cdots$};
+      \node[right = of l2] (l3) {$K(0)$};
+      \node[draw = none, fill = none, note, left = 3mm of l0, align = right]
+        {table:\\ walk, $O(n)$};
+      \node[below = 10mm of l0] (a0) {$K(0)$};
+      \node[right = of a0] (a1) {$\cdots$};
+      \node[right = of a1] (a2) {$K(c{-}1)$};
+      \node[hot, right = of a2] (a3) {$K(c)$};
+      \node[draw = none, fill = none, note, left = 3mm of a0, align = right,
+        text = good] {array:\\ index, $O(1)$};
+    \end{tikzpicture}
+  \end{center}
+  \end{onlyenv}
+  \par
+  \begin{onlyenv}<2->
+    \rocqblock{knap-calc.v}
+    \simplified
+  \end{onlyenv}
+  \par
+  \speakernote{Generic table, like a list: each lookup walks, O(n) \\
+    As an array: each lookup is one index, O(1) \\
+    [click] arrays are just another memo table; dyna does not care which \\
+    \code{Derive}: naive exponential hylo to array dyna, three rewrites \\
+    No hand-written index arithmetic}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Knapsack: the Extracted Program}
+  \ocamlblock{knap.ml}
+  \simplified
+  \begin{center}
+    \begin{tikzpicture}[alt={The cost ladder: naive recursion is
+        exponential; with a generic table, every lookup walks it; with
+        an array table, every lookup is constant time, so the whole
+        program is linear in the capacity for a fixed set of items.},
+      stage/.style = {box, text width = 30mm, align = center,
+        minimum height = 10mm}]
+      \node[stage, draw = bad, fill = bad!8] (e) {naive:\\ exponential};
+      \node[stage, right = 12mm of e] (l) {generic table:\\ $O(n)$ lookups};
+      \node[stage, right = 12mm of l, draw = good, fill = good!8] (a)
+        {array table:\\ $O(1)$ lookups};
+      \draw[->, thick] (e) -- node[above, note] {law} (l);
+      \draw[->, thick] (l) -- node[above, note] {law} (a);
+    \end{tikzpicture}
+  \end{center}
+  \speakernote{Simplified from the extracted code \\
+    \code{table}: one entry per capacity, built bottom-up \\
+    Point at \code{get}: constant-time lookup \\
+    Ladder: exponential, table, array; each step a law \\
+    Linear in the capacity, for fixed items}
 \end{frame*}
 
 \begin{frame}
   \frametitle{More Calculations}
   \begin{center}
-    \begin{tikzpicture}[alt={Three examples, each from a specification to a
-        calculated program. Fast exponentiation: from n multiplications to
-        about log n. Knapsack: from exponential recursion to a memo table
-        in a native array. Maximum segment sum: from cubic to linear
-        time.},
+    \begin{tikzpicture}[alt={Two more examples, each from a specification
+        to a calculated program. Fast exponentiation: from n
+        multiplications to about log n. Maximum segment sum: from cubic to
+        linear time.},
       spec/.style = {box, text width = 36mm, align = center,
         minimum height = 12mm},
       prog/.style = {box, draw = good, fill = good!8, text width = 36mm,
         align = center, minimum height = 12mm}]
       \foreach \y/\name/\s/\p/\law/\o in {
           0/{$x^n$}/{multiply $n$ times}/{$\log n$ squarings}/{deforestation}/1,
-          -1.9/{Knapsack}/{exponential recursion}/{memo table in a native array}/{memoisation, fusion}/2,
-          -3.8/{Max segment sum}/{all segments: $O(n^3)$}/{one pass: $O(n)$}/{fusion, Horner, tupling}/3} {
+          -1.9/{Max segment sum}/{all segments: $O(n^3)$}/{one pass: $O(n)$}/{fusion, Horner, tupling}/2} {
         \uncover<\o->{
           \node[anchor = east, font = \bfseries] at (-0.3, \y) {\name};
           \node[spec, anchor = west] (s\o) at (0, \y) {\s};
@@ -55,15 +176,8 @@
       }
     \end{tikzpicture}
   \end{center}
-  \speakernote{Three more, each a calculation in the library. Fast power:
-    the split produces the binary digits of n, and deforestation removes
-    the list of digits. [click] Knapsack: dynamic programming is a
-    hylomorphism whose combine step reads a table of earlier results
-    (Hinze, Wu, Gibbons); further calculation steps change the table from a
-    list to a native array with constant-time lookups. [click] Maximum
-    segment sum: Bird's classic derivation, from enumerating all segments
-    to a single pass, now machine-checked. The steps are general laws:
-    fusion, Horner's rule, tupling.}
+  \speakernote{Fast power: deforest the list of binary digits \\
+    [click] max segment sum: Bird's classic, cubic to linear}
 \end{frame}
 
 \begin{frame*}
@@ -84,15 +198,11 @@
   \end{center}
   \begin{onlyenv}<2->
     \ocamlblock{mss.ml}
+    \simplified
   \end{onlyenv}
   \par
-  \speakernote{The specification is the definition: list all contiguous
-    segments, sum each, take the maximum. Cubic. [click] The extracted
-    program after the calculation: one pass from the right, keeping two
-    numbers, the best segment so far and the best segment starting here.
-    Nobody would call this obviously correct; here it is correct by
-    construction. (Option values stand for minus infinity; Bigint
-    operations shown as max and +.)}
+  \speakernote{Spec is the definition: all segments, sum, max \\
+    [click] one pass, two accumulators; not obviously correct, but proved}
 \end{frame*}
 
 \begin{frame}
@@ -106,9 +216,6 @@
   \slideref{D. Castro-Perez, M. Paviotti, M. Vollmer. \textbf{Program
     Optimisations via Hylomorphisms for Extraction of Executable Code}. ITP
     2025. Library: \url{https://github.com/dcastrop/rocq-hylomorphisms}}
-  \speakernote{What exists today. The ITP 2025 paper covers the encoding
-    and the laws; since then: dynamic programming, laws for algebras built
-    from monoids, and much better usability (instance search for the
-    side conditions, rewriting modulo associativity). Next: work in
-    progress, where this stops and where we want to go.}
+  \speakernote{The library today: ITP 2025 plus later work \\
+    Next: work in progress}
 \end{frame}

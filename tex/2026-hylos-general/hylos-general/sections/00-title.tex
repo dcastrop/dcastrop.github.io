@@ -6,10 +6,8 @@
   {\footnotesize Based on joint work with Marco Paviotti and Michael Vollmer
     (University of Kent):\\ \emph{Program Optimisations via Hylomorphisms
     for Extraction of Executable Code}, ITP 2025.}%
-  \speakernote{Joint work with Marco Paviotti and Michael Vollmer (ITP
-    2025). Audience: computer scientists outside programming languages. The
-    talk is about getting programs that are fast and provably correct at
-    the same time, without proving each fast program from scratch.}}
+  \speakernote{Joint work with Marco Paviotti and Michael Vollmer (ITP 2025) \\
+    Theme: fast \emph{and} provably correct, without a new proof per program}}
 
 \begin{frame}
   \frametitle{In One Slide}
@@ -49,11 +47,7 @@
       \end{sticky}
     \end{column}
   \end{columns}
-  \speakernote{The whole talk in one picture. Start from a specification
-    that is obviously right, even if slow. Rewrite it, step by step, with
-    algebraic laws; each step is an equation, so the end result equals the
-    specification. This is an old idea (Bird, Meertens: the Algebra of
-    Programming). What we add: every step is checked by a proof assistant
-    (Rocq), with no extra assumptions, and the result is a program you can
-    run. At the end: where we want to take this, down to low-level code.}
+  \speakernote{Point at the arrow: spec in, fast program out \\
+    Each step is an equation, so the result equals the spec \\
+    Old idea (Bird, Meertens); new: every step checked by Rocq, code you can run}
 \end{frame}

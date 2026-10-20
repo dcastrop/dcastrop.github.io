@@ -8,6 +8,18 @@ main.pdf: main.tex preamble.tex sections/*.tex ../template/dcptalk.sty $(GEN)
 	TEXINPUTS=../template//: latexmk -lualatex -interaction=nonstopmode main.tex
 	python3 ../template/make-notes.py main --duration 50
 
+# Slides with their notes on the right half: pdfpc -n right main-presenter.pdf
+presenter: main-presenter.pdf
+
+main-presenter.pdf: main.pdf ../template/make-presenter.py
+	python3 ../template/make-presenter.py main
+	latexmk -lualatex -interaction=nonstopmode main-presenter.tex
+
+# Copies for the website: slides.pdf is linked, slides_notes.pdf is not
+publish: main.pdf main-presenter.pdf
+	cp main.pdf ../slides.pdf
+	cp main-presenter.pdf ../slides_notes.pdf
+
 gen/pygments.tex: Makefile | gen
 	$(PYG) -S $(STYLE) > $@
 
@@ -25,7 +37,8 @@ gen:
 
 clean:
 	latexmk -C
-	rm -f main.notes main.pdfpc main-notes.md
+	latexmk -C main-presenter.tex
+	rm -f main-presenter.tex main.notes main.pdfpc main-notes.md
 	rm -rf gen
 
-.PHONY: clean
+.PHONY: clean presenter publish

@@ -31,14 +31,10 @@
     \item Who picked the steps does not matter: a person, a script, a model.
     \item A wrong step is \textbf{rejected}, not miscompiled.
   \end{itemize}
-  \speakernote{Rocq (formerly Coq) is a proof assistant: a small kernel
-    checks every proof. The calculation is a proof, so the optimisation
-    steps are outside the trusted base. What remains trusted: that the
-    specification says what you mean, the kernel, the extraction to OCaml,
-    and the OCaml compiler. [click] Important for later: the steps can come
-    from anywhere, including an untrusted search or a learned model. [click]
-    If a step is wrong, Rocq refuses it; it cannot silently produce a wrong
-    program.}
+  \speakernote{Green box: checked by Rocq's small kernel \\
+    Trusted: spec, kernel, extraction, OCaml compiler \\
+    steps can come from anyone: person, script, model \\
+    [click] wrong step = rejected}
 \end{frame}
 
 \begin{frame}
@@ -62,21 +58,16 @@
   \end{center}
   \uncover<2->{Haskell has the laws but not termination; Rocq has
     termination but rejects the textbook definitions.}
-  \speakernote{Why is this research and not an afternoon of coding?
-    Termination: Rocq is a logic, a function that loops would prove
-    anything, so it only accepts recursion it can check. Divide and conquer
-    recurses on pieces that are not syntactically smaller (partition
-    returns new lists). Axioms: the laws are equalities between functions;
-    the usual way needs functional extensionality and similar axioms, which
-    we avoid so the results stay as trustworthy and as computable as
-    possible. Clean code: the textbook encoding of generic data types
-    extracts to OCaml full of unsafe casts. [click] Haskell libraries have
-    the laws but no termination guarantee.}
+  \speakernote{Termination: Rocq only accepts recursion that provably stops \\
+    Axioms: function equality needs one; we avoid it \\
+    Clean code: textbook encoding extracts badly (next slide) \\
+    [click] Haskell has the laws, no termination}
 \end{frame}
 
 \begin{frame*}
   \frametitle{What the Textbook Encoding Extracts To}
   \badblock{naive-extr.ml}
+  \simplified
   \par
   \begin{onlyenv}<2->
     \begin{infobox}
@@ -85,12 +76,8 @@
     \end{infobox}
   \end{onlyenv}
   \par
-  \speakernote{Real output of Rocq's extraction for the textbook encoding
-    of generic data types. OCaml's type system cannot express the types,
-    so extraction falls back to Obj.magic, an unchecked cast, everywhere.
-    The code is correct as long as it only talks to itself; linked with
-    hand-written code it can crash or corrupt memory. Not acceptable for
-    verified code meant to be used.}
+  \speakernote{Real extraction output, trimmed \\
+    [click] point at \code{Obj.magic}: unchecked casts everywhere}
 \end{frame*}
 
 \begin{frame}
@@ -122,15 +109,10 @@
     \item One type of positions + a \textbf{yes/no check}: plain OCaml types.
     \item Proofs about the check are \textbf{erased} from the code.
   \end{itemize}
-  \speakernote{Containers (Abbott, Altenkirch, Ghani): a data structure is
-    a shape plus a function from positions to contents. The textbook
-    version gives every shape its own type of positions, which OCaml
-    cannot type. [click] We use one type of positions for all shapes, and a
-    boolean function saying which positions are valid in a shape. Because
-    the check is a boolean, its proofs are unique without axioms
-    (Hedberg's theorem). [click] Proofs live in Rocq's erasable universe,
-    so extraction drops them: positions become plain values, and the
-    contents a plain function. No casts.}
+  \speakernote{Data = shape + positions (containers) \\
+    Point at the table: one position type, yes/no validity \\
+    plain OCaml types \\
+    [click] proofs erased at extraction: no casts}
 \end{frame}
 
 \begin{frame}
@@ -165,29 +147,21 @@
     \item Proved \textbf{once per split}, e.g.\ ``pieces are shorter''.
     \item The proof is scaffolding: \textbf{erased} at extraction.
   \end{itemize}
-  \speakernote{Rocq accepts recursion on a structure that gets smaller. The
-    trick: recurse on a proof that the split terminates. The proof is a
-    finite tree with the same shape as the call tree, so recursion on it is
-    structural. [click] The proof comes from a measure, once per split:
-    for quicksort, the pieces are shorter than the input. Every algorithm
-    that uses that split gets termination for free. [click] The proof lives
-    in the erasable part of Rocq, so the extracted code is just the
-    recursion.}
+  \speakernote{Proof tree has the same shape as the call tree; recurse on it \\
+    one proof per split, e.g. pieces are shorter \\
+    [click] proof erased: code is just the recursion}
 \end{frame}
 
 \begin{frame*}
   \frametitle{No Extra Axioms}
   \outblock{assumptions.txt}
+  \simplified
   \begin{itemize}[<+->]
     \item Equality = \emph{same results on equal inputs} (setoids).
     \item Laws become \code{rewrite} steps.
   \end{itemize}
-  \speakernote{Rocq can list every assumption a theorem depends on. The
-    fusion law and the whole maximum segment sum calculation (later)
-    depend on nothing. The quicksort example only depends on Rocq's
-    primitive machine integers, which extract to native OCaml integers.
-    [click] How we avoid the function extensionality axiom: we never claim
-    two functions are identical, only that they give equal results on equal
-    inputs, and make every definition respect that. [click] Rocq's
-    generalised rewriting then lets us use the laws as rewrite rules.}
+  \speakernote{Point at Closed under the global context \\
+    Only Rocq's machine integers otherwise \\
+    equality = same results on equal inputs \\
+    [click] laws usable as rewrite rules}
 \end{frame*}

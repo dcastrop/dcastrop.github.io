@@ -29,13 +29,9 @@
     \end{center}
   \end{onlyenv}
   \par
-  \speakernote{A toy example that runs through the talk. The specification
-    is a pipeline: sort, then double every element. Two passes, and an
-    intermediate list that is built and thrown away. [click] The program:
-    quicksort that doubles each pivot as it places it. One pass. [click]
-    They compute the same thing, but convincing yourself takes thought, and
-    real optimisations are much less obvious than this. Goal: derive the
-    program from the specification so that equality is guaranteed.}
+  \speakernote{Spec: sort, then double. Two passes, a throwaway list \\
+    [click] Program: doubles each pivot as it goes. One pass \\
+    [click] Equal? Ask the audience. Goal: derive it, not check it}
 \end{frame*}
 
 \begin{frame}
@@ -56,16 +52,9 @@
         \uncover<3->{needs laws that \emph{apply}} \\
     \end{tabular}
   \end{center}
-  \speakernote{Verify after the fact: write the clever program, then prove
-    it matches a specification (e.g. with Dafny, Why3, Rocq). Works for
-    anything, but each program needs its own proof, often harder than the
-    program. [click] Verified compilers (CompCert, CakeML) guarantee the
-    translation is faithful, but they do not change your algorithm: a cubic
-    program stays cubic. [click] Calculation: the optimisation is a
-    sequence of steps, each an instance of a general law that was proved
-    once. The proof is a by-product of the derivation. The catch: you need
-    a library of laws that are general enough to apply to real programs.
-    That is where recursion schemes come in.}
+  \speakernote{Verify afterwards: works for anything, but a new proof each time \\
+    [click] Verified compilers (CompCert, CakeML): faithful, but keep the algorithm \\
+    [click] Calculation: proof is a by-product; needs general laws}
 \end{frame}
 
 \begin{frame}
@@ -90,12 +79,9 @@
     \item Usually: a \textbf{fixed} set of rules, \textbf{trusted}, not
       proved.
   \end{itemize}
-  \speakernote{Program calculation is not exotic. Tensor compilers (XLA,
-    TVM) fuse element-wise operations so that intermediate tensors never
-    reach memory. Query optimisers push selections through joins. GHC has
-    user-written rewrite rules for list fusion. All of these are equations
-    between programs. [click] But the rules are hand-written for a fixed
-    set of operators and are trusted: a wrong rule silently miscompiles
-    (compiler testing keeps finding such bugs, e.g. Csmith, PLDI 2011). We
-    want rules for general recursive programs, each one proved.}
+  \speakernote{Map fusion: two passes become one \\
+    ML compilers fuse tensor ops (XLA, TVM) \\
+    [click] query optimisers \\
+    [click] compilers: inlining, loop fusion; GHC rewrite rules \\
+    [click] but: fixed rules, trusted; a wrong rule miscompiles silently}
 \end{frame}
