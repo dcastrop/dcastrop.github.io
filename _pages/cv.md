@@ -9,37 +9,36 @@ redirect_from:
 
 {% include base_path %}
 
+<!-- TODO: check dates and titles below; this page is not linked from the
+     navigation yet (see _data/navigation.yml). -->
+
+Current position
+======
+* Lecturer, Department of Computer Science, Royal Holloway, University of London
+  <!-- TODO: start date -->
+
+Previous positions
+======
+* Lecturer (Assistant Professor), School of Computing, University of Kent,
+  2021&ndash;<!-- TODO: end date -->
+* Research Associate, Imperial College London, Mobility Reading Group
+  <!-- TODO: dates -->
+
 Education
 ======
-* Ph.D in Version Control Theory, GitHub University, 2018 (expected)
-* M.S. in Jekyll, GitHub University, 2014
-* B.S. in GitHub, GitHub University, 2012
+* Ph.D. in Computer Science, University of St Andrews, 2018.
+  Thesis: [_Structured arrows: a type-based framework for structured
+  parallelism_](/publication/2018-castro-thesis)
+<!-- TODO: earlier degrees -->
 
-Work experience
+Software
 ======
-* Spring 2024: Academic Pages Collaborator
-  * GitHub University
-  * Duties includes: Updates and improvements to template
-  * Supervisor: The Users
-
-* Fall 2015: Research Assistant
-  * GitHub University
-  * Duties included: Merging pull requests
-  * Supervisor: Professor Hub
-
-* Summer 2015: Research Assistant
-  * GitHub University
-  * Duties included: Tagging issues
-  * Supervisor: Professor Git
-  
-Skills
-======
-* Skill 1
-* Skill 2
-  * Sub-skill 2.1
-  * Sub-skill 2.2
-  * Sub-skill 2.3
-* Skill 3
+* [rocq-hylomorphisms](https://github.com/dcastrop/rocq-hylomorphisms):
+  axiom-free hylomorphisms in Rocq, with idiomatic code extraction (ITP 2025)
+* [Zooid](https://github.com/emtst/zooid-cmpst): certified multiparty session
+  types and processes in Coq (PLDI 2021)
+* [GoScr](https://github.com/dcastrop/goscr-benchmarks): Go code generation for
+  dynamically updatable multiparty session protocols, with benchmarks (ECOOP 2023)
 
 Publications
 ======
@@ -59,6 +58,4 @@ Teaching
     {% include archive-single-cv.html %}
   {% endfor %}</ul>
   
-Service and leadership
-======
-* Currently signed in to 43 different slack teams
+<!-- TODO: Service and leadership (PC memberships, reviewing, organisation) -->

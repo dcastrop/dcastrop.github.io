@@ -9,3 +9,22 @@ pages: '32:1-32:20'
 paperurl: 'files/2025-itp-hylomorphisms.pdf'
 codeurl: 'https://github.com/dcastrop/rocq-hylomorphisms'
 ---
+
+Generic programming with recursion schemes provides a powerful abstraction for
+structuring recursion and provides a rigorous reasoning principle for program
+optimisations which have been successfully applied to compilers for functional
+languages. Formalising recursion schemes in a type theory offers additional
+termination guarantees, but it often requires compromising on performance,
+requiring the assumption of additional axioms, and/or introducing unsafe casts
+into extracted code.
+
+This paper presents the first Rocq formalisation of _hylomorphisms_ allowing
+for the mechanisation of all recognised recursive algorithms. The key
+contribution of this paper is that this formalisation is fully _axiom-free_,
+and it allows the extraction of safe, idiomatic functional code. We exemplify
+the framework by formalising a series of algorithms based on different
+recursive paradigms such as divide-and conquer, dynamic programming, and mutual
+recursion and demonstrate that the extracted functional code for the programs
+formalised in our framework is efficient, humanly readable, and runnable.
+Furthermore, we show the use of the machine-checked proofs of the laws of
+hylomorphisms to do program optimisations.

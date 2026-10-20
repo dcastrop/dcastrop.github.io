@@ -12,9 +12,13 @@ redirect_from:
 **Site in progress:** I am still updating this site. Please reach out if 
 you have further questions.
 
-I am a Lecturer (Assistant Professor) at the 
-[University of Kent](https://www.kent.ac.uk/computing/people/3664/castro-perez-david)
-since 2021.  Prior to this, I worked as a Research Associate at 
+<!-- TODO: check job title and add a link to the RHUL staff profile -->
+I am a Lecturer in the
+[Department of Computer Science](https://www.royalholloway.ac.uk/research-and-teaching/departments-and-schools/computer-science/)
+at Royal Holloway, University of London. Before that, I was a Lecturer
+(Assistant Professor) at the
+[University of Kent](https://www.kent.ac.uk/computing/), which I joined in
+2021. Prior to this, I worked as a Research Associate at 
 [Imperial College London](https://www.imperial.ac.uk/) 
 as part of the
 [Mobility Reading Group](https://mrg.cs.ox.ac.uk/people/david-castro/).
@@ -39,8 +43,8 @@ and extra-functional (e.g. cost) of concurrent and distributed systems. I
 developed high-level frameworks for parallel programming that provide
 guarantees of correctness by construction, and I developed static cost analysis
 for predicting the potential achievable speedups. Additionally, I am very
-interested in build certified tools and languages, mostly in (but not limited
-to) the Coq interactive theorem prover.
+interested in building certified tools and languages, mostly in (but not
+limited to) the Rocq (formerly Coq) interactive theorem prover.
 
 # PhD Vacancies
 

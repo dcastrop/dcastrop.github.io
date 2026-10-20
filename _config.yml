@@ -12,7 +12,7 @@ site_theme               : "default" # The available themes options are "default
 title                    : "David Castro-Perez"
 title_separator          : "-"
 name                     : &name "David Castro-Perez"
-description              : &description ""
+description              : &description "David Castro-Perez: programming languages, session types and interactive theorem proving"
 url                      : https://dcastrop.github.io # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 baseurl                  : "" # the subpath of your site, e.g. "/blog"
 repository               : "dcastrop/dcastrop.github.io"
@@ -26,10 +26,10 @@ author:
   name             : "David Castro-Perez"
   pronouns         : # example: "she/her"  
   bio              : ""
-  location         : "Canterbury, UK"
-  employer         : "University of Kent"
+  location         : "Egham, UK"
+  employer         : "Royal Holloway, University of London"
   uri              : # URL
-  email            : "d.castro-perez@kent.ac.uk" 
+  email            : "David.CastroPerez@rhul.ac.uk" 
 
   # Academic websites
   academia         : # URL
