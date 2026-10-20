@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="{{ "/assets/reveal.js/dist/reset.css" | prepend: site.baseurl }}"/>
     <link rel="stylesheet" href="{{ "/assets/reveal.js/dist/reveal.css" | prepend: site.baseurl }}"/>
     <link rel="stylesheet" href="{{ "/assets/reveal.js/dist/theme/custom.css" | prepend: site.baseurl }}"/>
-    <!--link rel="stylesheet" href="{{ "/assets/reveal.js/plugin/highlight/monokai.css" | prepend: site.baseurl }}"/-->
+    <!--link rel="stylesheet" href="{{ "/assets/reveal.js/dist/plugin/highlight/monokai.css" | prepend: site.baseurl }}"/-->
     <link rel="stylesheet" href="/assets/css/highlight/atom-one-light.css">
 
   </head>
@@ -24,12 +24,12 @@
     </div>
 
     <script src="{{ "/assets/reveal.js/dist/reveal.js" | prepend: site.baseurl }}"></script>
-    <script src="{{ "/assets/reveal.js/plugin/notes/notes.js" | prepend: site.baseurl }}"></script>
-    <script src="{{ "/assets/reveal.js/plugin/markdown/markdown.js" | prepend: site.baseurl }}"></script>
-    <script src="{{ "/assets/reveal.js/plugin/highlight/highlight.js" | prepend: site.baseurl }}"></script>
-    <script src="{{ "/assets/reveal.js/plugin/math/math.js" | prepend: site.baseurl}}"></script>
+    <script src="{{ "/assets/reveal.js/dist/plugin/notes.js" | prepend: site.baseurl }}"></script>
+    <script src="{{ "/assets/reveal.js/dist/plugin/markdown.js" | prepend: site.baseurl }}"></script>
+    <script src="{{ "/assets/reveal.js/dist/plugin/highlight.js" | prepend: site.baseurl }}"></script>
+    <script src="{{ "/assets/reveal.js/dist/plugin/math.js" | prepend: site.baseurl}}"></script>
     
-    <script src="https://cdn.jsdelivr.net/npm/reveal.js-mermaid-plugin@2.3.0/plugin/mermaid/mermaid.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js-mermaid-plugin@11.15.0/plugin/mermaid/mermaid.js"></script>
 
     <script>
       // More info about initialization & config:
@@ -52,7 +52,11 @@
                 RevealMath.KaTeX, RevealMermaid],
         markdown: {
 		      smartypants: true
-	      }
+	      },
+        // reveal.js 6 skips <code> by default; the decks write `$F$`
+        katex: {
+          ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+        }
       });
     </script>
   </body>
