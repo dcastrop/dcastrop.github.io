@@ -7,6 +7,13 @@ author_profile: true
 
 {% include base_path %}
 
+<!-- TODO: add teaching entries as _teaching/<year>-<term>-<module>.md
+     (front matter: title, collection: teaching, type, venue, date, location)
+     and remove this notice. -->
+{% if site.teaching.size == 0 %}
+<p><em>This page is in progress.</em></p>
+{% endif %}
+
 {% for post in site.teaching reversed %}
   {% include archive-single.html %}
 {% endfor %}

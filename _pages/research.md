@@ -65,6 +65,8 @@ multiparty session types.
 
 # Ongoing Research Projects
 
+<!-- TODO: add cost models with event structures once it is ready to share. -->
+
 * **Hylomorphisms in Rocq.** A library of terminating hylomorphisms and their
   laws, for program calculation with idiomatic code extraction.
   Code: [dcastrop/rocq-hylomorphisms](https://github.com/dcastrop/rocq-hylomorphisms).

@@ -27,6 +27,8 @@ main:
 #  - title: "Blog Posts"
 #    url: /year-archive/
 #    
+# CV hidden until _pages/cv.md is complete (dates, earlier degrees, service);
+# see the TODO comments there.
 #  - title: "CV"
 #    url: /cv/
 

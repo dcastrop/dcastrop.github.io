@@ -9,8 +9,9 @@ redirect_from:
 
 {% include base_path %}
 
-<!-- TODO: check dates and titles below; this page is not linked from the
-     navigation yet (see _data/navigation.yml). -->
+<!-- NOTE: this page is deliberately hidden from the navigation (see
+     _data/navigation.yml) until the TODOs below are filled in. It is still
+     reachable at /cv/. -->
 
 Current position
 ======
