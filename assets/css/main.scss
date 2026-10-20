@@ -36,3 +36,17 @@
     "layout/archive",
     "layout/sidebar"
 ;
+/* ==========================================================================
+   LOCAL OVERRIDES (not from the upstream template)
+   ========================================================================== */
+
+/* Footer in normal flow, not pinned to the window. assets/js/_main.js still
+   sets a body margin equal to the footer height for the pinned layout. */
+.page__footer {
+  position: relative;
+  bottom: auto;
+}
+
+body {
+  margin-bottom: 0 !important;
+}

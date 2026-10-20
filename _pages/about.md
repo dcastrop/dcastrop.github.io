@@ -42,9 +42,3 @@ guarantees of correctness by construction, and I developed static cost analysis
 for predicting the potential achievable speedups. Additionally, I am very
 interested in building certified tools and languages, mostly in (but not
 limited to) the Rocq (formerly Coq) interactive theorem prover.
-
-# PhD Vacancies
-
-I am looking for a PhD student to work on session types, interactive theorem
-proving for concurrency and distribution, or high-level parallel programming
-frameworks.
