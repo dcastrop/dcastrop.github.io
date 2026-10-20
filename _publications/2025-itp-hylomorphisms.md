@@ -7,4 +7,5 @@ year: 2025
 venue: 'ITP'
 pages: '32:1-32:20'
 paperurl: 'files/2025-itp-hylomorphisms.pdf'
+codeurl: 'https://github.com/dcastrop/rocq-hylomorphisms'
 ---

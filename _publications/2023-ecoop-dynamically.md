@@ -7,6 +7,7 @@ year: 2023
 venue: 'ECOOP'
 pages: '6:1-6:30'
 paperurl: 'files/2023-ecoop-dynamically.pdf'
+codeurl: 'https://github.com/dcastrop/goscr-benchmarks'
 ---
 
 Multiparty Session Types (MPST) are a typing disciplines that guarantee the

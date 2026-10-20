@@ -7,6 +7,7 @@ year: 2021
 venue: 'PLDI'
 pages: '237-251'
 paperurl: 'files/2021-pldi-zooid.pdf'
+codeurl: 'https://github.com/emtst/zooid-cmpst'
 ---
 
 We design and implement Zooid, a domain specific language for certified
