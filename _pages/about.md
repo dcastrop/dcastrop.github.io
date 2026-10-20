@@ -9,9 +9,6 @@ redirect_from:
 
 {% include base_path %}
 
-**Site in progress:** I am still updating this site. Please reach out if 
-you have further questions.
-
 <!-- TODO: add a link to the RHUL staff profile -->
 I am a Lecturer in the
 [Department of Computer Science](https://www.royalholloway.ac.uk/research-and-teaching/departments-and-schools/computer-science/)
