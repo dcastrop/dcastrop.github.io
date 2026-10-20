@@ -17,8 +17,8 @@ I am a Lecturer in the
 [Department of Computer Science](https://www.royalholloway.ac.uk/research-and-teaching/departments-and-schools/computer-science/)
 at Royal Holloway, University of London. Before that, I was a Lecturer
 (Assistant Professor) at the
-[University of Kent](https://www.kent.ac.uk/computing/), which I joined in
-2021. Prior to this, I worked as a Research Associate at 
+[University of Kent](https://www.kent.ac.uk/computing/), which I joined
+in 2021. Prior to this, I worked as a Research Associate at 
 [Imperial College London](https://www.imperial.ac.uk/) 
 as part of the
 [Mobility Reading Group](https://mrg.cs.ox.ac.uk/people/david-castro/).
