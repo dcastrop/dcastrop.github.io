@@ -1,0 +1,346 @@
+% ~10 min
+\partframe{Work in Progress}{Down to Low-Level Code}
+
+\begin{frame}
+  \frametitle{Two Ways Out of Rocq}
+  \begin{center}
+    \begin{tikzpicture}[alt={A specification is calculated by laws into
+        a high-level program. Today, the high-level program is extracted to
+        OCaml, relying on garbage-collected lists and trees, closures and
+        boxed integers. The goal: more laws take the high-level program down
+        to a low-level form, which is printed directly as low-level code
+        with flat buffers, loops, machine integers, no allocation, and
+        parallel hardware. The specification, the high-level program and the
+        low-level form sit in a box labelled verified in Rocq.},
+      stage/.style = {box, minimum height = 10mm, text width = 24mm,
+        align = center},
+      lbl/.style = {font = \bfseries},
+      rocq/.style = {draw = accent, fill = accent!6, rounded corners = 6pt,
+        thick, inner xsep = 3mm, inner ysep = 6mm}]
+      \node[stage] (s) at (0, 0) {specification};
+      \node[stage, draw = good, fill = good!8] (h) at (4.6, 0)
+        {high-level program};
+      \node[stage, right = 20mm of h] (o) {OCaml};
+      \node[lbl, above = 1mm of o] {today};
+      \draw[->, thick] (s) -- node[above, note] {laws} (h);
+      \draw[->, thick] (h) -- node[pos = .6, above, note] {extract} (o);
+      \node[note, right = 3mm of o, align = left, text width = 28mm]
+        {GC'd lists, trees,\\ closures,\\ boxed integers};
+      \uncover<2->{
+        \node[stage, draw = good, fill = good!8] (lf) at (4.6, -2.6)
+          {low-level form};
+        \node[hot, minimum height = 10mm, text width = 24mm,
+          align = center, right = 20mm of lf] (l) {\textbf{low-level code}};
+        \node[lbl, above = 1mm of l] {goal};
+        \draw[->, thick] (h) -- node[right, note] {laws} (lf);
+        \draw[->, thick] (lf) -- node[pos = .6, above, note] {print} (l);
+        \node[note, right = 3mm of l, align = left, text width = 28mm]
+          {flat buffers, loops,\\ machine integers,\\
+          no allocation,\\ parallel hardware};
+      }
+      \begin{scope}[on background layer]
+        \only<1>{\node[rocq, fit = (s) (h)] (r) {};}
+        \only<2->{\node[rocq, fit = (s) (h) (lf)] (r) {};}
+        \node[note, text = accent, anchor = south west, font = \small\bfseries]
+          at (r.south west) {\ verified in Rocq};
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+  \uncover<3->{Not ``OCaml, then lower'': \textbf{more calculation} reaches the
+    low-level form; extraction is a direct print.}
+  \speakernote{What we have today exits Rocq through OCaml extraction:
+    idiomatic and safe, but it relies on a garbage collector, linked data
+    structures, closures, boxed integers. [click] Fast code for numerical
+    kernels, cryptography, embedded systems, ML runtimes looks different:
+    data in flat buffers, loops instead of recursion, machine integers, no
+    allocation in the hot path, work split across cores or vector units.
+    The aim is to get there directly: calculate, inside Rocq, into a
+    representation that is already low-level, and print that, without
+    going through OCaml. [click] So the low-level decisions (where data
+    lives, how work is scheduled) are calculation steps, proved like the
+    others, not a separate compiler pass. Today this step is done by hand
+    (and is where bugs live), or not at all: a compiler will not change
+    your data layout or parallelise your algorithm for you.}
+\end{frame}
+
+\begin{frame}
+  \frametitle{What We Are Working On}
+  \vfill
+  \begin{center}
+    \begin{minipage}{.82\textwidth}
+      \begin{sticky}[halign = center]
+        {\Large \textbf{Low-level}, \textbf{correct-by-construction} code,
+        extracted from \textbf{high-level calculation steps},\par}
+        \medskip
+        {\large possibly guided by a \textbf{cost model}.\par}
+      \end{sticky}
+    \end{minipage}
+  \end{center}
+  \vfill
+  \begin{itemize}[<+->]
+    \item You choose \emph{laws}, not pointers and indices.
+    \item Every step proved; the output is machine-level code.
+    \item A cost model says \emph{which} equal program to pick.
+  \end{itemize}
+  \speakernote{This is the work in progress: the direction, not
+    finished results. The programmer, or a tool, works
+    at the level of the laws we have seen: fuse this, split that, memoise
+    here. The output is not OCaml but low-level code: explicit memory,
+    loops, machine arithmetic. Every step between the two is a proved
+    equation, so the low-level code is correct by construction, and no
+    hand-written proof about pointers or indices is needed. Many programs
+    are equal to the specification; which one is best depends on the
+    machine, so the choice should be guided by a cost model. Next: three
+    pieces we are working on.}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Ongoing: Laws That Change Representation}
+  \begin{center}
+    \begin{tikzpicture}[alt={Three kinds of rewrite. A tree of
+        intermediate results becomes a flat buffer. Recursion becomes a
+        loop. One traversal becomes independent pieces that can run at the
+        same time.},
+      from/.style = {box, text width = 32mm, align = center,
+        minimum height = 10mm},
+      to/.style = {box, draw = good, fill = good!8, text width = 32mm,
+        align = center, minimum height = 10mm}]
+      \foreach \y/\f/\t/\o in {
+          0/{intermediate tree}/{flat buffer}/1,
+          -1.6/{recursion}/{loop}/2,
+          -3.2/{one traversal}/{independent pieces, in parallel}/3} {
+        \uncover<\o->{
+          \node[from] (f\o) at (0, \y) {\f};
+          \node[to, right = 30mm of f\o] (t\o) {\t};
+          \draw[->, thick] (f\o) -- node[above, note] {$=$, proved once}
+            (t\o);
+        }
+      }
+    \end{tikzpicture}
+  \end{center}
+  \uncover<4->{Today's laws change the \emph{algorithm}; these change
+    \emph{where data lives} and \emph{how work is scheduled}.}
+  \speakernote{The laws we have remove or add intermediate structures, but
+    the only intermediate structure they know is a tree. Low-level code
+    needs laws whose right-hand side is a flat buffer in memory. [click]
+    Divide and conquer with a known shape can become a loop. [click] When
+    pieces of the work are independent (for instance, they write to
+    disjoint parts of a buffer), they can run at the same time; that
+    independence should itself be a proved property of the split, once,
+    not per program. [click] Same style as before: general equations,
+    proved once, used as rewrite steps.}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Ongoing: A Target the Laws Never Leave}
+  \begin{center}
+    \begin{tikzpicture}[alt={Nested regions: all programs, containing a
+        low-level fragment. Calculation steps move the specification, which
+        starts outside, into the low-level fragment and keep it there. A
+        small trusted printer turns programs in the fragment into C or
+        assembly.},
+      region/.style = {draw, rounded corners = 6pt, thick}]
+      \node[region, draw = blue!40, fill = blue!4, minimum width = 100mm,
+        minimum height = 44mm] (all) at (0, 0) {};
+      \node[note, anchor = north west] at (all.north west) {\ all programs};
+      \node[region, draw = good, fill = good!8, minimum width = 48mm,
+        minimum height = 30mm] (low) at (22mm, -3mm) {};
+      \node[note, anchor = north west, text = good] at (low.north west)
+        {\ low-level fragment};
+      \node[box] (s) at (-36mm, 6mm) {spec};
+      \node[box] (m) at (-12mm, -6mm) {$\cdot$};
+      \node[box] (p1) at (12mm, 0mm) {$\cdot$};
+      \node[box] (p2) at (32mm, -10mm) {$\cdot$};
+      \draw[->, thick] (s) -- (m);
+      \draw[->, thick] (m) -- (p1);
+      \draw[->, thick] (p1) -- (p2);
+      \uncover<2->{
+        \node[hot, right = 18mm of all.east, anchor = west] (c)
+          {C / assembly};
+        \draw[->, thick] (all.east) ++(0, -3mm) -- node[above, note]
+          {print} (c.west);
+      }
+    \end{tikzpicture}
+  \end{center}
+  \begin{itemize}
+    \item Every law keeps programs \textbf{inside} the fragment.
+    \item<2-> Only a \textbf{small printer} is trusted.
+    \item<3-> Overflow and bounds: \textbf{side conditions} of the laws.
+  \end{itemize}
+  \speakernote{Extraction to OCaml is a large trusted step. For low-level
+    code we want a first-order fragment (no closures, explicit memory,
+    machine integers) such that the laws, applied to programs in the
+    fragment, stay in it. Then the calculation moves the specification
+    into the fragment, and keeps it there. [click] Printing a program in
+    that fragment as C or assembly is almost syntactic, so the trusted
+    base is small. [click] The laws are true for mathematical integers and
+    unbounded memory; the code runs with 64-bit integers and fixed buffers.
+    Those facts become proof obligations attached to the steps, ideally
+    discharged automatically so they do not get in the way of rewriting.}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Ongoing: A Cost Model}
+  \begin{center}
+    \begin{tikzpicture}[alt={One specification with two equal programs
+        below it. The fused program uses no intermediate memory but runs
+        sequentially. The split program writes an intermediate buffer but
+        its two halves can run in parallel or be vectorised. Which is
+        faster depends on the machine and the input size.},
+      prog/.style = {box, draw = good, fill = good!8, text width = 40mm,
+        align = center, minimum height = 14mm}]
+      \node[box, minimum height = 9mm] (s) at (0, 0) {specification};
+      \node[prog] (f) at (-34mm, -26mm) {\textbf{fused}\\ \small no buffer,
+        one core};
+      \node[prog] (p) at (34mm, -26mm) {\textbf{split}\\ \small buffer,
+        many cores / SIMD};
+      \draw[->, thick] (s) -- node[left, note] {$=$} (f);
+      \draw[->, thick] (s) -- node[right, note] {$=$} (p);
+      \uncover<2->{
+        \node[hot, below = 6mm of f] {cost: memory, latency};
+        \node[hot, below = 6mm of p] {cost: bandwidth, sync};
+      }
+    \end{tikzpicture}
+  \end{center}
+  \uncover<3->{The laws say what is \emph{equal}; a cost model says what is
+    \emph{better}.}
+  \speakernote{Deforestation can be used in both directions: fuse two
+    passes, or split one pass through an intermediate buffer. Both are
+    equal to the specification. [click] Fused saves memory traffic; split
+    may enable parallelism or vectorisation, at the price of a buffer and
+    synchronisation. Which is better depends on the hardware and the input
+    size. [click] The laws cannot see that. A cost model over the low-level
+    fragment can, and can rank the candidate derivations.}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Untrusted Search, Trusted Checking}
+  \begin{center}
+    \begin{tikzpicture}[alt={A specification and a cost model go into a
+        search, which may use heuristics, equality saturation or a learned
+        model, and is not trusted. It proposes a chain of laws. Rocq checks
+        the chain, and the result is printed as low-level code. A wrong
+        proposal is rejected.},
+      stage/.style = {minimum height = 12mm, text width = 24mm,
+        align = center}]
+      \node[box, stage] (s) {specification\\ + cost model};
+      \node[box, stage, right = 8mm of s, draw = bad, fill = bad!6] (q)
+        {\textbf{search}\\ \small heuristics, e-graphs, ML};
+      \node[box, stage, right = 22mm of q, draw = good, fill = good!8] (r)
+        {\textbf{Rocq checks}\\ \small each step};
+      \node[hot, stage, right = 8mm of r] (o) {low-level code};
+      \draw[->, thick] (s) -- (q);
+      \draw[->, thick] (q) -- node[above, note, align = center]
+        {chain of\\ laws} (r);
+      \draw[->, thick] (r) -- (o);
+      \node[note, below = 2mm of q, text = bad] {untrusted};
+      \node[note, below = 2mm of r, text = good] {trusted, small};
+      \uncover<2->{
+        \draw[->, thick, bad, dashed] (r.north) to[bend right = 30]
+          node[above, note, text = bad] {rejected: try again} (q.north);
+      }
+    \end{tikzpicture}
+  \end{center}
+  \begin{itemize}
+    \item The derivation is a \textbf{certificate}.
+    \item<2-> Search can be as clever, or as wrong, as it likes.
+  \end{itemize}
+  \speakernote{How the pieces fit. Finding a good derivation is a search
+    problem over equal programs, guided by the cost model: hand-written
+    heuristics, equality saturation with e-graphs, or a learned model
+    proposing the next rewrite. None of that needs to be trusted: what it
+    produces is a chain of laws, which Rocq checks. [click] If a proposed
+    step is wrong, the check fails and the search tries again; the output
+    is correct by construction no matter how it was found. For ML people:
+    the same pattern as a model proposing proofs to a proof checker. For
+    security people: the trusted base is the kernel and a small printer,
+    not the optimiser.}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Where We Are}
+  \begin{center}
+    \begin{tikzpicture}[alt={An index range from 0 to n is split into four
+        pieces of different lengths. The pieces cover the range exactly,
+        with no gaps and no overlaps; this is proved.},
+      piece/.style = {draw = good, fill = good!8, minimum height = 7mm,
+        inner sep = 0pt}]
+      \node[piece, minimum width = 30mm, anchor = west] (p0) at (0, 0) {};
+      \node[piece, minimum width = 18mm, right = 0mm of p0] (p1) {};
+      \node[piece, minimum width = 24mm, right = 0mm of p1] (p2) {};
+      \node[piece, minimum width = 26mm, right = 0mm of p2] (p3) {};
+      \node[note, below = 1mm of p0.south west] {$0$};
+      \node[note, below = 1mm of p3.south east] {$n$};
+      \node[note, right = 3mm of p3] {exactly covered, no overlaps};
+    \end{tikzpicture}
+  \end{center}
+  \begin{columns}[t]
+    \begin{column}{0.5\textwidth}
+      \textbf{\textcolor{good}{In Rocq, axiom-free:}}
+      \begin{itemize}
+        \item Splitting index ranges $k$ ways
+        \item Machine integers, no overflow (proved)
+        \item Buffers, compared by their reads
+        \item Tree reductions over ranges
+        \item Writes to a buffer, driven by any split
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \textbf{\textcolor{gray}{Not yet:}}
+      \begin{itemize}
+        \item Laws that add or remove a buffer
+        \item Each index written exactly once
+        \item The low-level target and printer
+        \item The cost model and search
+      \end{itemize}
+    \end{column}
+  \end{columns}
+  \speakernote{Honest status: early. In Rocq, without axioms: index ranges
+    split into k pieces, with a proof that the pieces cover the range
+    exactly with no overlap (the basis for exactly-once writes and for
+    independent pieces). Indices are abstract, so the same code works for
+    unbounded naturals and for machine integers, with overflow as explicit
+    side conditions; extraction specialises to native integers. Buffers
+    with an equality that compares reads, so no axioms. A tree reduction
+    over a range as a hylomorphism. Writes into a buffer as a monoid
+    algebra driven by any terminating split, so the fusion law applies.
+    Not yet: the laws that introduce or remove a buffer, the exactly-once
+    property, the low-level target, the cost model and search.}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Summary}
+  \begin{itemize}
+    \item Program optimisation as \textbf{algebra}: rewrite with laws.
+    \item Divide and conquer as \textbf{hylomorphisms}: laws proved once.
+    \item In Rocq: \textbf{machine-checked}, no extra axioms, clean OCaml.
+    \item Ongoing: \textbf{low-level, correct-by-construction code} from
+      high-level steps, guided by a \textbf{cost model}.
+  \end{itemize}
+  \speakernote{Recap. The calculation style is old; the contribution is
+    making it work in a proof assistant without extra axioms and with
+    runnable output. The ongoing work is to push the output down to low-level
+    code, with the cost model choosing between equal programs and an
+    untrusted search proposing the steps.}
+\end{frame}
+
+\begin{frame}
+  \vfill
+  \begin{center}
+    \begin{minipage}{.6\textwidth}
+      \begin{sticky}[halign = center]
+        {\Huge Thank you!\par}
+        \bigskip
+        {\large Questions?\par}
+        \medskip
+        \url{https://github.com/dcastrop/rocq-hylomorphisms}
+        \medskip
+
+        {\small Based on joint work with Marco Paviotti and Michael
+        Vollmer.\par}
+      \end{sticky}
+    \end{minipage}
+  \end{center}
+  \vfill
+  \speakernote{Based on joint work with Marco and Michael. Questions.}
+\end{frame}

@@ -1,0 +1,114 @@
+% ~9 min
+\partframe{In Practice}{From Calculation to Code}
+
+\begin{frame*}
+  \frametitle{A Calculation in Rocq}
+  \rocqblock{qsort2-derive.v}
+  \callout<2->{14,7.6}{specification}{spec}
+  \callout<3->{14,2.4}{the laws}{laws}
+  \speakernote{The opening example, for real. Derive leaves the program as
+    an unknown, qsort\_times\_two. [click] The specification: quicksort
+    (fold after unfold) followed by doubling every element. [click] One
+    line of rewrites: fuse the map into the combine step, then deforest.
+    Rocq fills in the unknown with the result and checks every step.}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{What Comes Out}
+  Extracted from the calculation:
+  \ocamlblock{qsort2.ml}
+  \par
+  \begin{onlyenv}<2->
+    Hand-written, from the start of the talk:
+    \ocamlblock{sort-times-two.ml}
+  \end{onlyenv}
+  \par
+  \speakernote{Extracted OCaml: a single traversal that doubles each pivot.
+    The x0 function picks the left or right recursive result; integers are
+    native 63-bit machine integers. [click] Essentially the hand-written
+    program from the start, but now with a proof that it equals sort then
+    double.}
+\end{frame*}
+
+\begin{frame}
+  \frametitle{More Calculations}
+  \begin{center}
+    \begin{tikzpicture}[alt={Three examples, each from a specification to a
+        calculated program. Fast exponentiation: from n multiplications to
+        about log n. Knapsack: from exponential recursion to a memo table
+        in a native array. Maximum segment sum: from cubic to linear
+        time.},
+      spec/.style = {box, text width = 36mm, align = center,
+        minimum height = 12mm},
+      prog/.style = {box, draw = good, fill = good!8, text width = 36mm,
+        align = center, minimum height = 12mm}]
+      \foreach \y/\name/\s/\p/\law/\o in {
+          0/{$x^n$}/{multiply $n$ times}/{$\log n$ squarings}/{deforestation}/1,
+          -1.9/{Knapsack}/{exponential recursion}/{memo table in a native array}/{memoisation, fusion}/2,
+          -3.8/{Max segment sum}/{all segments: $O(n^3)$}/{one pass: $O(n)$}/{fusion, Horner, tupling}/3} {
+        \uncover<\o->{
+          \node[anchor = east, font = \bfseries] at (-0.3, \y) {\name};
+          \node[spec, anchor = west] (s\o) at (0, \y) {\s};
+          \node[prog, right = 38mm of s\o] (p\o) {\p};
+          \draw[->, thick] (s\o) -- node[above, note] {\law} (p\o);
+        }
+      }
+    \end{tikzpicture}
+  \end{center}
+  \speakernote{Three more, each a calculation in the library. Fast power:
+    the split produces the binary digits of n, and deforestation removes
+    the list of digits. [click] Knapsack: dynamic programming is a
+    hylomorphism whose combine step reads a table of earlier results
+    (Hinze, Wu, Gibbons); further calculation steps change the table from a
+    list to a native array with constant-time lookups. [click] Maximum
+    segment sum: Bird's classic derivation, from enumerating all segments
+    to a single pass, now machine-checked. The steps are general laws:
+    fusion, Horner's rule, tupling.}
+\end{frame}
+
+\begin{frame*}
+  \frametitle{Maximum Segment Sum: Spec and Result}
+  \[ \op{mss} = \op{maximum} \circ \op{map}\,\op{sum} \circ \op{segments} \]
+  \begin{center}
+    \begin{tikzpicture}[alt={The list 3, minus 5, 2, 4, minus 1. Its
+        segments include 2, 4, whose sum 6 is the largest.},
+      every node/.style = {box, minimum width = 9mm}, node distance = 0mm]
+      \node (a) {$3$};
+      \node[right = of a] (b) {$-5$};
+      \node[right = of b, hot, minimum width = 9mm] (c) {$2$};
+      \node[right = of c, hot, minimum width = 9mm] (d) {$4$};
+      \node[right = of d] (e) {$-1$};
+      \node[draw = none, fill = none, note, right = 4mm of e]
+        {best segment: $2 + 4 = 6$};
+    \end{tikzpicture}
+  \end{center}
+  \begin{onlyenv}<2->
+    \ocamlblock{mss.ml}
+  \end{onlyenv}
+  \par
+  \speakernote{The specification is the definition: list all contiguous
+    segments, sum each, take the maximum. Cubic. [click] The extracted
+    program after the calculation: one pass from the right, keeping two
+    numbers, the best segment so far and the best segment starting here.
+    Nobody would call this obviously correct; here it is correct by
+    construction. (Option values stand for minus infinity; Bigint
+    operations shown as max and +.)}
+\end{frame*}
+
+\begin{frame}
+  \frametitle{Summary So Far}
+  \begin{itemize}
+    \item A \textbf{library}: hylomorphisms and their laws in Rocq.
+    \item Optimisations are \textbf{proofs by rewriting}.
+    \item Termination proved \textbf{once per split}.
+    \item \textbf{No extra axioms}; OCaml \textbf{without unsafe casts}.
+  \end{itemize}
+  \slideref{D. Castro-Perez, M. Paviotti, M. Vollmer. \textbf{Program
+    Optimisations via Hylomorphisms for Extraction of Executable Code}. ITP
+    2025. Library: \url{https://github.com/dcastrop/rocq-hylomorphisms}}
+  \speakernote{What exists today. The ITP 2025 paper covers the encoding
+    and the laws; since then: dynamic programming, laws for algebras built
+    from monoids, and much better usability (instance search for the
+    side conditions, rewriting modulo associativity). Next: work in
+    progress, where this stops and where we want to go.}
+\end{frame}

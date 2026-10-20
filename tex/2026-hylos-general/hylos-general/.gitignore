@@ -1,0 +1,17 @@
+*.aux
+*.log
+*.fls
+*.fdb_latexmk
+*.out
+*.toc
+*.nav
+*.snm
+*.vrb
+*.synctex.gz
+main.pdf
+*-luamml-mathml.html
+gen/
+__pycache__/
+*.notes
+main.pdfpc
+main-notes.md

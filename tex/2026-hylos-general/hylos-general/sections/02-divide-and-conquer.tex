@@ -1,0 +1,204 @@
+% ~10 min
+\partframe{The Laws}{Divide and Conquer as Algebra}
+
+\begin{frame}
+  \frametitle{One Shape for Many Algorithms}
+  \begin{center}
+    \begin{tikzpicture}[alt={The shape of a divide-and-conquer algorithm:
+        split the input into smaller pieces, solve every piece recursively,
+        then combine the partial results into the answer.},
+      stage/.style = {box, minimum height = 10mm, text width = 22mm,
+        align = center}]
+      \node[stage] (split) {\textbf{split}\\ $c$};
+      \node[stage, right = 16mm of split] (rec) {solve each piece\\
+        (recursion)};
+      \node[stage, right = 16mm of rec] (comb) {\textbf{combine}\\ $a$};
+      \node[left = 6mm of split] (in) {input};
+      \node[right = 6mm of comb] (out) {output};
+      \draw[->, thick] (in) -- (split);
+      \draw[->, thick] (split) -- node[above, note] {pieces} (rec);
+      \draw[->, thick] (rec) -- node[above, note] {results} (comb);
+      \draw[->, thick] (comb) -- (out);
+    \end{tikzpicture}
+  \end{center}
+  \begin{center}
+    \renewcommand\arraystretch{1.3}
+    \begin{tabular}{lll}
+      \textbf{Algorithm} & \textbf{split} $c$ & \textbf{combine} $a$ \\
+      \hline
+      \uncover<2->{quicksort} & \uncover<2->{partition around a pivot} &
+        \uncover<2->{concatenate} \\
+      \uncover<3->{mergesort} & \uncover<3->{cut in half} &
+        \uncover<3->{merge} \\
+      \uncover<4->{$x^n$} & \uncover<4->{$n \mapsto$ last bit, $n/2$} &
+        \uncover<4->{square, maybe multiply by $x$} \\
+    \end{tabular}
+  \end{center}
+  \uncover<5->{\textbf{Hylomorphism} $\hylo{a}{c}$: the recursion is
+    \emph{generic}; only $a$ and $c$ change.}
+  \speakernote{The key abstraction. Many algorithms have the same
+    skeleton: split the input into smaller pieces (a coalgebra, c), solve
+    the pieces recursively, combine the results (an algebra, a). [click]
+    Quicksort: split = partition, combine = concatenate. [click] Mergesort:
+    the work moves from split to combine. [click] Fast exponentiation: split
+    a number into its last bit and the rest. [click] The recursion itself
+    is written once, as a higher-order function of a and c. This is a
+    hylomorphism (Greek: matter and form). Laws about hylomorphisms then
+    hold for every algorithm of this shape.}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Call Tree of Quicksort}
+  \begin{center}
+    \begin{tikzpicture}[alt={The call tree of quicksort on the list 3, 1,
+        4, 5, 2. Splitting around pivot 3 gives 1, 2 and 4, 5, which are
+        split again around pivots 1 and 4. Combining concatenates the
+        results from the leaves up, giving 1, 2, 3, 4, 5.},
+      level distance = 13mm,
+      level 1/.style = {sibling distance = 46mm},
+      level 2/.style = {sibling distance = 22mm},
+      every node/.style = {box}]
+      \node (r) {$[3,1,4,5,2]$}
+        child {node (l) {$[1,2]$}
+          child {node {$[\,]$}}
+          child {node {$[2]$}}}
+        child {node (rr) {$[4,5]$}
+          child {node {$[\,]$}}
+          child {node {$[5]$}}};
+      \node[hot, right = 4mm of r] {pivot 3};
+      \node[hot, right = 4mm of l] {pivot 1};
+      \node[hot, right = 4mm of rr] {pivot 4};
+      \draw[->, very thick, accent] (-6.0, 0.2) -- node[left, draw = none,
+        fill = none, note, text = accent] {$c$: split} (-6.0, -2.6);
+      \draw[->, very thick, accent2] (6.0, -2.6) -- node[right, draw = none,
+        fill = none, note] {$a$: combine} (6.0, 0.2);
+    \end{tikzpicture}
+  \end{center}
+  \uncover<2->{The tree is \emph{virtual}: it is never built in memory.}
+  \speakernote{Splitting goes down, combining comes up. Conceptually the
+    algorithm builds this tree, then folds it. [click] But the hylomorphism
+    consumes every node as soon as it is produced, so the tree only exists
+    as the call stack. Whether an intermediate structure exists or not is
+    exactly what the laws let us control.}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Producers and Consumers}
+  \begin{center}
+    \begin{tikzpicture}[alt={Top: an unfold produces a tree from the input
+        using the split step c, and a fold consumes the tree using the
+        combine step a. Bottom: the hylomorphism goes straight from input to
+        output, with no tree in between.},
+      stage/.style = {box, minimum height = 9mm, minimum width = 24mm}]
+      \node (in) {input};
+      \node[stage, right = 8mm of in] (un) {\textbf{unfold} with $c$};
+      \node[hot, right = 8mm of un] (t) {tree};
+      \node[stage, right = 8mm of t] (fo) {\textbf{fold} with $a$};
+      \node[right = 8mm of fo] (out) {output};
+      \draw[->, thick] (in) -- (un);
+      \draw[->, thick] (un) -- (t);
+      \draw[->, thick] (t) -- (fo);
+      \draw[->, thick] (fo) -- (out);
+      \node[box, minimum height = 9mm, below = 12mm of t,
+        minimum width = 60mm, draw = good, fill = good!8] (h)
+        {\textbf{hylo} $\hylo{a}{c}$: no tree};
+      \draw[->, thick] (in) |- (h);
+      \draw[->, thick] (h) -| (out);
+    \end{tikzpicture}
+  \end{center}
+  \begin{itemize}[<+->]
+    \item Specification: \emph{build}, then \emph{consume}.
+      Easy to read.
+    \item Program: do both at once. Fast.
+  \end{itemize}
+  \speakernote{An unfold produces a data structure (here the call tree);
+    a fold consumes one. Specifications are naturally written as
+    build-then-consume pipelines, like the sort-then-double example: each
+    stage is simple. Programs should not materialise the intermediate
+    structure: that is allocation, memory traffic, and garbage. A
+    hylomorphism is the fused version. Removing the intermediate structure
+    is called deforestation (Wadler, 1990).}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Two Laws}
+  \begin{center}
+    \begin{tikzpicture}[alt={Fusion: a hylomorphism followed by a
+        post-processing step h equals a single hylomorphism whose combine
+        step does the post-processing. Deforestation: a hylomorphism that
+        builds a structure, followed by one that takes it apart, equals one
+        hylomorphism.},
+      stage/.style = {box, minimum height = 10mm, minimum width = 14mm,
+        font = \large},
+      lbl/.style = {font = \bfseries, anchor = east}]
+      \node[lbl] at (-0.4, 0) {Fusion};
+      \node[stage, anchor = west] (h1) at (0, 0) {$\hylo{a}{c}$};
+      \node[stage, right = 5mm of h1] (p) {$h$};
+      \draw[->, thick] (h1) -- (p);
+      \node[right = 5mm of p, font = \Large] (e1) {$=$};
+      \node[stage, right = 5mm of e1, draw = good, fill = good!8]
+        {$\hylo{b}{c}$};
+      \node[note] at ([yshift = -9mm]e1) {if $h$ distributes over $a$};
+      \node[lbl] at (-0.4, -2.2) {Deforestation};
+      \node[stage, anchor = west] (h2) at (0, -2.2) {$\hylo{\op{build}}{c}$};
+      \node[stage, right = 5mm of h2] (q) {$\hylo{a}{\op{take\_apart}}$};
+      \draw[->, thick] (h2) -- (q);
+      \node[right = 5mm of q, font = \Large] (e2) {$=$};
+      \node[stage, right = 5mm of e2, draw = good, fill = good!8]
+        {$\hylo{a}{c}$};
+    \end{tikzpicture}
+  \end{center}
+  \begin{itemize}[<+->]
+    \item Proved \textbf{once}, for every split, combine, data type.
+    \item Each use is a \emph{rewrite step}.
+  \end{itemize}
+  \speakernote{Fusion: if a post-processing function h commutes with the
+    combine step (h after a equals b after applying h to the pieces), then
+    the post-processing can be pushed into the combine step: one pass
+    instead of two. Deforestation: building a structure and immediately
+    taking it apart cancel out. Both follow from one fact: a hylomorphism
+    with a terminating split has exactly one solution. [click] These hold
+    generically, for any data type with a well-behaved split. [click] An
+    optimisation is a sequence of such steps.}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Deriving the Example}
+  \begin{center}
+    \begin{tikzpicture}[alt={Three steps. First, sort then double. Second,
+        sort is a hylomorphism with split partition and combine
+        concatenate, followed by double. Third, by fusion, doubling moves
+        into the combine step, giving a single hylomorphism that
+        concatenates and doubles the pivot.},
+      stage/.style = {box, minimum height = 8mm},
+      eq/.style = {font = \Large, anchor = east}]
+      \node[stage, anchor = west] (a1) at (0, 0) {sort};
+      \node[stage, right = 5mm of a1] (a2) {double};
+      \draw[->, thick] (a1) -- (a2);
+      \uncover<2->{
+        \node[eq] at (-0.2, -1.4) {$=$};
+        \node[stage, anchor = west] (b1) at (0, -1.4)
+          {$\hylo{\op{concat}}{\op{partition}}$};
+        \node[stage, right = 5mm of b1] (b2) {double};
+        \draw[->, thick] (b1) -- (b2);
+        \node[note, right = 5mm of b2] {definition of quicksort};
+      }
+      \uncover<3->{
+        \node[eq] at (-0.2, -2.8) {$=$};
+        \node[stage, anchor = west, draw = good, fill = good!8] (c1)
+          at (0, -2.8)
+          {$\hylo{\op{concat} \text{ and double pivot}}{\op{partition}}$};
+        \node[note, right = 5mm of c1] {fusion};
+      }
+    \end{tikzpicture}
+  \end{center}
+  \uncover<4->{Each $=$ is a \textbf{theorem} applied by a proof assistant.}
+  \speakernote{The opening example in this vocabulary. Quicksort is a
+    hylomorphism: split = partition, combine = concatenate. [click]
+    Doubling distributes over concatenation (doubling a concatenation is
+    concatenating the doubled parts), so fusion applies. [click] The result
+    doubles each pivot as it is placed: the hand-written program from the
+    start. [click] In our work each of these steps is a rewrite in Rocq,
+    checked by its kernel. The rest of the talk: what it takes to make that
+    work, and what comes out.}
+\end{frame}

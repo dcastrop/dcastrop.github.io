@@ -1,0 +1,101 @@
+% ~6 min
+\partframe{The Problem}{Fast \emph{and} Correct}
+
+\begin{frame*}
+  \frametitle{A Specification and a Program}
+  \begin{center}
+    \begin{tikzpicture}[alt={The specification: a list goes through sort,
+        producing a sorted list, which then goes through a map that doubles
+        every element. Two passes and an intermediate list.},
+      stage/.style = {box, minimum height = 9mm, minimum width = 20mm}]
+      \node (in) {list};
+      \node[stage, right = 8mm of in] (sort) {sort};
+      \node[right = 8mm of sort, note] (mid) {sorted list};
+      \node[stage, right = 8mm of mid] (dbl) {double every element};
+      \node[right = 8mm of dbl] (out) {result};
+      \draw[->, thick] (in) -- (sort);
+      \draw[->, thick] (sort) -- (mid);
+      \draw[->, thick] (mid) -- (dbl);
+      \draw[->, thick] (dbl) -- (out);
+    \end{tikzpicture}
+  \end{center}
+  \begin{onlyenv}<2->
+    \ocamlblock{sort-times-two.ml}
+  \end{onlyenv}
+  \par
+  \begin{onlyenv}<3->
+    \begin{center}
+      Are they equal? Can we \emph{derive} the second from the first?
+    \end{center}
+  \end{onlyenv}
+  \par
+  \speakernote{A toy example that runs through the talk. The specification
+    is a pipeline: sort, then double every element. Two passes, and an
+    intermediate list that is built and thrown away. [click] The program:
+    quicksort that doubles each pivot as it places it. One pass. [click]
+    They compute the same thing, but convincing yourself takes thought, and
+    real optimisations are much less obvious than this. Goal: derive the
+    program from the specification so that equality is guaranteed.}
+\end{frame*}
+
+\begin{frame}
+  \frametitle{Three Ways to Fast and Correct Code}
+  \begin{center}
+    \renewcommand\arraystretch{1.6}
+    \begin{tabular}{p{.27\textwidth}p{.31\textwidth}p{.31\textwidth}}
+      \textbf{Approach} & \textbf{Good} & \textbf{But} \\ \hline
+      \uncover<1->{Write it, then \textbf{verify} it} &
+        \uncover<1->{any program} &
+        \uncover<1->{\textcolor{bad}{a new proof for every program}} \\
+      \uncover<2->{\textbf{Verified compiler}} &
+        \uncover<2->{translation is correct} &
+        \uncover<2->{\textcolor{bad}{keeps your algorithm:
+          $O(n^3)$ stays $O(n^3)$}} \\
+      \uncover<3->{\textbf{Calculate} it from a spec} &
+        \uncover<3->{\textcolor{good}{proof comes with the derivation}} &
+        \uncover<3->{needs laws that \emph{apply}} \\
+    \end{tabular}
+  \end{center}
+  \speakernote{Verify after the fact: write the clever program, then prove
+    it matches a specification (e.g. with Dafny, Why3, Rocq). Works for
+    anything, but each program needs its own proof, often harder than the
+    program. [click] Verified compilers (CompCert, CakeML) guarantee the
+    translation is faithful, but they do not change your algorithm: a cubic
+    program stays cubic. [click] Calculation: the optimisation is a
+    sequence of steps, each an instance of a general law that was proved
+    once. The proof is a by-product of the derivation. The catch: you need
+    a library of laws that are general enough to apply to real programs.
+    That is where recursion schemes come in.}
+\end{frame}
+
+\begin{frame}
+  \frametitle{You Already Trust Rewrite Rules}
+  \begin{center}
+    \begin{tikzpicture}[alt={Map fusion: a pipeline that applies g to every
+        element and then f to every element is rewritten into a single
+        pipeline stage that applies f after g to every element.},
+      stage/.style = {box, minimum height = 9mm, minimum width = 18mm}]
+      \node[stage] (g) {map $g$};
+      \node[stage, right = 6mm of g] (f) {map $f$};
+      \draw[->, thick] (g) -- (f);
+      \node[right = 10mm of f, font = \Large] (eq) {$\Longrightarrow$};
+      \node[hot, minimum height = 9mm, right = 10mm of eq] (fg)
+        {map $(f \circ g)$};
+    \end{tikzpicture}
+  \end{center}
+  \begin{itemize}[<+->]
+    \item ML compilers \emph{fuse} tensor operations into one kernel.
+    \item Database engines rewrite query plans.
+    \item Compilers inline, fuse loops, remove temporary data.
+    \item Usually: a \textbf{fixed} set of rules, \textbf{trusted}, not
+      proved.
+  \end{itemize}
+  \speakernote{Program calculation is not exotic. Tensor compilers (XLA,
+    TVM) fuse element-wise operations so that intermediate tensors never
+    reach memory. Query optimisers push selections through joins. GHC has
+    user-written rewrite rules for list fusion. All of these are equations
+    between programs. [click] But the rules are hand-written for a fixed
+    set of operators and are trusted: a wrong rule silently miscompiles
+    (compiler testing keeps finding such bugs, e.g. Csmith, PLDI 2011). We
+    want rules for general recursive programs, each one proved.}
+\end{frame}

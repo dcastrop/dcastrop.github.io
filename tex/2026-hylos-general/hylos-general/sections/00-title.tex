@@ -1,0 +1,59 @@
+% ~2 min
+\titleframe{Calculating Correct and Efficient Programs}{%
+  \authorblock{David Castro-Perez}{David.CastroPerez@rhul.ac.uk}
+    {RHULLogo.png}{Royal Holloway, University of London}}{%
+  \par\medskip
+  {\footnotesize Based on joint work with Marco Paviotti and Michael Vollmer
+    (University of Kent):\\ \emph{Program Optimisations via Hylomorphisms
+    for Extraction of Executable Code}, ITP 2025.}%
+  \speakernote{Joint work with Marco Paviotti and Michael Vollmer (ITP
+    2025). Audience: computer scientists outside programming languages. The
+    talk is about getting programs that are fast and provably correct at
+    the same time, without proving each fast program from scratch.}}
+
+\begin{frame}
+  \frametitle{In One Slide}
+  \begin{center}
+    \begin{tikzpicture}[alt={A clear but slow specification is turned into
+        a fast program by a chain of rewrite steps. Each step is a proved
+        law, so the fast program provably computes the same results as the
+        specification.},
+      stage/.style = {text width = 30mm, align = center,
+        minimum height = 14mm}]
+      \node[box, stage] (s) {\textbf{clear, slow}\\ specification};
+      \node[hot, stage, right = 50mm of s] (p) {\textbf{fast}\\ program};
+      \draw[->, very thick] (s) -- node[above, note, align = center]
+        {rewrite with\\ \emph{proved} laws} (p);
+    \end{tikzpicture}
+  \end{center}
+  \begin{columns}
+    \begin{column}{0.45\textwidth}
+      \begin{sticky}
+        \textbf{The idea} (1980s):
+        \begin{itemize}
+          \item Programs as algebra
+          \item Optimise by \underline{rewriting}
+          \item Correct by construction
+        \end{itemize}
+      \end{sticky}
+    \end{column}
+    \hspace{5mm}
+    \begin{column}{0.45\textwidth}
+      \begin{sticky}
+        \textbf{Our work:}
+        \begin{itemize}
+          \item Every step \underline{machine-checked}
+          \item No extra axioms
+          \item Runnable code out
+        \end{itemize}
+      \end{sticky}
+    \end{column}
+  \end{columns}
+  \speakernote{The whole talk in one picture. Start from a specification
+    that is obviously right, even if slow. Rewrite it, step by step, with
+    algebraic laws; each step is an equation, so the end result equals the
+    specification. This is an old idea (Bird, Meertens: the Algebra of
+    Programming). What we add: every step is checked by a proof assistant
+    (Rocq), with no extra assumptions, and the result is a program you can
+    run. At the end: where we want to take this, down to low-level code.}
+\end{frame}
