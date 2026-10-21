@@ -60,25 +60,9 @@
     termination but rejects the textbook definitions.}
   \speakernote{Termination: Rocq only accepts recursion that provably stops \\
     Axioms: function equality needs one; we avoid it \\
-    Clean code: textbook encoding extracts badly (next slide) \\
+    Clean code: textbook encoding extracts to unchecked casts (Obj.magic) \\
     Haskell has the laws, no termination}
 \end{frame}
-
-\begin{frame*}
-  \frametitle{What the Textbook Encoding Extracts To}
-  \badblock{naive-extr.ml}
-  \simplified
-  \par
-  \begin{onlyenv}<2->
-    \begin{infobox}
-      \code{Obj.magic}: an \textbf{unchecked cast}. Unsafe as soon as this
-      code meets other code.
-    \end{infobox}
-  \end{onlyenv}
-  \par
-  \speakernote{Real extraction output, trimmed \\
-    point at \code{Obj.magic}: unchecked casts everywhere}
-\end{frame*}
 
 \begin{frame}
   \frametitle{Our Fix: Shapes and Positions}
@@ -152,16 +136,26 @@
     proof erased: code is just the recursion}
 \end{frame}
 
-\begin{frame*}
+\begin{frame}
   \frametitle{No Extra Axioms}
-  \outblock{assumptions.txt}
-  \simplified
+  \begin{center}
+    \begin{tikzpicture}[alt={Rocq's answer when asked which assumptions
+        the maximum segment sum calculation depends on: closed under the
+        global context, that is, none.}]
+      \node[box, draw = black!30, fill = black!6, inner sep = 3mm,
+        font = \ttfamily] (q) {Print Assumptions mss\_calc.};
+      \node[box, draw = good, fill = good!8, inner sep = 3mm, font = \bfseries,
+        right = 10mm of q] (a) {Closed under the global context};
+      \draw[->, thick] (q) -- (a);
+      \node[note, below = 2mm of a] {i.e.\ no axioms at all};
+    \end{tikzpicture}
+  \end{center}
   \begin{itemize}[<+->]
     \item Equality = \emph{same results on equal inputs} (setoids).
-    \item Laws become \code{rewrite} steps.
+    \item Laws become \emph{rewrite} steps.
   \end{itemize}
-  \speakernote{Point at Closed under the global context \\
-    Only Rocq's machine integers otherwise \\
+  \speakernote{Rocq lists what a theorem depends on: here, nothing \\
     equality = same results on equal inputs \\
     laws usable as rewrite rules}
-\end{frame*}
+\end{frame}
+

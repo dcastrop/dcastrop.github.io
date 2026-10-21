@@ -29,8 +29,9 @@
     fold, unfold and fusion are defined once for all of them.}
 \end{frame}
 
-\begin{frame*}
+\begin{frame*}[vertical-alignment = top]
   \frametitle{Containers in Rocq: A Bad Attempt}
+  \vspace*{6mm}
   \rocqblock{naive-cont.v}
   \par
   \begin{onlyenv}<2>
@@ -61,8 +62,9 @@
     extensionality.}
 \end{frame*}
 
-\begin{frame*}
+\begin{frame*}[vertical-alignment = top]
   \frametitle{Extractable Containers in Rocq (I)}
+  \vspace*{6mm}
   \begin{enumerate}
     \item Decidable equality gives UIP: \alert{no axiom}.
     \item Proofs in \code{Prop} are \alert{erased}.
@@ -72,7 +74,7 @@
     \rocqblock{elem-val-eq.v}
   \end{onlyenv}
   \par
-  \callout<3->{12,2.4}{UIP on \code{bool}}{uip}
+  \callout<3->{12,4.4}{UIP on \code{bool}}{uip}
   \speakernote{Two observations. Hedberg: for a type with decidable
     equality, uniqueness of identity proofs is a theorem, not an axiom.
     A predicate subtype \{x | P x\} with P in Prop extracts to the

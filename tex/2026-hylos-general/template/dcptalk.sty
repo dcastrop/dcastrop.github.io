@@ -235,7 +235,11 @@
   callout arrow/.style = {golden, -{Stealth}, line width = .5mm},
 }
 \NewDocumentCommand\callout{D<>{1-} m m m}{%
-  \begin{onlyenv}<#1>%
+  % \only, not onlyenv (which adds block spacing), and a zero-height box in
+  % vertical mode that keeps \prevdepth: the content of the slide does not
+  % move when it appears
+  \only<#1>{%
+    \par\edef\dcp@prevdepth{\the\prevdepth}\nointerlineskip\vbox to 0pt{%
     \begin{tikzpicture}[overlay, remember picture,
         shift = (current page.south west), alt = {Note: #3}]
       \node[callout] (dcp-callout) at (#2) {#3};
@@ -247,8 +251,7 @@
           \draw[callout arrow] (dcp-callout) -- (pic cs:\dcp@m);
         \fi
       }
-    \end{tikzpicture}\par
-  \end{onlyenv}}
+    \end{tikzpicture}\vss}\prevdepth=\dcp@prevdepth\relax}}
 
 % ---------------------------------------------------------------- notes
 % \speakernote{text} inside a frame: not shown on the slides. Each note is
@@ -291,7 +294,9 @@
     \begin{center}
       \begin{minipage}{.8\textwidth}
         \begin{sticky}[halign = center]
-          {\Huge #1\par}\medskip{\Large #2\par}
+          % Latin Modern's 17pt design has a tight word space at \Huge
+          {\Huge\spaceskip = .36em\relax #1\par}%
+          \medskip{\Large #2\par}
         \end{sticky}
       \end{minipage}
     \end{center}

@@ -1,8 +1,9 @@
 % ~10 min
 \partframe{Work in Progress}{Down to Low-Level Code}
 
-\begin{frame}
+\begin{frame}[vertical-alignment = top]
   \frametitle{Two Ways Out of Rocq}
+  \vspace*{10mm}
   \begin{center}
     \begin{tikzpicture}[alt={A specification is calculated by laws into
         a high-level program. Today, the high-level program is extracted to
@@ -46,8 +47,6 @@
       \end{scope}
     \end{tikzpicture}
   \end{center}
-  \uncover<3->{Not ``OCaml, then lower'': \textbf{more calculation} reaches the
-    low-level form; extraction is a direct print.}
   \speakernote{Box = verified in Rocq \\
     Today: exit through OCaml (GC, closures, boxed integers) \\
     Goal: more laws to a low-level form, printed directly \\
@@ -205,6 +204,9 @@
       \draw[->, thick] (r) -- (o);
       \node[note, below = 2mm of q, text = bad] {untrusted};
       \node[note, below = 2mm of r, text = good] {trusted, small};
+      % the same path, invisible, so the picture keeps its size
+      \path (r.north) to[bend right = 30]
+        node[above, note, opacity = 0] {rejected: try again} (q.north);
       \uncover<2->{
         \draw[->, thick, bad, dashed] (r.north) to[bend right = 30]
           node[above, note, text = bad] {rejected: try again} (q.north);

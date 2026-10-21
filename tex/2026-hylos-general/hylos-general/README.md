@@ -14,7 +14,7 @@ possibly guided by a cost model.
 
 Same toolchain and style as the seminar (`../template/dcptalk.sty`, TeX Live
 2026, LuaLaTeX, `pygmentize`). `make` also writes `main.pdfpc` and
-`main-notes.md` from the `\speakernote`s (50-minute timer). Notes are
+`main-notes.md` from the `\speakernote`s (55-minute timer). Notes are
 terse cues, not a script: `\\` separates bullet points (this deck's copy of
 `make-notes.py` turns them into a Markdown list). They are reminders and
 pointers only, with no click markers.
@@ -36,35 +36,48 @@ the slide.
 
 ## Code snippets
 
-As in the seminar: files in `code/`, included with `\rocqblock`,
-`\ocamlblock`, `\badblock`, `\outblock`. Any block that is not verbatim
-tool output or library source is followed by `\simplified` (a grey
-"(simplified)" tag, defined in `preamble.tex`):
+Code is kept to calculations and their output: the opening example
+(`sort-times-two.ml`, hand-written), the quicksort `Derive`
+(`qsort2-derive.v`, library source plus two `\tikzmark`s) with its steps and
+extracted code, and the knapsack `Derive` (`knap-derive.v`) with its steps and
+extracted code. Everything else is a diagram. A block that is not verbatim
+gets `\simplified` (a grey "(simplified)" tag, `preamble.tex`); none needs it
+now.
 
-- verbatim: `qsort2-derive.v` (library source, plus two `\tikzmark`s),
-  `sort-times-two.ml` (hand-written, labelled so on the slide);
-- simplified: `naive-extr.ml` (trimmed), `assumptions.txt` (condensed),
-  `qsort2.ml` (rebuilt from the seminar's `qsort_code`), `mss.ml`,
-  `knap-calc.v` and `knap.ml`.
+Shared with the other hylomorphism talk, and kept identical (check with
+`python3 ../../check-hylos-sync.py` from `tex/`): `template/dcptalk.sty`, the
+code files `sort-times-two.ml`, `qsort2.ml`, `qsort-steps.v`, `knap-steps.v`,
+`knap-arr.ml`, `knap-jump.ml`, the quicksort and knapsack `Derive`s, and the
+frames "Quicksort, Step by Step", "Knapsack, Step by Step" and "Knapsack: What
+Comes Out".
 
-`knap-calc.v` and `knap.ml` follow rocq-hylomorphisms 9e4d3cf
-(`examples/Knapsack.v`): a `Derive` makes the naive algebra read its
-subproblems through a lookup (`knap_look`), then `reenumerate` turns the naive
-hylo over items into a dynamorphism over capacities with `ATab` (persistent
-array) tables, and `dyna_memo` shares the table. The extracted lookups still
-walk the table, so O(1) lookups are shown as in progress.
+All checked against rocq-hylomorphisms 9e4d3cf plus its uncommitted work of
+2026-10-21 (16:32), in `arrays-as-hylos/deps/rocq-hylomorphisms`:
 
-## Structure and timing (about 50 min of talk, then questions)
+- `qsort-steps.v`, `knap-steps.v`: the goal Rocq prints after each rewrite of
+  the `Derive` (replayed against the compiled library), with the name of the
+  rewrite and a gloss as a comment; only line breaks are ours. Each step of
+  the slide shows the derivation up to that rewrite (`\fvset{lastline = n}`).
+- `qsort2.ml`, `knap-arr.ml`, `knap-jump.ml`: extracted code, verbatim
+  (`knap-jump.ml`: `jump` and `fast_drop`, the O(1) lookup into the array
+  table).
+- The knapsack `Derive`: `reenumerate` (items to capacities, with a table),
+  `look_tbl_with fast_drop_walk` (lookups jump into the array block, O(1)),
+  `dyna_memo` (share the table).
+
+`images/mpst.pdf` is `../../2024-synthetic-mpst/figures/MPST5.pdf`.
+
+## Structure and timing (about 55 min of talk, then questions)
 
 | File                         | Content                                                     | Min |
 |------------------------------|-------------------------------------------------------------|-----|
-| `00-title.tex`               | title, the talk in one picture                              | 2   |
+| `00-title.tex`               | title, research in one slide, the talk in one picture | 3 |
 | `01-problem.tex`             | sort-then-double, three routes to fast+correct, rewrite rules in ML compilers/DBs | 6 |
 | `02-divide-and-conquer.tex`  | split/combine, call tree, producers/consumers, fusion and deforestation, the example derived | 10 |
-| `03-proofs.tex`              | trusted base, three obstacles, `Obj.magic`, shapes and positions, termination proofs, no axioms | 9 |
-| `04-results.tex`             | a calculation in Rocq, extracted OCaml, knapsack as a dynamorphism (exponential, list table, O(1) array lookups), gallery (power, MSS), summary | 12 |
+| `03-proofs.tex`              | trusted base, three obstacles, shapes and positions, termination proofs, no axioms | 8 |
+| `04-results.tex`             | a calculation in Rocq, its steps and extracted code; knapsack as a dynamorphism, its steps and extracted code (exponential to O(1) array lookups); gallery (power, MSS); summary | 16 |
 | `05-goal.tex`                | work in progress: two ways out of Rocq (OCaml today, direct low-level print as the goal), the goal, representation-changing laws, a closed low-level target, cost model, untrusted search / trusted checking, current status | 10 |
 
-If running long: skip "You Already Trust Rewrite Rules", "What the Textbook
-Encoding Extracts To", "Maximum Segment Sum: Spec and Result", or
+If running long: skip "You Already Trust Rewrite Rules", "Maximum Segment
+Sum: Spec and Result", or
 "Remember, Don't Recompute" (go straight from the call tree to the lookups).

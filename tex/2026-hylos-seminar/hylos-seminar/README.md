@@ -40,7 +40,32 @@ Snippets come from the library sources and its extracted OCaml, except:
 Rocq 9.3 and extraction) and `raw-extr.*` (`Recursive Extraction qsort`
 without `Eval simpl` or inlining flags). Both are real outputs.
 
-## Structure and timing (about 50 min of talk, then questions)
+Shortened or rewritten, and said so on the slide or in the notes:
+`hylo-def.v` (no dependent match), `memo.v` and `reenum.v` (implicit
+arguments dropped), `knap-calc.v` (step 1's proof left out).
+
+Shared with the other hylomorphism talk, and kept identical (check with
+`python3 ../../check-hylos-sync.py` from `tex/`): `template/dcptalk.sty`, the
+code files `sort-times-two.ml`, `qsort2.ml`, `qsort-steps.v`, `knap-steps.v`,
+`knap-arr.ml`, `knap-jump.ml`, the quicksort and knapsack `Derive`s, and the
+frames "Quicksort, Step by Step", "Knapsack, Step by Step" and "Knapsack: What
+Comes Out".
+
+All checked against rocq-hylomorphisms 9e4d3cf plus its uncommitted work of
+2026-10-21 (16:32), in `arrays-as-hylos/deps/rocq-hylomorphisms`:
+
+- `qsort-steps.v`, `knap-steps.v`: the goal Rocq prints after each rewrite of
+  the `Derive` (replayed against the compiled library), with the name of the
+  rewrite and a gloss as a comment; only line breaks are ours. Each step of
+  the slide shows the derivation up to that rewrite (`\fvset{lastline = n}`).
+- `qsort2.ml`, `knap-arr.ml`, `knap-jump.ml`: extracted code, verbatim
+  (`knap-jump.ml`: `jump` and `fast_drop`, the O(1) lookup into the array
+  table).
+- The knapsack `Derive`: `reenumerate` (items to capacities, with a table),
+  `look_tbl_with fast_drop_walk` (lookups jump into the array block, O(1)),
+  `dyna_memo` (share the table).
+
+## Structure and timing (about 55 min of talk, then questions)
 
 | File                       | Content                                                   | Min |
 |----------------------------|-----------------------------------------------------------|-----|
@@ -50,8 +75,8 @@ without `Eval simpl` or inlining flags). Both are real outputs.
 | `03-challenges.tex`        | why Rocq, challenges and solutions, roadmap               | 3   |
 | `04-containers.tex`        | Part I: containers, a bad attempt, decidable UIP, `Cont`  | 7   |
 | `05-hylos-in-rocq.tex`     | Part II: recursive coalgebras, `hylo`, laws, no axioms    | 7   |
-| `06-calculation.tex`       | Part III: `Derive`, fusion, digits, inlining, usability   | 6   |
-| `07-dynamorphisms.tex`     | Part IV: memo tables, knapsack to native arrays           | 5   |
+| `06-calculation.tex`       | Part III: `Derive`, fusion and its steps, digits, inlining, usability | 7 |
+| `07-dynamorphisms.tex`     | Part IV: memo tables, `dyna_iso`, `reenumerate`, knapsack from the naive hylo: calculation, steps, extracted code | 9 |
 | `08-monoid-algebras.tex`   | Part V: `malg`, `malg_fusion`, MSS                        | 3   |
 | `09-wrapup.tex`            | summary, changes, open questions                          | 7   |
 

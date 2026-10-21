@@ -1,6 +1,17 @@
-Lemma table_to_list                                  (* by hylo_fusion_l *)
-  : to_list \o hylo (l_in \o Cons \o pair a id) c =e hylo (list_alg a') c.
+Definition knapsack_naive wvs := hylo naive_alg (naive_c wvs).  (* exponential *)
 
-Lemma dyna_array : to_Z n < to_Z max_length ->
-  hd d (int_hylo (list_alg a') n)
-  = (fst (int_hylo (arr_alg (n + 1) a'') n)).[n].
+(* Step 1: the algebra reads its subproblems through a lookup *)
+Derive knap_alg_ in (forall g b, naive_alg (fmap g (naive_c wvs b))
+                               = knap_alg_ (look_rec out_int_c g b))
+  as knap_look.
+
+(* Step 2: recurse on capacities; array tables with O(1) lookups *)
+Derive knapsack_arr in (knapsack_naive wvs =e morph_of knapsack_arr)
+  as knapsack_arr_calc.
+Proof.
+  unfold knapsack_naive.
+  rewrite (reenumerate (U := ATab int) (alg := knap_alg) knap_look).
+  rewrite (look_tbl_with fast_drop_walk).
+  rewrite dyna_memo.
+  finished.
+Qed.

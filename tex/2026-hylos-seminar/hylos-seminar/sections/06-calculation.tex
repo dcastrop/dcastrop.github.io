@@ -14,10 +14,36 @@
 \begin{frame*}
   \frametitle{Fusing a Map into Quicksort}
   \rocqblock{qsort2-derive.v}
-  \ocamlblock{qsort2.ml}
+  \ocamlblock[before upper = {\fvset{fontsize = \footnotesize}}]{qsort2.ml}
   \speakernote{The opening example. One rewrite chain: fuse the map into
     merge (left fusion), then deforest. The extracted code doubles each
     pivot in a single traversal.}
+\end{frame*}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Quicksort, Step by Step}
+  \vspace*{4mm}
+  \begin{onlyenv}<1>
+    \fvset{lastline = 1}%
+    \rocqblock{qsort-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+    \fvset{lastline = 3}%
+    \rocqblock{qsort-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<3>
+    \fvset{lastline = 5}%
+    \rocqblock{qsort-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<4->
+    \fvset{lastline = 7}%
+    \rocqblock{qsort-steps.v}
+  \end{onlyenv}
+  \par
+  \speakernote{Each step: one law, the term Rocq shows after it \\
+    map\_merge\_fusion: doubling moves inside merge \\
+    hylo\_ana, deforest: the tree between unfold and fold disappears \\
+    Last line: one hylo, one pass}
 \end{frame*}
 
 \begin{frame*}

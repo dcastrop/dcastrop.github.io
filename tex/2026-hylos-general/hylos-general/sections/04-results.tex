@@ -5,24 +5,47 @@
   \frametitle{A Calculation in Rocq}
   \rocqblock{qsort2-derive.v}
   \callout<2->{14,7.6}{specification}{spec}
-  \callout<3->{14,2.4}{the laws}{laws}
+  \callout<3->{15.5,3.3}{the laws}{laws}
   \speakernote{\code{Derive}: the program starts as an unknown \\
     the spec: quicksort, then double \\
     one line of laws; Rocq fills in the program}
 \end{frame*}
 
-\begin{frame*}
-  \frametitle{What Comes Out}
-  \ocamlblock{qsort2.ml}
-  \simplified
-  \par
-  \begin{onlyenv}<2->
-    Hand-written (start of the talk):
-    \ocamlblock{sort-times-two.ml}
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Quicksort, Step by Step}
+  \vspace*{4mm}
+  \begin{onlyenv}<1>
+    \fvset{lastline = 1}%
+    \rocqblock{qsort-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+    \fvset{lastline = 3}%
+    \rocqblock{qsort-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<3>
+    \fvset{lastline = 5}%
+    \rocqblock{qsort-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<4->
+    \fvset{lastline = 7}%
+    \rocqblock{qsort-steps.v}
   \end{onlyenv}
   \par
-  \speakernote{Extracted: one pass, doubles each pivot \\
-    compare: same as the hand-written one, now with a proof}
+  \speakernote{Each step: one law, the term Rocq shows after it \\
+    map\_merge\_fusion: doubling moves inside merge \\
+    hylo\_ana, deforest: the tree between unfold and fold disappears \\
+    Last line: one hylo, one pass}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Quicksort: What Comes Out}
+  \ocamlblock[before upper = {\fvset{fontsize = \footnotesize}}]{qsort2.ml}
+  \par\medskip
+  The last line, extracted: \textbf{one pass}, doubling each pivot as it
+  goes. The hand-written program from the start, now with a proof.
+  \speakernote{Real extraction output of the last line \\
+    Point at the pivot: \code{mul 2 h}, done in place \\
+    Same as the hand-written version; now proved equal to sort-then-double}
 \end{frame*}
 
 \begin{frame}
@@ -30,26 +53,38 @@
   \[ K(0) = 0 \qquad K(c) = \max\,\bigl(\{0\} \cup \{\,K(c - w_i) + v_i
      \mid 0 < w_i \le c\,\}\bigr) \]
   \begin{center}
-    \begin{tikzpicture}[alt={The call tree of the naive knapsack recursion
-        for capacity 6 with weights 2 and 3. K(6) calls K(4) and K(3); K(4)
-        calls K(2) and K(1); K(3) calls K(1) and K(0); K(2) calls K(0). The
-        same capacities appear many times: K(1) twice, K(0) twice.},
+    \begin{tikzpicture}[alt={Two items: weight 2 with value 3, and weight
+        3 with value 4. The call tree of the naive knapsack recursion for
+        capacity 6: K(6) calls K(4), taking the weight-2 item, and K(3),
+        taking the weight-3 item; K(4) calls K(2) and K(1); K(3) calls K(1)
+        and K(0); K(2) calls K(0). The same capacities appear many times:
+        K(1) twice, K(0) twice. The answer, K(6), is 9.},
       level distance = 11mm,
       level 1/.style = {sibling distance = 50mm},
       level 2/.style = {sibling distance = 24mm},
       level 3/.style = {sibling distance = 14mm},
-      every node/.style = {box, font = \small}]
-      \node[hot] {$K(6)$}
+      every node/.style = {box, font = \small},
+      sticky-note/.style = {draw = golden!80!black, fill = yellow!20,
+        rounded corners = 2pt}]
+      \node[hot] (root) {$K(6) = 9$}
         child {node {$K(4)$}
           child {node {$K(2)$} child {node[draw = bad, fill = bad!8] {$K(0)$}}}
-          child {node[draw = bad, fill = bad!8] {$K(1)$}}}
+          child {node[draw = bad, fill = bad!8] {$K(1)$}}
+          edge from parent node[above left, draw = none, fill = none, note]
+            {$w = 2$, $+3$}}
         child {node {$K(3)$}
           child {node[draw = bad, fill = bad!8] {$K(1)$}}
-          child {node[draw = bad, fill = bad!8] {$K(0)$}}};
+          child {node[draw = bad, fill = bad!8] {$K(0)$}}
+          edge from parent node[above right, draw = none, fill = none, note]
+            {$w = 3$, $+4$}};
+      \node[sticky-note, anchor = north west, align = left]
+        at ([xshift = 38mm]root.north east) {\small\textbf{items} $(w, v)$:\\
+        \small $(2, 3)$\quad $(3, 4)$};
     \end{tikzpicture}
   \end{center}
   \uncover<2->{A hylomorphism, but it \textbf{recomputes}: exponential.}
-  \speakernote{Classic DP recurrence \\
+  \speakernote{Classic DP recurrence; items (2, 3) and (3, 4), capacity 6 \\
+    Each branch takes one item: w off the capacity, v added \\
     Point at red nodes: the same capacities computed again and again \\
     naive recursion is a hylo, but exponential}
 \end{frame}
@@ -128,41 +163,78 @@
   \end{onlyenv}
   \par
   \begin{onlyenv}<2->
-    \rocqblock{knap-calc.v}
-    \simplified
+    \rocqblock{knap-derive.v}
+    \begin{center}
+      \begin{tikzpicture}[alt={The cost ladder: naive recursion is
+          exponential; after the calculation, one entry per capacity in a
+          persistent array, each lookup constant time, so the program is
+          linear in the capacity.},
+        stage/.style = {box, text width = 38mm, align = center,
+          minimum height = 10mm}]
+        \node[stage, draw = bad, fill = bad!8] (e) {naive:\\ exponential};
+        \node[stage, right = 30mm of e, draw = good, fill = good!8] (a)
+          {array table: $O(1)$ lookups,\\ linear in the capacity};
+        \draw[->, thick] (e) -- node[above, note] {three rewrites} (a);
+      \end{tikzpicture}
+    \end{center}
   \end{onlyenv}
   \par
   \speakernote{Left: naive recursion over items; repeats \\
     Right: count down capacities; each entry looks up earlier ones \\
-    step 1: a Derive makes the algebra read through a lookup \\
-    step 2: \code{reenumerate} switches the recursion; tables are persistent arrays \\
-    \code{dyna\_memo}: share the table; no hand-written index arithmetic}
+    \code{reenumerate}: switch the recursion; tables are persistent arrays \\
+    \code{look\_tbl\_with}: lookups jump into the array, O(1) \\
+    \code{dyna\_memo}: share the table \\
+    Exponential to linear in the capacity; no index arithmetic by hand}
 \end{frame*}
 
-\begin{frame*}
-  \frametitle{Knapsack: the Extracted Program}
-  \ocamlblock{knap.ml}
-  \simplified
-  \begin{center}
-    \begin{tikzpicture}[alt={The cost ladder: naive recursion is
-        exponential; the calculated dynamorphism keeps one entry per
-        capacity, and each lookup walks down the table; indexing the array
-        directly, for constant-time lookups, is work in progress.},
-      stage/.style = {box, text width = 30mm, align = center,
-        minimum height = 10mm}]
-      \node[stage, draw = bad, fill = bad!8] (e) {naive:\\ exponential};
-      \node[stage, right = 12mm of e, draw = good, fill = good!8] (l)
-        {table: one entry\\ per capacity};
-      \node[stage, right = 12mm of l, dashed] (a)
-        {$O(1)$ lookups:\\ in progress};
-      \draw[->, thick] (e) -- node[above, note] {laws} (l);
-      \draw[->, thick, dashed] (l) -- (a);
-    \end{tikzpicture}
-  \end{center}
-  \speakernote{\code{table}: one entry per capacity, built bottom-up \\
-    \code{look}: walks w steps down; the array table is persistent \\
-    Ladder: exponential to one entry per capacity, all by laws \\
-    Next: index the array directly for O(1) lookups (in progress)}
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Knapsack, Step by Step}
+  \vspace*{4mm}
+  \begin{onlyenv}<1>
+    \fvset{lastline = 1}%
+    \rocqblock{knap-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+    \fvset{lastline = 3}%
+    \rocqblock{knap-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<3>
+    \fvset{lastline = 5}%
+    \rocqblock{knap-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<4>
+    \fvset{lastline = 7}%
+    \rocqblock{knap-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<5->
+    \fvset{lastline = 11}%
+    \rocqblock{knap-steps.v}
+  \end{onlyenv}
+  \par
+  \speakernote{The goal after each rewrite, as Rocq prints it \\
+    reenumerate: from items to capacities, with a table \\
+    look\_tbl\_with: lookups jump into the array, O(1) \\
+    dyna\_memo: each entry built once}
+\end{frame*}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Knapsack: What Comes Out}
+  \vspace*{5mm}
+  \begin{onlyenv}<1>
+    \ocamlblock[before upper = {\fvset{fontsize = \scriptsize,
+      baselinestretch = .84}}]{knap-arr.ml}
+  \end{onlyenv}
+  \begin{onlyenv}<2->
+    \ocamlblock[before upper = {\fvset{fontsize = \footnotesize}}]{knap-jump.ml}
+    \par\medskip
+    \code{fast\_drop}: jump straight into the right block of the array,
+    $O(1)$. Knapsack is linear in the capacity.
+  \end{onlyenv}
+  \par
+  \speakernote{Real extraction output, unedited \\
+    Point at \code{push}: one entry per capacity, built bottom-up \\
+    Point at \code{fast\_drop}: the lookup of K(c - w) \\
+    Next step: the lookup itself, a jump into the array block, O(1)}
 \end{frame*}
 
 \begin{frame}
@@ -192,9 +264,10 @@
     max segment sum: Bird's classic, cubic to linear}
 \end{frame}
 
-\begin{frame*}
+\begin{frame}
   \frametitle{Maximum Segment Sum: Spec and Result}
   \[ \op{mss} = \op{maximum} \circ \op{map}\,\op{sum} \circ \op{segments} \]
+  \begin{onlyenv}<1>
   \begin{center}
     \begin{tikzpicture}[alt={The list 3, minus 5, 2, 4, minus 1. Its
         segments include 2, 4, whose sum 6 is the largest.},
@@ -208,14 +281,36 @@
         {best segment: $2 + 4 = 6$};
     \end{tikzpicture}
   \end{center}
+  \end{onlyenv}
+  \par
   \begin{onlyenv}<2->
-    \ocamlblock{mss.ml}
-    \simplified
+  \begin{center}
+    \begin{tikzpicture}[alt={The calculated program makes one pass over
+        the list from the right, keeping two numbers: the best segment so
+        far, and the best segment starting at the current position.},
+      every node/.style = {box, minimum width = 9mm}, node distance = 0mm]
+      \node (a) {$3$};
+      \node[right = of a] (b) {$-5$};
+      \node[right = of b] (c) {$2$};
+      \node[right = of c] (d) {$4$};
+      \node[right = of d] (e) {$-1$};
+      \draw[<-, very thick, accent] ([yshift = -3mm]a.south west) --
+        node[below, draw = none, fill = none, note, text = accent]
+        {one pass} ([yshift = -3mm]e.south east);
+      \node[hot, right = 14mm of e, yshift = 5mm, minimum width = 40mm]
+        {best so far: $6$};
+      \node[hot, right = 14mm of e, yshift = -5mm, minimum width = 40mm]
+        {best starting here};
+    \end{tikzpicture}
+  \end{center}
+  \uncover<2->{Calculated: cubic $\Longrightarrow$ \textbf{one pass},
+    two numbers.}
   \end{onlyenv}
   \par
   \speakernote{Spec is the definition: all segments, sum, max \\
-    one pass, two accumulators; not obviously correct, but proved}
-\end{frame*}
+    Calculated: one pass, two accumulators; not obviously correct, but proved \\
+    Bird's classic, machine-checked; steps are library laws}
+\end{frame}
 
 \begin{frame}
   \frametitle{Summary So Far}

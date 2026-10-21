@@ -1,4 +1,4 @@
-% ~5 min
+% ~7 min
 \partframe{Part IV}{Dynamic Programming}
 
 \begin{frame}
@@ -8,7 +8,8 @@
   \begin{center}
     \begin{tikzpicture}[alt={Capacities 0 to 6 in a row. The entry for
         capacity 6 reads the entries for capacities 4 and 3, that is 6
-        minus weight 2 and 6 minus weight 3. Every entry is computed once
+        minus weight 2 and 6 minus weight 3, for the items of weight 2 and
+        value 3 and of weight 3 and value 4. Every entry is computed once
         and read many times.},
       every node/.style = {box, minimum width = 9mm, font = \small}]
       \foreach \i in {0, ..., 6} {
@@ -21,11 +22,13 @@
         node[below, draw = none, fill = none, note] {$w = 3$} (k3.south);
     \end{tikzpicture}
   \end{center}
-  A plain hylomorphism recomputes: exponential.
-  \speakernote{Items with weights w\_i and values v\_i; K(c) is the best
-    value for capacity c. K(6) reads K(4) and K(3) (weights 2 and 3). As a
-    plain hylomorphism on c -> c - 1, every K(c - w) is recomputed. We want
-    the algebra to look earlier results up.}
+  Items $(w, v)$: $(2, 3)$ and $(3, 4)$, so $K(6) = \max(K(4) + 3, K(3) + 4)
+  = 9$.\par\medskip
+  The naive hylomorphism recurses over the items: exponential.
+  \speakernote{K(c): best value for capacity c. K(6) needs K(4) and K(3)
+    (weights 2 and 3). The specification recurses over the items that fit,
+    one call each, so the same K(c - w) is recomputed many times. Goal:
+    recurse over capacities and look earlier results up.}
 \end{frame}
 
 \begin{frame}
@@ -52,55 +55,92 @@
         \& G_\infty\,A \arrow[r, "\op{head}"] \& A
     \end{tikzcd}
   \]
-  \speakernote{The table of all results below a seed is the cofree comonad,
-    G\_infinity A = A x G (G\_infinity A); for G X = 1 + X it is a list,
-    newest first. A dynamorphism is a hylomorphism into the table whose
-    algebra reads the table; finally take the head. (Hinze, Wu, Gibbons.)}
+  \speakernote{Table of all results below a seed: A x G (table), a list
+    newest first for G X = 1 + X. A dynamorphism is a hylomorphism into
+    the table whose algebra reads it; then take the head (Hinze, Wu,
+    Gibbons). In the library the table is any initial algebra of Memo G A.}
 \end{frame}
 
 \begin{frame*}
-  \frametitle{Knapsack in Rocq}
+  \frametitle{Dynamorphisms in Rocq}
   \rocqblock{memo.v}
-  \rocqblock{knap-alg.v}
-  \speakernote{Memo puts an A at every node; Table is its least fixed
-    point, so tables are finite. The algebra: 0 at the base; otherwise the
-    best over the items, each reading K(c - w) from the table. knapsack is
-    one line: dyna with the coalgebra that counts down on machine integers
-    (termination from the measure to\_nat).}
+  \speakernote{Memo puts an A at every node. dyna works for any initial
+    algebra T of Memo G A; dyna\_iso swaps one table for another, so the
+    proofs use the free one and the code can use another. ATab: tables in
+    persistent arrays, one more initial algebra. (Implicit arguments dropped on the slide.)}
 \end{frame*}
 
 \begin{frame*}
-  \frametitle{From Tables to Native Arrays}
-  \rocqblock{knap-calc.v}
-  \begin{center}
-    \begin{tikzpicture}[alt={The table, as a list with the newest result
-        first, is replaced by a persistent array indexed by capacity, with
-        the newest result at the end. The function tl reads the array back
-        as the list.},
-      every node/.style = {box, minimum width = 11mm, font = \small},
-      node distance = 0mm]
-      \node (l0) {$K(c)$};
-      \node[right = of l0] (l1) {$\cdots$};
-      \node[right = of l1] (l2) {$K(0)$};
-      \node[draw = none, fill = none, note, left = 2mm of l0] {list};
-      \node[below = 9mm of l0] (a0) {$K(0)$};
-      \node[right = of a0] (a1) {$\cdots$};
-      \node[hot, right = of a1] (a2) {$K(c)$};
-      \node[draw = none, fill = none, note, left = 2mm of a0] {array};
-      \draw[->, accent] (a1.north) -- node[right, draw = none,
-        fill = none, note] {\code{tl}} (l1.south);
-    \end{tikzpicture}
-  \end{center}
-  \speakernote{Two calculation steps. Table to list: left fusion with
-    to\_list. List to persistent array: a lemma about the array encoding
-    (newest result at the end, read back by tl). knapsack\_arr is derived
-    from knapsack, and the algebra now reads t.[c - w] directly.}
+  \frametitle{Changing the Recursion}
+  \rocqblock{reenum.v}
+  \begin{itemize}
+    \item \code{an}, \code{cn}: the naive recursion (over items).
+    \item \code{e}: the recursion we want (count down capacities).
+    \item \code{Hlook}: \code{an} only needs results that \code{e} reaches.
+  \end{itemize}
+  \speakernote{reenumerate: a hylomorphism equals a dynamorphism on another
+    coalgebra, if its algebra reads its subproblems through a lookup along
+    that coalgebra. look\_rec recomputes; look\_tbl reads the table. Proof:
+    uniqueness of hylo, with the table of the naive function. (Implicit arguments dropped.)}
 \end{frame*}
 
 \begin{frame*}
-  \frametitle{Knapsack: the Extracted Program}
-  \ocamlblock{knap.ml}
-  \speakernote{Constant-time lookups with Parray.get; Parray.set grows the
-    table. Integer operations are Uint63; the slide writes +, -, <= for
-    readability.}
+  \frametitle{Knapsack: the Calculation}
+  \rocqblock[before upper = {\fvset{fontsize = \footnotesize}}]{knap-calc.v}
+  {\footnotesize Step 1's proof is left out.\par}
+  \speakernote{Step 1: Derive the algebra that reads subproblems through
+    a lookup down the count-down (look\_down). Step 2: reenumerate with
+    ATab tables; look\_tbl\_with fast\_drop\_walk swaps the walk down the
+    table for a jump into the array (O(1)); dyna\_memo shares the table.}
 \end{frame*}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Knapsack, Step by Step}
+  \vspace*{4mm}
+  \begin{onlyenv}<1>
+    \fvset{lastline = 1}%
+    \rocqblock{knap-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+    \fvset{lastline = 3}%
+    \rocqblock{knap-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<3>
+    \fvset{lastline = 5}%
+    \rocqblock{knap-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<4>
+    \fvset{lastline = 7}%
+    \rocqblock{knap-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<5->
+    \fvset{lastline = 11}%
+    \rocqblock{knap-steps.v}
+  \end{onlyenv}
+  \par
+  \speakernote{The goal after each rewrite, as Rocq prints it \\
+    reenumerate: from items to capacities, with a table \\
+    look\_tbl\_with: lookups jump into the array, O(1) \\
+    dyna\_memo: each entry built once}
+\end{frame*}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Knapsack: What Comes Out}
+  \vspace*{5mm}
+  \begin{onlyenv}<1>
+    \ocamlblock[before upper = {\fvset{fontsize = \scriptsize,
+      baselinestretch = .84}}]{knap-arr.ml}
+  \end{onlyenv}
+  \begin{onlyenv}<2->
+    \ocamlblock[before upper = {\fvset{fontsize = \footnotesize}}]{knap-jump.ml}
+    \par\medskip
+    \code{fast\_drop}: jump straight into the right block of the array,
+    $O(1)$. Knapsack is linear in the capacity.
+  \end{onlyenv}
+  \par
+  \speakernote{Real extraction output, unedited \\
+    Point at \code{push}: one entry per capacity, built bottom-up \\
+    Point at \code{fast\_drop}: the lookup of K(c - w) \\
+    Next step: the lookup itself, a jump into the array block, O(1)}
+\end{frame*}
+

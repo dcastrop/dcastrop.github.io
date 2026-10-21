@@ -6,7 +6,7 @@ GEN    = $(patsubst code/%,gen/%.tex,$(CODE)) gen/pygments.tex
 
 main.pdf: main.tex preamble.tex sections/*.tex ../template/dcptalk.sty $(GEN)
 	TEXINPUTS=../template//: latexmk -lualatex -interaction=nonstopmode main.tex
-	python3 ../template/make-notes.py main --duration 50
+	python3 ../template/make-notes.py main --duration 55
 
 # Slides with their notes on the right half: pdfpc -n right main-presenter.pdf
 presenter: main-presenter.pdf
