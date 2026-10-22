@@ -1,4 +1,5 @@
-let rec fast_power_code x n =
-  if eqb n (Uint63.of_int (0)) then (Uint63.of_int (1))
-  else mul (digit_pow x (mod0 n (Uint63.of_int (2))))
-           (sq (fast_power_code x (div n (Uint63.of_int (2)))))
+let rec fast_power x x0 =
+  if Uint63.equal x0 (Uint63.of_int (0))
+  then (Uint63.of_int (1))
+  else Uint63.mul (digit_pow x (Uint63.rem x0 (Uint63.of_int (2))))
+         (sq (fast_power x (Uint63.div x0 (Uint63.of_int (2)))))

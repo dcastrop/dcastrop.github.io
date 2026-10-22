@@ -21,8 +21,7 @@ SAME_FILES = [
     'hylos-general/code/qsort2.ml:hylos-seminar/code/qsort2.ml',
     'hylos-general/code/qsort-steps.v:hylos-seminar/code/qsort-steps.v',
     'hylos-general/code/knap-steps.v:hylos-seminar/code/knap-steps.v',
-    'hylos-general/code/knap-arr.ml:hylos-seminar/code/knap-arr.ml',
-    'hylos-general/code/knap-jump.ml:hylos-seminar/code/knap-jump.ml',
+    'hylos-general/code/knap-derive.v:hylos-seminar/code/knap-derive.v',
 ]
 
 # Same frame (title) in both decks, compared with speaker notes
@@ -31,9 +30,6 @@ SAME_FRAMES = [
      'hylos-seminar/sections/06-calculation.tex', 'Quicksort, Step by Step'),
     ('hylos-general/sections/04-results.tex',
      'hylos-seminar/sections/07-dynamorphisms.tex', 'Knapsack, Step by Step'),
-    ('hylos-general/sections/04-results.tex',
-     'hylos-seminar/sections/07-dynamorphisms.tex',
-     'Knapsack: What Comes Out'),
 ]
 
 TIKZMARK = re.compile(r'\^\\tikzmark\{[^}]*\}\^')
@@ -69,13 +65,7 @@ def main():
     # The quicksort Derive: the general deck adds two \tikzmarks
     ok &= report('qsort2-derive.v (without \\tikzmark)',
                  TIKZMARK.sub('', read(GEN + 'hylos-general/code/qsort2-derive.v')),
-                 read(SEM + 'hylos-seminar/code/qsort2-derive.v')
-                 .replace(' finished.\n', '\n  finished.\n'))
-    # The knapsack Derive: step 2 of the seminar's two-step calculation
-    derive = read(GEN + 'hylos-general/code/knap-derive.v')
-    calc = read(SEM + 'hylos-seminar/code/knap-calc.v')
-    ok &= report('knap-derive.v in knap-calc.v', derive,
-                 calc[calc.index('Derive knapsack_arr'):])
+                 read(SEM + 'hylos-seminar/code/qsort2-derive.v'))
     for g, s, title in SAME_FRAMES:
         ok &= report(f'frame "{title}"', frame(read(GEN + g), title),
                      frame(read(SEM + s), title))

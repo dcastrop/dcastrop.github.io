@@ -4,11 +4,12 @@
 \begin{frame}
   \frametitle{What You Have to Trust}
   \begin{center}
-    \begin{tikzpicture}[alt={The pipeline: a specification, written and
-        read by a human, goes through calculation steps checked by the Rocq
-        kernel, then through extraction to OCaml, then through the OCaml
-        compiler. The specification, the kernel, extraction and the
-        compiler are trusted. The calculation steps, and whoever chose
+    \begin{tikzpicture}[alt={The pipeline: a specification goes through
+        calculation steps checked by the Rocq kernel, then through
+        extraction to OCaml, then through the OCaml compiler. The
+        specification can itself be verified, for example that quicksort's
+        output is sorted, and so can extraction. The kernel and the compiler
+        are trusted. The calculation steps, and whoever chose
         them, are not.},
       stage/.style = {minimum height = 11mm, text width = 23mm,
         align = center}]
@@ -20,10 +21,11 @@
       \draw[->, thick] (s) -- (c);
       \draw[->, thick] (c) -- (e);
       \draw[->, thick] (e) -- (o);
-      \node[note, below = 2mm of s, align = center] {trusted:\\ read it};
+      \node[note, below = 2mm of s, align = center] {\textbf{verifiable}\\
+        \footnotesize(quicksort sorts)};
       \node[note, below = 2mm of c, align = center, text = good]
         {\textbf{checked}\\ by Rocq's kernel};
-      \node[note, below = 2mm of e, align = center] {trusted};
+      \node[note, below = 2mm of e, align = center] {\textbf{verifiable}};
       \node[note, below = 2mm of o, align = center] {trusted};
     \end{tikzpicture}
   \end{center}
@@ -32,7 +34,9 @@
     \item A wrong step is \textbf{rejected}, not miscompiled.
   \end{itemize}
   \speakernote{Green box: checked by Rocq's small kernel \\
-    Trusted: spec, kernel, extraction, OCaml compiler \\
+    Spec: verifiable; the library proves quicksort's output sorted and a permutation \\
+    Extraction: verifiable; verified extraction to OCaml exists (MetaRocq, PLDI'24) \\
+    Trusted: kernel, OCaml compiler \\
     steps can come from anyone: person, script, model \\
     wrong step = rejected}
 \end{frame}

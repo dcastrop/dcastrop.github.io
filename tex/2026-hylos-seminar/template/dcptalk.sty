@@ -279,6 +279,21 @@
     \node[fill = golden!35, inner sep = 1pt, outer sep = 1pt,
       font = \ttfamily] (hl-#1) {#2};}
 
+% \codebox<overlay>{left}{right}{bottom}: a golden box around code from the
+% \tikzmark left (top-left corner) to the \tikzmarks right (its x) and bottom
+% (its y); the code keeps its highlighting. Zero height, like \callout.
+\NewDocumentCommand\codebox{D<>{1-} m m m}{%
+  \only<#1>{%
+    \par\edef\dcp@prevdepth{\the\prevdepth}\nointerlineskip\vbox to 0pt{%
+    \begin{tikzpicture}[overlay, remember picture, alt = {Highlighted code}]
+      \coordinate (dcp-cb-l) at (pic cs:#2);
+      \coordinate (dcp-cb-r) at (pic cs:#3);
+      \coordinate (dcp-cb-b) at (pic cs:#4);
+      \draw[golden!90!black, line width = .5mm, rounded corners = 2pt]
+        ($(dcp-cb-l) + (-.6mm, 3.1mm)$) rectangle
+        ($(dcp-cb-r |- dcp-cb-b) + (.6mm, -1.1mm)$);
+    \end{tikzpicture}\vss}\prevdepth=\dcp@prevdepth\relax}}
+
 % A reference at the bottom of the slide, in place of a footnote.
 \NewDocumentCommand\slideref{+m}{%
   \begin{tikzpicture}[overlay, remember picture, alt = {Reference: #1}]

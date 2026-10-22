@@ -40,30 +40,36 @@ Code is kept to calculations and their output: the opening example
 (`sort-times-two.ml`, hand-written), the quicksort `Derive`
 (`qsort2-derive.v`, library source plus two `\tikzmark`s) with its steps and
 extracted code, and the knapsack `Derive` (`knap-derive.v`) with its steps and
-extracted code. Everything else is a diagram. A block that is not verbatim
-gets `\simplified` (a grey "(simplified)" tag, `preamble.tex`); none needs it
-now.
+extracted code, simplified for this audience (`knap-simple.ml`, tagged
+"(simplified)"; the seminar shows the real extraction). Everything else is a
+diagram. A block that is not verbatim gets `\simplified` (a grey
+"(simplified)" tag, `preamble.tex`).
 
 Shared with the other hylomorphism talk, and kept identical (check with
 `python3 ../../check-hylos-sync.py` from `tex/`): `template/dcptalk.sty`, the
 code files `sort-times-two.ml`, `qsort2.ml`, `qsort-steps.v`, `knap-steps.v`,
-`knap-arr.ml`, `knap-jump.ml`, the quicksort and knapsack `Derive`s, and the
-frames "Quicksort, Step by Step", "Knapsack, Step by Step" and "Knapsack: What
-Comes Out".
+`knap-derive.v`, the quicksort `Derive`, and the frames "Quicksort, Step by
+Step" and "Knapsack, Step by Step". "Knapsack: What Comes Out" differs on
+purpose: simplified here, the real extraction in the seminar.
 
-All checked against rocq-hylomorphisms 9e4d3cf plus its uncommitted work of
-2026-10-21 (16:32), in `arrays-as-hylos/deps/rocq-hylomorphisms`:
+All checked against rocq-hylomorphisms 0bd54f8 (2026-10-22, pushed; the
+local changes on top are build and warning settings only), in
+`arrays-as-hylos/deps/rocq-hylomorphisms`:
 
 - `qsort-steps.v`, `knap-steps.v`: the goal Rocq prints after each rewrite of
   the `Derive` (replayed against the compiled library), with the name of the
   rewrite and a gloss as a comment; only line breaks are ours. Each step of
   the slide shows the derivation up to that rewrite (`\fvset{lastline = n}`).
-- `qsort2.ml`, `knap-arr.ml`, `knap-jump.ml`: extracted code, verbatim
-  (`knap-jump.ml`: `jump` and `fast_drop`, the O(1) lookup into the array
-  table).
-- The knapsack `Derive`: `reenumerate` (items to capacities, with a table),
-  `look_tbl_with fast_drop_walk` (lookups jump into the array block, O(1)),
-  `dyna_memo` (share the table).
+- `qsort2.ml`: extracted code, verbatim. `knap-simple.ml`: the extracted
+  `knap_step` and loop `knapsack_arr`, simplified (`max_list`, plain
+  arithmetic, no `Uint63`); `fast_drop` is the O(1) lookup.
+- The knapsack `Derive` (`knap-derive.v`): `reenumerate` (items to
+  capacities, with a table whose lookups jump into the array block, O(1)),
+  then `dyna_loop` (the table of a count-down is built by a loop); the side
+  goals are the loop's step, its first entry and the lookup algebra.
+- The quicksort `Derive`s end with `hylo_cps_hylo` (a continuation-passing
+  coalgebra), and `finished` reduces the result, so a plain `Extraction`
+  gives clean code.
 
 `images/mpst.pdf` is `../../2024-synthetic-mpst/figures/MPST5.pdf`.
 

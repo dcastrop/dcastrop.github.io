@@ -39,23 +39,25 @@
   \frametitle{Three Ways to Fast and Correct Code}
   \begin{center}
     \renewcommand\arraystretch{1.6}
-    \begin{tabular}{p{.27\textwidth}p{.31\textwidth}p{.31\textwidth}}
-      \textbf{Approach} & \textbf{Good} & \textbf{But} \\ \hline
-      \uncover<1->{Write it, then \textbf{verify} it} &
-        \uncover<1->{any program} &
-        \uncover<1->{\textcolor{bad}{a new proof for every program}} \\
+    \begin{tabular}{p{.27\textwidth}p{.33\textwidth}p{.29\textwidth}}
+      & \textbf{Proof effort} & \textbf{Faster algorithm?} \\ \hline
+      \uncover<1->{Write, then \textbf{verify}} &
+        \uncover<1->{\textcolor{bad}{a new proof for every program}} &
+        \uncover<1->{yes, if you write it} \\
       \uncover<2->{\textbf{Verified compiler}} &
-        \uncover<2->{translation is correct} &
-        \uncover<2->{\textcolor{bad}{keeps your algorithm:
-          $O(n^3)$ stays $O(n^3)$}} \\
-      \uncover<3->{\textbf{Calculate} it from a spec} &
-        \uncover<3->{\textcolor{good}{proof comes with the derivation}} &
-        \uncover<3->{needs laws that \emph{apply}} \\
+        \uncover<2->{\textcolor{good}{once, for the compiler}} &
+        \uncover<2->{\textcolor{bad}{no: $O(n^3)$ stays $O(n^3)$}} \\
+      \uncover<3->{\textbf{Calculate} from a spec} &
+        \uncover<3->{\textcolor{good}{once per law, then reused}} &
+        \uncover<3->{\textcolor{good}{yes, by rewriting}} \\
     \end{tabular}
   \end{center}
+  \uncover<4->{The catch: we need laws that \emph{apply} to real programs.
+    That is this talk.}
   \speakernote{Verify afterwards: works for anything, but a new proof each time \\
-    Verified compilers (CompCert, CakeML): faithful, but keep the algorithm \\
-    Calculation: proof is a by-product; needs general laws}
+    Verified compilers (CompCert, CakeML): proved once, but keep your algorithm \\
+    Calculation: laws proved once, reused; the program gets faster \\
+    The catch: a library of laws general enough to apply}
 \end{frame}
 
 \begin{frame}

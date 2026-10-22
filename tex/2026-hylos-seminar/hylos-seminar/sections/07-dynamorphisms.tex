@@ -77,10 +77,12 @@
     \item \code{an}, \code{cn}: the naive recursion (over items).
     \item \code{e}: the recursion we want (count down capacities).
     \item \code{Hlook}: \code{an} only needs results that \code{e} reaches.
+    \item \code{look\_with}: lookups jump into the array table, $O(1)$.
   \end{itemize}
   \speakernote{reenumerate: a hylomorphism equals a dynamorphism on another
     coalgebra, if its algebra reads its subproblems through a lookup along
-    that coalgebra. look\_rec recomputes; look\_tbl reads the table. Proof:
+    that coalgebra. look\_rec recomputes; look\_with reads the table, here
+    by jumping into the array (fast\_drop). Proof:
     uniqueness of hylo, with the table of the naive function. (Implicit arguments dropped.)}
 \end{frame*}
 
@@ -88,10 +90,18 @@
   \frametitle{Knapsack: the Calculation}
   \rocqblock[before upper = {\fvset{fontsize = \footnotesize}}]{knap-calc.v}
   {\footnotesize Step 1's proof is left out.\par}
-  \speakernote{Step 1: Derive the algebra that reads subproblems through
-    a lookup down the count-down (look\_down). Step 2: reenumerate with
-    ATab tables; look\_tbl\_with fast\_drop\_walk swaps the walk down the
-    table for a jump into the array (O(1)); dyna\_memo shares the table.}
+  \speakernote{Step 1: Derive the algebra that reads subproblems from the
+    table. Step 2: Derive the loop's step: the algebra, reading through the
+    O(1) lookup (fast\_drop\_walk), on the next table.}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Knapsack: the Program}
+  \rocqblock{knap-derive.v}
+  \speakernote{Step 3. reenumerate: from items to capacities, with a table.
+    dyna\_loop: the table of a count-down is built by a loop. The side goals
+    are the loop's step (step 2), its first entry, and the lookup algebra
+    (step 1).}
 \end{frame*}
 
 \begin{frame*}[vertical-alignment = top]
@@ -109,19 +119,15 @@
     \fvset{lastline = 5}%
     \rocqblock{knap-steps.v}
   \end{onlyenv}
-  \begin{onlyenv}<4>
-    \fvset{lastline = 7}%
-    \rocqblock{knap-steps.v}
-  \end{onlyenv}
-  \begin{onlyenv}<5->
-    \fvset{lastline = 11}%
+  \begin{onlyenv}<4->
+    \fvset{lastline = 10}%
     \rocqblock{knap-steps.v}
   \end{onlyenv}
   \par
   \speakernote{The goal after each rewrite, as Rocq prints it \\
-    reenumerate: from items to capacities, with a table \\
-    look\_tbl\_with: lookups jump into the array, O(1) \\
-    dyna\_memo: each entry built once}
+    reenumerate: from items to capacities, lookups jump into the array, O(1) \\
+    dyna\_loop: the table is built by a loop counting up \\
+    Last line: a loop over the capacities, one step each}
 \end{frame*}
 
 \begin{frame*}[vertical-alignment = top]
@@ -139,8 +145,8 @@
   \end{onlyenv}
   \par
   \speakernote{Real extraction output, unedited \\
-    Point at \code{push}: one entry per capacity, built bottom-up \\
-    Point at \code{fast\_drop}: the lookup of K(c - w) \\
+    \code{knapsack\_arr}: a loop counting capacities up; \code{push} adds one entry \\
+    \code{knap\_step}: best over the items; \code{fast\_drop} looks up K(c - w) \\
     Next step: the lookup itself, a jump into the array block, O(1)}
 \end{frame*}
 

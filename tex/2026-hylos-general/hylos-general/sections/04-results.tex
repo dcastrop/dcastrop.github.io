@@ -4,7 +4,9 @@
 \begin{frame*}
   \frametitle{A Calculation in Rocq}
   \rocqblock{qsort2-derive.v}
+  \codebox<2->{specl}{spec}{spec}
   \callout<2->{14,7.6}{specification}{spec}
+  \codebox<3->{lawsl}{laws}{lawsb}
   \callout<3->{15.5,3.3}{the laws}{laws}
   \speakernote{\code{Derive}: the program starts as an unknown \\
     the spec: quicksort, then double \\
@@ -33,8 +35,8 @@
   \par
   \speakernote{Each step: one law, the term Rocq shows after it \\
     map\_merge\_fusion: doubling moves inside merge \\
-    hylo\_ana, deforest: the tree between unfold and fold disappears \\
-    Last line: one hylo, one pass}
+    hylo\_ana, deforest: the tree between unfold and fold disappears (one step) \\
+    hylo\_cps\_hylo: continuation-passing coalgebra, so the code has no closures}
 \end{frame*}
 
 \begin{frame*}
@@ -44,7 +46,7 @@
   The last line, extracted: \textbf{one pass}, doubling each pivot as it
   goes. The hand-written program from the start, now with a proof.
   \speakernote{Real extraction output of the last line \\
-    Point at the pivot: \code{mul 2 h}, done in place \\
+    Point at the pivot: \code{mul 2 i}, done in place \\
     Same as the hand-written version; now proved equal to sort-then-double}
 \end{frame*}
 
@@ -162,8 +164,10 @@
   \end{center}
   \end{onlyenv}
   \par
-  \begin{onlyenv}<2->
+  \begin{onlyenv}<2>
     \rocqblock{knap-derive.v}
+  \end{onlyenv}
+  \begin{onlyenv}<3->
     \begin{center}
       \begin{tikzpicture}[alt={The cost ladder: naive recursion is
           exponential; after the calculation, one entry per capacity in a
@@ -174,16 +178,16 @@
         \node[stage, draw = bad, fill = bad!8] (e) {naive:\\ exponential};
         \node[stage, right = 30mm of e, draw = good, fill = good!8] (a)
           {array table: $O(1)$ lookups,\\ linear in the capacity};
-        \draw[->, thick] (e) -- node[above, note] {three rewrites} (a);
+        \draw[->, thick] (e) -- node[above, note] {by laws} (a);
       \end{tikzpicture}
     \end{center}
   \end{onlyenv}
   \par
   \speakernote{Left: naive recursion over items; repeats \\
     Right: count down capacities; each entry looks up earlier ones \\
-    \code{reenumerate}: switch the recursion; tables are persistent arrays \\
-    \code{look\_tbl\_with}: lookups jump into the array, O(1) \\
-    \code{dyna\_memo}: share the table \\
+    \code{reenumerate}: switch the recursion; array tables, O(1) lookups \\
+    \code{dyna\_loop}: the table is built by a loop \\
+    Side goals: the loop's step, its first entry, the lookup algebra \\
     Exponential to linear in the capacity; no index arithmetic by hand}
 \end{frame*}
 
@@ -202,39 +206,28 @@
     \fvset{lastline = 5}%
     \rocqblock{knap-steps.v}
   \end{onlyenv}
-  \begin{onlyenv}<4>
-    \fvset{lastline = 7}%
-    \rocqblock{knap-steps.v}
-  \end{onlyenv}
-  \begin{onlyenv}<5->
-    \fvset{lastline = 11}%
+  \begin{onlyenv}<4->
+    \fvset{lastline = 10}%
     \rocqblock{knap-steps.v}
   \end{onlyenv}
   \par
   \speakernote{The goal after each rewrite, as Rocq prints it \\
-    reenumerate: from items to capacities, with a table \\
-    look\_tbl\_with: lookups jump into the array, O(1) \\
-    dyna\_memo: each entry built once}
+    reenumerate: from items to capacities, lookups jump into the array, O(1) \\
+    dyna\_loop: the table is built by a loop counting up \\
+    Last line: a loop over the capacities, one step each}
 \end{frame*}
 
-\begin{frame*}[vertical-alignment = top]
+\begin{frame*}
   \frametitle{Knapsack: What Comes Out}
-  \vspace*{5mm}
-  \begin{onlyenv}<1>
-    \ocamlblock[before upper = {\fvset{fontsize = \scriptsize,
-      baselinestretch = .84}}]{knap-arr.ml}
-  \end{onlyenv}
-  \begin{onlyenv}<2->
-    \ocamlblock[before upper = {\fvset{fontsize = \footnotesize}}]{knap-jump.ml}
-    \par\medskip
-    \code{fast\_drop}: jump straight into the right block of the array,
-    $O(1)$. Knapsack is linear in the capacity.
-  \end{onlyenv}
-  \par
-  \speakernote{Real extraction output, unedited \\
-    Point at \code{push}: one entry per capacity, built bottom-up \\
-    Point at \code{fast\_drop}: the lookup of K(c - w) \\
-    Next step: the lookup itself, a jump into the array block, O(1)}
+  \ocamlblock{knap-simple.ml}
+  \simplified
+  \par\medskip
+  A \textbf{loop} over the capacities; each step looks up $K(c - w)$ in
+  $O(1)$. Linear in the capacity.
+  \speakernote{Simplified from the extracted code; the real one is in the library \\
+    \code{knapsack}: a loop counting capacities up; \code{push} adds one entry \\
+    \code{knap\_step}: best over the items; \code{fast\_drop} jumps into the array \\
+    Exponential spec to a linear loop, every step proved}
 \end{frame*}
 
 \begin{frame}

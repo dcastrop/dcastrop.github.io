@@ -152,33 +152,41 @@
     overflow and bounds as side conditions}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[vertical-alignment = top]
   \frametitle{Ongoing: A Cost Model}
+  \vspace*{8mm}
   \begin{center}
     \begin{tikzpicture}[alt={One specification with two equal programs
-        below it. The fused program uses no intermediate memory but runs
-        sequentially. The split program writes an intermediate buffer but
-        its two halves can run in parallel or be vectorised. Which is
-        faster depends on the machine and the input size.},
+        below it. The fused program has no intermediate buffer and can still
+        run in parallel, but is one big kernel with high register pressure.
+        The split program has smaller kernels, with fewer registers, easier
+        vectorisation and better locality, but its buffer adds memory
+        traffic. Which is faster depends on the machine and the input
+        size.},
       prog/.style = {box, draw = good, fill = good!8, text width = 40mm,
         align = center, minimum height = 14mm}]
       \node[box, minimum height = 9mm] (s) at (0, 0) {specification};
-      \node[prog] (f) at (-34mm, -26mm) {\textbf{fused}\\ \small no buffer,
-        one core};
-      \node[prog] (p) at (34mm, -26mm) {\textbf{split}\\ \small buffer,
-        many cores / SIMD};
+      \node[prog] (f) at (-34mm, -26mm) {\textbf{fused}\\ \small one stage};
+      \node[prog] (p) at (34mm, -26mm) {\textbf{split}\\ \small two stages,
+        a buffer between};
       \draw[->, thick] (s) -- node[left, note] {$=$} (f);
       \draw[->, thick] (s) -- node[right, note] {$=$} (p);
       \uncover<2->{
-        \node[hot, below = 6mm of f] {cost: memory, latency};
-        \node[hot, below = 6mm of p] {cost: bandwidth, sync};
+        \node[hot, below = 6mm of f, align = left, font = \small]
+          {$+$ no buffer, still parallel\\ $-$ one big kernel: register
+           pressure};
+        \node[hot, below = 6mm of p, align = left, font = \small]
+          {$+$ smaller kernels: fewer registers,\\ \phantom{$+$} vectorisable,
+           better locality\\ $-$ the buffer: extra memory traffic};
       }
     \end{tikzpicture}
   \end{center}
   \uncover<3->{The laws say what is \emph{equal}; a cost model says what is
     \emph{better}.}
   \speakernote{Two equal programs from one spec \\
-    fused saves memory; split enables parallelism \\
+    fused: no buffer, still parallel; but one big kernel, register pressure \\
+    split: smaller kernels (registers, occupancy, vectorisation, locality); but buffer traffic \\
+    which wins depends on the machine and the input size \\
     laws say equal, cost model says better}
 \end{frame}
 

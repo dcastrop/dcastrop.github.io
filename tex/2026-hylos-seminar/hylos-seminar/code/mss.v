@@ -1,6 +1,6 @@
 Definition mss := maximum \o lmap sum \o segs \o lmap some_m.
 
-Derive mss_linear in (mss =e mss_linear) as mss_calc.
+Derive mss_linear in (mss =e morph_of mss_linear) as mss_calc.
 Proof.
   unfold mss, segs.
   arewrite (map_promotion sum).

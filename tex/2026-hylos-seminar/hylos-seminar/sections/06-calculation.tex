@@ -6,9 +6,11 @@
   \rocqblock{qsort-derive.v}
   \ocamlblock{qsort-extr.ml}
   \speakernote{Derive leaves qsort as an unknown; the rewrites build it,
-    and finished fills it in. qsort is transparent, so it extracts;
-    qsort\_calc is the proof that it meets the specification. The OCaml is
-    what one would write by hand.}
+    and finished fills it in, reduced to the code to extract. The last
+    rewrite switches to a continuation-passing coalgebra, so the code has
+    no closures. qsort is transparent, so it extracts; qsort\_calc is the
+    proof that it meets the specification. The OCaml is what one would
+    write by hand.}
 \end{frame*}
 
 \begin{frame*}
@@ -42,8 +44,8 @@
   \par
   \speakernote{Each step: one law, the term Rocq shows after it \\
     map\_merge\_fusion: doubling moves inside merge \\
-    hylo\_ana, deforest: the tree between unfold and fold disappears \\
-    Last line: one hylo, one pass}
+    hylo\_ana, deforest: the tree between unfold and fold disappears (one step) \\
+    hylo\_cps\_hylo: continuation-passing coalgebra, so the code has no closures}
 \end{frame*}
 
 \begin{frame*}
@@ -75,15 +77,16 @@
 
 \begin{frame*}
   \frametitle{Challenge: Inlining for Extraction}
-  Plain \code{Recursive Extraction qsort}:
+  Extracting the unreduced \code{hylo merge tsplit}:
   \ocamlblock{raw-extr.ml}
   \callout<2->{14.5,8.2}{dictionaries at run time}{dict}
   \callout<3->{14,2.6}{a record per call}{rec}
   \speakernote{Shown partially. Type-safe, but generic: setoid and
     container dictionaries are passed around at run time, and a record is
-    built and taken apart at every call. The fix: Eval simpl on the derived
-    program, Extraction Inline for the container wrappers, and Set
-    Extraction Flag 2047. The result is the qsort\_code from before.}
+    built and taken apart at every call. The fix is now in the library:
+    finished reduces the derived program (unfolding the unfold\_code hints)
+    and CPS coalgebras remove the closures, so a plain Extraction of qsort
+    gives the code from before.}
 \end{frame*}
 
 \begin{frame}

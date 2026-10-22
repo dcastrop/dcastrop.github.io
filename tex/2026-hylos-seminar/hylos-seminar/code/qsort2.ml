@@ -1,10 +1,6 @@
-let rec qsort_times_two_code = function
+let rec qsort_times_two = function
 | [] -> []
-| h :: t ->
-  let (l, r) = partition (fun x0 -> Uint63.lt x0 h) t in
-  let x0 = fun p ->
-    qsort_times_two_code (match p with
-                          | Lbranch -> l
-                          | Rbranch -> r)
-  in
-  app (x0 Lbranch) ((Uint63.mul (Uint63.of_int (2)) h) :: (x0 Rbranch))
+| i :: l ->
+  let (l0, l1) = partition (fun x0 -> Uint63.lt x0 i) l in
+  app (qsort_times_two l0)
+    ((Uint63.mul (Uint63.of_int (2)) i) :: (qsort_times_two l1))

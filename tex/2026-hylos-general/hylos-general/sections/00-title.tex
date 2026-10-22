@@ -27,15 +27,26 @@
     \begin{column}{0.32\textwidth}
       \begin{center}
         \textbf{Certified tools}\\[1mm]
-        \begin{tikzpicture}[alt={A proof assistant's kernel checks every
-            step of a proof; each step gets a tick.},
-          every node/.style = {box, font = \small}]
-          \node (a) {step};
-          \node[right = 2mm of a] (b) {step};
-          \node[right = 2mm of b] (c) {step};
-          \node[below = 6mm of b, draw = good, fill = good!8, minimum
-            width = 32mm] (k) {Rocq kernel: $\checkmark\,\checkmark\,\checkmark$};
-          \foreach \n in {a, b, c} { \draw[->] (\n) -- (k); }
+        \begin{tikzpicture}[alt={Three kinds of statement inside a green box
+            labelled Rocq, Agda and others, with a tick: a typing
+            judgement, Gamma entails M of type T; the hylomorphism equation,
+            h equals f after fmap F h after g; and a small pi-calculus
+            process, restricting a, sending 1 on a in parallel with
+            receiving x on a and sending it on b.},
+          stmt/.style = {box, font = \small, minimum width = 42mm,
+            minimum height = 6.5mm}]
+          \node[stmt] (a) {$\Gamma \vdash M : T$};
+          \node[stmt, below = 1.5mm of a] (b)
+            {$h =_e f \circ \op{fmap}_F\,h \circ g$};
+          \node[stmt, below = 1.5mm of b] (c)
+            {$(\nu a)\,(\overline{a}\langle 1 \rangle \mid
+              a(x).\,\overline{b}\langle x \rangle)$};
+          \node[below = 1mm of c, font = \small\bfseries, text = good] (k)
+            {Rocq / Agda / \ldots\ $\checkmark$};
+          \begin{scope}[on background layer]
+            \node[draw = good, fill = good!8, thick, rounded corners = 4pt,
+              inner sep = 2mm, fit = (a) (b) (c) (k)] {};
+          \end{scope}
         \end{tikzpicture}\\[2mm]
         \small mechanised metatheory,\\ certified languages\\
         {\footnotesize\color{gray} TACAS'20, PLDI'21, ITP'25}
@@ -44,14 +55,27 @@
     \begin{column}{0.32\textwidth}
       \begin{center}
         \textbf{Parallelism}\\[1mm]
-        \begin{tikzpicture}[alt={A divide-and-conquer program split over
-            four cores, with its speedup predicted before it runs.},
-          level distance = 7mm, level 1/.style = {sibling distance = 16mm},
-          level 2/.style = {sibling distance = 8mm},
-          every node/.style = {box, font = \scriptsize, inner sep = 1.5pt}]
-          \node {split}
-            child {node {split} child {node {c1}} child {node {c2}}}
-            child {node {split} child {node {c3}} child {node {c4}}};
+        \begin{tikzpicture}[alt={A task-parallel network: input goes to an
+            emitter, which hands tasks to a farm of three workers; a collector
+            gathers their results and passes them to a pipeline stage, whose
+            output either leaves the network or is fed back to the emitter.},
+          task/.style = {box, font = \scriptsize, inner sep = 2pt,
+            minimum width = 6mm, minimum height = 5mm},
+          >={Stealth[length = 1.5mm]}]
+          \node[task] (e) {E};
+          \foreach \i/\y in {1/5.5, 2/0, 3/-5.5}
+            \node[task, right = 5mm of e, yshift = \y mm] (w\i) {$f$};
+          \node[task, right = 5mm of w2] (c) {C};
+          \node[task, right = 4mm of c] (g) {$g$};
+          \node[font = \scriptsize, left = 2mm of e, inner sep = 0pt] (in) {in};
+          \node[font = \scriptsize, right = 2mm of g, inner sep = 0pt] (out) {out};
+          \draw[->] (in) -- (e);
+          \foreach \i in {1, 2, 3} { \draw[->] (e) -- (w\i); \draw[->] (w\i) -- (c); }
+          \draw[->] (c) -- (g);
+          \draw[->] (g) -- (out);
+          \draw[->, accent2, thick] (g.south) to[out = -90, in = -90, looseness = 1.1]
+            (e.south);
+          \node[note, font = \tiny, above = 0mm of w1] {farm};
         \end{tikzpicture}\\[1mm]
         \small structured parallelism,\\ \emph{predicted} speedups\\
         {\footnotesize\color{gray} ICFP'16, FGCS'18, CC'20}
@@ -66,8 +90,8 @@
     \end{tikzpicture}
   \end{center}}
   \speakernote{Point at left: protocols as types; well-typed means no deadlocks \\
-    Middle: proofs checked by a machine, e.g. Zooid, EMTST, hylomorphisms \\
-    Right: hylomorphisms as parallel skeletons, with cost models \\
+    Middle: types, recursion laws, processes; all checked by a machine \\
+    Right: task farms, pipelines, feedback; same results, predicted speedups \\
     Today: middle meets right}
 \end{frame}
 

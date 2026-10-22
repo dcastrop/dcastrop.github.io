@@ -4,4 +4,4 @@ Definition digits_ (b n : int) : App (ListF int) int :=
 Definition power (x : int) : int ~> int :=
   cata (pow_alg x) \o rana (digits 2 eq_refl).
 
-Derive fast_power in (power x =e fast_power) as fast_power_calc.
+Derive fast_power in (power x =e morph_of fast_power) as fast_power_calc.
