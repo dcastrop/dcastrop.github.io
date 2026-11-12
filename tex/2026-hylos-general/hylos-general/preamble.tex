@@ -50,27 +50,25 @@
 \newcommand\icfptag{\worktag[accent]{ICFP 2016}}
 \newcommand\ongoingtag{\worktag[accent2]{ongoing}}
 
-% Slides that the live demo covers (skip them after a good demo): a small
-% grey note in the bottom-right corner. At the end of the frame.
-\newcommand\demotag{%
-  \begin{tikzpicture}[overlay, remember picture, alt = {Covered by the
-      demo}]
-    \node[anchor = south east, text = gray, font = \scriptsize\itshape]
-      at ($(current page.south east) + (-4mm, 3mm)$) {covered by the demo};
-  \end{tikzpicture}\par}
+% Slides that the live demo covers (skip them after a good demo): a DEMO
+% tag in the top-right corner, in place of the work tag. At the end of the
+% frame.
+\newcommand\demotag{\worktag[bad]{DEMO}}
 
-% \refs<overlay>{ref \\ ref \\ ...}: the slide's references, one per line,
-% in a box over the slide, revealed on the given overlay (one click after
-% the slide's own steps). At the end of the frame, like \slideref.
 \usetikzlibrary{shadows}
-\NewDocumentCommand\refs{D<>{2-} +m}{%
-  \only<#1>{%
-    \begin{tikzpicture}[overlay, remember picture, alt = {References: #2}]
-      \node[anchor = north, fill = white, draw = black!25,
-        rounded corners = 3pt, drop shadow, text width = 150mm,
-        align = left, font = \footnotesize, inner sep = 3mm]
-        at ($(current page.north) + (0, -16mm)$) {#2};
-    \end{tikzpicture}}\par}
+
+% Inside \slideref: the next reference starts on a new line (no \par: the
+% text also goes into the picture's alt text)
+\newcommand\rfsep{\\}
+% This deck's references sit a little lower than dcptalk's (4mm from the
+% bottom, not 7mm), to make room for one reference per line, under a short
+% rule that separates them from the slide's content (as for footnotes)
+\RenewDocumentCommand\slideref{+m}{%
+  \begin{tikzpicture}[overlay, remember picture, alt = {Reference: #1}]
+    \node[anchor = south west, font = \tiny, text width = 150mm,
+      align = left] at ($(current page.south west) + (10mm, 4mm)$)
+      {\textcolor{black!40}{\rule{25mm}{0.4pt}}\\[0.3ex] #1};
+  \end{tikzpicture}\par}
 
 % A short citation on its own line, in small grey type (timeline boxes)
 \newcommand\tlcite[1]{\\{\scriptsize\textcolor{gray}{#1}}}

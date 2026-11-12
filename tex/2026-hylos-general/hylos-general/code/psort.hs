@@ -1,4 +1,4 @@
 msort = hylo merge halves                -- the specification
-psort =  fb (fun (split n))     -- halve lists longer than n, feed back
-      || farm k (fun msort)     -- sort the short lists, k at a time
-      || fb (fun merge)         -- merge sorted lists, feed back
+split n xs | length xs > n = Left (halves xs)  -- halves: fed back
+           | otherwise     = Right xs          -- short: passed on
+psort =  fb (fun (split n)) || farm k (fun msort) || fb (fun merge)

@@ -149,8 +149,6 @@
         \textcolor{accent2}{a record per call, unless inlined} \\
       children as a function & laws are easy &
         \textcolor{accent2}{a closure per call} \\
-      memo table as a generic tree & dynamic-programming laws easy &
-        \textcolor{accent2}{a linked table, slow lookups} \\
     \end{tabular}
   \end{center}
   \textcolor{accent2}{Orange}: improved since ITP 2025.
@@ -163,13 +161,14 @@
 \end{frame}
 
 \begin{frame*}
-  \frametitle{Generic Code Is Not Clean Code}
-  Extracting the unreduced \code{hylo merge tsplit}:
+  \frametitle{Generic Code Is Not (Always) Clean Code}
+  Our generic \code{hylo merge tsplit}, extracted without inlining:
   \ocamlblock{raw-extr.ml}
   \callout<2->{14.5,8.2}{extra arguments at run time}{dict}
   \callout<3->{14,2.6}{a record per call}{rec}
-  \speakernote{Type-safe, but generic \\
-    Setoid and container dictionaries passed at run time \\
+  \speakernote{Not always: this is our generic hylo with Rocq's extraction,
+    not generic code in general \\
+    Type-safe, but setoid and container dictionaries passed at run time \\
     A record built and taken apart at every call \\
     ITP: inline by hand-picked hints; still closures (next)}
 \end{frame*}
@@ -180,13 +179,12 @@
   \begin{itemize}[<+->]
     \item Type-safe, no \code{Obj.magic}, the recursion of the
       specification.
-    \item But a \textbf{closure} per call; knapsack's table: a linked
-      structure.
+    \item But a \textbf{closure} per call: the children are passed as a
+      function.
   \end{itemize}
   \itptag
   \speakernote{Real output of the paper's version (Rocq 9 port) \\
     x0: the children as a function, a closure each call \\
-    Knapsack (paper): memo table as nested records, linear lookups \\
     Good, but not what you would write}
 \end{frame*}
 
@@ -259,7 +257,6 @@
   \callout<2->{14,7.6}{specification}{spec}
   \codebox<3->{lawsl}{laws}{lawsb}
   \callout<3->{15.5,3.3}{the laws}{laws}
-  \sincetag
   \demotag
   \speakernote{\code{Derive}: the program starts as an unknown \\
     The spec: quicksort, then double (Part I) \\
@@ -300,7 +297,6 @@
   \par\medskip
   The last line, extracted: \textbf{one pass}, doubling each pivot. No
   closures: the program from Part I, now with a proof.
-  \sincetag
   \demotag
   \speakernote{Real extraction output \\
     Point at the pivot: \code{mul 2 i} \\
@@ -342,11 +338,15 @@
     \end{tikzpicture}
   \end{center}
   \uncover<2->{A hylomorphism, but it \textbf{recomputes}: exponential.}
+  \par
+  \uncover<3->{The fix, a table of results: in ITP 2025 a linked structure
+    (slow lookups); since then, arrays ($O(1)$ lookups).}
   \sincetag
   \speakernote{Classic recurrence; items (2, 3), (3, 4), capacity 6 \\
     Red nodes: recomputed \\
     Fix: a table of results (dynamorphism, Hinze, Wu, Gibbons) \\
-    Since ITP: derived from this exponential hylo, by rewriting}
+    ITP 2025: the table as nested records, linear lookups; since: arrays,
+    and derived from this exponential hylo by rewriting}
 \end{frame}
 
 \begin{frame*}[vertical-alignment = top]

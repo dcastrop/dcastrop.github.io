@@ -21,9 +21,12 @@
     The question that starts the algebra of programming}
 \end{frame*}
 
-\begin{frame}
+\begin{frame}[vertical-alignment = top]
   \frametitle{Programs as Algebra}
-  \begin{center}
+  \vspace*{3mm}
+  Specify \emph{clearly}; \textbf{calculate} an efficient program;
+  every step is an \emph{equation}.
+  \par\medskip{\centering
     \begin{tikzpicture}[alt={A timeline of the algebra of programming.
         1978: Backus asks for an algebra of programs in his Turing lecture.
         1986 and 1987: Meertens and Bird, the Bird-Meertens formalism.
@@ -31,8 +34,8 @@
         and de Moor, the book Algebra of Programming. 2002: Gibbons,
         Calculating Functional Programs. 2020: Bird and Gibbons, Algorithm
         Design with Haskell.},
-      ev/.style = {box, font = \footnotesize, text width = 26mm,
-        align = center},
+      ev/.style = {box, font = \footnotesize, text width = 30mm,
+        align = center, execute at begin node = {\hyphenpenalty = 10000}},
       yr/.style = {font = \footnotesize\bfseries, inner sep = 1pt}]
       \draw[very thick, gray, ->] (-0.6, 0) -- (14.6, 0);
       % \s = 1: event above the line, year below; \s = -1: the other way
@@ -41,7 +44,7 @@
           0.65/1978/1/{\textbf{Backus}: ``an algebra of programs''
             \tlcite{CACM 1978}},
           3.15/1986--87/-1/{\textbf{Meertens}, \textbf{Bird}: the
-            Bird--Meertens formalism \tlcite{CWI 1986; NATO ASI 1987}},
+            Bird--Meertens formalism \tlcite{CWI'86; NATO ASI'87}},
           5.65/1991/1/{\textbf{Meijer}, \textbf{Fokkinga},
             \textbf{Paterson}: recursion schemes \tlcite{FPCA 1991}},
           8.15/1997/-1/{\textbf{Bird}, \textbf{de Moor}: \emph{Algebra of
@@ -54,15 +57,10 @@
         \else \def\ea{north}\def\ya{south}\fi
         \fill[accent] (\x, 0) circle (1.2mm);
         \node[yr, anchor = \ya] at (\x, -0.25 * \s) {\y};
-        \node[ev, anchor = \ea] (e\i) at (\x, 0.75 * \s) {\t};
+        \node[ev, anchor = \ea] (e\i) at (\x, 0.5 * \s) {\t};
         \draw[accent] (\x, 0.12 * \s) -- (e\i);
       }
-    \end{tikzpicture}
-  \end{center}
-  \begin{center}
-    Specify \emph{clearly}; \textbf{calculate} an efficient program;
-    every step is an \emph{equation}.
-  \end{center}
+    \end{tikzpicture}\par}
   \excerpt<2>{``Conventional programming languages are growing ever more
     enormous, but not stronger. [\ldots] Associated with the functional style
     of programming is an \textbf{algebra of programs} whose variables range
@@ -72,21 +70,17 @@
     high school algebra. These transformations are given by algebraic laws
     [\ldots]''}{J. Backus, Can Programming Be Liberated from the von Neumann
     Style? Turing Award lecture, CACM 21(8), 1978 (emphasis added)}
-  \refs<3>{J. Backus. Can Programming Be Liberated from the von Neumann
-    Style? CACM 1978.\\
-    L. Meertens. Algorithmics: Towards Programming as a Mathematical
-    Activity. 1986.\\
-    R. Bird. An Introduction to the Theory of Lists. 1987.\\
-    E. Meijer, M. Fokkinga, R. Paterson. Functional Programming with
-    Bananas, Lenses, Envelopes and Barbed Wire. FPCA 1991.\\
-    R. Bird, O. de Moor. Algebra of Programming. Prentice Hall, 1997.\\
-    J. Gibbons. Calculating Functional Programs. 2002.\\
-    R. Bird, J. Gibbons. Algorithm Design with Haskell. CUP, 2020.}
+  \slideref{J. Backus. \textbf{Can Programming Be Liberated from the von Neumann Style?} CACM 1978. \rfsep
+    R. Bird. \textbf{An Introduction to the Theory of Lists}. 1987. \rfsep
+    E. Meijer, M. Fokkinga, R. Paterson. \textbf{Functional Programming with Bananas, Lenses, Envelopes and Barbed Wire}. FPCA 1991. \rfsep
+    R. Bird, O. de Moor. \textbf{Algebra of Programming}. Prentice Hall, 1997. \rfsep
+    J. Gibbons. \textbf{Calculating Functional Programs}. 2002. \rfsep
+    R. Bird, J. Gibbons. \textbf{Algorithm Design with Haskell}. CUP, 2020.}
   \speakernote{Yes: the algebra of programming (program calculation) \\
     Backus: programs you can do algebra on \\
     Bird and Meertens: a notation and laws (Squiggol) \\
     Bird and de Moor; Gibbons; Bird and Gibbons: the textbooks \\
-    Click: Backus's abstract (1977 Turing lecture); click: references}
+    Click: Backus's abstract (1977 Turing lecture)}
 \end{frame}
 
 \begin{frame*}

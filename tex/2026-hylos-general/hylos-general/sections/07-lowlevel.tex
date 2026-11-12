@@ -89,14 +89,10 @@
     \item LoCal: types for locations and regions; parallel traversals;
       layouts chosen by a \textbf{cost model} (Marmoset).
   \end{itemize}
-  \refs<3>{M. Vollmer et al. Compiling Tree Transforms to Operate on Packed
-    Representations. ECOOP 2017.\\
-    M. Vollmer et al. LoCal: A Language for Programs Operating on Serialized
-    Data. PLDI 2019.\\
-    C. Koparkar et al. Efficient Tree-Traversals: Reconciling Parallelism
-    and Dense Data Representations. ICFP 2021.\\
-    V. Singhal et al. Optimizing Layout of Recursive Datatypes with
-    Marmoset. ECOOP 2024.}
+  \slideref{M. Vollmer et al. \textbf{Compiling Tree Transforms to Operate on Packed Representations}. ECOOP 2017. \rfsep
+    M. Vollmer et al. \textbf{LoCal: A Language for Programs Operating on Serialized Data}. PLDI 2019. \rfsep
+    C. Koparkar et al. \textbf{Efficient Tree-Traversals: Reconciling Parallelism and Dense Data Representations}. ICFP 2021. \rfsep
+    V. Singhal et al. \textbf{Optimizing Layout of Recursive Datatypes with Marmoset}. ECOOP 2024.}
   \speakernote{Michael Vollmer's line of work (Gibbon compiler) \\
     Pointer trees: allocation, poor locality \\
     Serialised: one buffer, read in order \\
@@ -149,9 +145,7 @@
     \item \textbf{Thm 5.3}: extra state found for the outer loop works for
       the whole nest.
   \end{itemize}
-  \refs<4>{A. Farzan, V. Nicolet. Modular Divide-and-Conquer
-    Parallelization of Nested Loops. PLDI 2019.\\
-    (Extended version: arXiv 1904.01031.)}
+  \slideref{A. Farzan, V. Nicolet. \textbf{Modular Divide-and-Conquer Parallelization of Nested Loops}. PLDI 2019.}
   \speakernote{Read-only multidimensional data; a loop nest computes a
     function \\
     Summarise the inner loop, then parallelise the outer one \\
@@ -249,6 +243,48 @@
 \end{frame}
 
 \begin{frame}
+  \frametitle{Untrusted Search, Trusted Checking}
+  \begin{center}
+    \begin{tikzpicture}[alt={A specification and a cost model go into a
+        search, which may use heuristics, equality saturation or a learned
+        model, and is not trusted. It proposes a chain of laws. Rocq checks
+        the chain, and the result is printed as low-level code. A wrong
+        proposal is rejected.},
+      stage/.style = {minimum height = 12mm, text width = 24mm,
+        align = center}]
+      \node[box, stage] (s) {specification\\ + cost model};
+      \node[box, stage, right = 8mm of s, draw = bad, fill = bad!6] (q)
+        {\textbf{search}\\ \small heuristics, e-graphs, ML};
+      \node[box, stage, right = 22mm of q, draw = good, fill = good!8] (r)
+        {\textbf{Rocq checks}\\ \small each step};
+      \node[hot, stage, right = 8mm of r] (o) {low-level code};
+      \draw[->, thick] (s) -- (q);
+      \draw[->, thick] (q) -- node[above, note, align = center]
+        {chain of\\ laws} (r);
+      \draw[->, thick] (r) -- (o);
+      \node[note, below = 2mm of q, text = bad] {untrusted};
+      \node[note, below = 2mm of r, text = good] {trusted, small};
+      % the same path, invisible, so the picture keeps its size
+      \path (r.north) to[bend right = 30]
+        node[above, note, opacity = 0] {rejected: try again} (q.north);
+      \uncover<2->{
+        \draw[->, thick, bad, dashed] (r.north) to[bend right = 30]
+          node[above, note, text = bad] {rejected: try again} (q.north);
+      }
+    \end{tikzpicture}
+  \end{center}
+  \begin{itemize}
+    \item The derivation is a \textbf{certificate}.
+    \item<2-> The cost model of ICFP 2016, Marmoset's layouts, ParSynt's
+      synthesis: all \textbf{search}.
+  \end{itemize}
+  \ongoingtag
+  \speakernote{Search: heuristics, e-graphs, or an ML model \\
+    Rocq checks the chain of laws; wrong proposals rejected \\
+    Everything clever so far is search: keep it, check its answer}
+\end{frame}
+
+\begin{frame}
   \frametitle{Where We Are}
   \begin{center}
     \begin{tikzpicture}[alt={An index range from 0 to n is split into four
@@ -292,46 +328,4 @@
     Done: exact-cover splits, machine integers, buffers, tree reductions,
     writes; materialising into a buffer defined, no laws yet \\
     Not yet: buffer laws, exactly-once, nesting, target, cost model}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Untrusted Search, Trusted Checking}
-  \begin{center}
-    \begin{tikzpicture}[alt={A specification and a cost model go into a
-        search, which may use heuristics, equality saturation or a learned
-        model, and is not trusted. It proposes a chain of laws. Rocq checks
-        the chain, and the result is printed as low-level code. A wrong
-        proposal is rejected.},
-      stage/.style = {minimum height = 12mm, text width = 24mm,
-        align = center}]
-      \node[box, stage] (s) {specification\\ + cost model};
-      \node[box, stage, right = 8mm of s, draw = bad, fill = bad!6] (q)
-        {\textbf{search}\\ \small heuristics, e-graphs, ML};
-      \node[box, stage, right = 22mm of q, draw = good, fill = good!8] (r)
-        {\textbf{Rocq checks}\\ \small each step};
-      \node[hot, stage, right = 8mm of r] (o) {low-level code};
-      \draw[->, thick] (s) -- (q);
-      \draw[->, thick] (q) -- node[above, note, align = center]
-        {chain of\\ laws} (r);
-      \draw[->, thick] (r) -- (o);
-      \node[note, below = 2mm of q, text = bad] {untrusted};
-      \node[note, below = 2mm of r, text = good] {trusted, small};
-      % the same path, invisible, so the picture keeps its size
-      \path (r.north) to[bend right = 30]
-        node[above, note, opacity = 0] {rejected: try again} (q.north);
-      \uncover<2->{
-        \draw[->, thick, bad, dashed] (r.north) to[bend right = 30]
-          node[above, note, text = bad] {rejected: try again} (q.north);
-      }
-    \end{tikzpicture}
-  \end{center}
-  \begin{itemize}
-    \item The derivation is a \textbf{certificate}.
-    \item<2-> The cost model of ICFP 2016, Marmoset's layouts, ParSynt's
-      synthesis: all \textbf{search}.
-  \end{itemize}
-  \ongoingtag
-  \speakernote{Search: heuristics, e-graphs, or an ML model \\
-    Rocq checks the chain of laws; wrong proposals rejected \\
-    Everything clever so far is search: keep it, check its answer}
 \end{frame}

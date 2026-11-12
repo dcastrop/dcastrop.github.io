@@ -36,16 +36,13 @@
   \end{center}
   \uncover<2->{All equal to \code{msort}. Which $n$ and $k$ are
     \textbf{fastest} on this machine?}
-  \refs<3>{D. Castro, K. Hammond, S. Sarkar. Farms, Pipes, Streams and
-    Reforestation: Reasoning about Structured Parallel Processes using Types
-    and Hylomorphisms. ICFP 2016.}
+  \slideref{D. Castro, K. Hammond, S. Sarkar. \textbf{Farms, Pipes, Streams and Reforestation: Reasoning about Structured Parallel Processes using Types and Hylomorphisms}. ICFP 2016.}
   \icfptag
   \speakernote{Skeletons: reusable parallel patterns; fb = feedback, farm
     = replicated workers, || = pipeline \\
     Split stage: an unfold as a loop; merge stage: a fold as a loop \\
     Same result as mergesort, many choices of n and k \\
-    Two questions: is it equal? which is fastest? \\
-    Click: reference}
+    Two questions: is it equal? which is fastest?}
 \end{frame*}
 
 \begin{frame*}
@@ -147,6 +144,7 @@
     \item A \textbf{cost model} picks the structure, the chunk size $n$ and
       the numbers of workers.
   \end{itemize}
+  \slideref{D. Castro, K. Hammond, S. Sarkar, Y. Alguwaifli. \textbf{Automatically Deriving Cost Models for Structured Parallel Processes Using Hylomorphisms}. FGCS 2018.}
   \icfptag
   \speakernote{Reforestation: deforestation backwards, put the tree back
     to expose stages \\

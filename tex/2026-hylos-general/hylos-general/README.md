@@ -69,7 +69,7 @@ separate interlude.
 | `04-interlude.tex`       | ICFP 2016: a three-stage parallel sort (feedback, farm, feedback), skeletons and their types, reforestation and cost, what was missing (other unverified tools) | 5 |
 | `05-mechanising.tex`     | Part II: program calculation in proof assistants, the gap               | 4   |
 | `06-rocq.tex`            | why not just write `hylo`, obstacles; ITP 2025 (generic trees, termination, laws, proofs vs code, generic and ITP extraction, the price of our choices); since ITP 2025 (demo and the slides it covers, knapsack, associative combiners) | 15 |
-| `07-lowlevel.tex`        | Part III: two ways out of Rocq, Gibbon and packed traversals, Farzan and Nicolet's nested loops, the same story with hylos, why mechanised, representation-changing laws, where we are, untrusted search | 10 |
+| `07-lowlevel.tex`        | Part III: two ways out of Rocq, Gibbon and packed traversals, Farzan and Nicolet's nested loops, the same story with hylos, why mechanised, representation-changing laws, untrusted search, where we are | 10 |
 | `08-wrapup.tex`          | summary, thanks                                                         | 1   |
 
 Frames that belong to one piece of work carry a tag in the top-right
@@ -77,19 +77,17 @@ corner: "ICFP 2016", "ITP 2025", "since ITP 2025", or "ongoing"
 (`\icfptag`, `\itptag`, `\sincetag`, `\ongoingtag` in `preamble.tex`). The
 "Proofs or Code?" table marks in orange the code costs fixed since ITP 2025.
 
-References are revealed one click after a slide's own steps, in a box over
-the slide, one per line, with no heading (`\refs<n>{ref \\ ref}` in
-`preamble.tex`; `n` is the slide's last step plus one). `\excerpt<n>{quote}{source}`
-shows a quotation the same way (Backus's abstract on "Programs as Algebra",
-verbatim from the CACM printing, with "[...]" for cuts and the bold marked as
-added); `\tlcite` adds a short grey citation inside a timeline box.
+References are a small line at the bottom of the slide (`\slideref`).
+`\excerpt<n>{quote}{source}` shows a quotation over the slide on step `n`
+(Backus's abstract on "Programs as Algebra", verbatim from the CACM
+printing, with "[...]" for cuts and the bold marked as added); `\tlcite` adds a short grey citation inside a timeline box.
 
 Slides the live demo covers ("A Calculation in Rocq", "Quicksort, Step by
-Step", "Quicksort: What Comes Out") say "covered by the demo" in the
-bottom-right corner (`\demotag`); skip them after a good demo.
+Step", "Quicksort: What Comes Out") carry a red "DEMO" tag in the top-right
+corner instead of a work tag (`\demotag`); skip them after a good demo.
 
 If running long, skip: "Extensions", "Where Hylomorphisms Come From",
-"Generic Code Is Not Clean Code", "Dynamic Programming: Knapsack", "Laws
+"Generic Code Is Not (Always) Clean Code", "Dynamic Programming: Knapsack", "Laws
 That Change Representation", "Untrusted Search, Trusted Checking".
 
 ## Code snippets
@@ -107,15 +105,14 @@ conquer slide, then one switch to Haskell.
   the packed sum). `hylo` takes `conquer` first, as in Haskell and Rocq.
   `torch-fusion.py` is PyTorch (not run). `packed-hylo.py` is our reading of
   packed traversals, not Gibbon's formulation.
-- Haskell (`*.hs`): `hylo-qsort.hs`, `hom.hs`, `conquer2` in
-  `qsort-calc.hs` and both definitions in `third-sort.hs` typecheck with
-  GHC and were tested (qsort sorts, the fused doubling equals
-  sort-then-double, `hom` sums and keeps order, both insertion sorts sort).
+- Haskell (`*.hs`): `hylo-qsort.hs`, `hom.hs` and `conquer2` in
+  `qsort-calc.hs` typecheck with GHC and were tested (qsort sorts, the
+  fused doubling equals sort-then-double, `hom` sums and keeps order).
   `qsort-calc.hs` and `psort-calc.hs` are Bird-style calculations
-  (`=  { law }` between terms); `listhom.hs` and `third.hs` state
-  equations; `psort.hs` is skeleton pseudo-code. In `third.hs`, `stepL` and
-  `stepR` need not be associative: the theorem constructs the associative
-  `combine`. The calculation in `psort-calc.hs` was checked on small inputs
+  (`=  { law }` between terms); `listhom.hs` states an equation;
+  `psort.hs` and `psort2.hs` are skeleton pseudo-code. The third
+  homomorphism theorem is shown as a diagram, with the precise statement
+  in the speaker notes. The calculation in `psort-calc.hs` was checked on small inputs
   (folding the sorted chunks of the cut tree with `merge` equals mergesort
   for several chunk sizes); it relies on `merge` being associative and
   commutative on sorted lists.

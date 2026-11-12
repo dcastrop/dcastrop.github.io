@@ -1,6 +1,6 @@
 def qsort(xs):
-    if not xs:
-        return []
+    ^\tikzmark{ea}^if not xs:
+        return []^\tikzmark{eb}^
     ^\tikzmark{dl}^^\tikzmark{pa}^p^\tikzmark{pb}^, rest = xs[0], xs[1:]
     left  = [x for x in rest if x < p]
     right = [x for x in rest if x >= p]^\tikzmark{dr}^

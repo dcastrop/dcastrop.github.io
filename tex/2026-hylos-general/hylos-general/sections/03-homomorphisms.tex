@@ -24,13 +24,11 @@
     cache-sized blocks), not a correctness one.
   \end{onlyenv}
   \par
-  \refs<4>{R. Bird. An Introduction to the Theory of Lists. Logic of
-    Programming and Calculi of Discrete Design, 1987.}
+  \slideref{R. Bird. \textbf{An Introduction to the Theory of Lists}. Logic of Programming and Calculi of Discrete Design, 1987.}
   \speakernote{Split anywhere, solve the pieces, combine \\
     sum, max, sort all qualify; first theorem (Bird): map then reduce \\
     Scheduling: the runtime picks the split for speed; correctness is
-    settled once \\
-    Click: reference}
+    settled once}
 \end{frame*}
 
 \begin{frame*}
@@ -47,38 +45,76 @@
     val alone is not enough: needs scale; same in Spark, OpenMP}
 \end{frame*}
 
-\begin{frame*}[vertical-alignment = top]
+\begin{frame}[vertical-alignment = top]
   \frametitle{The Third Homomorphism Theorem}
-  \vspace*{4mm}
-  \hsblock{third.hs}
-  \begin{onlyenv}<2->
-    \hsblock{third-sort.hs}
-    Insertion sort, $O(n^2)$ $\Longrightarrow$ mergesort, $O(n \log n)$.
-  \end{onlyenv}
-  \par
-  \refs<3>{J. Gibbons. The Third Homomorphism Theorem. Journal of
-    Functional Programming, 1996.\\
-    (Conjectured by R. Bird, proved by L. Meertens, 1989.)}
-  \speakernote{foldl: the loop from the left; foldr: the same from the
-    right \\
-    stepL, stepR: one element at a time, need not be associative \\
-    Both loops exist: then an associative combine exists, built from h and
-    g (an example input for each result) \\
-    Insertion sort both ways, g = id; calculate merge: mergesort for free \\
+  \vspace*{2mm}
+  \begin{center}
+    \begin{tikzpicture}[alt={A list split into xs and ys. A loop from the
+        left reads xs, remembering only h of xs, then continues with ys. A
+        loop from the right reads ys, remembering only h of ys, then
+        continues with xs. So h of the whole list depends only on h of xs
+        and h of ys.},
+      seg/.style = {box, minimum width = 44mm, minimum height = 7mm,
+        font = \ttfamily},
+      state/.style = {hot, font = \small\ttfamily, inner sep = 2pt},
+      lane/.style = {->, very thick},
+      rest/.style = {->, thick, dashed},
+      lbl/.style = {note, anchor = east}]
+      \node[seg] (xs) at (0, 0) {xs};
+      \node[seg, right = 0mm of xs] (ys) {ys};
+      \uncover<2->{
+        \draw[lane, accent] ([yshift = 8mm]xs.west) -- ([yshift = 8mm]xs.east)
+          node[state, anchor = south] {h xs};
+        \draw[rest, accent] ([yshift = 8mm]xs.east) -- ([yshift = 8mm]ys.east);
+        \node[lbl] at ([yshift = 8mm, xshift = -2mm]xs.west) {from the left};
+      }
+      \uncover<3->{
+        \draw[lane, accent2] ([yshift = -8mm]ys.east) --
+          ([yshift = -8mm]ys.west) node[state, anchor = north] {h ys};
+        \draw[rest, accent2] ([yshift = -8mm]ys.west) --
+          ([yshift = -8mm]xs.west);
+        \node[lbl] at ([yshift = -8mm, xshift = -2mm]xs.west)
+          {from the right};
+      }
+    \end{tikzpicture}
+  \end{center}
+  \begin{itemize}
+    \item<2-> A loop from the left remembers only \code{h xs}: so
+      \code{h (xs ++ ys)} needs only \code{h xs} and \code{ys}.
+    \item<3-> A loop from the right: only \code{xs} and \code{h ys}.
+    \item<4-> Together: only \code{h xs} and \code{h ys}. That is the
+      \textbf{combiner}, and it is associative, as \code{++} is.
+  \end{itemize}
+  \uncover<5->{Insertion sort runs both ways, so sorting has a combiner:
+    \code{merge}. Insertion sort, $O(n^2)$ $\Longrightarrow$ mergesort,
+    $O(n \log n)$.}
+  \slideref{J. Gibbons. \textbf{The Third Homomorphism Theorem}. JFP 1996. (Conjectured by Bird, proved by Meertens, 1989.)}
+  \speakernote{Precisely: h = foldl stepL e = foldr stepR e; loop steps
+    take one element, need not be associative \\
+    Left loop: h (xs ++ ys) = foldl stepL (h xs) ys; right loop: foldr stepR
+    (h ys) xs \\
+    So h xs = h xs', h ys = h ys' give equal results: a combiner exists \\
+    Compute it: combine a b = h (g a ++ g b), g a: any list with result a
+    (no circularity) \\
     Bird conjectured, Meertens proved it on a train; Gibbons published}
-\end{frame*}
+\end{frame}
 
 \begin{frame*}
   \frametitle{Homomorphisms Are Divide and Conquer}
-  \hsblock{hom.hs}
-  \speakernote{The divide step: split in the middle \\
-    The conquer step: the combiner \\
-    Balanced call tree, depth log n: parallel \\
-    Divide by splitting off the first element instead: a loop}
+  \hsblock[before upper = {\fvset{fontsize = \footnotesize}}]{hom.hs}
+  \begin{itemize}[<+->]
+    \item \textbf{Any} cut gives the same result (\code{combine} is
+      associative): the cut is a \textbf{scheduling} choice, for
+      performance only.
+  \end{itemize}
+  \speakernote{A homomorphism is a hylo whose divide step is a parameter \\
+    splitBy: the leaves, and any cut that keeps the order \\
+    halves: balanced, depth log n, parallel; heads: a loop \\
+    Same answer for every cut: pick the cut for the machine}
 \end{frame*}
 
 \begin{frame}
-  \frametitle{Same Combiner, Another Split}
+  \frametitle{Same Combiner, Another Cut}
   \begin{center}
     \begin{tikzpicture}[alt={Two call trees for the same combiner on four
         elements: a list-shaped tree of depth four, which splits off the
@@ -95,7 +131,7 @@
               child {node {$x_3$}}}};
       \end{scope}
       \node[draw = none, fill = none, note] at (0, 0.8)
-        {split off the first: a loop};
+        {\code{heads}: a loop};
       \node[draw = none, fill = none, font = \Large] at (35mm, -1.2)
         {$=$};
       \begin{scope}[xshift = 70mm, level distance = 10mm,
@@ -106,20 +142,23 @@
           child {node {$\oplus$} child {node {$x_2$}} child {node {$x_3$}}};
       \end{scope}
       \node[draw = none, fill = none, note] at (70mm, 0.8)
-        {split in halves: parallel};
+        {\code{halves}: parallel};
     \end{tikzpicture}
   \end{center}
   \begin{itemize}[<+->]
-    \item Same leaves, same order, associative $\oplus$: \textbf{same
-      result}. We may \textbf{change how we divide}.
-    \item The third theorem \textbf{constructs} such an $\oplus$ from two
-      loops whose steps need not be associative.
+    \item The loops of the third theorem are hylos too, with fixed cuts
+      (\code{foldl}: the last element; \code{foldr}: the first) and steps
+      that need not be associative.
+    \item Why we care: write two \textbf{sequential} programs and prove they
+      agree; from that proof, the theorem \textbf{calculates} the parallel
+      one (an associative combiner, any cut).
   \end{itemize}
-  \speakernote{Left: a loop, depth n. Right: depth log n \\
+  \speakernote{Left: heads, depth n; right: halves, depth log n \\
     Associativity of the combiner makes them equal \\
-    The loop steps (accumulator, element) are not associative; the theorem
-    builds the associative combine \\
-    Remember this: changing the divide step comes back at the end}
+    foldl, foldr: hylos with a fixed cut and a non-associative step \\
+    Third theorem: a proof that the two loops agree yields the parallel
+    program (associative combine, any cut), by calculation \\
+    Remember: changing the divide step comes back at the end}
 \end{frame}
 
 \begin{frame}
@@ -141,25 +180,8 @@
         loops \\
     \end{tabular}
   \end{center}
-  \refs<2>{R. Bird. An Introduction to the Theory of Lists. 1987.\\
-    J. Gibbons. The Third Homomorphism Theorem. JFP 1996.\\
-    S. Gorlatch. Systematic Efficient Parallelization of Scan and Other
-    List Homomorphisms. Euro-Par 1996.\\
-    Z. Hu, H. Iwasaki, M. Takeichi. Formal Derivation of Efficient Parallel
-    Programs by Construction of List Homomorphisms. TOPLAS 1997.\\
-    K. Morita, A. Morihata, K. Matsuzaki, Z. Hu, M. Takeichi. Automatic
-    Inversion Generates Divide-and-Conquer Parallel Programs. PLDI 2007.\\
-    A. Morihata, K. Matsuzaki, Z. Hu, M. Takeichi. The Third Homomorphism
-    Theorem on Trees. POPL 2009.\\
-    S.-C. Mu, A. Morihata. Generalising and Dualising the Third
-    List-Homomorphism Theorem. ICFP 2011.\\
-    A. Farzan, V. Nicolet. Synthesis of Divide and Conquer Parallelism for
-    Loops. PLDI 2017.\\
-    A. Farzan, V. Nicolet. Modular Divide-and-Conquer Parallelization of
-    Nested Loops. PLDI 2019.}
   \speakernote{From pen-and-paper theorems to tools \\
     Extra state = lifting, as in the Java example (tupling) \\
     Morita et al.: derive g by program inversion \\
-    Farzan and Nicolet: program synthesis for loops; back in Part III \\
-    Click: references}
+    Farzan and Nicolet: program synthesis for loops; back in Part III}
 \end{frame}
