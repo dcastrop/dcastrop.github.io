@@ -47,11 +47,12 @@ arguments dropped), `knap-calc.v` (steps 1 and 2; step 1's proof left out).
 Extraction` of the unreduced `hylo merge tsplit`.
 
 Shared with the other hylomorphism talk, and kept identical (check with
-`python3 ../../check-hylos-sync.py` from `tex/`): `template/dcptalk.sty`, the
-code files `sort-times-two.ml`, `qsort2.ml`, `qsort-steps.v`, `knap-steps.v`,
-`knap-arr.ml`, `knap-jump.ml`, `knap-derive.v`, the quicksort `Derive`, and the
-frames "Quicksort, Step by Step", "Knapsack, Step by Step" and "Knapsack: What
-Comes Out".
+`python3 check-hylos-sync.py` in `tex/`): `template/dcptalk.sty`, the
+code files `rocqlexer.py`, `qsort2.ml`, `qsort-steps.v`, `knap-steps.v`,
+`naive-cont.v`, `naive-extr.ml`, `naive-eq.txt`, `cont-class.v`, `recf.v`, `hylo-def.v`,
+`hylo-laws.v`, `raw-extr.ml`, `malg.v`, `malg-fusion.v`, the quicksort
+`Derive`, and the frames "Quicksort, Step by Step" (the general deck adds a
+`\demotag`) and "Knapsack, Step by Step".
 
 All checked against rocq-hylomorphisms 0bd54f8 (2026-10-22, pushed; the
 local changes on top are build and warning settings only), in

@@ -1,0 +1,120 @@
+% Part I, program calculation (files 01 to 04, about 20 min). For a
+% general CS audience: Python first, then one switch to Haskell (02).
+\partframe{Part I}{Program Calculation}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Rewrite Rules You Already Trust}
+  \vspace*{4mm}
+  A database optimiser:
+  \mainblock{sql-pushdown.sql}
+  An ML compiler:
+  \mainblock{torch-fusion.py}
+  \begin{itemize}
+    \item<2-> Fixed rules, \textbf{trusted}, not proved: a wrong one
+      miscompiles \emph{silently}.
+    \item<3-> Could we do this for \textbf{our own} programs, with laws
+      that are \textbf{proved}?
+  \end{itemize}
+  \speakernote{SQL: predicate pushdown, a law of relational algebra \\
+    PyTorch / XLA: element-wise ops fused into one kernel \\
+    Equal programs, pick the cheaper; rules are trusted (security!) \\
+    The question that starts the algebra of programming}
+\end{frame*}
+
+\begin{frame}
+  \frametitle{Programs as Algebra}
+  \begin{center}
+    \begin{tikzpicture}[alt={A timeline of the algebra of programming.
+        1978: Backus asks for an algebra of programs in his Turing lecture.
+        1986 and 1987: Meertens and Bird, the Bird-Meertens formalism.
+        1991: Meijer, Fokkinga and Paterson, recursion schemes. 1997: Bird
+        and de Moor, the book Algebra of Programming. 2002: Gibbons,
+        Calculating Functional Programs. 2020: Bird and Gibbons, Algorithm
+        Design with Haskell.},
+      ev/.style = {box, font = \footnotesize, text width = 26mm,
+        align = center},
+      yr/.style = {font = \footnotesize\bfseries, inner sep = 1pt}]
+      \draw[very thick, gray, ->] (-0.6, 0) -- (14.6, 0);
+      % \s = 1: event above the line, year below; \s = -1: the other way
+      % each box: who and what, then a short citation (\tlcite)
+      \foreach \x/\y/\s/\t [count = \i] in {
+          0.65/1978/1/{\textbf{Backus}: ``an algebra of programs''
+            \tlcite{CACM 1978}},
+          3.15/1986--87/-1/{\textbf{Meertens}, \textbf{Bird}: the
+            Bird--Meertens formalism \tlcite{CWI 1986; NATO ASI 1987}},
+          5.65/1991/1/{\textbf{Meijer}, \textbf{Fokkinga},
+            \textbf{Paterson}: recursion schemes \tlcite{FPCA 1991}},
+          8.15/1997/-1/{\textbf{Bird}, \textbf{de Moor}: \emph{Algebra of
+            Programming} \tlcite{Prentice Hall 1997}},
+          10.65/2002/1/{\textbf{Gibbons}: \emph{Calculating Functional
+            Programs} \tlcite{LNCS 2297, 2002}},
+          13.15/2020/-1/{\textbf{Bird}, \textbf{Gibbons}: \emph{Algorithm
+            Design with Haskell} \tlcite{CUP 2020}}} {
+        \ifnum\s=1 \def\ea{south}\def\ya{north}%
+        \else \def\ea{north}\def\ya{south}\fi
+        \fill[accent] (\x, 0) circle (1.2mm);
+        \node[yr, anchor = \ya] at (\x, -0.25 * \s) {\y};
+        \node[ev, anchor = \ea] (e\i) at (\x, 0.75 * \s) {\t};
+        \draw[accent] (\x, 0.12 * \s) -- (e\i);
+      }
+    \end{tikzpicture}
+  \end{center}
+  \begin{center}
+    Specify \emph{clearly}; \textbf{calculate} an efficient program;
+    every step is an \emph{equation}.
+  \end{center}
+  \excerpt<2>{``Conventional programming languages are growing ever more
+    enormous, but not stronger. [\ldots] Associated with the functional style
+    of programming is an \textbf{algebra of programs} whose variables range
+    over programs and whose operations are combining forms. This algebra can
+    be used to \textbf{transform programs} and to solve equations whose
+    `unknowns' are programs in much the same way one transforms equations in
+    high school algebra. These transformations are given by algebraic laws
+    [\ldots]''}{J. Backus, Can Programming Be Liberated from the von Neumann
+    Style? Turing Award lecture, CACM 21(8), 1978 (emphasis added)}
+  \refs<3>{J. Backus. Can Programming Be Liberated from the von Neumann
+    Style? CACM 1978.\\
+    L. Meertens. Algorithmics: Towards Programming as a Mathematical
+    Activity. 1986.\\
+    R. Bird. An Introduction to the Theory of Lists. 1987.\\
+    E. Meijer, M. Fokkinga, R. Paterson. Functional Programming with
+    Bananas, Lenses, Envelopes and Barbed Wire. FPCA 1991.\\
+    R. Bird, O. de Moor. Algebra of Programming. Prentice Hall, 1997.\\
+    J. Gibbons. Calculating Functional Programs. 2002.\\
+    R. Bird, J. Gibbons. Algorithm Design with Haskell. CUP, 2020.}
+  \speakernote{Yes: the algebra of programming (program calculation) \\
+    Backus: programs you can do algebra on \\
+    Bird and Meertens: a notation and laws (Squiggol) \\
+    Bird and de Moor; Gibbons; Bird and Gibbons: the textbooks \\
+    Click: Backus's abstract (1977 Turing lecture); click: references}
+\end{frame}
+
+\begin{frame*}
+  \frametitle{A Specification and a Program}
+  \mainblock{sumsq.py}
+  \begin{itemize}[<+->]
+    \item Equal, by a \textbf{law}: summing a mapped list is one loop
+      (\emph{fusion}).
+    \item Laws are proved once; the program is \textbf{correct by
+      construction}.
+  \end{itemize}
+  \speakernote{Top: obviously right, but a temporary list \\
+    Bottom: what we want to run \\
+    Not tested equal: derived by a law, proved once}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{The Law Behind It}
+  Both programs are instances of one loop pattern, and the law is about
+  the pattern:
+  \mainblock{fold.py}
+  \mainblock{fold-fusion.py}
+  \begin{itemize}
+    \item<2-> Laws like this follow from one fact: \code{fold} is the
+      \textbf{only} solution of its defining equations.
+  \end{itemize}
+  \speakernote{fold = reduce: an accumulator loop \\
+    sum, count, max: same loop, different step \\
+    Fusion: why the two programs are equal \\
+    Uniqueness: the universal property, proof engine of the theory}
+\end{frame*}

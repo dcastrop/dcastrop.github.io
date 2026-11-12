@@ -1,0 +1,59 @@
+% Part II, mechanising program calculation (files 05 and 06, about
+% 20 min): a short survey and the gap
+\partframe{Part II}{Mechanising Program Calculation}
+
+\begin{frame}
+  \frametitle{Program Calculation in Proof Assistants}
+  \begin{center}
+    \small
+    \renewcommand\arraystretch{1.3}
+    \begin{tabular}{@{}>{\raggedright}p{62mm}l
+      >{\raggedright\arraybackslash}p{64mm}@{}}
+      \textbf{Work} & & \textbf{Problems} \\ \hline
+      Mu, Ko, Jansson, JFP'09 & Agda & extraction not discussed \\
+      Tesson et al., AMAST'10 & Coq/Rocq & lists only \\
+      Emoto et al., ITP'14; Loulergue et al., IJPP'17 & Coq/Rocq & lists only
+        \\
+      Sculthorpe, Hutton, JFP'14 & Agda & one optimisation
+        (worker/wrapper) \\
+      Murata, Emoto, APLAS'19 & Coq/Rocq & no divide and conquer; extra axioms
+        \\
+      Larchey-Wendling, Monin, 2022 & Coq/Rocq & one algorithm at a time \\
+      Abreu et al., POPL'23 & Coq/Rocq & extraction produces non-idiomatic,
+        hard-to-understand code \\
+    \end{tabular}
+  \end{center}
+  \speakernote{Agda AoPA: relational derivations, no extraction \\
+    Tesson et al., SyDPaCC: list homomorphisms in Coq/Rocq, parallel OCaml
+    (BSML) \\
+    Murata and Emoto: schemes, but funext and no hylos; Braga: per
+    algorithm \\
+    Abreu et al.: termination by typing; funext, impredicative Set; casts}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Gap}
+  \vfill
+  \begin{center}
+    \begin{minipage}{.8\textwidth}
+      \begin{sticky}
+        \textbf{Wanted}: hylomorphisms in a proof assistant,
+        \begin{itemize}
+          \item<2-> for \textbf{any} data type, and recursion the
+            prover cannot see terminates,
+          \item<3-> with the laws as \textbf{regular equalities},
+          \item<4-> with \textbf{no axioms},
+          \item<5-> extracting \textbf{clean, runnable} code.
+        \end{itemize}
+      \end{sticky}
+    \end{minipage}
+  \end{center}
+  \vfill
+  \uncover<6->{So far: lists only, or no divide and conquer, or extra
+    axioms, or no code.}
+  \speakernote{Generic: any polynomial shape, divide and conquer \\
+    Laws as regular equalities: rewrite with them, as on paper \\
+    No axioms: results hold in plain Rocq \\
+    Clean code: what you would write by hand, no casts \\
+    Each earlier work misses at least one}
+\end{frame}

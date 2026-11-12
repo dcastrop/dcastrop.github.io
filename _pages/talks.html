@@ -20,13 +20,21 @@ author_profile: true
   {% endif %}
   {% elsif post.draft %}Draft
   {% endif %}<br>
-  <i>{% if post.upcoming %}Upcoming{% else %}{{ post.date | date: "%-d %B %Y" }}{% endif %}</i>
+  <i>{% if post.upcoming %}Upcoming: {% endif %}{{ post.date | date: "%-d %B %Y" }}</i>
   <br>
   {% if post.slides %}
     <a href="{{ base_path }}{{ post.url }}" rel="permalink">[slides]</a>
   {% elsif post.latex%}
     <a href="{{ post.latex | relative_url }}/slides.pdf">[slides]</a>
     <a href="{{ post.latex | relative_url }}/slides.tgz">[LaTeX source]</a>
+  {% endif %}
+  {% comment %} abstract: Markdown in the talk's front matter (not its body:
+     the slide layout turns the body into reveal.js slides) {% endcomment %}
+  {% if post.abstract %}
+  <details>
+    <summary style="cursor: pointer;">[abstract]</summary>
+    {{ post.abstract | markdownify }}
+  </details>
   {% endif %}
   <br><br>
 {% endfor %}

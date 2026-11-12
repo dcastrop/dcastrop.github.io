@@ -1,0 +1,2 @@
+Print Assumptions ext_inj.  Axioms: Eq_rect_eq.eq_rect_eq   (axiom K)
+Print Assumptions fmap_id.  Axioms: functional_extensionality_dep

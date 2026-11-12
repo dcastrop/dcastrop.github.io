@@ -1,0 +1,9 @@
+_RocqProject
+*.vo
+*.vok
+*.vos
+*.glob
+.*.aux
+.lia.cache
+.nia.cache
+.coq-native/

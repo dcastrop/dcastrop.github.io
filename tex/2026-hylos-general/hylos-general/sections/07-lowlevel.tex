@@ -1,0 +1,337 @@
+% Part III, mechanising low-level program calculation: ~10 min
+\partframe{Part III}{Mechanising Low-Level Program Calculation}
+
+\begin{frame}[vertical-alignment = top]
+  \frametitle{Two Ways Out of Rocq}
+  \vspace*{10mm}
+  \begin{center}
+    \begin{tikzpicture}[alt={A specification is calculated by laws into
+        a high-level program. Today, the high-level program is extracted to
+        OCaml, relying on garbage-collected lists and trees, closures and
+        boxed integers. The goal: more laws take the high-level program down
+        to a low-level form, which is printed directly as low-level code
+        with flat buffers, loops, machine integers, no allocation, and
+        parallel hardware. The specification, the high-level program and the
+        low-level form sit in a box labelled verified in Rocq.},
+      stage/.style = {box, minimum height = 10mm, text width = 24mm,
+        align = center},
+      lbl/.style = {font = \bfseries},
+      rocq/.style = {draw = accent, fill = accent!6, rounded corners = 6pt,
+        thick, inner xsep = 3mm, inner ysep = 6mm}]
+      \node[stage] (s) at (0, 0) {specification};
+      \node[stage, draw = good, fill = good!8] (h) at (4.6, 0)
+        {high-level program};
+      \node[stage, right = 20mm of h] (o) {OCaml};
+      \node[lbl, above = 1mm of o] {today};
+      \draw[->, thick] (s) -- node[above, note] {laws} (h);
+      \draw[->, thick] (h) -- node[pos = .6, above, note] {extract} (o);
+      \node[note, right = 3mm of o, align = left, text width = 28mm]
+        {GC'd lists, trees,\\ closures,\\ boxed integers};
+      \uncover<2->{
+        \node[stage, draw = good, fill = good!8] (lf) at (4.6, -2.6)
+          {low-level form};
+        \node[hot, minimum height = 10mm, text width = 24mm,
+          align = center, right = 20mm of lf] (l) {\textbf{low-level code}};
+        \node[lbl, above = 1mm of l] {goal};
+        \draw[->, thick] (h) -- node[right, note] {laws} (lf);
+        \draw[->, thick] (lf) -- node[pos = .6, above, note] {print} (l);
+        \node[note, right = 3mm of l, align = left, text width = 28mm]
+          {flat buffers, loops,\\ machine integers,\\
+          no allocation,\\ parallel hardware};
+      }
+      \begin{scope}[on background layer]
+        \only<1>{\node[rocq, fit = (s) (h)] (r) {};}
+        \only<2->{\node[rocq, fit = (s) (h) (lf)] (r) {};}
+        \node[note, text = accent, anchor = south west, font = \small\bfseries]
+          at (r.south west) {\ verified in Rocq};
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+  \ongoingtag
+  \speakernote{Box = verified in Rocq \\
+    Today: exit through OCaml (GC, closures, boxed integers) \\
+    Goal: more laws down to a low-level form, printed directly \\
+    Layout and scheduling become calculation steps \\
+    Two lines of work show what such laws look like}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Trees Without Pointers}
+  \begin{center}
+    \begin{tikzpicture}[alt={Left: the tree Node of Node of Leaf 1 and
+        Leaf 2, and Leaf 3, as heap cells linked by pointers. Right: the
+        same tree serialised in preorder into one buffer: N, N, L, 1, L, 2,
+        L, 3.},
+      level distance = 10mm,
+      level 1/.style = {sibling distance = 18mm},
+      level 2/.style = {sibling distance = 12mm},
+      every node/.style = {box, font = \small},
+      cell/.style = {box, minimum width = 7mm, rounded corners = 0pt,
+        font = \small\ttfamily}]
+      \node {N}
+        child {node {N} child {node {L 1}} child {node {L 2}}}
+        child {node {L 3}};
+      \node[draw = none, fill = none, note] at (0, 0.8) {pointers};
+      \draw[->, very thick] (2.4, -1) -- node[above, draw = none,
+        fill = none, note] {serialise} (4.0, -1);
+      \begin{scope}[xshift = 45mm, yshift = -10mm, node distance = 0mm]
+        \node[cell] (c0) {N};
+        \foreach \v [count = \i from 1, remember = \i as \j (initially 0)]
+            in {N, L, 1, L, 2, L, 3}
+          \node[cell, right = of c\j] (c\i) {\v};
+        \node[draw = none, fill = none, note, above = 2mm of c3]
+          {one buffer, in preorder};
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+  \begin{itemize}[<+->]
+    \item Gibbon: compile traversals to run on the \textbf{buffer} itself.
+    \item LoCal: types for locations and regions; parallel traversals;
+      layouts chosen by a \textbf{cost model} (Marmoset).
+  \end{itemize}
+  \refs<3>{M. Vollmer et al. Compiling Tree Transforms to Operate on Packed
+    Representations. ECOOP 2017.\\
+    M. Vollmer et al. LoCal: A Language for Programs Operating on Serialized
+    Data. PLDI 2019.\\
+    C. Koparkar et al. Efficient Tree-Traversals: Reconciling Parallelism
+    and Dense Data Representations. ICFP 2021.\\
+    V. Singhal et al. Optimizing Layout of Recursive Datatypes with
+    Marmoset. ECOOP 2024.}
+  \speakernote{Michael Vollmer's line of work (Gibbon compiler) \\
+    Pointer trees: allocation, poor locality \\
+    Serialised: one buffer, read in order \\
+    LoCal: locations as types; ICFP'21: parallelism on dense data \\
+    Marmoset: a cost model picks the field order}
+\end{frame}
+
+\begin{frame*}
+  \frametitle{A Traversal over a Buffer}
+  \mainblock[before upper = {\fvset{fontsize = \footnotesize}}]{packed-tree.py}
+  \mainblock[before upper = {\fvset{fontsize = \footnotesize}}]{packed-sum.c}
+  \simplified
+  \uncover<2->{The right subtree starts \textbf{where the left one
+    ends}.}
+  \speakernote{Same function, on the buffer (hand-written sketch, not
+    Gibbon's output) \\
+    Left child: right after the tag \\
+    Right child: only known after the left is traversed (end witnesses,
+    LoCal) \\
+    Order of traversal = order of layout}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Packed Traversals, Read as Hylomorphisms}
+  \mainblock{packed-hylo.py}
+  \begin{itemize}[<+->]
+    \item Reading the buffer: \code{divide}. Summing: \code{conquer}.
+      Together: \textbf{no tree}.
+    \item Writing a buffer: a \code{conquer} step that \textbf{writes},
+      in order.
+    \item The catch: the position in the buffer flows from one child to
+      the \textbf{next}.
+  \end{itemize}
+  \ongoingtag
+  \speakernote{Our reading, not Gibbon's formulation \\
+    Spec: unpack the buffer, fold the tree \\
+    Program: traverse the buffer; the tree never exists \\
+    Writes: an associative combiner (Part II) \\
+    Cursor threading: state between siblings; laws beyond plain hylos}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Nested Loops, Divided and Conquered}
+  \mainblock{nested-loop.c}
+  \begin{itemize}[<+->]
+    \item \textbf{Memoryless}: a row's result ignores the rows before:
+      $s_{i+1} = s_i \oplus g(\mathit{row}_i)$.
+    \item \textbf{Thm 4.7}: the nest splits like a homomorphism $\iff$
+      memoryless, and the outer loop over row results does.
+    \item \textbf{Thm 5.3}: extra state found for the outer loop works for
+      the whole nest.
+  \end{itemize}
+  \refs<4>{A. Farzan, V. Nicolet. Modular Divide-and-Conquer
+    Parallelization of Nested Loops. PLDI 2019.\\
+    (Extended version: arXiv 1904.01031.)}
+  \speakernote{Read-only multidimensional data; a loop nest computes a
+    function \\
+    Summarise the inner loop, then parallelise the outer one \\
+    Sound and complete: nothing lost by going modular \\
+    ParSynt: joins by SyGuS; checked in Rosette (bounded), most also in
+    Dafny \\
+    About 9--13x on 16 threads}
+\end{frame*}
+
+\begin{frame}
+  \frametitle{The Same Story, with Hylomorphisms}
+  \begin{center}
+    \renewcommand\arraystretch{1.35}
+    \begin{tabular}{ll}
+      \textbf{Farzan, Nicolet} & \textbf{hylomorphisms} \\ \hline
+      the inner loop, per row & an inner divide and conquer, per row \\
+      memoryless & the outer \code{conquer}: a fold after a map \\
+      homomorphism & an associative combiner \\
+      lifting & extra state \\
+      divide and conquer & \textbf{a new divide step}: split in $k$
+        pieces \\
+    \end{tabular}
+  \end{center}
+  \uncover<2->{Theorem 4.7 is the law our planned extension needs:
+    \textbf{nested} hylos, parallelised one level at a time.}
+  \ongoingtag
+  \speakernote{Each notion has a recursion-scheme reading \\
+    Homomorphism = associative combiner (monoid algebra, Part II) \\
+    Divide and conquer = new divide step (Part I, same combiner) \\
+    Their theorem justifies parallelising nested hylos level by level \\
+    In Rocq: a law, proved once; no per-program bounded check}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Why a Mechanised Framework?}
+  \begin{center}
+    \small
+    \renewcommand\arraystretch{1.35}
+    \begin{tabular}{@{}llll@{}}
+      & \textbf{the laws} & \textbf{each program} & \textbf{trusted} \\
+      \hline
+      ICFP 2016 & axioms & type checking & laws, code generator \\
+      Gibbon & compiler passes & --- & the compiler \\
+      ParSynt & paper proofs & join: bounded check, Dafny &
+        translation, code generator \\
+      \textbf{Rocq} & \textbf{proved once} & \textbf{every step checked} &
+        \textbf{extraction or printer} \\
+    \end{tabular}
+  \end{center}
+  \begin{itemize}[<+->]
+    \item Same laws, one small trusted base.
+    \item Clean extraction: the code that \textbf{runs} is the code that
+      was \textbf{proved}.
+  \end{itemize}
+  \speakernote{ICFP'16: laws assumed \\
+    Gibbon: correct by careful engineering, unverified \\
+    ParSynt: theorems on paper; each join checked; loop translation not
+    verified \\
+    Ours: laws are Rocq theorems; derivation is a certificate \\
+    Without clean extraction, this is only a proof about a model}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Laws That Change Representation}
+  \begin{center}
+    \begin{tikzpicture}[alt={Three kinds of rewrite. A tree of
+        intermediate results becomes a flat buffer. Recursion becomes a
+        loop. One traversal becomes independent pieces that can run at the
+        same time.},
+      from/.style = {box, text width = 32mm, align = center,
+        minimum height = 10mm},
+      to/.style = {box, draw = good, fill = good!8, text width = 32mm,
+        align = center, minimum height = 10mm}]
+      \foreach \y/\f/\t/\w/\o in {
+          0/{intermediate tree}/{flat buffer}/{Gibbon}/1,
+          -1.6/{recursion}/{loop}/{knapsack}/2,
+          -3.2/{one traversal}/{independent pieces, in parallel}/{PLDI 2019}/3} {
+        \uncover<\o->{
+          \node[from] (f\o) at (0, \y) {\f};
+          \node[to, right = 30mm of f\o] (t\o) {\t};
+          \draw[->, thick] (f\o) -- node[above, note] {$=$, proved once}
+            (t\o);
+          \node[note, right = 3mm of t\o, text = gray] {\w};
+        }
+      }
+    \end{tikzpicture}
+  \end{center}
+  \uncover<4->{Today's laws change the \emph{algorithm}; these change
+    \emph{where data lives} and \emph{how work is scheduled}.}
+  \ongoingtag
+  \speakernote{Tree to buffer: what Gibbon does, as a law \\
+    Recursion to loop: dyna\_loop already does this for knapsack \\
+    Independent pieces: Farzan and Nicolet, as a law \\
+    All proved once, used as rewrites}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Where We Are}
+  \begin{center}
+    \begin{tikzpicture}[alt={An index range from 0 to n is split into four
+        pieces of different lengths. The pieces cover the range exactly,
+        with no gaps and no overlaps; this is proved.},
+      piece/.style = {draw = good, fill = good!8, minimum height = 7mm,
+        inner sep = 0pt}]
+      \node[piece, minimum width = 30mm, anchor = west] (p0) at (0, 0) {};
+      \node[piece, minimum width = 18mm, right = 0mm of p0] (p1) {};
+      \node[piece, minimum width = 24mm, right = 0mm of p1] (p2) {};
+      \node[piece, minimum width = 26mm, right = 0mm of p2] (p3) {};
+      \node[note, below = 1mm of p0.south west] {$0$};
+      \node[note, below = 1mm of p3.south east] {$n$};
+      \node[note, right = 3mm of p3] {exactly covered, no overlaps};
+    \end{tikzpicture}
+  \end{center}
+  \begin{columns}[t]
+    \begin{column}{0.5\textwidth}
+      \textbf{\textcolor{good}{In Rocq, axiom-free:}}
+      \begin{itemize}
+        \item Splitting index ranges $k$ ways
+        \item Machine integers, no overflow (proved)
+        \item Buffers, compared by their reads
+        \item Tree reductions over ranges
+        \item Writes to a buffer, driven by any split
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \textbf{\textcolor{gray}{Not yet:}}
+      \begin{itemize}
+        \item Laws that add or remove a buffer
+        \item Each index written exactly once
+        \item Nested ranges
+        \item The low-level target and printer
+        \item The cost model and search
+      \end{itemize}
+    \end{column}
+  \end{columns}
+  \ongoingtag
+  \speakernote{Early stage; be honest \\
+    Done: exact-cover splits, machine integers, buffers, tree reductions,
+    writes; materialising into a buffer defined, no laws yet \\
+    Not yet: buffer laws, exactly-once, nesting, target, cost model}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Untrusted Search, Trusted Checking}
+  \begin{center}
+    \begin{tikzpicture}[alt={A specification and a cost model go into a
+        search, which may use heuristics, equality saturation or a learned
+        model, and is not trusted. It proposes a chain of laws. Rocq checks
+        the chain, and the result is printed as low-level code. A wrong
+        proposal is rejected.},
+      stage/.style = {minimum height = 12mm, text width = 24mm,
+        align = center}]
+      \node[box, stage] (s) {specification\\ + cost model};
+      \node[box, stage, right = 8mm of s, draw = bad, fill = bad!6] (q)
+        {\textbf{search}\\ \small heuristics, e-graphs, ML};
+      \node[box, stage, right = 22mm of q, draw = good, fill = good!8] (r)
+        {\textbf{Rocq checks}\\ \small each step};
+      \node[hot, stage, right = 8mm of r] (o) {low-level code};
+      \draw[->, thick] (s) -- (q);
+      \draw[->, thick] (q) -- node[above, note, align = center]
+        {chain of\\ laws} (r);
+      \draw[->, thick] (r) -- (o);
+      \node[note, below = 2mm of q, text = bad] {untrusted};
+      \node[note, below = 2mm of r, text = good] {trusted, small};
+      % the same path, invisible, so the picture keeps its size
+      \path (r.north) to[bend right = 30]
+        node[above, note, opacity = 0] {rejected: try again} (q.north);
+      \uncover<2->{
+        \draw[->, thick, bad, dashed] (r.north) to[bend right = 30]
+          node[above, note, text = bad] {rejected: try again} (q.north);
+      }
+    \end{tikzpicture}
+  \end{center}
+  \begin{itemize}
+    \item The derivation is a \textbf{certificate}.
+    \item<2-> The cost model of ICFP 2016, Marmoset's layouts, ParSynt's
+      synthesis: all \textbf{search}.
+  \end{itemize}
+  \ongoingtag
+  \speakernote{Search: heuristics, e-graphs, or an ML model \\
+    Rocq checks the chain of laws; wrong proposals rejected \\
+    Everything clever so far is search: keep it, check its answer}
+\end{frame}

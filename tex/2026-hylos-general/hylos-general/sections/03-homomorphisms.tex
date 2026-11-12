@@ -1,0 +1,165 @@
+% Part I, list homomorphisms and the third homomorphism theorem: ~5 min
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{List Homomorphisms}
+  \vspace*{4mm}
+  \hsblock{listhom.hs}
+  \begin{center}
+    \renewcommand\arraystretch{1.2}
+    \begin{tabular}{llll}
+      \code{h} & \code{h [x]} & \code{combine} & \code{h []} \\ \hline
+      \code{sum} & \code{x} & \code{+} & \code{0} \\
+      \code{maximum} & \code{x} & \code{max} & $-\infty$ \\
+      \code{sort} & \code{[x]} & \code{merge} & \code{[]} \\
+    \end{tabular}
+  \end{center}
+  \begin{onlyenv}<2->
+    \textbf{First homomorphism theorem}: every such \code{h} is a
+    \emph{map}, then a \emph{reduce} in any order. MapReduce.
+  \end{onlyenv}
+  \par
+  \begin{onlyenv}<3->
+    Any split gives the same answer, so \emph{how} to split is a
+    \textbf{scheduling} decision (chunks per core, work stealing,
+    cache-sized blocks), not a correctness one.
+  \end{onlyenv}
+  \par
+  \refs<4>{R. Bird. An Introduction to the Theory of Lists. Logic of
+    Programming and Calculi of Discrete Design, 1987.}
+  \speakernote{Split anywhere, solve the pieces, combine \\
+    sum, max, sort all qualify; first theorem (Bird): map then reduce \\
+    Scheduling: the runtime picks the split for speed; correctness is
+    settled once \\
+    Click: reference}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Where Does the Combiner Come From?}
+  \mainblock{digits.java}
+  \begin{itemize}[<+->]
+    \item Java's contract: the combiner is associative and agrees with the
+      accumulator. Finding it is \textbf{your} job.
+    \item Here it needed extra state, \code{scale}: a \textbf{lifting}.
+  \end{itemize}
+  \speakernote{Digits to a number: the obvious loop \\
+    Parallel streams: you must supply the combiner \\
+    A wrong combiner: wrong answers, only in parallel \\
+    val alone is not enough: needs scale; same in Spark, OpenMP}
+\end{frame*}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{The Third Homomorphism Theorem}
+  \vspace*{4mm}
+  \hsblock{third.hs}
+  \begin{onlyenv}<2->
+    \hsblock{third-sort.hs}
+    Insertion sort, $O(n^2)$ $\Longrightarrow$ mergesort, $O(n \log n)$.
+  \end{onlyenv}
+  \par
+  \refs<3>{J. Gibbons. The Third Homomorphism Theorem. Journal of
+    Functional Programming, 1996.\\
+    (Conjectured by R. Bird, proved by L. Meertens, 1989.)}
+  \speakernote{foldl: the loop from the left; foldr: the same from the
+    right \\
+    stepL, stepR: one element at a time, need not be associative \\
+    Both loops exist: then an associative combine exists, built from h and
+    g (an example input for each result) \\
+    Insertion sort both ways, g = id; calculate merge: mergesort for free \\
+    Bird conjectured, Meertens proved it on a train; Gibbons published}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Homomorphisms Are Divide and Conquer}
+  \hsblock{hom.hs}
+  \speakernote{The divide step: split in the middle \\
+    The conquer step: the combiner \\
+    Balanced call tree, depth log n: parallel \\
+    Divide by splitting off the first element instead: a loop}
+\end{frame*}
+
+\begin{frame}
+  \frametitle{Same Combiner, Another Split}
+  \begin{center}
+    \begin{tikzpicture}[alt={Two call trees for the same combiner on four
+        elements: a list-shaped tree of depth four, which splits off the
+        first element, and a balanced tree of depth two, which splits in
+        halves. Both visit x0, x1, x2, x3 in the same order.},
+      every node/.style = {box, font = \small}]
+      \begin{scope}[level distance = 8mm, sibling distance = 12mm]
+        \node {$\oplus$}
+          child {node {$x_0$}}
+          child {node {$\oplus$}
+            child {node {$x_1$}}
+            child {node {$\oplus$}
+              child {node {$x_2$}}
+              child {node {$x_3$}}}};
+      \end{scope}
+      \node[draw = none, fill = none, note] at (0, 0.8)
+        {split off the first: a loop};
+      \node[draw = none, fill = none, font = \Large] at (35mm, -1.2)
+        {$=$};
+      \begin{scope}[xshift = 70mm, level distance = 10mm,
+          level 1/.style = {sibling distance = 24mm},
+          level 2/.style = {sibling distance = 12mm}]
+        \node {$\oplus$}
+          child {node {$\oplus$} child {node {$x_0$}} child {node {$x_1$}}}
+          child {node {$\oplus$} child {node {$x_2$}} child {node {$x_3$}}};
+      \end{scope}
+      \node[draw = none, fill = none, note] at (70mm, 0.8)
+        {split in halves: parallel};
+    \end{tikzpicture}
+  \end{center}
+  \begin{itemize}[<+->]
+    \item Same leaves, same order, associative $\oplus$: \textbf{same
+      result}. We may \textbf{change how we divide}.
+    \item The third theorem \textbf{constructs} such an $\oplus$ from two
+      loops whose steps need not be associative.
+  \end{itemize}
+  \speakernote{Left: a loop, depth n. Right: depth log n \\
+    Associativity of the combiner makes them equal \\
+    The loop steps (accumulator, element) are not associative; the theorem
+    builds the associative combine \\
+    Remember this: changing the divide step comes back at the end}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Extensions}
+  \begin{center}
+    \small
+    \renewcommand\arraystretch{1.25}
+    \begin{tabular}{@{}l@{\quad}l@{\quad}l@{}}
+      1987 & Bird & 1st and 2nd theorems: map--reduce; both directions \\
+      1996 & Gibbons, JFP & 3rd theorem published; mergesort from
+        insertion sort \\
+      1996 & Gorlatch, Euro-Par & parallelising scans and homomorphisms \\
+      1997 & Hu, Iwasaki, Takeichi, TOPLAS & combiners by adding extra
+        state \\
+      2007 & Morita et al., PLDI & combiners found automatically \\
+      2009 & Morihata et al., POPL & the same for trees \\
+      2011 & Mu, Morihata, ICFP & generalised and dualised \\
+      2017--21 & Farzan, Nicolet, PLDI & synthesised for loops and nested
+        loops \\
+    \end{tabular}
+  \end{center}
+  \refs<2>{R. Bird. An Introduction to the Theory of Lists. 1987.\\
+    J. Gibbons. The Third Homomorphism Theorem. JFP 1996.\\
+    S. Gorlatch. Systematic Efficient Parallelization of Scan and Other
+    List Homomorphisms. Euro-Par 1996.\\
+    Z. Hu, H. Iwasaki, M. Takeichi. Formal Derivation of Efficient Parallel
+    Programs by Construction of List Homomorphisms. TOPLAS 1997.\\
+    K. Morita, A. Morihata, K. Matsuzaki, Z. Hu, M. Takeichi. Automatic
+    Inversion Generates Divide-and-Conquer Parallel Programs. PLDI 2007.\\
+    A. Morihata, K. Matsuzaki, Z. Hu, M. Takeichi. The Third Homomorphism
+    Theorem on Trees. POPL 2009.\\
+    S.-C. Mu, A. Morihata. Generalising and Dualising the Third
+    List-Homomorphism Theorem. ICFP 2011.\\
+    A. Farzan, V. Nicolet. Synthesis of Divide and Conquer Parallelism for
+    Loops. PLDI 2017.\\
+    A. Farzan, V. Nicolet. Modular Divide-and-Conquer Parallelization of
+    Nested Loops. PLDI 2019.}
+  \speakernote{From pen-and-paper theorems to tools \\
+    Extra state = lifting, as in the Java example (tupling) \\
+    Morita et al.: derive g by program inversion \\
+    Farzan and Nicolet: program synthesis for loops; back in Part III \\
+    Click: references}
+\end{frame}

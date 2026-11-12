@@ -23,3 +23,67 @@
 
 % Under a code block that is not verbatim tool output or library source
 \newcommand\simplified{\par{\hfill\footnotesize\textcolor{gray}{(simplified)}\par}}
+
+% Code in mainstream languages (Python, SQL, Java, C) is orange, Haskell
+% violet; dcptalk has Rocq blue, OCaml green, errors red, output grey
+\newtcolorbox{mainbox}[1][]{enhanced, drop fuzzy shadow southeast,
+  boxrule = 0pt, colframe = orange!12, colback = orange!12,
+  halign = flush left, #1}
+\newtcolorbox{hsbox}[1][]{enhanced, drop fuzzy shadow southeast,
+  boxrule = 0pt, colframe = violet!8, colback = violet!8,
+  halign = flush left, #1}
+\makeatletter
+\NewDocumentCommand\mainblock{O{} m}{\dcp@code{mainbox}{#1}{#2}}
+\NewDocumentCommand\hsblock{O{} m}{\dcp@code{hsbox}{#1}{#2}}
+\makeatother
+
+% A tag in the top-right corner: which work a frame belongs to. At the end
+% of the frame, like \slideref.
+\NewDocumentCommand\worktag{O{accent} m}{%
+  \begin{tikzpicture}[overlay, remember picture, alt = {Tag: #2}]
+    \node[anchor = north east, draw = #1, fill = #1!12, text = #1,
+      rounded corners = 2pt, font = \footnotesize\bfseries, inner sep = 3pt]
+      at ($(current page.north east) + (-4mm, -4mm)$) {#2};
+  \end{tikzpicture}\par}
+\newcommand\itptag{\worktag[accent]{ITP 2025}}
+\newcommand\sincetag{\worktag[accent2]{since ITP 2025}}
+\newcommand\icfptag{\worktag[accent]{ICFP 2016}}
+\newcommand\ongoingtag{\worktag[accent2]{ongoing}}
+
+% Slides that the live demo covers (skip them after a good demo): a small
+% grey note in the bottom-right corner. At the end of the frame.
+\newcommand\demotag{%
+  \begin{tikzpicture}[overlay, remember picture, alt = {Covered by the
+      demo}]
+    \node[anchor = south east, text = gray, font = \scriptsize\itshape]
+      at ($(current page.south east) + (-4mm, 3mm)$) {covered by the demo};
+  \end{tikzpicture}\par}
+
+% \refs<overlay>{ref \\ ref \\ ...}: the slide's references, one per line,
+% in a box over the slide, revealed on the given overlay (one click after
+% the slide's own steps). At the end of the frame, like \slideref.
+\usetikzlibrary{shadows}
+\NewDocumentCommand\refs{D<>{2-} +m}{%
+  \only<#1>{%
+    \begin{tikzpicture}[overlay, remember picture, alt = {References: #2}]
+      \node[anchor = north, fill = white, draw = black!25,
+        rounded corners = 3pt, drop shadow, text width = 150mm,
+        align = left, font = \footnotesize, inner sep = 3mm]
+        at ($(current page.north) + (0, -16mm)$) {#2};
+    \end{tikzpicture}}\par}
+
+% A short citation on its own line, in small grey type (timeline boxes)
+\newcommand\tlcite[1]{\\{\scriptsize\textcolor{gray}{#1}}}
+
+% \excerpt<overlay>{quotation}{source}: a quotation from a paper in a
+% sticky note over the slide, revealed on the given overlay. At the end of
+% the frame.
+\NewDocumentCommand\excerpt{D<>{2-} +m +m}{%
+  \only<#1>{%
+    \begin{tikzpicture}[overlay, remember picture, alt = {Quotation: #2 (#3)}]
+      \node[anchor = north, fill = yellow!20, draw = golden!80!black,
+        rounded corners = 3pt, drop shadow, text width = 140mm,
+        align = justify, font = \small, inner sep = 4mm]
+        at ($(current page.north) + (0, -18mm)$)
+        {#2\par\smallskip{\raggedleft\footnotesize --- #3\par}};
+    \end{tikzpicture}}\par}

@@ -2,8 +2,8 @@
 layout: slide
 title: Program Calculation with Hylomorphisms in Rocq
 venue: Seminar
-upcoming: true # undated: shown as "Upcoming"; set the real date and venue once known
-date: 2026-10-20
+upcoming: true # shown as "Upcoming: <date>"; remove once given
+date: 2026-12-11
 author: David Castro-Perez
 description: 
 comments: true

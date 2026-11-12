@@ -1,0 +1,246 @@
+% Part I, divide and conquer (hylomorphisms): one Python slide, then the
+% switch to Haskell
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Divide and Conquer}
+  \vspace*{4mm}
+  \mainblock{qsort-direct.py}
+  \codebox<2>{dl}{dr}{dr}
+  \callout<2>{14.4,6.2}{divide}{dr}
+  \codebox<3>{ra}{rb}{rb}
+  \codebox<3>{rc}{rd}{rd}
+  \callout<3>{14.4,3.8}{solve each part}{rb, rd}
+  \codebox<4>{cl}{cr}{cr}
+  \callout<4>{8.4,3.6}{conquer}{cl}
+  \begin{onlyenv}<5->
+    Factor out \code{divide} and \code{conquer}, and the recursion is
+    written \textbf{once}:
+    \mainblock{hylo.py}
+  \end{onlyenv}
+  \par
+  \codebox<6>{pa}{pb}{pb}
+  \codebox<6>{pc}{pd}{pd}
+  \codebox<6>{ta}{tb}{tb}
+  \codebox<6>{tc}{td}{td}
+  \callout<6>{14.8,1.3}{\code{tag}: what a node keeps\\ for \code{conquer}
+    (the pivot)}{tb, td}
+  \speakernote{Quicksort, written directly \\
+    Click: divide (pivot, split the rest); recursion; conquer (glue) \\
+    Click: factor them out; one generic function \\
+    Last click: tag, what divide hands to conquer: the pivot (None at the
+    leaves) \\
+    The pattern: a hylomorphism (divide: coalgebra, conquer: algebra)}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{The Pattern, in Haskell}
+  \hsblock{hylo-qsort.hs}
+  \begin{itemize}
+    \item<2-> Read \code{hylo} right to left: divide, solve every part
+      (\code{fmap}), conquer.
+  \end{itemize}
+  \speakernote{From here on: Haskell; explain the syntax as needed \\
+    Layer: one layer of the call tree \\
+    f . g: g then f; fmap h: h on every part \\
+    hylo = conquer . fmap hylo . divide: the equation Rocq proves things
+    about}
+\end{frame*}
+
+\begin{frame}
+  \frametitle{The Call Tree of Quicksort}
+  \begin{center}
+    \begin{tikzpicture}[alt={The call tree of quicksort on the list 3, 1,
+        4, 5, 2. Dividing around pivot 3 gives 1, 2 and 4, 5, which are
+        divided again around pivots 1 and 4. Conquering concatenates the
+        results from the leaves up, giving 1, 2, 3, 4, 5.},
+      level distance = 13mm,
+      level 1/.style = {sibling distance = 46mm},
+      level 2/.style = {sibling distance = 22mm},
+      every node/.style = {box}]
+      \node (r) {$[3,1,4,5,2]$}
+        child {node (l) {$[1,2]$}
+          child {node {$[\,]$}}
+          child {node {$[2]$}}}
+        child {node (rr) {$[4,5]$}
+          child {node {$[\,]$}}
+          child {node {$[5]$}}};
+      \node[hot, right = 4mm of r] {pivot 3};
+      \node[hot, right = 4mm of l] {pivot 1};
+      \node[hot, right = 4mm of rr] {pivot 4};
+      \draw[->, very thick, accent] (-6.0, 0.2) -- node[left, draw = none,
+        fill = none, note, text = accent] {\code{divide}} (-6.0, -2.6);
+      \draw[->, very thick, accent2] (6.0, -2.6) -- node[right, draw = none,
+        fill = none, note] {\code{conquer}} (6.0, 0.2);
+    \end{tikzpicture}
+  \end{center}
+  \uncover<2->{The tree is \emph{virtual}: it is never built in memory.}
+  \speakernote{Divide goes down, conquer comes up \\
+    The tree is only the call stack \\
+    Independent subtrees: parallelism comes back later}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Where Hylomorphisms Come From}
+  \begin{columns}
+    \begin{column}{0.4\textwidth}
+      \[
+        \begin{tikzcd}[alt={A commuting square: h goes from A to B; divide
+            goes from A to F A, one layer of sub-problems; fmap h goes from
+            F A to F B, solving every sub-problem; conquer goes from F B to
+            B. So h equals conquer after fmap h after divide.},
+            column sep = 15mm, row sep = 13mm]
+          A \arrow[r, "h", dashed] \arrow[d, "\code{divide}"'] \& B \\
+          F\,A \arrow[r, "\op{fmap}\,h"'] \& F\,B
+            \arrow[u, "\code{conquer}"']
+        \end{tikzcd}
+      \]
+      \begin{center}
+        \small $h = \code{conquer} \circ \op{fmap}\,h \circ
+        \code{divide}$
+      \end{center}
+    \end{column}
+    \begin{column}{0.56\textwidth}
+      \small
+      \renewcommand\arraystretch{1.3}
+      \begin{tabular}{@{}l@{\quad}>{\raggedright\arraybackslash}p{70mm}@{}}
+        1987 & \textbf{Hagino}: data types from category theory \\
+        1990 & \textbf{Malcolm}: a fold for every data type, with its laws
+          \\
+        1991 & \textbf{Meijer, Fokkinga, Paterson}: the name
+          \emph{hylomorphism} \\
+        1996 & \textbf{Hu, Iwasaki, Takeichi}: found in ordinary programs
+          \\
+        2006 & \textbf{Capretta, Uustalu, Vene}: when $h$ is unique \\
+        2015 & \textbf{Hinze, Wu, Gibbons}: (almost) every recursion scheme
+          is one \\
+      \end{tabular}
+    \end{column}
+  \end{columns}
+  \refs<2>{T. Hagino. A Categorical Programming Language. PhD thesis,
+    University of Edinburgh, 1987.\\
+    G. Malcolm. Data Structures and Program Transformation. Science of
+    Computer Programming, 1990.\\
+    E. Meijer, M. Fokkinga, R. Paterson. Functional Programming with
+    Bananas, Lenses, Envelopes and Barbed Wire. FPCA 1991.\\
+    Z. Hu, H. Iwasaki, M. Takeichi. Deriving Structural Hylomorphisms from
+    Recursive Definitions. ICFP 1996.\\
+    V. Capretta, T. Uustalu, V. Vene. Recursive Coalgebras from Comonads.
+    Information and Computation, 2006.\\
+    R. Hinze, N. Wu, J. Gibbons. Conjugate Hylomorphisms, or: The Mother of
+    All Structured Recursion Schemes. POPL 2015.}
+  \speakernote{F: one layer (Layer in the Haskell); divide: coalgebra,
+    conquer: algebra \\
+    Category theory: data types as initial algebras, final coalgebras \\
+    Hylo: Greek matter + form; unfold then fold \\
+    Unique solution only for recursive coalgebras: key for Rocq later \\
+    Click: references}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Why Hylomorphisms Matter}
+  \begin{columns}[t]
+    \begin{column}{0.31\textwidth}
+      \begin{sticky}[height = 34mm]
+        \textbf{General}\par
+        \small Most recursive algorithms fit: folds, dynamic programming,
+        mutual recursion, accumulators.
+      \end{sticky}
+    \end{column}
+    \begin{column}{0.31\textwidth}
+      \begin{sticky}[height = 34mm]
+        \textbf{Laws}\par
+        \small Remove passes and intermediate data. Compilers can find the
+        pattern in ordinary code.
+      \end{sticky}
+    \end{column}
+    \begin{column}{0.31\textwidth}
+      \begin{sticky}[height = 34mm]
+        \textbf{Parallelism}\par
+        \small Independent sub-problems can run at the same time.
+      \end{sticky}
+    \end{column}
+  \end{columns}
+  \refs<2>{P. Wadler. Deforestation: Transforming Programs to Eliminate
+    Trees. TCS 1990.\\
+    A. Gill, J. Launchbury, S. Peyton Jones. A Short Cut to Deforestation.
+    FPCA 1993.\\
+    A. Takano, E. Meijer. Shortcut Deforestation in Calculational Form.
+    FPCA 1995.\\
+    Z. Hu, H. Iwasaki, M. Takeichi. Deriving Structural Hylomorphisms from
+    Recursive Definitions. ICFP 1996.\\
+    R. Hinze, N. Wu, J. Gibbons. Conjugate Hylomorphisms, or: The Mother of
+    All Structured Recursion Schemes. POPL 2015.}
+  \speakernote{General: conjugate hylomorphisms \\
+    Laws: deforestation (Wadler), shortcut fusion (in GHC); HYLO system \\
+    Parallel: subtrees independent (later) \\
+    Click: references}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Fusion and Deforestation}
+  \begin{center}
+    \begin{tikzpicture}[alt={Fusion after: divide and conquer followed by
+        a post-processing step equals divide and conquer with a new conquer
+        step, if post-processing commutes with conquer. Fusion before: a
+        pre-processing step followed by divide and conquer equals divide
+        and conquer with a new divide step, if pre-processing commutes with
+        divide. Deforestation: building the call tree with ana and then
+        folding it with cata equals the hylomorphism, with no tree.},
+      stage/.style = {box, minimum height = 7.5mm, font = \small\ttfamily},
+      lbl/.style = {font = \small\bfseries, anchor = south west,
+        inner sep = 1pt},
+      cond/.style = {note, font = \footnotesize, anchor = north west}]
+      \node[stage, anchor = west] (a1) at (0, 0) {hylo conquer divide};
+      \node[lbl] at ([yshift = 1mm]a1.north west) {Fusion, after};
+      \node[stage, right = 7mm of a1] (a2) {post};
+      \draw[->, thick] (a1) -- (a2);
+      \node[right = 4mm of a2, font = \Large] (a3) {$=$};
+      \node[stage, right = 4mm of a3, draw = good, fill = good!8]
+        {hylo conquer2 divide};
+      \node[cond] at ([yshift = -1mm]a1.south west)
+        {if \code{post} commutes with \code{conquer}};
+      \node[stage, anchor = west] (b1) at (0, -1.95) {pre};
+      \node[lbl] at ([yshift = 1mm]b1.north west) {Fusion, before};
+      \node[stage, right = 7mm of b1] (b2) {hylo conquer divide};
+      \draw[->, thick] (b1) -- (b2);
+      \node[right = 4mm of b2, font = \Large] (b3) {$=$};
+      \node[stage, right = 4mm of b3, draw = good, fill = good!8]
+        {hylo conquer divide2};
+      \node[cond] at ([yshift = -1mm]b1.south west)
+        {if \code{pre} commutes with \code{divide}};
+      \node[stage, anchor = west] (c1) at (0, -3.9) {ana divide};
+      \node[lbl] at ([yshift = 1mm]c1.north west) {Deforestation};
+      \node[stage, right = 7mm of c1] (c2) {cata conquer};
+      \draw[->, thick] (c1) -- (c2);
+      \node[right = 4mm of c2, font = \Large] (c3) {$=$};
+      \node[stage, right = 4mm of c3, draw = good, fill = good!8]
+        {hylo conquer divide};
+      \node[cond] at ([yshift = -1mm]c1.south west)
+        {build the tree, then fold it $=$ no tree in memory};
+    \end{tikzpicture}
+  \end{center}
+  \uncover<2->{All follow from \textbf{uniqueness} (\code{hylo} is the only
+    solution of its equation), and are proved \textbf{once}, for every
+    divide and conquer.}
+  \speakernote{Fusion after: a post-processing step moves into conquer \\
+    Fusion before: a pre-processing step moves into divide \\
+    Deforestation: ana builds the tree, cata folds it; together, no tree \\
+    Uniqueness again; it needs care, back in Part II}
+\end{frame}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Calculating Sort-Then-Double}
+  \vspace*{4mm}
+  \hsblock{qsort-calc.hs}
+  \begin{onlyenv}<2->
+    \begin{center}
+      Two passes and a temporary list $\Longrightarrow$ \textbf{one pass},
+      doubling each pivot.
+    \end{center}
+  \end{onlyenv}
+  \par
+  \speakernote{Spec: sort, then double \\
+    Side condition: doubling distributes over concatenation \\
+    Result: the program you would write by hand \\
+    We will redo this in Rocq, and run it}
+\end{frame*}

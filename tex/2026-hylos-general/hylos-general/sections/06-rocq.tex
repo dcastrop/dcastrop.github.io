@@ -1,0 +1,410 @@
+% Part II, continued: hylomorphisms in Rocq, ~15 min. ITP 2025 first (tag
+% "ITP 2025"), then what came after (tag "since ITP 2025"). The two "Step
+% by Step" frames are shared with the seminar deck: keep them identical,
+% except for \demotag (../check-hylos-sync.py, in tex/).
+
+\begin{frame*}
+  \frametitle{Why Not Just Write \texttt{hylo}?}
+  \rocqblock{hylo-naive.v}
+  \badblock{hylo-naive-err.txt}
+  \uncover<2->{Rocq must \emph{see} that each call is on a smaller input; for
+    \code{hylo}, that depends on \code{divide}. Workarounds: one termination
+    proof per function, and \textbf{no laws}.}
+  \speakernote{Rocq: programs must terminate (the logic stays consistent) \\
+    The recursive call is on divide x, not on a piece of x: rejected \\
+    Quicksort, mergesort: rejected for the same reason \\
+    Program Fixpoint, Equations: a proof per function, no fusion laws}
+\end{frame*}
+
+\begin{frame}
+  \frametitle{Three Obstacles}
+  \begin{center}
+    \begin{tikzpicture}[alt={Three obstacles side by side: termination,
+        because Rocq only accepts recursion it can see terminates; no extra
+        axioms, because generic data types and equality of functions need
+        them; and clean code, because generic definitions extract to code
+        full of unsafe casts.},
+      card/.style = {draw = golden!80!black, fill = yellow!20,
+        rounded corners = 3pt, text width = 33mm, align = center,
+        minimum height = 24mm}]
+      \node[card] (t) {\textbf{Termination}\\[2mm] \small divide must\\
+        provably reach\\ the leaves};
+      \node[card, right = 6mm of t] (a) {\textbf{No extra axioms}\\[2mm]
+        \small comparing\\ functions\\ needs one};
+      \node[card, right = 6mm of a] (c) {\textbf{Clean code}\\[2mm]
+        \small generic code\\ extracts to\\ unsafe casts};
+    \end{tikzpicture}
+  \end{center}
+  \uncover<2->{Every definition trades \textbf{easy proofs} against
+    \textbf{clean extracted code}.}
+  \speakernote{Termination: h = h + 1 has no solution, h = h has every
+    one; need recursive coalgebras \\
+    Axioms: funext, axiom K; we want none \\
+    Clean code: what you would write by hand, no Obj.magic \\
+    Theme of this part: proofs vs code}
+\end{frame}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Generic Trees: The Textbook Encoding}
+  \vspace*{4mm}
+  \begin{onlyenv}<1>
+    \rocqblock{naive-cont.v}
+    One layer of a tree: a \emph{shape}, and its children by
+    \emph{position}.
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+    \badblock{naive-extr.ml}
+    Extracted to OCaml: \textbf{unchecked casts} (\code{Obj.magic})
+    everywhere.
+  \end{onlyenv}
+  \begin{onlyenv}<3>
+    \rocqblock{naive-eq.v}
+    \badblock{naive-eq.txt}
+    \begin{itemize}
+      \item \textbf{Axiom K}: to get \code{k1 = k2} from equal values, as
+        the type of \code{k} depends on \code{s}.
+      \item \textbf{Function extensionality}: for \code{fmap id = id},
+        functions that agree everywhere must be equal.
+    \end{itemize}
+  \end{onlyenv}
+  \par
+  \itptag
+  \speakernote{Container: shapes, and positions per shape (Abbott,
+    Altenkirch, Ghani) \\
+    Positions depend on the shape: a type family \\
+    Extraction: every shape and position through Obj.magic (real output) \\
+    Equality: injection gives equal dependent pairs; k1 = k2 needs
+    inj\_pair2, i.e. axiom K; fmap id = id needs funext}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Our Generic Trees}
+  \rocqblock{cont-class.v}
+  \begin{center}
+    \small
+    \renewcommand\arraystretch{1.3}
+    \begin{tabular}{lll}
+      \textbf{\textcolor{bad}{Problem}} & \textbf{Cause} &
+        \textbf{\textcolor{good}{Fix}} \\ \hline
+      unchecked casts & child types depend on the shape & one type of
+        positions \\
+      axiom K & comparing values that hold proofs & a \code{bool} check:
+        unique proofs \\
+      function equality & \code{=} on functions & equality as ``same
+        results'' \\
+    \end{tabular}
+  \end{center}
+  \itptag
+  \speakernote{One type P of positions, a boolean says which are valid \\
+    Valid: a proof of b = true; unique without axiom K (Hedberg); erased \\
+    Extraction sees cont as a plain function P -> X \\
+    Setoids: every type has =e, functions respect it (A ~> B)}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Termination: Recursion on a Proof}
+  \rocqblock{recf.v}
+  \rocqblock[width = .8\textwidth]{hylo-def.v}
+  \simplified
+  \callout<2->{3.6,1.4}{termination proof\\ (deleted from the code)}{recf}
+  \callout<3->{12.6,1.4}{structurally smaller proof}{He}
+  \itptag
+  \speakernote{RecF c x: c terminates on x; a proof is a finite tree
+    shaped like the call tree \\
+    Recursive coalgebra: RecF for every input; proved once per coalgebra
+    (e.g. pieces are shorter) \\
+    hylo: structural recursion on the proof; proof erased \\
+    RecF iff Acc, but per-position induction: easier proofs, same code}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{The Laws, Proved Once}
+  \rocqblock{hylo-laws.v}
+  \outblock{assumptions-itp.txt}
+  \begin{itemize}[<+->]
+    \item Proofs follow the pen-and-paper ones: fusion is four rewrites.
+    \item \textbf{No extra axioms}: only Rocq's own logic.
+  \end{itemize}
+  \itptag
+  \speakernote{Uniqueness is the universal property; the rest follow \\
+    Same steps as on paper \\
+    Print Assumptions: nothing}
+\end{frame*}
+
+\begin{frame}
+  \frametitle{Proofs or Code? Every Definition Is a Choice}
+  \begin{center}
+    \footnotesize
+    \renewcommand\arraystretch{1.3}
+    \begin{tabular}{@{}>{\raggedright}p{46mm}>{\raggedright}p{46mm}
+      >{\raggedright\arraybackslash}p{46mm}@{}}
+      \textbf{Definition} & \textbf{Proofs} & \textbf{Extracted code} \\
+      \hline
+      one type of positions + a check & side proofs about the check &
+        plain types, no unchecked casts \\
+      equality as ``same results'' & no axioms; extra proofs, slower
+        rewriting & extra arguments, unless inlined \\
+      our own termination predicate & simpler induction & identical \\
+      one generic \code{hylo} & laws proved once &
+        \textcolor{accent2}{a record per call, unless inlined} \\
+      children as a function & laws are easy &
+        \textcolor{accent2}{a closure per call} \\
+      memo table as a generic tree & dynamic-programming laws easy &
+        \textcolor{accent2}{a linked table, slow lookups} \\
+    \end{tabular}
+  \end{center}
+  \textcolor{accent2}{Orange}: improved since ITP 2025.
+  \itptag
+  \speakernote{Top: choices made for both proofs and code \\
+    Same-results equality = setoids: no funext, but every function needs a
+    properness proof; rewriting slow \\
+    RecF vs Acc: proofs only \\
+    Bottom three: easy proofs, costly code; ITP output shows it; fixed later}
+\end{frame}
+
+\begin{frame*}
+  \frametitle{Generic Code Is Not Clean Code}
+  Extracting the unreduced \code{hylo merge tsplit}:
+  \ocamlblock{raw-extr.ml}
+  \callout<2->{14.5,8.2}{extra arguments at run time}{dict}
+  \callout<3->{14,2.6}{a record per call}{rec}
+  \speakernote{Type-safe, but generic \\
+    Setoid and container dictionaries passed at run time \\
+    A record built and taken apart at every call \\
+    ITP: inline by hand-picked hints; still closures (next)}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{What ITP 2025 Extracted}
+  \ocamlblock{itp-qsort.ml}
+  \begin{itemize}[<+->]
+    \item Type-safe, no \code{Obj.magic}, the recursion of the
+      specification.
+    \item But a \textbf{closure} per call; knapsack's table: a linked
+      structure.
+  \end{itemize}
+  \itptag
+  \speakernote{Real output of the paper's version (Rocq 9 port) \\
+    x0: the children as a function, a closure each call \\
+    Knapsack (paper): memo table as nested records, linear lookups \\
+    Good, but not what you would write}
+\end{frame*}
+
+\begin{frame}
+  \frametitle{The Price of Our Choices}
+  \begin{itemize}[<+->]
+    \item \textbf{Setoids everywhere}: every function needs a proof that it
+      respects equality; rewriting is slow on large terms.
+    \item \textbf{Termination}: still one proof per divide step (no
+      termination by typing, unlike Abreu et al.).
+    \item \textbf{Clean code needs inlining}: generic definitions must be
+      unfolded before extraction, by hand-picked hints.
+    \item \textbf{Some laws need parametricity} (shortcut fusion): without
+      an axiom, proved only for specific types, such as lists.
+  \end{itemize}
+  \itptag
+  \speakernote{Cons of the ITP 2025 design (paper, future work) \\
+    Setoids: properness proofs, slow generalised rewriting, big terms \\
+    Termination: once per coalgebra, but still there \\
+    Inlining: Rocq does not always inline; closures left (previous slide)
+    \\
+    Acid rain needs parametricity: only for lists}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Since ITP 2025}
+  \begin{itemize}[<+->]
+    \item Calculations with \code{Derive}: the program starts as an
+      unknown; rewrites fill it in.
+    \item Side proofs (termination, well-behaved functions) found
+      \textbf{automatically}.
+    \item \textbf{No closures} in the code: divide steps in
+      continuation-passing style.
+    \item Dynamic programming over \textbf{arrays}: $O(1)$ lookups,
+      loops.
+    \item Laws for \textbf{associative combiners}, for any data type.
+  \end{itemize}
+  \sincetag
+  \speakernote{Rocq 9 port, then October 2026 \\
+    Derive, arewrite, finished: calculations as on paper \\
+    Instance search: no hand-written properness or termination proofs \\
+    hylo\_cps\_hylo, reenumerate, dyna\_loop, dyna\_iso \\
+    Monoid algebras: list homomorphisms for any shape}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Demo}
+  \vfill
+  \begin{sticky}[width = .75\textwidth, center]
+    \texttt{demo/Demo.v}:
+    \begin{enumerate}
+      \item the specification: sort, then double;
+      \item one rewrite at a time, with the goal Rocq shows;
+      \item a wrong step: \textbf{rejected};
+      \item \texttt{Extraction}, and \texttt{Print Assumptions}.
+    \end{enumerate}
+  \end{sticky}
+  \vfill
+  \sincetag
+  \speakernote{Optional; open demo/Demo.v in VS Code (VsRocq) \\
+    Step through the Derive; show goals \\
+    Remove the Fail: "no subterm matching" hylo after hylo \\
+    After the demo: skip the slides marked "covered by the demo"}
+\end{frame}
+
+\begin{frame*}
+  \frametitle{A Calculation in Rocq}
+  \rocqblock{qsort2-derive.v}
+  \codebox<2->{specl}{spec}{spec}
+  \callout<2->{14,7.6}{specification}{spec}
+  \codebox<3->{lawsl}{laws}{lawsb}
+  \callout<3->{15.5,3.3}{the laws}{laws}
+  \sincetag
+  \demotag
+  \speakernote{\code{Derive}: the program starts as an unknown \\
+    The spec: quicksort, then double (Part I) \\
+    One line of laws; Rocq fills in the program}
+\end{frame*}
+
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Quicksort, Step by Step}
+  \vspace*{4mm}
+  \begin{onlyenv}<1>
+    \fvset{lastline = 1}%
+    \rocqblock{qsort-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+    \fvset{lastline = 3}%
+    \rocqblock{qsort-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<3>
+    \fvset{lastline = 5}%
+    \rocqblock{qsort-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<4->
+    \fvset{lastline = 7}%
+    \rocqblock{qsort-steps.v}
+  \end{onlyenv}
+  \par
+  \demotag
+  \speakernote{Each step: one law, the term Rocq shows after it \\
+    map\_merge\_fusion: doubling moves inside merge \\
+    hylo\_ana, deforest: the tree between unfold and fold disappears (one step) \\
+    hylo\_cps\_hylo: continuation-passing coalgebra, so the code has no closures}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Quicksort: What Comes Out}
+  \ocamlblock[before upper = {\fvset{fontsize = \footnotesize}}]{qsort2.ml}
+  \par\medskip
+  The last line, extracted: \textbf{one pass}, doubling each pivot. No
+  closures: the program from Part I, now with a proof.
+  \sincetag
+  \demotag
+  \speakernote{Real extraction output \\
+    Point at the pivot: \code{mul 2 i} \\
+    Compare with the ITP output: no x0 closure}
+\end{frame*}
+
+\begin{frame}
+  \frametitle{Dynamic Programming: Knapsack}
+  \[ K(0) = 0 \qquad K(c) = \max\,\bigl(\{0\} \cup \{\,K(c - w_i) + v_i
+     \mid 0 < w_i \le c\,\}\bigr) \]
+  \begin{center}
+    \begin{tikzpicture}[alt={Two items: weight 2 with value 3, and weight
+        3 with value 4. The call tree of the naive knapsack recursion for
+        capacity 6: K(6) calls K(4), taking the weight-2 item, and K(3),
+        taking the weight-3 item; K(4) calls K(2) and K(1); K(3) calls K(1)
+        and K(0); K(2) calls K(0). The same capacities appear many times:
+        K(1) twice, K(0) twice. The answer, K(6), is 9.},
+      level distance = 11mm,
+      level 1/.style = {sibling distance = 50mm},
+      level 2/.style = {sibling distance = 24mm},
+      level 3/.style = {sibling distance = 14mm},
+      every node/.style = {box, font = \small},
+      sticky-note/.style = {draw = golden!80!black, fill = yellow!20,
+        rounded corners = 2pt}]
+      \node[hot] (root) {$K(6) = 9$}
+        child {node {$K(4)$}
+          child {node {$K(2)$} child {node[draw = bad, fill = bad!8] {$K(0)$}}}
+          child {node[draw = bad, fill = bad!8] {$K(1)$}}
+          edge from parent node[above left, draw = none, fill = none, note]
+            {$w = 2$, $+3$}}
+        child {node {$K(3)$}
+          child {node[draw = bad, fill = bad!8] {$K(1)$}}
+          child {node[draw = bad, fill = bad!8] {$K(0)$}}
+          edge from parent node[above right, draw = none, fill = none, note]
+            {$w = 3$, $+4$}};
+      \node[sticky-note, anchor = north west, align = left]
+        at ([xshift = 38mm]root.north east) {\small\textbf{items} $(w, v)$:\\
+        \small $(2, 3)$\quad $(3, 4)$};
+    \end{tikzpicture}
+  \end{center}
+  \uncover<2->{A hylomorphism, but it \textbf{recomputes}: exponential.}
+  \sincetag
+  \speakernote{Classic recurrence; items (2, 3), (3, 4), capacity 6 \\
+    Red nodes: recomputed \\
+    Fix: a table of results (dynamorphism, Hinze, Wu, Gibbons) \\
+    Since ITP: derived from this exponential hylo, by rewriting}
+\end{frame}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Knapsack, Step by Step}
+  \vspace*{4mm}
+  \begin{onlyenv}<1>
+    \fvset{lastline = 1}%
+    \rocqblock{knap-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+    \fvset{lastline = 3}%
+    \rocqblock{knap-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<3>
+    \fvset{lastline = 5}%
+    \rocqblock{knap-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<4->
+    \fvset{lastline = 10}%
+    \rocqblock{knap-steps.v}
+  \end{onlyenv}
+  \par
+  \speakernote{The goal after each rewrite, as Rocq prints it \\
+    reenumerate: from items to capacities, lookups jump into the array, O(1) \\
+    dyna\_loop: the table is built by a loop counting up \\
+    Last line: a loop over the capacities, one step each}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Knapsack: What Comes Out}
+  \ocamlblock{knap-simple.ml}
+  \simplified
+  \par\medskip
+  A \textbf{loop} over the capacities; each step looks up $K(c - w)$ in
+  $O(1)$. Exponential $\Longrightarrow$ linear in the capacity.
+  \sincetag
+  \speakernote{Simplified from the extracted code (real one in the
+    library) \\
+    \code{knapsack}: a loop counting capacities up; \code{push} adds one
+    entry \\
+    \code{fast\_drop}: jump into the array \\
+    Every step proved}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Associative Combiners, for Any Data Type}
+  \rocqblock{malg.v}
+  \rocqblock{malg-fusion.v}
+  \begin{itemize}[<+->]
+    \item Part I's list homomorphisms, for \textbf{any} data type and
+      \textbf{any} divide step.
+    \item Instances: Bird's classic laws; maximum segment sum, cubic to
+      linear.
+  \end{itemize}
+  \sincetag
+  \speakernote{malg = monoid algebra: combine a node's value with its
+    children's results, in order \\
+    malg\_fusion: any monoid homomorphism fuses, one-line proof \\
+    Part I's homomorphisms, generalised \\
+    Maximum segment sum: Bird's calculation, machine-checked}
+\end{frame*}

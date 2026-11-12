@@ -1,12 +1,13 @@
 # Code snippets live in code/; gen/ holds their highlighted LaTeX.
 STYLE ?= friendly
 PYG    = pygmentize -f latex -O escapeinside=^^
-CODE   = $(wildcard code/*.v code/*.ml code/*.txt)
+CODE   = $(filter-out code/rocqlexer.py, $(wildcard code/*.v code/*.ml \
+         code/*.txt code/*.py code/*.hs code/*.sql code/*.java code/*.c))
 GEN    = $(patsubst code/%,gen/%.tex,$(CODE)) gen/pygments.tex
 
 main.pdf: main.tex preamble.tex sections/*.tex ../template/dcptalk.sty $(GEN)
 	TEXINPUTS=../template//: latexmk -lualatex -interaction=nonstopmode main.tex
-	python3 ../template/make-notes.py main --duration 55
+	python3 ../template/make-notes.py main --duration 60
 
 # Slides with their notes on the right half: pdfpc -n right main-presenter.pdf
 presenter: main-presenter.pdf
@@ -32,6 +33,21 @@ gen/%.ml.tex: code/%.ml | gen
 gen/%.txt.tex: code/%.txt | gen
 	$(PYG) -l text -o $@ $<
 
+gen/%.py.tex: code/%.py | gen
+	$(PYG) -l python -o $@ $<
+
+gen/%.hs.tex: code/%.hs | gen
+	$(PYG) -l haskell -o $@ $<
+
+gen/%.sql.tex: code/%.sql | gen
+	$(PYG) -l sql -o $@ $<
+
+gen/%.java.tex: code/%.java | gen
+	$(PYG) -l java -o $@ $<
+
+gen/%.c.tex: code/%.c | gen
+	$(PYG) -l c -o $@ $<
+
 gen:
 	mkdir -p gen
 
@@ -41,4 +57,8 @@ clean:
 	rm -f main-presenter.tex main.notes main.pdfpc main-notes.md
 	rm -rf gen
 
-.PHONY: clean presenter publish
+# Check the Rocq demo against the library (see demo/README.md)
+demo:
+	$(MAKE) -C demo check
+
+.PHONY: clean presenter publish demo

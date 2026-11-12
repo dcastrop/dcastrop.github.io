@@ -1,4 +1,6 @@
+% !LW recipe = make-deck
 % Build: make. Requires LaTeX 2025-11-01+, LuaLaTeX and pygmentize.
+% (The magic comment above makes VS Code's LaTeX Workshop build with make.)
 \DocumentMetadata{
   lang        = en-GB,
   pdfstandard = ua-2,
@@ -8,7 +10,7 @@
 
 \input{preamble}
 
-\title{Calculating Correct and Efficient Programs in Rocq}
+\title{Hylomorphisms: From the Algebra of Programming to Certified Code}
 \author{David Castro-Perez}
 \institute{Royal Holloway, University of London}
 \date{Seminar}
@@ -16,10 +18,13 @@
 \begin{document}
 
 \input{sections/00-title}
-\input{sections/01-problem}
-\input{sections/02-divide-and-conquer}
-\input{sections/03-proofs}
-\input{sections/04-results}
-\input{sections/05-goal}
+\input{sections/01-aop}
+\input{sections/02-hylos}
+\input{sections/03-homomorphisms}
+\input{sections/04-interlude}
+\input{sections/05-mechanising}
+\input{sections/06-rocq}
+\input{sections/07-lowlevel}
+\input{sections/08-wrapup}
 
 \end{document}

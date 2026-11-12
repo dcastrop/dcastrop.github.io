@@ -1,139 +1,30 @@
-% ~2 min
-\titleframe{Calculating Correct and Efficient Programs in Rocq}{%
+\titleframe{%
+  \huge Hylomorphisms: From the Algebra of Programming\\ to Certified Code%
+}{%
   \authorblock{David Castro-Perez}{David.CastroPerez@rhul.ac.uk}
     {RHULLogo.png}{Royal Holloway, University of London}}{%
-  \par\medskip
-  {\footnotesize Based on joint work with Marco Paviotti and Michael Vollmer
-    (University of Kent):\\ \emph{Program Optimisations via Hylomorphisms
-    for Extraction of Executable Code}, ITP 2025.}%
-  \speakernote{Joint work with Marco Paviotti and Michael Vollmer (ITP 2025) \\
-    Theme: fast \emph{and} provably correct, without a new proof per program}}
+}
 
 \begin{frame}
-  \frametitle{My Research in One Slide}
-  \begin{columns}[t]
-    \begin{column}{0.32\textwidth}
-      \begin{center}
-        \textbf{Protocols as types}\\[1mm]
-        \includegraphics[width = \linewidth, alt = {Multiparty session
-          types: a global protocol is projected to one local type per
-          participant, and each process is checked against its local
-          type. Well-typed implies protocol compliance and
-          deadlock-freedom.}]{mpst.pdf}\\[1mm]
-        \small well-typed $\Rightarrow$ no deadlocks\\
-        {\footnotesize\color{gray} POPL'19, OOPSLA'20, ECOOP'23, POPL'26}
-      \end{center}
-    \end{column}
-    \begin{column}{0.32\textwidth}
-      \begin{center}
-        \textbf{Certified tools}\\[1mm]
-        \begin{tikzpicture}[alt={Three kinds of statement inside a green box
-            labelled Rocq, Agda and others, with a tick: a typing
-            judgement, Gamma entails M of type T; the hylomorphism equation,
-            h equals f after fmap F h after g; and a small pi-calculus
-            process, restricting a, sending 1 on a in parallel with
-            receiving x on a and sending it on b.},
-          stmt/.style = {box, font = \small, minimum width = 42mm,
-            minimum height = 6.5mm}]
-          \node[stmt] (a) {$\Gamma \vdash M : T$};
-          \node[stmt, below = 1.5mm of a] (b)
-            {$h =_e f \circ \op{fmap}_F\,h \circ g$};
-          \node[stmt, below = 1.5mm of b] (c)
-            {$(\nu a)\,(\overline{a}\langle 1 \rangle \mid
-              a(x).\,\overline{b}\langle x \rangle)$};
-          \node[below = 1mm of c, font = \small\bfseries, text = good] (k)
-            {Rocq / Agda / \ldots\ $\checkmark$};
-          \begin{scope}[on background layer]
-            \node[draw = good, fill = good!8, thick, rounded corners = 4pt,
-              inner sep = 2mm, fit = (a) (b) (c) (k)] {};
-          \end{scope}
-        \end{tikzpicture}\\[2mm]
-        \small mechanised metatheory,\\ certified languages\\
-        {\footnotesize\color{gray} TACAS'20, PLDI'21, ITP'25}
-      \end{center}
-    \end{column}
-    \begin{column}{0.32\textwidth}
-      \begin{center}
-        \textbf{Parallelism}\\[1mm]
-        \begin{tikzpicture}[alt={A task-parallel network: input goes to an
-            emitter, which hands tasks to a farm of three workers; a collector
-            gathers their results and passes them to a pipeline stage, whose
-            output either leaves the network or is fed back to the emitter.},
-          task/.style = {box, font = \scriptsize, inner sep = 2pt,
-            minimum width = 6mm, minimum height = 5mm},
-          >={Stealth[length = 1.5mm]}]
-          \node[task] (e) {E};
-          \foreach \i/\y in {1/5.5, 2/0, 3/-5.5}
-            \node[task, right = 5mm of e, yshift = \y mm] (w\i) {$f$};
-          \node[task, right = 5mm of w2] (c) {C};
-          \node[task, right = 4mm of c] (g) {$g$};
-          \node[font = \scriptsize, left = 2mm of e, inner sep = 0pt] (in) {in};
-          \node[font = \scriptsize, right = 2mm of g, inner sep = 0pt] (out) {out};
-          \draw[->] (in) -- (e);
-          \foreach \i in {1, 2, 3} { \draw[->] (e) -- (w\i); \draw[->] (w\i) -- (c); }
-          \draw[->] (c) -- (g);
-          \draw[->] (g) -- (out);
-          \draw[->, accent2, thick] (g.south) to[out = -90, in = -90, looseness = 1.1]
-            (e.south);
-          \node[note, font = \tiny, above = 0mm of w1] {farm};
-        \end{tikzpicture}\\[1mm]
-        \small structured parallelism,\\ \emph{predicted} speedups\\
-        {\footnotesize\color{gray} ICFP'16, FGCS'18, CC'20}
-      \end{center}
-    \end{column}
-  \end{columns}
-  \uncover<2->{\begin{center}
-    \begin{tikzpicture}[alt={Today's talk sits between certified tools and
-        parallelism.}]
-      \node[hot, minimum width = 80mm] {\textbf{Today}: certified tools
-        $+$ hylomorphisms $\rightarrow$ fast, correct code};
-    \end{tikzpicture}
-  \end{center}}
-  \speakernote{Point at left: protocols as types; well-typed means no deadlocks \\
-    Middle: types, recursion laws, processes; all checked by a machine \\
-    Right: task farms, pipelines, feedback; same results, predicted speedups \\
-    Today: middle meets right}
-\end{frame}
-
-\begin{frame}
-  \frametitle{In One Slide}
+  \frametitle{This Talk}
   \begin{center}
     \begin{tikzpicture}[alt={A clear but slow specification is turned into
-        a fast program by a chain of rewrite steps. Each step is a proved
-        law, so the fast program provably computes the same results as the
-        specification.},
+        a fast program by rewriting with proved laws.},
       stage/.style = {text width = 30mm, align = center,
-        minimum height = 14mm}]
+        minimum height = 12mm}]
       \node[box, stage] (s) {\textbf{clear, slow}\\ specification};
-      \node[hot, stage, right = 50mm of s] (p) {\textbf{fast}\\ program};
+      \node[hot, stage, right = 46mm of s] (p) {\textbf{fast}\\ program};
       \draw[->, very thick] (s) -- node[above, note, align = center]
-        {rewrite with\\ \emph{proved} laws} (p);
+        {rewrite with\\ \emph{laws}} (p);
     \end{tikzpicture}
   \end{center}
-  \begin{columns}
-    \begin{column}{0.45\textwidth}
-      \begin{sticky}
-        \textbf{The idea} (1980s):
-        \begin{itemize}
-          \item Programs as algebra
-          \item Optimise by \underline{rewriting}
-          \item Correct by construction
-        \end{itemize}
-      \end{sticky}
-    \end{column}
-    \hspace{5mm}
-    \begin{column}{0.45\textwidth}
-      \begin{sticky}
-        \textbf{Our work:}
-        \begin{itemize}
-          \item Every step \underline{machine-checked}
-          \item No extra axioms
-          \item Runnable code out
-        \end{itemize}
-      \end{sticky}
-    \end{column}
-  \end{columns}
-  \speakernote{Point at the arrow: spec in, fast program out \\
-    Each step is an equation, so the result equals the spec \\
-    Old idea (Bird, Meertens); new: every step checked by Rocq, code you can run}
+  \begin{enumerate}
+    \item Program calculation
+    \item Mechanising program calculation
+    \item Mechanising \emph{low-level} program calculation (ongoing)
+  \end{enumerate}
+  \speakernote{Theme: spec in, fast program out, every step an equation \\
+    1: the classic theory, with code; laws for parallelism \\
+    2: making it machine-checked, with runnable code \\
+    3: where we are going}
 \end{frame}

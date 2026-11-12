@@ -1,0 +1,37 @@
+% ~2 min (taken from the buffer)
+\begin{frame}
+  \frametitle{Summary}
+  \begin{itemize}
+    \item \textbf{Program calculation}: laws about divide and conquer
+      (hylomorphisms) turn specifications into fast, parallel programs; so
+      far, the laws were trusted.
+    \item \textbf{Mechanising it}: hylomorphisms in Rocq, axiom-free, every
+      step checked, clean extracted code; each definition balances proofs
+      and code.
+    \item \textbf{Mechanising low-level calculation}: serialised data,
+      nested parallel loops, a cost model, all as \emph{proved} laws.
+  \end{itemize}
+  \refs<2>{D. Castro-Perez, M. Paviotti, M. Vollmer. Program Optimisations
+    via Hylomorphisms for Extraction of Executable Code. ITP 2025.\\
+    Library: \url{https://github.com/dcastrop/rocq-hylomorphisms}}
+  \speakernote{One line per part \\
+    Click: reference}
+\end{frame}
+
+\begin{frame}
+  \vfill
+  \begin{center}
+    \begin{minipage}{.75\textwidth}
+      \begin{sticky}[halign = center]
+        % Latin Modern's 17pt design has a tight word space at \Huge
+        {\Huge\spaceskip = .36em\relax Thank you!\par}
+        \bigskip
+        {\large Questions?\par}
+        \medskip
+        \url{https://github.com/dcastrop/rocq-hylomorphisms}\par
+      \end{sticky}
+    \end{minipage}
+  \end{center}
+  \vfill
+  \speakernote{Questions}
+\end{frame}
