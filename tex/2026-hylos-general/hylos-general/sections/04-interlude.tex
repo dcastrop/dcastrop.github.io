@@ -1,7 +1,8 @@
 % Part I, ends with ICFP 2016 (no divider: part of program calculation)
 
-\begin{frame*}
+\begin{frame*}[vertical-alignment = top]
   \frametitle{One Specification, Many Parallel Programs}
+  \vspace*{3mm}
   \hsblock[before upper = {\fvset{fontsize = \footnotesize}}]{psort.hs}
   \begin{center}
     \begin{tikzpicture}[alt={A three-stage parallel sort. A list enters a
@@ -34,123 +35,29 @@
       \node[note, above = 0mm of w1] {farm of $k$};
     \end{tikzpicture}
   \end{center}
-  \uncover<2->{All equal to \code{msort}. Which $n$ and $k$ are
-    \textbf{fastest} on this machine?}
-  \slideref{D. Castro, K. Hammond, S. Sarkar. \textbf{Farms, Pipes, Streams and Reforestation: Reasoning about Structured Parallel Processes using Types and Hylomorphisms}. ICFP 2016.}
+  \begin{onlyenv}<2->
+    {\centering $\op{psort} : \List\,\op{Int} \xrightarrow{\;\sigma\;}
+      \List\,\op{Int}$ \qquad $\sigma = \op{FB}\,(\op{FUN}\,A) \parallel
+      \op{FARM}\,k\,(\op{FUN}\,A) \parallel \op{FB}\,(\op{FUN}\,A)$\par}
+    \smallskip
+    The type carries the structure drawn above; type checking proves
+    \code{psort} equal to \code{msort}, with the laws. A \textbf{cost
+    model} searches for the \textbf{fastest} $\sigma$, $n$ and $k$.
+  \end{onlyenv}
+  \slideref{D. Castro, K. Hammond, S. Sarkar. \textbf{Farms, Pipes, Streams and Reforestation: Reasoning about Structured Parallel Processes using Types and Hylomorphisms}. ICFP 2016. \rfsep
+    D. Castro, K. Hammond, S. Sarkar, Y. Alguwaifli. \textbf{Automatically Deriving Cost Models for Structured Parallel Processes Using Hylomorphisms}. FGCS 2018.}
   \icfptag
   \speakernote{Skeletons: reusable parallel patterns; fb = feedback, farm
     = replicated workers, || = pipeline \\
     Split stage: an unfold as a loop; merge stage: a fold as a loop \\
     Same result as mergesort, many choices of n and k \\
-    Two questions: is it equal? which is fastest?}
-\end{frame*}
-
-\begin{frame*}
-  \frametitle{Same Sort, Another Structure: Splitter and Merger Farms}
-  \hsblock[before upper = {\fvset{fontsize = \footnotesize}}]{psort2.hs}
-  \begin{center}
-    \begin{tikzpicture}[alt={Another parallel sort. A list enters a farm
-        of k splitters inside a feedback loop: each splitter halves a long
-        list and feeds the halves back, or sorts a short list and passes it
-        on. The sorted lists enter a farm of k' mergers inside another
-        feedback loop: each merger merges two sorted lists and feeds the
-        result back, until one sorted list remains.},
-      stage/.style = {box, font = \small, minimum height = 5mm,
-        minimum width = 14mm, inner sep = 2pt},
-      farmbox/.style = {draw = gray, dashed, rounded corners = 3pt,
-        inner sep = 2mm},
-      loop/.style = {->, accent2, thick},
-      >={Stealth[length = 1.5mm]}]
-      \node (in) {list};
-      \foreach \i/\y in {1/5, 2/0, 3/-5}
-        \node[stage, right = 14mm of in, yshift = \y mm] (s\i) {splitSort};
-      \node[farmbox, fit = (s1) (s3)] (F1) {};
-      \foreach \i/\y in {1/5, 2/0, 3/-5}
-        \node[stage, right = 36mm of s2, yshift = \y mm] (m\i) {merge};
-      \node[farmbox, fit = (m1) (m3)] (F2) {};
-      \node[right = 8mm of F2] (out) {sorted};
-      \draw[->] (in) -- (F1);
-      \draw[->] (F1) -- (F2);
-      \draw[->] (F2) -- (out);
-      \draw[loop] (F1.north east) .. controls +(0.5, 0.6) and +(-0.5, 0.6)
-        .. (F1.north west);
-      \draw[loop] (F2.north east) .. controls +(0.5, 0.6) and +(-0.5, 0.6)
-        .. (F2.north west);
-      \node[note, above = 4.5mm of F1] {$k$ splitters; halves fed back};
-      \node[note, above = 4.5mm of F2] {$k'$ mergers; pairs fed back};
-    \end{tikzpicture}
-  \end{center}
-  \begin{itemize}[<+->]
-    \item Sorting \textbf{fused} into the splitters; merges in
-      \textbf{parallel}, in any order.
-    \item Type: $\op{FB}\,(\op{FARM}\,k\,(\op{FUN}\,A)) \parallel
-      \op{FB}\,(\op{FARM}\,k'\,(\op{FUN}\,A))$.
-  \end{itemize}
-  \icfptag
-  \speakernote{Same specification, msort; another parallel structure \\
-    Farms inside the feedback loops: many splitters, many mergers \\
-    Short lists leave the splitters sorted: pipeline law, fun f || fun g =
-    fun (g . f) \\
-    Any pairing of merges is fine: associative and commutative \\
-    Which is faster depends on the machine: next, the cost model}
-\end{frame*}
-
-\begin{frame}[vertical-alignment = top]
-  \frametitle{Skeletons Mean Hylomorphisms}
-  \vspace*{4mm}
-  \begin{center}
-    \renewcommand\arraystretch{1.3}
-    \begin{tabular}{lll}
-      \textbf{skeleton} & \textbf{runs as} & \textbf{computes} \\ \hline
-      \code{farm k p} & $k$ copies of \code{p} & \code{p} \\
-      \code{p || q} & \code{p} and \code{q} at the same time & \code{q}
-        after \code{p} \\
-      \code{fb p} & outputs fed back as inputs & \code{p}, repeated \\
-      \code{dc conquer divide} & sub-problems in parallel &
-        \code{hylo conquer divide} \\
-    \end{tabular}
-  \end{center}
-  \begin{onlyenv}<2->
-    Types carry the parallel structure:
-    \[
-      \op{psort} : \List\,\op{Int} \xrightarrow{\;\sigma\;}
-        \List\,\op{Int}
-      \qquad
-      \sigma = \op{FB}\,(\op{FUN}\,A) \parallel
-        \op{FARM}\,k\,(\op{FUN}\,A) \parallel \op{FB}\,(\op{FUN}\,A)
-    \]
-  \end{onlyenv}
-  \begin{onlyenv}<3->
-    Type checking: \emph{is there an equal program with this structure?}
-    Answered with the laws of hylomorphisms.
-  \end{onlyenv}
-  \par
-  \icfptag
-  \speakernote{Each skeleton has a sequential meaning: a farm computes its
-    worker; dc is a hylomorphism \\
-    The structure goes in the type; the program stays sequential \\
-    Type checking decides equivalence, using the laws}
-\end{frame}
-
-\begin{frame*}[vertical-alignment = top]
-  \frametitle{Reforestation, Then Choose by Cost}
-  \vspace*{4mm}
-  \hsblock{psort-calc.hs}
-  \begin{itemize}[<+->]
-    \item Each factor becomes a stage: the unfold and the fold run as
-      \textbf{feedback} loops, the map as a \textbf{farm}.
-    \item \code{merge} is associative and commutative: sorted chunks may
-      be merged in \textbf{any} order.
-    \item A \textbf{cost model} picks the structure, the chunk size $n$ and
-      the numbers of workers.
-  \end{itemize}
-  \slideref{D. Castro, K. Hammond, S. Sarkar, Y. Alguwaifli. \textbf{Automatically Deriving Cost Models for Structured Parallel Processes Using Hylomorphisms}. FGCS 2018.}
-  \icfptag
-  \speakernote{Reforestation: deforestation backwards, put the tree back
-    to expose stages \\
-    Type checking: erase the parallelism, normalise, unify with the type \\
-    Commutative merge: the feedback stage needs no order \\
-    Cost model: chunk size and workers; scheduling again}
+    sigma: FB = feedback, FARM k = k workers, || = pipeline, FUN =
+    sequential \\
+    Is it equal? The type checker answers, normalising with the laws
+    (reforestation: put the tree back to expose stages) \\
+    Which is fastest? A cost model, from the same structure (FGCS 2018) \\
+    Other structures (splitter and merger farms), the skeleton table,
+    reforestation: backup}
 \end{frame*}
 
 \begin{frame}[vertical-alignment = top]
@@ -159,27 +66,33 @@
   \begin{itemize}[<+->]
     \item \textbf{Laws as axioms}: the ICFP 2016 type system assumed them,
       and programs could diverge.
+    \item \textbf{Side conditions on trust}: \code{hylo merge halves}
+      becomes \code{... || fb (fun merge)} only if \code{merge} is
+      associative and commutative; the library took the programmer's word
+      for it.
     \item \textbf{Unverified tools}: implement the patterns or rewrites,
-      then calculate by hand or by trusted rewriting.\par
-      {\small HYLO (Hu et al., ICFP'96); MAG (de Moor, Sittampalam,
-      TCS'01); Pointless Haskell, DrHylo (Cunha et al., IFL'05); SkeTo
-      (Matsuzaki, Emoto, HLPP'10); HERMIT (Farmer et al., Haskell'12)\par}
+      then calculate by hand or by trusted rewriting.
     \item \textbf{No compilation to idiomatic code}: calculated programs
       stay higher-order; we trust the compiler to inline them into
       efficient code.
   \end{itemize}
-  \uncover<4->{\begin{center}
-    \begin{tikzpicture}[alt={The question for the rest of the talk: prove
-        the laws once, check every rewrite, and still run efficient
-        code.}]
-      \node[hot, minimum width = 100mm, minimum height = 9mm]
-        {Prove the laws once, check every rewrite, \emph{still run
-        efficient code}?};
+  \uncover<5->{\begin{center}
+    \begin{tikzpicture}[alt={The question for the rest of the talk: can a
+        proof assistant prove each law once, check every rewrite, side
+        conditions included, and still produce efficient code?}]
+      \node[hot, text width = 140mm, align = center, inner sep = 1.5mm]
+        {Can a proof assistant \textbf{prove} each law once,
+        \textbf{check} every rewrite, side conditions included, and still
+        produce \textbf{efficient} code?};
     \end{tikzpicture}
   \end{center}}
+  \slideref{Tools: HYLO (Hu et al., ICFP'96); MAG (de Moor, Sittampalam, TCS'01); Pointless Haskell, DrHylo (Cunha et al., IFL'05); SkeTo (Matsuzaki, Emoto, HLPP'10); HERMIT (Farmer et al., Haskell'12).}
   \icfptag
   \speakernote{ICFP'16: soundness on paper, laws taken for granted; cpo
     semantics \\
+    Side conditions: merging in a feedback loop pairs chunks in any order,
+    so merge must be associative and commutative; never checked: the
+    PyTorch failure mode \\
     Same elsewhere: compilers (HYLO), transformation systems (MAG, HERMIT),
     point-free tools (Cunha et al.), skeleton libraries (SkeTo) \\
     Higher-order code (folds, combinators, skeletons): efficiency left to

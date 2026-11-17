@@ -14,23 +14,27 @@
   \mainblock{sql-pushdown.sql}
   An ML compiler:
   \mainblock{torch-fusion.py}
-  % Step 2: should you trust them? A real case. Step 3: a box on top.
+  % Step 2: should you trust them? A real case, over the code. Step 3: the
+  % moral, over that.
   \only<2->{\par\nointerlineskip\vbox to 0pt{%
     \begin{tikzpicture}[overlay, remember picture, alt = {Should you really
         trust them? A real case, PyTorch issue 196468: an attention-shaped
-        pattern rewrite ignores the softmax dimension, silently computing
-        attention over the last axis: a fusion rule whose side condition is
-        never checked.}]
+        pattern rewrite ignores the softmax dimension: with softmax over
+        dimension 0, the compiled code silently computes softmax over the
+        last axis. A rewrite rule whose side condition is never checked.}]
       \node[anchor = north, fill = white, draw = black!25,
-        rounded corners = 3pt, drop shadow, text width = 150mm,
+        rounded corners = 3pt, drop shadow, text width = 156mm,
         align = left, inner sep = 3mm]
         at ($(current page.north) + (0, -15mm)$)
         {{\Large\bfseries\color{bad} Should you really trust them?\par}\medskip
-         \includegraphics[width = \linewidth, alt = {Screenshot of PyTorch
-          issue 196468, open, labelled high priority and correctness
-          (silent)}]{pytorch-196468.png}\par\smallskip
-         \small A fusion rule whose side condition (softmax over the
-         \textbf{last} axis) is never checked.\par
+         {\centering
+          \includegraphics[width = 150mm, alt = {Screenshot of PyTorch
+           issue 196468, open, labelled high priority and correctness
+           (silent)}]{pytorch-196468.png}\par}\smallskip
+         \small The ML compiler's attention rewrite, with \code{dim=0}: the
+         compiled code silently computes \code{dim=-1}. A rewrite rule whose
+         side condition (softmax over the \textbf{last} axis) is never
+         checked.\par
          {\footnotesize\url{https://github.com/pytorch/pytorch/issues/196468}\par}};
     \end{tikzpicture}\vss}}
   \only<3>{\par\nointerlineskip\vbox to 0pt{%
@@ -46,13 +50,14 @@
         \textbf{our own} programs?};
     \end{tikzpicture}\vss}}
   \speakernote{SQL: predicate pushdown, a law of relational algebra \\
-    PyTorch / XLA: element-wise ops fused into one kernel \\
-    Click: should you trust them? PyTorch \#196468 (open, high priority):
+    PyTorch: matmul, softmax, matmul matched and replaced by one fused
+    attention op \\
+    Should you trust them? PyTorch \#196468 (open, high priority):
     one real case of a rewrite applied without checking its condition, not
     a claim about optimisers in general;
-    the fusion ignores which axis softmax uses; a side condition nobody
-    checks \\
-    Click: trust needs proved laws and checked side conditions; for our own
+    softmax over dim 0: still rewritten, computes dim -1; no error, no
+    warning; the side condition (last axis) nobody checks \\
+    Trust needs proved laws and checked side conditions; for our own
     programs: the algebra of programming}
 \end{frame*}
 
@@ -71,15 +76,23 @@
   \end{center}
   \begin{enumerate}
     \item \textbf{Program calculation}: how do laws turn a clear
-      specification into a fast program?
+      specification into a fast program?\\
+      {\small\textcolor{black!60}{The classic theory, and our ICFP 2016
+      work on parallel programs.}}
     \item \textbf{Mechanising it}: can a machine check every step, side
-      conditions included, and still give clean code?
-    \item \textbf{Low-level calculation} (ongoing): how far down can we go?
+      conditions included, and still give clean code?\\
+      {\small\textcolor{black!60}{Our Rocq library: joint work with
+      M. Paviotti and M. Vollmer (ITP 2025).}}
+    \item \textbf{Low-level calculation} (ongoing): how far down can we
+      go? Can untrusted search (compilers, e-graphs, ML) propose the steps,
+      with Rocq checking each one?
   \end{enumerate}
   \speakernote{Answer to the last slide: laws, proved, side conditions
     checked \\
     Theme: spec in, fast program out, every step an equation \\
-    1: the classic theory, with code; laws for parallelism \\
-    2: making it machine-checked, with runnable code \\
-    3: where we are going}
+    1: the classic theory, with code; laws for parallelism (ours, ICFP
+    2016) \\
+    2: making it machine-checked, with runnable code (ours, with Paviotti
+    and Vollmer) \\
+    3: where we are going; search proposes, Rocq checks}
 \end{frame}

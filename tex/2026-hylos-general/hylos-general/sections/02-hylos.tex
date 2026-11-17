@@ -27,9 +27,9 @@
     (empty: \code{None}; non-empty: the pivot \code{p}),\\ and what
     \code{conquer} needs from it}{tb, td}
   \speakernote{Quicksort, written directly \\
-    Click: divide (pivot, split the rest); recursion; conquer (glue) \\
-    Click: factor them out; one generic function \\
-    Last click: tag = the case divide found (None: empty list; p:
+    Divide (pivot, split the rest); recursion; conquer (glue) \\
+    Factor them out; one generic function \\
+    tag = the case divide found (None: empty list; p:
     non-empty) and the data conquer needs (the pivot); conquer dispatches on
     it \\
     The pattern: a hylomorphism (divide: coalgebra, conquer: algebra)}
@@ -115,56 +115,6 @@
     Independent subtrees: parallelism comes back later}
 \end{frame}
 
-\begin{frame}
-  \frametitle{Where Hylomorphisms Come From}
-  \begin{columns}
-    \begin{column}{0.4\textwidth}
-      \[
-        \begin{tikzcd}[alt={A commuting square: h goes from A to B; divide
-            goes from A to F A, one layer of sub-problems; fmap h goes from
-            F A to F B, solving every sub-problem; conquer goes from F B to
-            B. So h equals conquer after fmap h after divide.},
-            column sep = 15mm, row sep = 13mm]
-          A \arrow[r, "h", dashed] \arrow[d, "\code{divide}"'] \& B \\
-          F\,A \arrow[r, "\op{fmap}\,h"'] \& F\,B
-            \arrow[u, "\code{conquer}"']
-        \end{tikzcd}
-      \]
-      \begin{center}
-        \small $h = \code{conquer} \circ \op{fmap}\,h \circ
-        \code{divide}$
-      \end{center}
-    \end{column}
-    \begin{column}{0.56\textwidth}
-      \small
-      \renewcommand\arraystretch{1.3}
-      \begin{tabular}{@{}l@{\quad}>{\raggedright\arraybackslash}p{70mm}@{}}
-        1987 & \textbf{Hagino}: data types from category theory \\
-        1991 & \textbf{Meijer, Fokkinga, Paterson}: hylomorphisms defined
-          and named, with their laws \\
-        1996 & \textbf{Hu, Iwasaki, Takeichi}: found in ordinary programs
-          \\
-        2006 & \textbf{Capretta, Uustalu, Vene}: when $h$ is unique \\
-        2020 & \textbf{Ad\'amek, Milius, Moss}: if \code{divide}
-          terminates, $h$ exists and is unique \\
-      \end{tabular}
-    \end{column}
-  \end{columns}
-  \slideref{T. Hagino. \textbf{A Categorical Programming Language}. PhD thesis, 1987. \rfsep
-    E. Meijer, M. Fokkinga, R. Paterson. \textbf{Functional Programming with Bananas, Lenses, Envelopes and Barbed Wire}. FPCA 1991. \rfsep
-    Z. Hu, H. Iwasaki, M. Takeichi. \textbf{Deriving Structural Hylomorphisms from Recursive Definitions}. ICFP 1996. \rfsep
-    V. Capretta, T. Uustalu, V. Vene. \textbf{Recursive Coalgebras from Comonads}. Inf. Comput. 2006. \rfsep
-    J. Ad\'amek, S. Milius, L. S. Moss. \textbf{On Well-Founded and Recursive Coalgebras}. FoSSaCS 2020.}
-  \speakernote{F: one layer (Layer in the Haskell); divide: coalgebra,
-    conquer: algebra \\
-    Hagino: data types as initial algebras, final coalgebras \\
-    Meijer et al. 1991: the first hylomorphisms ("envelopes"), the name
-    (Greek matter + form: unfold, then fold) and their laws \\
-    Hu et al.: the HYLO system finds hylos in ordinary code \\
-    Unique h: recursive coalgebras (CUV); terminating (well-founded)
-    divide suffices (AMM): key for Rocq later}
-\end{frame}
-
 \begin{frame}[vertical-alignment = top]
   \frametitle{Fusion and Deforestation}
   \vspace*{4mm}
@@ -200,7 +150,8 @@
       \node[stage, right = 4mm of c3, draw = good, fill = good!8]
         {hylo conquer divide};
       \node[cond] at ([yshift = -1mm]c1.south west)
-        {build the tree, then fold it $=$ no tree in memory};
+        {\code{ana}: build the call tree; \code{cata}: fold it. Together
+        $=$ no tree in memory};
     \end{tikzpicture}\par}
   \uncover<2->{All follow from \textbf{uniqueness} (\code{hylo} is the only
     solution of its equation), and are proved \textbf{once}, for every
@@ -217,7 +168,8 @@
     into divide (either may be the identity) \\
     The side condition: what PyTorch never checked \\
     Deforestation: ana builds the tree, cata folds it; together, no tree \\
-    Uniqueness again; it needs care, back in Part II \\
+    Uniqueness: hylo is the only solution of its equation; it needs care,
+    back in Part II \\
     Faster: fewer passes, no intermediate data; the usual payoff of
     calculation; GHC RULES (foldr/build, stream fusion), XLA and Inductor
     kernel fusion; no numbers}

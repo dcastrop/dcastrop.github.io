@@ -11,10 +11,12 @@
    Rocq answers `Found no subterm matching "hylo ?g2 ?h2 \o hylo ?g1 ?h1"`;
 4. `Extraction qsort_times_two` and `Print Assumptions`;
 5. a law with a false side condition: fusing `map negate` into the divide
-   step. Rocq applies `hylo_fusion_r` but leaves its premise,
+   step with the wrong new divide step (`h2 := tsplit`, the old one).
+   Rocq applies `hylo_fusion_r` but leaves its premise,
    `tsplit \o Lmap negate =e fmap (Lmap negate) \o tsplit`, as goal 2,
-   which is false; the main goal would have become plain quicksort. The
-   proof ends in `Abort`.
+   which is false for this choice; the main goal would have become plain
+   quicksort. (The right `h2` negates the pivot and compares negated
+   values.) The proof ends in `Abort`.
 
 It needs the post-ITP library (`Derive`, `arewrite`, `finished`,
 `hylo_cps_hylo`), built with `dune build`. By default the Makefile uses the

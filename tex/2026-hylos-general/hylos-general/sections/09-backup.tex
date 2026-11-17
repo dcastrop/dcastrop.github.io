@@ -37,6 +37,56 @@
     Skeletons and cost models: ICFP 2016, FGCS 2018}
 \end{frame}
 
+\begin{frame}
+  \frametitle{Where Hylomorphisms Come From}
+  \begin{columns}
+    \begin{column}{0.4\textwidth}
+      \[
+        \begin{tikzcd}[alt={A commuting square: h goes from A to B; divide
+            goes from A to F A, one layer of sub-problems; fmap h goes from
+            F A to F B, solving every sub-problem; conquer goes from F B to
+            B. So h equals conquer after fmap h after divide.},
+            column sep = 15mm, row sep = 13mm]
+          A \arrow[r, "h", dashed] \arrow[d, "\code{divide}"'] \& B \\
+          F\,A \arrow[r, "\op{fmap}\,h"'] \& F\,B
+            \arrow[u, "\code{conquer}"']
+        \end{tikzcd}
+      \]
+      \begin{center}
+        \small $h = \code{conquer} \circ \op{fmap}\,h \circ
+        \code{divide}$
+      \end{center}
+    \end{column}
+    \begin{column}{0.56\textwidth}
+      \small
+      \renewcommand\arraystretch{1.3}
+      \begin{tabular}{@{}l@{\quad}>{\raggedright\arraybackslash}p{70mm}@{}}
+        1987 & \textbf{Hagino}: data types from category theory \\
+        1991 & \textbf{Meijer, Fokkinga, Paterson}: hylomorphisms defined
+          and named, with their laws \\
+        1996 & \textbf{Hu, Iwasaki, Takeichi}: found in ordinary programs
+          \\
+        2006 & \textbf{Capretta, Uustalu, Vene}: when $h$ is unique \\
+        2020 & \textbf{Ad\'amek, Milius, Moss}: if \code{divide}
+          terminates, $h$ exists and is unique \\
+      \end{tabular}
+    \end{column}
+  \end{columns}
+  \slideref{T. Hagino. \textbf{A Categorical Programming Language}. PhD thesis, 1987. \rfsep
+    E. Meijer, M. Fokkinga, R. Paterson. \textbf{Functional Programming with Bananas, Lenses, Envelopes and Barbed Wire}. FPCA 1991. \rfsep
+    Z. Hu, H. Iwasaki, M. Takeichi. \textbf{Deriving Structural Hylomorphisms from Recursive Definitions}. ICFP 1996. \rfsep
+    V. Capretta, T. Uustalu, V. Vene. \textbf{Recursive Coalgebras from Comonads}. Inf. Comput. 2006. \rfsep
+    J. Ad\'amek, S. Milius, L. S. Moss. \textbf{On Well-Founded and Recursive Coalgebras}. FoSSaCS 2020.}
+  \speakernote{F: one layer (Layer in the Haskell); divide: coalgebra,
+    conquer: algebra \\
+    Hagino: data types as initial algebras, final coalgebras \\
+    Meijer et al. 1991: the first hylomorphisms ("envelopes"), the name
+    (Greek matter + form: unfold, then fold) and their laws \\
+    Hu et al.: the HYLO system finds hylos in ordinary code \\
+    Unique h: recursive coalgebras (CUV); terminating (well-founded)
+    divide suffices (AMM): key for Rocq later}
+\end{frame}
+
 \begin{frame}[vertical-alignment = top]
   \frametitle{The Third Homomorphism Theorem, and After}
   \vspace*{2mm}
@@ -75,6 +125,201 @@
 \end{frame}
 
 \begin{frame*}[vertical-alignment = top]
+  \frametitle{Homomorphisms Are Divide and Conquer}
+  \vspace*{2.5mm}
+  \hsblock[before upper = {\fvset{fontsize = \footnotesize}}]{hom.hs}
+  \footnotesize
+  \begin{itemize}
+    \item \textbf{Any} cut gives the same result (\code{combine} is
+      associative): the cut is a \textbf{scheduling} choice, for
+      performance only.
+    \item Valid cuts keep the order (\code{l ++ r == xs}) and make
+      progress (both pieces non-empty, so the call tree is finite). Proof:
+      induction on the call tree, using only associativity.
+  \end{itemize}
+  \speakernote{A homomorphism is a hylo whose divide step is a parameter \\
+    splitBy: the leaves, and any cut that keeps the order \\
+    halves: balanced, depth log n, parallel; heads: a loop \\
+    Same answer for every cut: pick the cut for the machine}
+\end{frame*}
+
+\begin{frame}[vertical-alignment = top]
+  \frametitle{Skeletons Mean Hylomorphisms}
+  \vspace*{4mm}
+  \begin{center}
+    \renewcommand\arraystretch{1.3}
+    \begin{tabular}{lll}
+      \textbf{skeleton} & \textbf{runs as} & \textbf{computes} \\ \hline
+      \code{farm k p} & $k$ copies of \code{p} & \code{p} \\
+      \code{p || q} & \code{p} and \code{q} at the same time & \code{q}
+        after \code{p} \\
+      \code{fb p} & outputs fed back as inputs & \code{p}, repeated \\
+      \code{dc conquer divide} & sub-problems in parallel &
+        \code{hylo conquer divide} \\
+    \end{tabular}
+  \end{center}
+  Types carry the parallel structure:
+    \[
+      \op{psort} : \List\,\op{Int} \xrightarrow{\;\sigma\;}
+        \List\,\op{Int}
+      \qquad
+      \sigma = \op{FB}\,(\op{FUN}\,A) \parallel
+        \op{FARM}\,k\,(\op{FUN}\,A) \parallel \op{FB}\,(\op{FUN}\,A)
+    \]
+  Type checking: \emph{is there an equal program with this structure?}
+  Erase the parallelism, normalise with the laws of hylomorphisms, unify
+  with the type. Sound for a cpo semantics, with the laws
+  \textbf{assumed}.
+  \par
+  \icfptag
+  \speakernote{Each skeleton has a sequential meaning: a farm computes its
+    worker; dc is a hylomorphism \\
+    The structure goes in the type; the program stays sequential \\
+    Type checking decides equivalence, using the laws}
+\end{frame}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Reforestation, Then Choose by Cost}
+  \vspace*{4mm}
+  \hsblock{psort-calc.hs}
+  \begin{itemize}
+    \item Each factor becomes a stage: the unfold and the fold run as
+      \textbf{feedback} loops, the map as a \textbf{farm}.
+    \item \code{merge} is associative and commutative: sorted chunks may
+      be merged in \textbf{any} order.
+    \item A \textbf{cost model} picks the structure, the chunk size $n$ and
+      the numbers of workers.
+  \end{itemize}
+  \slideref{D. Castro, K. Hammond, S. Sarkar, Y. Alguwaifli. \textbf{Automatically Deriving Cost Models for Structured Parallel Processes Using Hylomorphisms}. FGCS 2018.}
+  \icfptag
+  \speakernote{Reforestation: deforestation backwards, put the tree back
+    to expose stages \\
+    Type checking: erase the parallelism, normalise, unify with the type \\
+    Commutative merge: the feedback stage needs no order \\
+    Cost model: chunk size and workers; scheduling again}
+\end{frame*}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Same Sort, Another Structure: Splitter and Merger Farms}
+  \vspace*{1.5mm}
+  \hsblock[before upper = {\fvset{fontsize = \footnotesize}}]{psort2.hs}
+  \begin{center}
+    \begin{tikzpicture}[alt={Another parallel sort. A list enters a farm
+        of k splitters inside a feedback loop: each splitter halves a long
+        list and feeds the halves back, or sorts a short list and passes it
+        on. The sorted lists enter a farm of k' mergers inside another
+        feedback loop: each merger merges two sorted lists and feeds the
+        result back, until one sorted list remains.},
+      stage/.style = {box, font = \small, minimum height = 5mm,
+        minimum width = 14mm, inner sep = 2pt},
+      farmbox/.style = {draw = gray, dashed, rounded corners = 3pt,
+        inner sep = 2mm},
+      loop/.style = {->, accent2, thick},
+      >={Stealth[length = 1.5mm]}]
+      \node (in) {list};
+      \foreach \i/\y in {1/5, 2/0, 3/-5}
+        \node[stage, right = 14mm of in, yshift = \y mm] (s\i) {splitSort};
+      \node[farmbox, fit = (s1) (s3)] (F1) {};
+      \foreach \i/\y in {1/5, 2/0, 3/-5}
+        \node[stage, right = 36mm of s2, yshift = \y mm] (m\i) {merge};
+      \node[farmbox, fit = (m1) (m3)] (F2) {};
+      \node[right = 8mm of F2] (out) {sorted};
+      \draw[->] (in) -- (F1);
+      \draw[->] (F1) -- (F2);
+      \draw[->] (F2) -- (out);
+      \draw[loop] (F1.north east) .. controls +(0.5, 0.6) and +(-0.5, 0.6)
+        .. (F1.north west);
+      \draw[loop] (F2.north east) .. controls +(0.5, 0.6) and +(-0.5, 0.6)
+        .. (F2.north west);
+      \node[note, above = 4.5mm of F1] {$k$ splitters; halves fed back};
+      \node[note, above = 4.5mm of F2] {$k'$ mergers; pairs fed back};
+    \end{tikzpicture}
+  \end{center}
+  {\footnotesize\begin{itemize}
+    \item Sorting \textbf{fused} into the splitters; merges in
+      \textbf{parallel}, in any order.
+    \item Type: $\op{FB}\,(\op{FARM}\,k\,(\op{FUN}\,A)) \parallel
+      \op{FB}\,(\op{FARM}\,k'\,(\op{FUN}\,A))$.
+    \item Laws: \code{fun f || fun g = fun (g . f)}; \code{farm k p} computes
+      \code{p}; \code{merge} is associative and commutative.
+  \end{itemize}\par}
+  \icfptag
+  \speakernote{Same specification, msort; another parallel structure \\
+    Farms inside the feedback loops: many splitters, many mergers \\
+    Short lists leave the splitters sorted: pipeline law, fun f || fun g =
+    fun (g . f) \\
+    Any pairing of merges is fine: associative and commutative \\
+    Which is faster depends on the machine: the cost model decides}
+\end{frame*}
+
+\begin{frame}[vertical-alignment = top]
+  \frametitle{Program Calculation in Proof Assistants}
+  \vspace*{2mm}
+  \begin{center}
+    \footnotesize
+    \renewcommand\arraystretch{1.1}
+    \begin{tabular}{@{}>{\raggedright}p{37mm}l>{\raggedright}p{46mm}
+      >{\raggedright\arraybackslash}p{46mm}@{}}
+      \textbf{Work} & & \textbf{Approach} & \textbf{Limits} \\ \hline
+      Mu, Ko, Jansson, JFP'09 & Agda & relational derivations (AoPA) &
+        extraction not discussed \\
+      Tesson et al., AMAST'10 & Coq/Rocq & list homomorphisms (SyDPaCC),
+        parallel OCaml (BSML) & lists only \\
+      Emoto et al., ITP'14; Loulergue et al., IJPP'17 & Coq/Rocq & list
+        homomorphisms, extracted to parallel code & lists only \\
+      Sculthorpe, Hutton, JFP'14 & Agda & worker/wrapper, with its
+        correctness conditions & one optimisation \\
+      Murata, Emoto, APLAS'19 & Coq/Rocq & recursion schemes & no
+        hylomorphisms, so no divide and conquer; function extensionality
+        \\
+      Larchey-Wendling, Monin, 2022 & Coq/Rocq & general recursion,
+        extracted (the Braga method) & one algorithm at a time \\
+      Abreu et al., POPL'23 & Coq/Rocq & divide and conquer, termination
+        by typing & function extensionality, impredicative \code{Set};
+        extracted code with casts, hard to read \\
+    \end{tabular}
+  \end{center}
+  Each misses at least one of: any data type, laws as equalities, no
+  axioms, clean code.
+  \speakernote{Agda AoPA: relational derivations, no extraction \\
+    Tesson et al., SyDPaCC: list homomorphisms in Coq/Rocq, parallel OCaml
+    (BSML) \\
+    Murata and Emoto: schemes, but funext and no hylos; Braga: per
+    algorithm \\
+    Abreu et al.: termination by typing; funext, impredicative Set; casts}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Definition Trade-off: Proofs or Code?}
+  \begin{center}
+    \footnotesize
+    \renewcommand\arraystretch{1.3}
+    \begin{tabular}{@{}>{\raggedright}p{46mm}>{\raggedright}p{46mm}
+      >{\raggedright\arraybackslash}p{46mm}@{}}
+      \textbf{Definition} & \textbf{Proofs} & \textbf{Extracted code} \\
+      \hline
+      one type of positions + a check & side proofs about the check &
+        plain types, no unchecked casts \\
+      equality as ``same results'' & no axioms; extra proofs, slower
+        rewriting & extra arguments, unless inlined \\
+      our own termination predicate & simpler induction & identical \\
+      one generic \code{hylo} & laws proved once &
+        a record per call, unless inlined \\
+      children as a function & laws are easy & a closure per call \\
+    \end{tabular}
+  \end{center}
+  Top two: chosen for both proofs and code. Third: for proofs only. Bottom
+  two: easy proofs, costly code; now removed by inlining and
+  continuation-passing style.
+  \speakernote{Top: choices made for both proofs and code \\
+    Same-results equality = setoids: no funext, but every function needs a
+    properness proof; rewriting slow \\
+    RecF vs Acc: proofs only \\
+    Bottom three: easy proofs, costly code (record, closure: fixed since
+    ITP 2025)}
+\end{frame}
+
+\begin{frame*}[vertical-alignment = top]
   \frametitle{ITP 2025's Extracted Quicksort, and Its Closures}
   \vspace*{3mm}
   \ocamlblock[before upper = {\fvset{fontsize = \scriptsize}}]{itp-qsort.ml}
@@ -92,7 +337,6 @@
       known layer, and \code{x0 Lbranch} becomes \code{qsort\_double
       l0}; \code{hylo\_cps\_hylo} proves the two equal.
   \end{itemize}
-  \rocqtag
   \speakernote{Real output of the paper's version (Rocq 9 port), renamed \\
     x0: the children as a function, a closure each call \\
     Cause: a match on a match; extraction does not commute them \\
@@ -172,7 +416,6 @@
   \end{itemize}
   \slideref{J. Kabanov, V. Vene. \textbf{Recursion Schemes for Dynamic Programming}. MPC 2006. \rfsep
     R. Hinze, N. Wu, J. Gibbons. \textbf{Conjugate Hylomorphisms, or: The Mother of All Structured Recursion Schemes}. POPL 2015.}
-  \rocqtag
   \speakernote{Dynamorphism: a hylo with a memo table (Kabanov, Vene) \\
     reenumerate: Hlook, the children are found along the chain \\
     fast\_drop: O(1) jump, proved equal to the walk \\
@@ -196,7 +439,6 @@
       from cubic (\code{maximum . map sum . segs}) to linear (Horner's
       rule, a scan, tupling), by \code{Derive}.
   \end{itemize}
-  \rocqtag
   \speakernote{malg = monoid algebra: combine a node's value with its
     children's results, in order \\
     malg\_fusion: one-line proof, from malg\_hom \\

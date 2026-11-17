@@ -43,12 +43,12 @@
 % A tag in the top-right corner: which work a frame belongs to. At the end
 % of the frame, like \slideref.
 \NewDocumentCommand\worktag{O{accent} m}{%
+  \def\worktagged{}% the chips (\obstacle) then go under the tag
   \begin{tikzpicture}[overlay, remember picture, alt = {Tag: #2}]
     \node[anchor = north east, draw = #1, fill = #1!12, text = #1,
       rounded corners = 2pt, font = \footnotesize\bfseries, inner sep = 3pt]
       at ($(current page.north east) + (-4mm, -4mm)$) {#2};
   \end{tikzpicture}\par}
-\newcommand\rocqtag{\worktag[accent]{Rocq Library}}
 \newcommand\icfptag{\worktag[accent]{ICFP 2016}}
 \newcommand\ongoingtag{\worktag[accent2]{ongoing}}
 
@@ -67,7 +67,8 @@
     \begin{tikzpicture}[overlay, remember picture, alt = {Obstacle: #1}]
       \node[anchor = north east, draw = golden!80!black, fill = yellow!20,
         rounded corners = 2pt, font = \scriptsize, inner sep = 2pt]
-        at ($(current page.north east) + (-4mm, -10.5mm)$) {#1};
+        at ($(current page.north east)
+          + (-4mm, \ifdefined\worktagged -10.5mm\else -4mm\fi)$) {#1};
     \end{tikzpicture}\vss}%
   \prevdepth = \dcp@prevdepth\relax}
 \makeatother
@@ -90,6 +91,14 @@
       {\textcolor{black!40}{\rule{25mm}{0.4pt}}\\[0.3ex] #1};
   \end{tikzpicture}\par}
 
+% \noslideref: the blank line a \slideref leaves, without the reference
+% (for overlays that show no reference, so that the content does not move)
+\newcommand\noslideref{\leavevmode\par}
+
+% A step in a calculation: "= { law }", in grey
+\NewDocumentCommand\calcstep{m}{\hspace*{3mm}\textcolor{black!55}{$=$
+  \{\,#1\,\}}}
+
 % A short citation on its own line, in small grey type (timeline boxes)
 \newcommand\tlcite[1]{\\{\scriptsize\textcolor{gray}{#1}}}
 
@@ -100,9 +109,10 @@
   \only<#1>{%
     \begin{tikzpicture}[overlay, remember picture, alt = {Quotation: #2 (#3)}]
       \node[anchor = north, fill = yellow!20, draw = golden!80!black,
-        rounded corners = 3pt, drop shadow, text width = 140mm,
-        align = justify, font = \small, inner sep = 4mm]
-        at ($(current page.north) + (0, -18mm)$)
+        rounded corners = 3pt, drop shadow, text width = 158mm,
+        minimum height = 52mm, align = justify, font = \small,
+        inner sep = 4mm]
+        at ($(current page.north) + (0, -21.5mm)$)
         {#2\par\smallskip{\raggedleft\footnotesize --- #3\par}};
     \end{tikzpicture}}\par}
 
@@ -154,5 +164,5 @@
 \NewDocumentCommand\backuppart{}{%
   \appendix
   \EditInstance{footer}{std}{element-order = {framenumber}}%
-  \dcp@partframe{Backup}{}}
+  \dcp@partframe{Backup}{\thispagestyle{talknofooter}}}
 \makeatother

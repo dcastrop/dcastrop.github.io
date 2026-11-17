@@ -62,22 +62,24 @@ separate interlude.
 
 | File                     | Content                                                                 | Min |
 |--------------------------|-------------------------------------------------------------------------|-----|
-| `00-title.tex`           | title; the hook (rewrite rules you already trust, the PyTorch bug); this talk (the three parts as questions) | 2 |
+| `00-title.tex`           | title; the hook (rewrite rules you already trust: SQL pushdown, and PyTorch's attention rewrite, whose code matches the bug; then the bug, then the moral, one layer at a time); this talk (the three parts as questions, each saying whose work it is: ICFP 2016 ours, the Rocq library joint with Paviotti and Vollmer; the third promises untrusted search, checked by Rocq) | 2 |
 | `01-aop.tex`             | Part I: programs as algebra (timeline with short citations; Backus's abstract), a specification and a program, the law behind it (fold fusion) | 3 |
-| `02-hylos.tex`           | divide and conquer (Python, highlighted, then the generic `hylo` and the role of `tag`), the pattern in Haskell, call tree (the least fixed point of `Layer`), where hylomorphisms come from, fusion and deforestation (the side condition named; why such rewrites make programs faster), sort-then-double calculated (its side condition on the slide) | 6 |
-| `03-homomorphisms.tex`   | list homomorphisms and scheduling, the Java combiner, the third homomorphism theorem, homomorphisms as divide and conquer, changing the divide step | 5 |
-| `04-interlude.tex`       | ICFP 2016: a three-stage parallel sort (feedback, farm, feedback), skeletons and their types, reforestation and cost, what was missing (other unverified tools) | 5 |
-| `05-mechanising.tex`     | Part II: program calculation in proof assistants, the gap               | 4   |
-| `06-rocq.tex`            | Rocq in a nutshell (CompCert, fiat-crypto); why not just write `hylo`, obstacles; ITP 2025 (generic trees, with `Obj.magic` and foreign code, and why no axioms; termination as recursive coalgebras (recursion on a proof is standard, Bove and Capretta; the proof is about `divide` alone, so well-founded, hence recursive: Capretta, Uustalu, Vene; Adámek, Milius, Moss), first as a picture: a proof tree shaped like the call tree; laws, proofs vs code, generic extraction, the price of our choices); since ITP 2025 (what changed, told once; the quicksort calculation with its side conditions, a step that does not apply, and a law whose false side condition is left as an unprovable goal (`map negate` fused into `divide`), the calculation by hand and in Rocq, side by side; the extracted code; knapsack). Small chips under the work tag (`\obstacle`) say which of the three obstacles a frame raises or solves | 15 |
-| `07-lowlevel.tex`        | Part III: from Rocq to code (today, and the goal: "are we calculating the right programs for real hardware?"); the three open questions first (layout laws, scheduling laws, search for derivations); then the literature on each, each frame with a chip naming its question (`\openquestion`): trees without pointers (Gibbon; the sum on the buffer), packed traversals as hylos, Farzan and Nicolet's nested loops (then the same with hylos), untrusted search (with the PyTorch callback); where we are (the position between siblings is under "not yet") | 10 |
+| `02-hylos.tex`           | divide and conquer (Python, highlighted, then the generic `hylo` and the role of `tag`), the pattern in Haskell, call tree (the least fixed point of `Layer`), fusion and deforestation (the side condition named; `ana` and `cata` labelled; why such rewrites make programs faster), sort-then-double calculated (its side condition on the slide) | 5 |
+| `03-homomorphisms.tex`   | list homomorphisms and scheduling, the Java combiner, the third homomorphism theorem, changing the divide step (a loop or a parallel tree) | 4 |
+| `04-interlude.tex`       | ICFP 2016: a three-stage parallel sort (feedback, farm, feedback; types carry the structure, a cost model picks it), what was missing (other unverified tools, in the reference line) | 3 |
+| `05-mechanising.tex`     | Part II (the divider names the joint work with Paviotti and Vollmer, and the ITP 2025 paper): the gap, and our answer, with the citation | 2   |
+| `06-rocq.tex`            | Rocq in a nutshell (CompCert, fiat-crypto); why not just write `hylo`, obstacles; ITP 2025 (generic trees, with `Obj.magic` and foreign code, and why no axioms; termination as recursive coalgebras (recursion on a proof is standard, Bove and Capretta; the proof is about `divide` alone, so well-founded, hence recursive: Capretta, Uustalu, Vene; Adámek, Milius, Moss), first as a picture: a proof tree shaped like the call tree; laws, generic extraction, the price of our choices); since ITP 2025 (what changed, told once; the quicksort calculation with its side conditions, a step that does not apply, the calculation by hand and in Rocq, side by side; the extracted code; then, on its own frame, a law whose false side condition is left as an unprovable goal (`map negate` fused into the divide step with the wrong new divide, `divide` itself, with a counterexample for each goal: the PyTorch failure mode, caught); knapsack, crediting dynamorphisms (Kabanov and Vene; Hinze, Wu, Gibbons) and saying what we add (the memo table as an array, an initial algebra of the table's functor)). Chips (`\obstacle`) say which of the three obstacles a frame raises or solves | 15 | Small chips under the work tag (`\obstacle`) say which of the three obstacles a frame raises or solves | 15 |
+| `07-lowlevel.tex`        | Part III: from Rocq to code (today, and the goal: "are we calculating the right programs for real hardware?"); the three open questions first (layout laws, scheduling laws, search for derivations); then the literature on each, each frame with a chip naming its question (`\openquestion`): trees without pointers (Gibbon; the sum on the buffer), packed traversals as hylos, Farzan and Nicolet's nested loops (then the same with hylos), untrusted search (with the PyTorch callback); where we are (laws that add or remove a buffer are under "not yet", without committing to one design) | 10 |
 | `08-wrapup.tex`          | summary, ending on the thesis (optimisation as a verified calculation, not an untrusted compiler transformation); thanks | 1 |
-| `09-backup.tex`          | backup, after the thanks (B1 to B10, not in the count): why hylomorphisms matter, the third theorem and after, ITP 2025's extraction, the quicksort and knapsack steps (shared with the seminar) and knapsack's laws, associative combiners, what each approach trusts, packed traversals, the demo; written for specialists | -- |
+| `09-backup.tex`          | backup, after the thanks (B1 to B16, not in the count): why hylomorphisms matter, where they come from, the third theorem and after, homomorphisms as divide and conquer, ICFP 2016 in full (skeletons and their types, reforestation and cost, splitter and merger farms), the survey of program calculation in proof assistants (approach and limits), the definition trade-off, ITP 2025's extraction, the quicksort and knapsack steps (shared with the seminar) and knapsack's laws, associative combiners, what each approach trusts, packed traversals; written for specialists | -- |
 
 The thread through the talk: a rewrite is only as trustworthy as its side
-condition. PyTorch's fusion bug (an unchecked side condition) opens; Part I
-names the side condition of fusion and shows sort-then-double's, checked by
-hand; Part II shows it proved in Rocq; "Untrusted Search, Trusted Checking"
-comes back to the PyTorch rewrite (no proof of a false side condition).
+condition. PyTorch's attention rewrite bug (an unchecked side condition)
+opens; Part I names the side condition of fusion and shows
+sort-then-double's, checked by hand; Part II shows it proved in Rocq, and a
+false one caught ("A False Side Condition, Caught"); "Untrusted Search,
+Trusted Checking" comes back to it as the same failure mode (not a claim
+that our framework handles tensors).
 Speedups are argued, not measured: fewer passes, no intermediate data, as
 in compilers (GHC's fusion rules, kernel fusion, database pushdown).
 
@@ -86,11 +88,13 @@ Part dividers, "Thank you!" and the backup divider are not numbered or
 counted; backup frames are B1, B2, ... (`preamble.tex`: `\titleframe` and
 `\partframe` wrappers, `talknofooter`, `\backuppart`).
 
-Frames that belong to one piece of work carry a tag in the top-right
-corner: "ICFP 2016", "Rocq Library" (before and after the ITP 2025 paper),
-or "ongoing" (`\icfptag`, `\rocqtag`, `\ongoingtag` in `preamble.tex`).
-What changed since ITP 2025 is told once, on "Since ITP 2025" (ITP 2025's
-extracted quicksort is in the backup).
+Frames of the ICFP 2016 work and of the ongoing work carry a tag in the
+top-right corner: "ICFP 2016" or "ongoing" (`\icfptag`, `\ongoingtag` in
+`preamble.tex`). The Rocq library frames have none: the joint work (ITP
+2025, with Paviotti and Vollmer) is credited on the Part II divider and on
+"The Gap". The chips (`\obstacle`, `\openquestion`) sit in the corner, or
+under the tag when there is one. What changed since ITP 2025 is told once,
+on "Since ITP 2025" (ITP 2025's extracted quicksort is in the backup).
 
 References are a small line at the bottom of the slide (`\slideref`).
 `\excerpt<n>{quote}{source}` shows a quotation over the slide on step `n`

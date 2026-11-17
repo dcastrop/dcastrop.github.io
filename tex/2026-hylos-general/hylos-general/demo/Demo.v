@@ -119,10 +119,13 @@ Derive qsort_negate
   as qsort_negate_calc.
 Proof.
   rewrite hylo_cata, hylo_ana, deforest by apply l_out_in.
-  (* Fuse the negation into the divide step. Goal 1 would make the program
-     plain quicksort: the negation silently lost. Goal 2, the side
-     condition, is false (negating flips the order the partition uses), so
-     this calculation can never be finished. *)
+  (* Fuse the negation into the divide step, choosing the new divide step
+     (h2) wrongly: tsplit itself, as if negating changed nothing. Goal 1
+     would make the program plain quicksort: the negation silently lost.
+     Goal 2, the side condition for this choice, is false (negating changes
+     the pivot and flips the order the partition uses), so this calculation
+     can never be finished. The right h2 negates the pivot and compares
+     negated values. *)
   rewrite (@hylo_fusion_r _ _ _ _ _ _ _ _ _ _ tsplit merge tsplit (Lmap negate)).
   Show 2.
 Abort.

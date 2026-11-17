@@ -96,14 +96,14 @@
     dyna\_loop already turns recursion into a loop}
 \end{frame}
 
-\begin{frame*}
+\begin{frame*}[vertical-alignment = top]
   \frametitle{Trees Without Pointers}
   \begin{center}
     \begin{tikzpicture}[alt={Left: the tree Node of Node of Leaf 1 and
         Leaf 2, and Leaf 3, as heap cells linked by pointers. Right: the
         same tree serialised in preorder into one buffer: N, N, L, 1, L, 2,
         L, 3.},
-      level distance = 8.5mm,
+      level distance = 6mm,
       level 1/.style = {sibling distance = 18mm},
       level 2/.style = {sibling distance = 12mm},
       every node/.style = {box, font = \small},
@@ -139,6 +139,7 @@
     {\footnotesize\textcolor{gray}{(simplified)}}
   \end{onlyenv}
   \par
+  \only<3->{\noslideref}%
   \only<1-2>{\slideref{M. Vollmer et al. \textbf{Compiling Tree Transforms to Operate on Packed Representations}. ECOOP 2017. \rfsep
     M. Vollmer et al. \textbf{LoCal: A Language for Programs Operating on Serialized Data}. PLDI 2019. \rfsep
     C. Koparkar et al. \textbf{Efficient Tree-Traversals: Reconciling Parallelism and Dense Data Representations}. ICFP 2021. \rfsep
@@ -150,7 +151,7 @@
     Serialised: one buffer, read in order \\
     LoCal: locations as types; ICFP'21: parallelism on dense data \\
     Marmoset: a cost model picks the field order \\
-    Click: the sum on the buffer (hand-written sketch, not Gibbon's output);
+    The sum on the buffer (hand-written sketch, not Gibbon's output);
     the right child is only known after the left one (end witnesses)}
 \end{frame*}
 
@@ -185,8 +186,9 @@
       \item<2-> \textbf{Splitting theorem}: the whole nest is a homomorphism
         \emph{if and only if} the inner loop is memoryless and the outer
         loop, over the row results, is a homomorphism too.
-      \item<3-> \textbf{Lifting theorem}: extra state found for the outer loop
-        works for the whole nest.
+      \item<3-> \textbf{Lifting theorem}: if the outer loop is not a
+        homomorphism, add extra state until it is (as \code{scale} in the
+        Java example); that is enough to make the whole nest one.
       \item<4-> Their tool, \textbf{ParSynt}, synthesises the combiners and
         the extra state.
     \end{itemize}
@@ -196,13 +198,15 @@
       \footnotesize
       \renewcommand\arraystretch{1.05}
       \begin{tabular}{ll}
-        \textbf{Farzan, Nicolet} & \textbf{hylomorphisms} \\ \hline
+        \textbf{Farzan, Nicolet} & \textbf{in hylomorphisms} \\ \hline
         the inner loop, per row & an inner divide and conquer, per row \\
-        memoryless condition & the outer \code{conquer}: a fold after a map \\
-        homomorphism & an associative combiner \\
-        lifting theorem & extra state \\
-        divide and conquer & \textbf{a new divide step}: split in $k$
-          pieces \\
+        memoryless: a row ignores earlier rows & rows are independent: a
+          map of the inner hylo, then a fold \\
+        homomorphism & \code{conquer} is an associative combiner \\
+        lifting: extra state & extra state in the combiner's result (as
+          \code{scale}) \\
+        divide and conquer over rows & \textbf{a new divide step}: split
+          the rows in $k$ pieces \\
       \end{tabular}
     \end{center}
     Their splitting theorem is the law our planned extension needs:
@@ -217,7 +221,7 @@
     Sound and complete: nothing lost by going modular \\
     ParSynt: joins by SyGuS; checked in Rosette (bounded), most also in
     Dafny \\
-    Click: the same story with hylos; homomorphism = monoid algebra (Part
+    The same story with hylos; homomorphism = monoid algebra (Part
     II); their theorem (Thm 4.7) justifies parallelising nested hylos level
     by level; in Rocq a law, proved once}
 \end{frame*}
@@ -257,16 +261,17 @@
     \item The derivation is a \textbf{certificate}.
     \item<2-> The cost model of ICFP 2016, Marmoset's layouts, ParSynt's
       synthesis: all \textbf{search}.
-    \item<3-> The PyTorch rewrite would stop here, like the negated
-      quicksort: it applies, but its side condition (softmax over the last
-      axis) is false, so it stays as a goal that cannot be proved.
+    \item<3-> The same failure mode as the PyTorch rewrite: if search
+      proposes a step whose side condition is false, it stays as a goal
+      that cannot be proved, as with the negated quicksort.
   \end{itemize}
   \ongoingtag
   \openquestion{search for derivations}
   \speakernote{Search: heuristics, e-graphs, or an ML model \\
     Rocq checks the chain of laws; wrong proposals rejected \\
     Everything clever so far is search: keep it, check its answer \\
-    PyTorch callback: a false side condition cannot be proved: rejected \\
+    PyTorch callback: same failure mode, not a claim about tensors (not
+    in our framework); a false side condition cannot be proved \\
     Q "why not verify a compiler?": CompCert proves the translation, not
     which optimisation to apply; here search stays untrusted, each
     derivation is checked}
@@ -275,8 +280,8 @@
 \begin{frame}
   \frametitle{Where We Are}
   \begin{center}
-    \begin{tikzpicture}[alt={An index range from 0 to n is split into four
-        pieces of different lengths. The pieces cover the range exactly,
+    \begin{tikzpicture}[alt={A buffer's indices, from 0 to n, are split
+        into four pieces of different lengths. The pieces cover the range exactly,
         with no gaps and no overlaps; this is proved.},
       piece/.style = {draw = good, fill = good!8, minimum height = 7mm,
         inner sep = 0pt}]
@@ -286,6 +291,8 @@
       \node[piece, minimum width = 26mm, right = 0mm of p2] (p3) {};
       \node[note, below = 1mm of p0.south west] {$0$};
       \node[note, below = 1mm of p3.south east] {$n$};
+      \node[note, above = 1mm of p1.north east] {a buffer's indices, from
+        $0$ to $n$, split $k$ ways};
       \node[note, right = 3mm of p3] {exactly covered, no overlaps};
     \end{tikzpicture}
   \end{center}
@@ -303,9 +310,10 @@
     \begin{column}{0.45\textwidth}
       \textbf{\textcolor{gray}{Not yet:}}
       \begin{itemize}
-        \item Laws that add or remove a buffer, and pass its position
-          from one child to the next
-        \item Each index written exactly once
+        \item Laws that add or remove a buffer (serialise,
+          deserialise)
+        \item Parallel writes: no two pieces write the same index, and
+          none is missed
         \item Nested ranges
         \item The low-level target and printer
         \item The cost model and search
@@ -316,6 +324,7 @@
   \speakernote{Early stage; be honest \\
     Done: exact-cover splits, machine integers, buffers, tree reductions,
     writes; materialising into a buffer defined, no laws yet \\
-    Not yet: buffer laws (incl. the position between siblings),
-    exactly-once, nesting, target, cost model}
+    Not yet: buffer laws (serialise, deserialise; Gibbon-style cursors
+    are one design, containers give others), exactly-once, nesting,
+    target, cost model}
 \end{frame}
