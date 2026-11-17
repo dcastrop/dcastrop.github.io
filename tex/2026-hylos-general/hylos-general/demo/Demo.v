@@ -105,3 +105,24 @@ Qed.
 
 Extraction qsort_times_two.
 Print Assumptions qsort_times_two_calc.
+
+(* ------------------------------------------------------------------ *)
+(* 5. A law with a false side condition: Rocq leaves it as a goal      *)
+
+Open Scope uint63_scope.
+Definition negate (x : int) : int := 0 - x.
+Arguments negate x /.
+Close Scope uint63_scope.
+
+Derive qsort_negate
+  in (cata merge \o rana tsplit \o Lmap negate =e morph_of qsort_negate)
+  as qsort_negate_calc.
+Proof.
+  rewrite hylo_cata, hylo_ana, deforest by apply l_out_in.
+  (* Fuse the negation into the divide step. Goal 1 would make the program
+     plain quicksort: the negation silently lost. Goal 2, the side
+     condition, is false (negating flips the order the partition uses), so
+     this calculation can never be finished. *)
+  rewrite (@hylo_fusion_r _ _ _ _ _ _ _ _ _ _ tsplit merge tsplit (Lmap negate)).
+  Show 2.
+Abort.

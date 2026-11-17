@@ -48,8 +48,7 @@
       rounded corners = 2pt, font = \footnotesize\bfseries, inner sep = 3pt]
       at ($(current page.north east) + (-4mm, -4mm)$) {#2};
   \end{tikzpicture}\par}
-\newcommand\itptag{\worktag[accent]{ITP 2025}}
-\newcommand\sincetag{\worktag[accent2]{since ITP 2025}}
+\newcommand\rocqtag{\worktag[accent]{Rocq Library}}
 \newcommand\icfptag{\worktag[accent]{ICFP 2016}}
 \newcommand\ongoingtag{\worktag[accent2]{ongoing}}
 
@@ -57,6 +56,24 @@
 % tag in the top-right corner, in place of the work tag. At the end of the
 % frame.
 \newcommand\demotag{\worktag[bad]{DEMO}}
+
+% \obstacle{text}: a small note under the work tag, naming which of the
+% "Three Obstacles" (termination, no extra axioms, clean code) a frame is
+% about. At the end of the frame; a zero-height box, as for \callout, so the
+% frame's content does not move.
+\makeatletter
+\NewDocumentCommand\obstacle{m}{%
+  \par\edef\dcp@prevdepth{\the\prevdepth}\nointerlineskip\vbox to 0pt{%
+    \begin{tikzpicture}[overlay, remember picture, alt = {Obstacle: #1}]
+      \node[anchor = north east, draw = golden!80!black, fill = yellow!20,
+        rounded corners = 2pt, font = \scriptsize, inner sep = 2pt]
+        at ($(current page.north east) + (-4mm, -10.5mm)$) {#1};
+    \end{tikzpicture}\vss}%
+  \prevdepth = \dcp@prevdepth\relax}
+\makeatother
+% \openquestion{text}: the same chip, naming which open question (layout,
+% scheduling, search) a low-level frame is about. At the end of the frame.
+\NewDocumentCommand\openquestion{m}{\obstacle{open question: #1}}
 
 \usetikzlibrary{shadows}
 
@@ -115,14 +132,27 @@
 \property_new:nnnn { dcpskipped } { shipout } { 0 } { \int_use:N \c@dcpskipped }
 \AddToHook { enddocument / afterlastpage }
   { \property_record:nn { dcp-lastpage } { dcpskipped } }
-\cs_set:Npn \@framenumber { \int_eval:n { \c@frame - \c@dcpskipped } }
+% Backup frames (after \appendix): B1, B2, ... (the first appendix frame is
+% the Backup divider); the total counts the talk's frames only
+\cs_set:Npn \@framenumber
+  {
+    \bool_if:NTF \l__talk_appendix_bool
+      { B \int_eval:n { \c@appendixframe - 1 } }
+      { \int_eval:n { \c@frame - \c@dcpskipped } }
+  }
 \cs_set:Npn \@totalframes
   {
     \int_eval:n
       {
-          \property_ref:nn { lastpage } { totalframes }
+          \property_ref:nn { lastpage } { frames }
         - \property_ref:nn { dcp-lastpage } { dcpskipped }
       }
   }
 \ExplSyntaxOff
+% \backuppart, after "Thank you!": an uncounted divider, then the backup
+% frames, numbered without a total
+\NewDocumentCommand\backuppart{}{%
+  \appendix
+  \EditInstance{footer}{std}{element-order = {framenumber}}%
+  \dcp@partframe{Backup}{}}
 \makeatother

@@ -1,8 +1,8 @@
-Derive qsort_times_two
-  in ^\tikzmark{specl}^(Lmap times_two \o cata merge \o rana tsplit =e morph_of qsort_times_two)^\tikzmark{spec}^
-  as qsort_times_two_calc.
+Derive qsort_double
+  in ^\tikzmark{specl}^(map double \o cata conquer \o ana divide =e qsort_double)^\tikzmark{spec}^
+  as qsort_double_calc.
 Proof.
-  ^\tikzmark{lawsl}^rewrite map_merge_fusion, hylo_ana, deforest by apply l_out_in.^\tikzmark{laws}^
-  rewrite <- (hylo_cps_hylo _ tsplit_k).^\tikzmark{lawsb}^
+  ^\tikzmark{lawsl}^rewrite ^\tikzmark{mfl}^map_conquer_fusion^\tikzmark{mfr}^, hylo_ana, deforest by ^\tikzmark{scl}^apply out_in^\tikzmark{scr}^.^\tikzmark{laws}^
+  rewrite <- (hylo_cps_hylo _ divide_k).^\tikzmark{lawsb}^
   finished.
 Qed.

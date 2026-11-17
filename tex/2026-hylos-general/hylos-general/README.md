@@ -62,31 +62,47 @@ separate interlude.
 
 | File                     | Content                                                                 | Min |
 |--------------------------|-------------------------------------------------------------------------|-----|
-| `00-title.tex`           | title, this talk                                                        | 1   |
-| `01-aop.tex`             | Part I: rewrite rules you already trust, programs as algebra (timeline with short citations; Backus's abstract), a specification and a program, the law behind it (fold fusion) | 4 |
-| `02-hylos.tex`           | divide and conquer (Python, highlighted, then the generic `hylo` and the role of `tag`), the pattern in Haskell, call tree, where hylomorphisms come from, why they matter, fusion (after and before) and deforestation, sort-then-double calculated | 6 |
-| `03-homomorphisms.tex`   | list homomorphisms and scheduling, the Java combiner, the third homomorphism theorem, homomorphisms as divide and conquer, changing the divide step, extensions | 5 |
+| `00-title.tex`           | title; the hook (rewrite rules you already trust, the PyTorch bug); this talk (the three parts as questions) | 2 |
+| `01-aop.tex`             | Part I: programs as algebra (timeline with short citations; Backus's abstract), a specification and a program, the law behind it (fold fusion) | 3 |
+| `02-hylos.tex`           | divide and conquer (Python, highlighted, then the generic `hylo` and the role of `tag`), the pattern in Haskell, call tree (the least fixed point of `Layer`), where hylomorphisms come from, fusion and deforestation (the side condition named; why such rewrites make programs faster), sort-then-double calculated (its side condition on the slide) | 6 |
+| `03-homomorphisms.tex`   | list homomorphisms and scheduling, the Java combiner, the third homomorphism theorem, homomorphisms as divide and conquer, changing the divide step | 5 |
 | `04-interlude.tex`       | ICFP 2016: a three-stage parallel sort (feedback, farm, feedback), skeletons and their types, reforestation and cost, what was missing (other unverified tools) | 5 |
 | `05-mechanising.tex`     | Part II: program calculation in proof assistants, the gap               | 4   |
-| `06-rocq.tex`            | why not just write `hylo`, obstacles; ITP 2025 (generic trees, termination, laws, proofs vs code, generic and ITP extraction, the price of our choices); since ITP 2025 (demo and the slides it covers, knapsack, associative combiners) | 15 |
-| `07-lowlevel.tex`        | Part III: two ways out of Rocq, Gibbon and packed traversals, Farzan and Nicolet's nested loops, the same story with hylos, why mechanised, representation-changing laws, untrusted search, where we are | 10 |
-| `08-wrapup.tex`          | summary, thanks                                                         | 1   |
+| `06-rocq.tex`            | Rocq in a nutshell (CompCert, fiat-crypto); why not just write `hylo`, obstacles; ITP 2025 (generic trees, with `Obj.magic` and foreign code, and why no axioms; termination as recursive coalgebras (recursion on a proof is standard, Bove and Capretta; the proof is about `divide` alone, so well-founded, hence recursive: Capretta, Uustalu, Vene; Adámek, Milius, Moss), first as a picture: a proof tree shaped like the call tree; laws, proofs vs code, generic extraction, the price of our choices); since ITP 2025 (what changed, told once; the quicksort calculation with its side conditions, a step that does not apply, and a law whose false side condition is left as an unprovable goal (`map negate` fused into `divide`), the calculation by hand and in Rocq, side by side; the extracted code; knapsack). Small chips under the work tag (`\obstacle`) say which of the three obstacles a frame raises or solves | 15 |
+| `07-lowlevel.tex`        | Part III: from Rocq to code (today, and the goal: "are we calculating the right programs for real hardware?"); the three open questions first (layout laws, scheduling laws, search for derivations); then the literature on each, each frame with a chip naming its question (`\openquestion`): trees without pointers (Gibbon; the sum on the buffer), packed traversals as hylos, Farzan and Nicolet's nested loops (then the same with hylos), untrusted search (with the PyTorch callback); where we are (the position between siblings is under "not yet") | 10 |
+| `08-wrapup.tex`          | summary, ending on the thesis (optimisation as a verified calculation, not an untrusted compiler transformation); thanks | 1 |
+| `09-backup.tex`          | backup, after the thanks (B1 to B10, not in the count): why hylomorphisms matter, the third theorem and after, ITP 2025's extraction, the quicksort and knapsack steps (shared with the seminar) and knapsack's laws, associative combiners, what each approach trusts, packed traversals, the demo; written for specialists | -- |
+
+The thread through the talk: a rewrite is only as trustworthy as its side
+condition. PyTorch's fusion bug (an unchecked side condition) opens; Part I
+names the side condition of fusion and shows sort-then-double's, checked by
+hand; Part II shows it proved in Rocq; "Untrusted Search, Trusted Checking"
+comes back to the PyTorch rewrite (no proof of a false side condition).
+Speedups are argued, not measured: fewer passes, no intermediate data, as
+in compilers (GHC's fusion rules, kernel fusion, database pushdown).
+
+The footer shows "frame/total", counting frames, not overlays. The title,
+Part dividers, "Thank you!" and the backup divider are not numbered or
+counted; backup frames are B1, B2, ... (`preamble.tex`: `\titleframe` and
+`\partframe` wrappers, `talknofooter`, `\backuppart`).
 
 Frames that belong to one piece of work carry a tag in the top-right
-corner: "ICFP 2016", "ITP 2025", "since ITP 2025", or "ongoing"
-(`\icfptag`, `\itptag`, `\sincetag`, `\ongoingtag` in `preamble.tex`). The
-"Proofs or Code?" table marks in orange the code costs fixed since ITP 2025.
+corner: "ICFP 2016", "Rocq Library" (before and after the ITP 2025 paper),
+or "ongoing" (`\icfptag`, `\rocqtag`, `\ongoingtag` in `preamble.tex`).
+What changed since ITP 2025 is told once, on "Since ITP 2025" (ITP 2025's
+extracted quicksort is in the backup).
 
 References are a small line at the bottom of the slide (`\slideref`).
 `\excerpt<n>{quote}{source}` shows a quotation over the slide on step `n`
 (Backus's abstract on "Programs as Algebra", verbatim from the CACM
 printing, with "[...]" for cuts and the bold marked as added); `\tlcite` adds a short grey citation inside a timeline box.
 
-Slides the live demo covers ("A Calculation in Rocq", "Quicksort, Step by
-Step", "Quicksort: What Comes Out") carry a red "DEMO" tag in the top-right
-corner instead of a work tag (`\demotag`); skip them after a good demo.
+The talk has no live demo (since 2026-11-17): "A Calculation in Rocq",
+"Quicksort, Step by Step" and "Quicksort: What Comes Out" show the steps.
+`\demotag` (a red "DEMO" tag) is still in `preamble.tex`, and the backup
+slide "Demo: Supporting Material" says how to run it, in case.
 
-If running long, skip: "Extensions", "Where Hylomorphisms Come From",
+If running long, skip: "Where Hylomorphisms Come From",
 "Generic Code Is Not (Always) Clean Code", "Dynamic Programming: Knapsack", "Laws
 That Change Representation", "Untrusted Search, Trusted Checking".
 
@@ -138,12 +154,22 @@ conquer slide, then one switch to Haskell.
 
 Shared with the seminar, and kept identical (check with
 `python3 check-hylos-sync.py` in `tex/`): `template/dcptalk.sty`, the code
-files `rocqlexer.py`, `qsort2.ml`, `qsort-steps.v`, `knap-steps.v`,
-`naive-cont.v`, `naive-extr.ml`,
+files `rocqlexer.py`, `qsort-steps.v`, `knap-steps.v`, `naive-cont.v`,
 `naive-eq.txt`, `cont-class.v`, `recf.v`, `hylo-def.v`, `hylo-laws.v`,
-`raw-extr.ml`, `malg.v`, `malg-fusion.v`, the quicksort `Derive`
-(`qsort2-derive.v`, plus two `\tikzmark`s here), and the frames "Quicksort,
-Step by Step" (plus a `\demotag` here) and "Knapsack, Step by Step".
+`malg.v`, `malg-fusion.v`, and the frames "Quicksort, Step by Step" and
+"Knapsack, Step by Step" (both in `09-backup.tex`, with the library's real
+names). Elsewhere the general deck uses the talk's names, not the library's
+(`conquer` for `merge`, `divide` for `tsplit`, `double` for `times_two`,
+`double_pivot` for `natural (nt_shape id times_two)`): `qsort2-derive.v`,
+`qsort2.ml`, `raw-extr.ml`, `naive-extr.ml` and `itp-qsort.ml` differ from
+the seminar's. Extracted listings are real output with identifiers renamed
+(their speaker notes say so); the calculation slides say "(simplified)".
+
+`code/qsort-wrong.txt` is real Rocq output: `demo/Demo.v` with its `Fail`
+removed, compiled against the post-ITP library (2026-11-17).
+`code/qsort-negate.txt` is the goals Rocq prints in part 5 of `demo/Demo.v`
+(a false side condition), renamed to the talk's names, labelled "goal 1"
+and "goal 2", with the `rewrite` moved into the slide's sentence.
 
 `images/pytorch-196468.png`: a screenshot (headless Chrome, 2026-11-17) of
 the public issue https://github.com/pytorch/pytorch/issues/196468, cropped
@@ -153,9 +179,10 @@ softmax axis). The issue was open, with a fix PR (#200011) pending.
 
 ## Demo
 
-`demo/Demo.v` repeats the quicksort calculation (the library's
-`examples/QSort.v`) for stepping through live, with a wrong step that Rocq
-rejects, `Extraction` and `Print Assumptions`. See `demo/README.md`.
+Not part of the talk; kept in case. `demo/Demo.v` repeats the quicksort
+calculation (the library's `examples/QSort.v`) for stepping through live,
+with a wrong step that Rocq rejects, `Extraction` and `Print Assumptions`.
+See `demo/README.md`.
 `make demo` compiles it against the post-ITP library under a memory cap.
 
 ## Sources for the survey slides

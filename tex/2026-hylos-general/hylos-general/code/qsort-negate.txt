@@ -1,0 +1,2 @@
+goal 1:  hylo conquer divide =e qsort_negate
+goal 2:  divide \o map negate =e fmap (map negate) \o divide

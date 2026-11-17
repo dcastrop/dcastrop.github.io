@@ -1,3 +1,3 @@
-def layer(x):
-    return torch.relu(x * w + b)        # 3 element-wise kernels
-fast_layer = torch.compile(layer)       # 1 fused kernel, no temporaries
+def f(x):
+    return torch.relu(x * 2 + 1)        # 3 element-wise kernels
+fast_f = torch.compile(f)               # 1 fused kernel, no temporaries

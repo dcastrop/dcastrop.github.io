@@ -1,8 +1,8 @@
-let rec qsort_times_two = function
+let rec qsort_double = function
 | [] -> []
 | h :: t ->
   let (l, r) = partition (fun x0 -> ltb x0 h) t in
-  let x0 = fun p -> qsort_times_two (match p with
+  let x0 = fun p -> qsort_double (match p with
                                      | Lbranch -> l
                                      | Rbranch -> r)
   in

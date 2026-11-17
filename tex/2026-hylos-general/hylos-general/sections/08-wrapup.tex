@@ -4,16 +4,22 @@
   \begin{itemize}
     \item \textbf{Program calculation}: laws about divide and conquer
       (hylomorphisms) turn specifications into fast, parallel programs; so
-      far, the laws were trusted.
+      far, the laws and their side conditions were trusted.
     \item \textbf{Mechanising it}: hylomorphisms in Rocq, axiom-free, every
-      step checked, clean extracted code; each definition balances proofs
-      and code.
-    \item \textbf{\underline{(Ongoing)} Mechanising low-level calculation}: serialised data,
-      nested parallel loops, a cost model, all as \emph{proved} laws.
+      step and side condition checked, clean extracted code; each
+      definition balances proofs and code.
+    \item \textbf{\underline{(Ongoing)} Mechanising low-level calculation}: the goal
+      is serialised data, nested parallel loops and a cost model as
+      \emph{proved} laws; the first building blocks are proved.
   \end{itemize}
+  \begin{center}
+    \textbf{Program optimisation as a verified calculation, not an
+    untrusted compiler transformation.}
+  \end{center}
   \slideref{D. Castro-Perez, M. Paviotti, M. Vollmer. \textbf{Program Optimisations via Hylomorphisms for Extraction of Executable Code}. ITP 2025. \rfsep
     Library: \url{https://github.com/dcastrop/rocq-hylomorphisms}}
-  \speakernote{One line per part}
+  \speakernote{One line per part \\
+    The thesis: back to PyTorch, the rewrite we could not trust}
 \end{frame}
 
 \stepcounter{dcpskipped}% no footer, not counted (see preamble)

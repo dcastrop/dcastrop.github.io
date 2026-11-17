@@ -47,14 +47,14 @@
 
 \begin{frame}[vertical-alignment = top]
   \frametitle{The Third Homomorphism Theorem}
-  \vspace*{2mm}
-  \begin{center}
+  \vspace*{1.5mm}
+  {\centering
     \begin{tikzpicture}[alt={A list split into xs and ys. A loop from the
         left reads xs, remembering only h of xs, then continues with ys. A
         loop from the right reads ys, remembering only h of ys, then
         continues with xs. So h of the whole list depends only on h of xs
         and h of ys.},
-      seg/.style = {box, minimum width = 44mm, minimum height = 7mm,
+      seg/.style = {box, minimum width = 44mm, minimum height = 6mm,
         font = \ttfamily},
       state/.style = {hot, font = \small\ttfamily, inner sep = 2pt},
       lane/.style = {->, very thick},
@@ -63,39 +63,58 @@
       \node[seg] (xs) at (0, 0) {xs};
       \node[seg, right = 0mm of xs] (ys) {ys};
       \uncover<2->{
-        \draw[lane, accent] ([yshift = 8mm]xs.west) -- ([yshift = 8mm]xs.east)
+        \draw[lane, accent] ([yshift = 5.5mm]xs.west) -- ([yshift = 5.5mm]xs.east)
           node[state, anchor = south] {h xs};
-        \draw[rest, accent] ([yshift = 8mm]xs.east) -- ([yshift = 8mm]ys.east);
-        \node[lbl] at ([yshift = 8mm, xshift = -2mm]xs.west) {from the left};
+        \draw[rest, accent] ([yshift = 5.5mm]xs.east) -- ([yshift = 5.5mm]ys.east);
+        \node[lbl] at ([yshift = 5.5mm, xshift = -2mm]xs.west) {from the left};
       }
       \uncover<3->{
-        \draw[lane, accent2] ([yshift = -8mm]ys.east) --
-          ([yshift = -8mm]ys.west) node[state, anchor = north] {h ys};
-        \draw[rest, accent2] ([yshift = -8mm]ys.west) --
-          ([yshift = -8mm]xs.west);
-        \node[lbl] at ([yshift = -8mm, xshift = -2mm]xs.west)
+        \draw[lane, accent2] ([yshift = -5.5mm]ys.east) --
+          ([yshift = -5.5mm]ys.west) node[state, anchor = north] {h ys};
+        \draw[rest, accent2] ([yshift = -5.5mm]ys.west) --
+          ([yshift = -5.5mm]xs.west);
+        \node[lbl] at ([yshift = -5.5mm, xshift = -2mm]xs.west)
           {from the right};
       }
-    \end{tikzpicture}
-  \end{center}
+    \end{tikzpicture}\par}
   \begin{itemize}
     \item<2-> A loop from the left remembers only \code{h xs}: so
       \code{h (xs ++ ys)} needs only \code{h xs} and \code{ys}.
     \item<3-> A loop from the right: only \code{xs} and \code{h ys}.
-    \item<4-> Together: only \code{h xs} and \code{h ys}. That is the
-      \textbf{combiner}, and it is associative, as \code{++} is.
+    \item<4-> Together: only \code{h xs} and \code{h ys}. The
+      \textbf{combiner}, associative as \code{++} is:
   \end{itemize}
-  \uncover<5->{Insertion sort runs both ways, so sorting has a combiner:
-    \code{merge}. Insertion sort, $O(n^2)$ $\Longrightarrow$ mergesort,
-    $O(n \log n)$.}
-  \slideref{J. Gibbons. \textbf{The Third Homomorphism Theorem}. JFP 1996. (Conjectured by Bird, proved by Meertens, 1989.)}
+  \begin{onlyenv}<4->
+    \hsblock{third-combiner.hs}
+  \end{onlyenv}
+  \par
+  \begin{onlyenv}<5>
+    \small\textbf{Constructive?} Yes, if we can compute \code{g}; for some
+    \code{h}, program inversion derives it automatically.\par
+    \textbf{Efficient?} Not as it stands: it rebuilds two lists and runs
+    \code{h} again.\par
+  \end{onlyenv}
+  \begin{onlyenv}<6->
+    \small\textbf{Example, sorting}: a sorted list sorts to itself, so
+    \code{g a = a}, and \code{combine a b = sort (a ++ b)}. Calculating
+    further gives \code{merge}: insertion sort, $O(n^2)$, becomes
+    mergesort, $O(n \log n)$.\par
+  \end{onlyenv}
+  \slideref{J. Gibbons. \textbf{The Third Homomorphism Theorem}. JFP 1996. (Conjectured by Bird, proved by Meertens, 1989.) \rfsep
+    K. Morita et al. \textbf{Automatic Inversion Generates Divide-and-Conquer Parallel Programs}. PLDI 2007.}
   \speakernote{Precisely: h = foldl stepL e = foldr stepR e; loop steps
     take one element, need not be associative \\
     Left loop: h (xs ++ ys) = foldl stepL (h xs) ys; right loop: foldr stepR
     (h ys) xs \\
     So h xs = h xs', h ys = h ys' give equal results: a combiner exists \\
-    Compute it: combine a b = h (g a ++ g b), g a: any list with result a
-    (no circularity) \\
+    The combiner: h (g a ++ g b), g a right inverse of h (h (g a) = a); well
+    defined: the left loop sees g a only through a, the right loop g b
+    through b \\
+    Click: constructive given g (Morita et al.: g by automatic inversion);
+    naive: rebuild two lists, rerun h \\
+    Click: sorting; the efficient combiner comes from further calculation \\
+    Sorting: a sorted list sorts to itself, so g = id: sort (a ++ b) ->
+    merge \\
     Bird conjectured, Meertens proved it on a train; Gibbons published}
 \end{frame}
 
@@ -114,7 +133,7 @@
 \end{frame*}
 
 \begin{frame}
-  \frametitle{Same Combiner, Another Cut}
+  \frametitle{One Combiner, Any Cut: a Loop or a Parallel Tree}
   \begin{center}
     \begin{tikzpicture}[alt={Two call trees for the same combiner on four
         elements: a list-shaped tree of depth four, which splits off the
@@ -161,27 +180,3 @@
     Remember: changing the divide step comes back at the end}
 \end{frame}
 
-\begin{frame}
-  \frametitle{Extensions}
-  \begin{center}
-    \small
-    \renewcommand\arraystretch{1.25}
-    \begin{tabular}{@{}l@{\quad}l@{\quad}l@{}}
-      1987 & Bird & 1st and 2nd theorems: map--reduce; both directions \\
-      1996 & Gibbons, JFP & 3rd theorem published; mergesort from
-        insertion sort \\
-      1996 & Gorlatch, Euro-Par & parallelising scans and homomorphisms \\
-      1997 & Hu, Iwasaki, Takeichi, TOPLAS & combiners by adding extra
-        state \\
-      2007 & Morita et al., PLDI & combiners found automatically \\
-      2009 & Morihata et al., POPL & the same for trees \\
-      2011 & Mu, Morihata, ICFP & generalised and dualised \\
-      2017--21 & Farzan, Nicolet, PLDI & synthesised for loops and nested
-        loops \\
-    \end{tabular}
-  \end{center}
-  \speakernote{From pen-and-paper theorems to tools \\
-    Extra state = lifting, as in the Java example (tupling) \\
-    Morita et al.: derive g by program inversion \\
-    Farzan and Nicolet: program synthesis for loops; back in Part III}
-\end{frame}

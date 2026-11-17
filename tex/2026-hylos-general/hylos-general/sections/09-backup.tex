@@ -1,0 +1,263 @@
+% Backup slides, after "Thank you!": for questions, and for the specialists
+% in the room. Numbered B1, B2, ... (preamble: \backuppart), not counted in
+% the talk's total. "Quicksort, Step by Step" and "Knapsack, Step by Step" are
+% shared with the seminar deck: keep them identical (../check-hylos-sync.py,
+% in tex/).
+\backuppart
+
+\begin{frame}
+  \frametitle{Hylomorphisms: Generality, Laws, Parallelism}
+  \small
+  \begin{itemize}
+    \item \textbf{General.} Conjugate hylomorphisms (adjoint folds and
+      unfolds) cover paramorphisms (primitive recursion), histomorphisms
+      (course-of-values recursion, as in dynamic programming),
+      accumulations and mutual recursion. The solution is unique when the
+      coalgebra is \emph{recursive}, e.g.\ when it terminates.
+    \item \textbf{Laws.} Fusion and deforestation remove passes and
+      intermediate structures. GHC implements shortcut fusion
+      (\code{foldr}/\code{build}) as rewrite rules; Takano and Meijer
+      generalise it to hylomorphisms (acid rain); the HYLO system finds
+      hylomorphisms in ordinary recursive definitions, then fuses them.
+    \item \textbf{Parallelism.} The sub-problems of a layer are
+      independent: parallel skeletons are hylomorphisms (ICFP 2016), and
+      so are their cost models (FGCS 2018).
+  \end{itemize}
+  \slideref{P. Wadler. \textbf{Deforestation: Transforming Programs to Eliminate Trees}. TCS 1990. \rfsep
+    A. Gill, J. Launchbury, S. Peyton Jones. \textbf{A Short Cut to Deforestation}. FPCA 1993. \rfsep
+    A. Takano, E. Meijer. \textbf{Shortcut Deforestation in Calculational Form}. FPCA 1995. \rfsep
+    Z. Hu, H. Iwasaki, M. Takeichi. \textbf{Deriving Structural Hylomorphisms from Recursive Definitions}. ICFP 1996. \rfsep
+    Y. Onoue, Z. Hu, H. Iwasaki, M. Takeichi. \textbf{A Calculational Fusion System HYLO}. Algorithmic Languages and Calculi, 1997. \rfsep
+    V. Capretta, T. Uustalu, V. Vene. \textbf{Recursive Coalgebras from Comonads}. Inf. Comput. 2006. \rfsep
+    R. Hinze, N. Wu, J. Gibbons. \textbf{Conjugate Hylomorphisms, or: The Mother of All Structured Recursion Schemes}. POPL 2015.}
+  \speakernote{Conjugate hylos: adjunctions give para, histo, accumulations,
+    mutual recursion \\
+    Uniqueness: recursive coalgebras (Part II) \\
+    GHC RULES: foldr/build; acid rain; HYLO system \\
+    Skeletons and cost models: ICFP 2016, FGCS 2018}
+\end{frame}
+
+\begin{frame}[vertical-alignment = top]
+  \frametitle{The Third Homomorphism Theorem, and After}
+  \vspace*{2mm}
+  \begin{center}
+    \scriptsize
+    \renewcommand\arraystretch{1.05}
+    \begin{tabular}{@{}l@{\quad}l@{\quad}>{\raggedright\arraybackslash}p{72mm}@{}}
+      1987 & Bird & theory of lists: 1st and 2nd theorems (map, then
+        reduce; leftward and rightward reductions) \\
+      1989 & Meertens & 3rd theorem proved, as conjectured by Bird \\
+      1996 & Gibbons, JFP & 3rd theorem published; mergesort from
+        insertion sort \\
+      1996 & Gorlatch, Euro-Par & scans and homomorphisms, parallelised
+        systematically \\
+      1997 & Hu, Iwasaki, Takeichi, TOPLAS & homomorphisms by tupling
+        with extra state (lifting) \\
+      2007 & Morita et al., PLDI & combiners derived automatically, by
+        weak right inverses \\
+      2009 & Morihata et al., POPL & the third theorem on trees (downward
+        and upward) \\
+      2011 & Mu, Morihata, ICFP & generalised and dualised \\
+      2011 & Chi, Mu, APLAS & combiners constructed from a proof that the
+        two loops agree \\
+      2017 & Farzan, Nicolet, PLDI & combiners and lifting synthesised for
+        loops \\
+      2019 & Farzan, Nicolet, PLDI & nested loops, one level at a time \\
+      2021 & Farzan, Nicolet, PLDI & phased synthesis of divide and
+        conquer \\
+    \end{tabular}
+  \end{center}
+  \speakernote{From pen-and-paper theorems to tools \\
+    Lifting = extra state, as in the Java example (tupling) \\
+    Morita et al.: the combiner by program inversion \\
+    Chi, Mu: from the proof that the loops agree, as in Part I \\
+    Farzan and Nicolet: synthesis (ParSynt); nested loops in Part III}
+\end{frame}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{ITP 2025's Extracted Quicksort, and Its Closures}
+  \vspace*{3mm}
+  \ocamlblock[before upper = {\fvset{fontsize = \scriptsize}}]{itp-qsort.ml}
+  \footnotesize
+  \begin{itemize}
+    \item Type-safe, no \code{Obj.magic}: one type of positions
+      (\code{Lbranch}, \code{Rbranch}) for every shape.
+    \item A \textbf{closure} per call (\code{x0}): \code{hylo} takes apart
+      the layer \code{c x} with a \code{match} that sits \emph{outside} the
+      coalgebra's own \code{match} on the input. Extraction does not push
+      it inside, so the children stay a function.
+    \item The fix: \textbf{CPS coalgebras} (\code{CCoalg}). The coalgebra
+      passes its layer to a continuation inside each of its branches, with
+      a proof that it is \code{c x} (for termination). The algebra meets a
+      known layer, and \code{x0 Lbranch} becomes \code{qsort\_double
+      l0}; \code{hylo\_cps\_hylo} proves the two equal.
+  \end{itemize}
+  \rocqtag
+  \speakernote{Real output of the paper's version (Rocq 9 port), renamed \\
+    x0: the children as a function, a closure each call \\
+    Cause: a match on a match; extraction does not commute them \\
+    CPS: the algebra runs inside the coalgebra's branches; cps\_from\_coalg
+    builds the CPS version from c}
+\end{frame*}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Quicksort, Step by Step}
+  \vspace*{4mm}
+  \begin{onlyenv}<1>
+    \fvset{lastline = 1}%
+    \rocqblock{qsort-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+    \fvset{lastline = 3}%
+    \rocqblock{qsort-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<3>
+    \fvset{lastline = 5}%
+    \rocqblock{qsort-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<4->
+    \fvset{lastline = 7}%
+    \rocqblock{qsort-steps.v}
+  \end{onlyenv}
+  \par
+  \speakernote{Each step: one law, the term Rocq shows after it \\
+    map\_merge\_fusion: doubling moves inside merge \\
+    hylo\_ana, deforest: the tree between unfold and fold disappears (one step) \\
+    hylo\_cps\_hylo: continuation-passing coalgebra, so the code has no closures}
+\end{frame*}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Knapsack, Step by Step}
+  \vspace*{4mm}
+  \begin{onlyenv}<1>
+    \fvset{lastline = 1}%
+    \rocqblock{knap-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+    \fvset{lastline = 3}%
+    \rocqblock{knap-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<3>
+    \fvset{lastline = 5}%
+    \rocqblock{knap-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<4->
+    \fvset{lastline = 10}%
+    \rocqblock{knap-steps.v}
+  \end{onlyenv}
+  \par
+  \speakernote{The goal after each rewrite, as Rocq prints it \\
+    reenumerate: from items to capacities, lookups jump into the array, O(1) \\
+    dyna\_loop: the table is built by a loop counting up \\
+    Last line: a loop over the capacities, one step each}
+\end{frame*}
+
+\begin{frame}
+  \frametitle{The Laws of the Knapsack Calculation}
+  \small
+  \begin{itemize}
+    \item \code{reenumerate}: a \code{hylo} becomes a
+      \textbf{dynamorphism} (\code{dyna}) over a chain \code{e} (here
+      \code{out\_int\_c}: $c, c - 1, \ldots, 0$): every result is computed
+      once, kept in a table, and looked up. Side condition (\code{Hlook}):
+      the algebra gets its children's results by looking back along
+      \code{e}.
+    \item \code{look\_with (w := fast\_drop) fast\_drop\_walk}: looking up
+      $K(c - w)$ walks back $w$ entries; \code{fast\_drop} jumps there in
+      $O(1)$ (an array), proved equal to the walk.
+    \item \code{dyna\_loop}: a dynamorphism over a count-down is a
+      \code{loop} counting up, one \code{memo\_step} per capacity.
+    \item \code{dyna\_iso}: the result does not depend on how the table is
+      represented (linked, or arrays).
+  \end{itemize}
+  \slideref{J. Kabanov, V. Vene. \textbf{Recursion Schemes for Dynamic Programming}. MPC 2006. \rfsep
+    R. Hinze, N. Wu, J. Gibbons. \textbf{Conjugate Hylomorphisms, or: The Mother of All Structured Recursion Schemes}. POPL 2015.}
+  \rocqtag
+  \speakernote{Dynamorphism: a hylo with a memo table (Kabanov, Vene) \\
+    reenumerate: Hlook, the children are found along the chain \\
+    fast\_drop: O(1) jump, proved equal to the walk \\
+    dyna\_loop: bottom-up loop; dyna\_iso: any table}
+\end{frame}
+
+\begin{frame*}
+  \frametitle{Associative Combiners, for Any Data Type}
+  \rocqblock{malg.v}
+  \rocqblock{malg-fusion.v}
+  \small
+  \begin{itemize}
+    \item \code{malg}: a \textbf{monoid algebra}. It combines a node's own
+      value (\code{leaf s}, optional) with its children's results, in the
+      order \code{members F s}, with the monoid \code{M}.
+    \item List homomorphisms, for \textbf{any} data type and
+      \textbf{any} divide step. \code{malg\_fusion}: any monoid
+      homomorphism fuses; its side condition, \code{malg\_hom}, is proved
+      once, for every shape.
+    \item Instances: Bird's map and reduce promotion; maximum segment sum,
+      from cubic (\code{maximum . map sum . segs}) to linear (Horner's
+      rule, a scan, tupling), by \code{Derive}.
+  \end{itemize}
+  \rocqtag
+  \speakernote{malg = monoid algebra: combine a node's value with its
+    children's results, in order \\
+    malg\_fusion: one-line proof, from malg\_hom \\
+    Part I's homomorphisms, generalised \\
+    Maximum segment sum: Bird's calculation, machine-checked (examples/MSS.v)}
+\end{frame*}
+
+\begin{frame}
+  \frametitle{What Each Approach Trusts: ICFP 2016, Gibbon, ParSynt, Rocq}
+  \begin{center}
+    \small
+    \renewcommand\arraystretch{1.35}
+    \begin{tabular}{@{}llll@{}}
+      & \textbf{the laws} & \textbf{each program} & \textbf{trusted} \\
+      \hline
+      ICFP 2016 & axioms & type checking & laws, code generator \\
+      Gibbon & compiler passes & --- & the compiler \\
+      ParSynt & paper proofs & join: bounded check, Dafny &
+        translation, code generator \\
+      \textbf{Rocq} & \textbf{proved once} & \textbf{every step checked} &
+        \textbf{extraction or printer} \\
+    \end{tabular}
+  \end{center}
+  \begin{itemize}[<+->]
+    \item Same laws, one small trusted base.
+    \item Clean extraction: the code that \textbf{runs} is a direct,
+      readable transcription of what was \textbf{proved}.
+  \end{itemize}
+  \ongoingtag
+  \speakernote{If asked how the leads compare on trust \\
+    ICFP'16: laws assumed \\
+    Gibbon: correct by careful engineering, unverified \\
+    ParSynt: theorems on paper; each join checked; loop translation not
+    verified \\
+    Ours: laws are Rocq theorems; derivation is a certificate \\
+    Without clean extraction, this is only a proof about a model}
+\end{frame}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Packed Traversals: End Witnesses, Offsets, Layout}
+  \vspace*{4mm}
+  \mainblock[before upper = {\fvset{fontsize = \scriptsize}}]{packed-sum.c}
+  \scriptsize
+  \begin{itemize}
+    \item \textbf{End witnesses}: \code{sum} returns where its subtree
+      ends, so the caller knows where the next one starts; LoCal makes
+      these locations part of the types.
+    \item \textbf{Random access}: to reach the right subtree without
+      reading the left one, the buffer can also store offsets, at some cost
+      in space; parallel traversals rely on them.
+    \item \textbf{Layout}: which field comes first is a choice; Marmoset
+      picks it with a cost model.
+  \end{itemize}
+  \slideref{M. Vollmer et al. \textbf{Compiling Tree Transforms to Operate on Packed Representations}. ECOOP 2017. \rfsep
+    M. Vollmer et al. \textbf{LoCal: A Language for Programs Operating on Serialized Data}. PLDI 2019. \rfsep
+    C. Koparkar et al. \textbf{Efficient Tree-Traversals: Reconciling Parallelism and Dense Data Representations}. ICFP 2021. \rfsep
+    V. Singhal et al. \textbf{Optimizing Layout of Recursive Datatypes with Marmoset}. ECOOP 2024.}
+  \ongoingtag
+  \speakernote{The sum on the buffer (hand-written, not Gibbon's output) \\
+    End witnesses: the cursor returned by each call \\
+    Offsets: random access, needed for parallel traversals \\
+    Order of traversal = order of layout}
+\end{frame*}
+

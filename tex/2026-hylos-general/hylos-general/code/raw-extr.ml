@@ -5,4 +5,4 @@ let rec hylo esh f eA eB^\tikzmark{dict}^ g h x =
   g { shape = sx; cont0 = (fun e -> hylo esh f eA eB g h (cx e)) }^\tikzmark{rec}^
 
 let qsort_spec =
-  hylo def_eq treeF (list_eq def_eq) (list_eq def_eq) merge tsplit
+  hylo def_eq treeF (list_eq def_eq) (list_eq def_eq) conquer divide

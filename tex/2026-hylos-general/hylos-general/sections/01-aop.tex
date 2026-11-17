@@ -2,53 +2,6 @@
 % general CS audience: Python first, then one switch to Haskell (02).
 \partframe{Part I}{Program Calculation}
 
-\begin{frame*}[vertical-alignment = top]
-  \frametitle{Rewrite Rules You Already Trust}
-  \vspace*{4mm}
-  A database optimiser:
-  \mainblock{sql-pushdown.sql}
-  An ML compiler:
-  \mainblock{torch-fusion.py}
-  % Step 2: should you trust them? A real case. Step 3: a box on top.
-  \only<2->{\par\nointerlineskip\vbox to 0pt{%
-    \begin{tikzpicture}[overlay, remember picture, alt = {Should you really
-        trust them? A real case, PyTorch issue 196468: an attention-shaped
-        pattern rewrite ignores the softmax dimension, silently computing
-        attention over the last axis: a fusion rule whose side condition is
-        never checked.}]
-      \node[anchor = north, fill = white, draw = black!25,
-        rounded corners = 3pt, drop shadow, text width = 150mm,
-        align = left, inner sep = 3mm]
-        at ($(current page.north) + (0, -15mm)$)
-        {{\Large\bfseries\color{bad} Should you really trust them?\par}\medskip
-         \includegraphics[width = \linewidth, alt = {Screenshot of PyTorch
-          issue 196468, open, labelled high priority and correctness
-          (silent)}]{pytorch-196468.png}\par\smallskip
-         \small A fusion rule whose side condition (softmax over the
-         \textbf{last} axis) is never checked.\par
-         {\footnotesize\url{https://github.com/pytorch/pytorch/issues/196468}\par}};
-    \end{tikzpicture}\vss}}
-  \only<3>{\par\nointerlineskip\vbox to 0pt{%
-    \begin{tikzpicture}[overlay, remember picture, alt = {To trust a
-        rewrite, we need a proved law, with its side conditions checked at
-        every use. Can we have that for our own programs?}]
-      \node[fill = yellow!20, draw = golden!80!black, rounded corners = 3pt,
-        drop shadow, text width = 130mm, align = center, inner sep = 5mm,
-        font = \Large, execute at begin node = {\hyphenpenalty = 10000}]
-        at ($(current page.center) + (0, -4mm)$)
-        {To trust a rewrite, we need a \textbf{proved} law, with its side
-        conditions \textbf{checked} at every use. Can we have that for
-        \textbf{our own} programs?};
-    \end{tikzpicture}\vss}}
-  \speakernote{SQL: predicate pushdown, a law of relational algebra \\
-    PyTorch / XLA: element-wise ops fused into one kernel \\
-    Click: should you trust them? PyTorch \#196468 (open, high priority):
-    the fusion ignores which axis softmax uses; a side condition nobody
-    checks \\
-    Click: trust needs proved laws and checked side conditions; for our own
-    programs: the algebra of programming}
-\end{frame*}
-
 \begin{frame}[vertical-alignment = top]
   \frametitle{Programs as Algebra}
   \vspace*{3mm}
@@ -129,7 +82,7 @@
 \end{frame*}
 
 \begin{frame*}
-  \frametitle{The Law Behind It}
+  \frametitle{Fold Fusion: The Law Behind Both Programs}
   \vspace*{6mm}
   Both programs are instances of one loop pattern, and the law is about
   the pattern:

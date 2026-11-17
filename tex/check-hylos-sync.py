@@ -19,25 +19,27 @@ SAME_FILES = [
 ] + [f'hylos-general/code/{f}:hylos-seminar/code/{f}' for f in [
     'rocqlexer.py',
     # the calculations and their output
-    'qsort2.ml', 'qsort-steps.v', 'knap-steps.v',
-    # the general deck's Rocq part, copied from the seminar
+    'qsort-steps.v', 'knap-steps.v',
+    # the general deck's Rocq part, copied from the seminar (not qsort2.ml,
+    # naive-extr.ml, raw-extr.ml or qsort2-derive.v: the general deck renames
+    # merge, tsplit, times_two to the talk's conquer, divide, double)
     # (not naive-eq.v: the general deck drops a comment; the general deck
     # shows hylo, not quicksort, failing the termination check)
-    'naive-cont.v', 'naive-extr.ml',
+    'naive-cont.v',
     'naive-eq.txt', 'cont-class.v', 'recf.v', 'hylo-def.v',
-    'hylo-laws.v', 'raw-extr.ml', 'malg.v', 'malg-fusion.v',
+    'hylo-laws.v', 'malg.v', 'malg-fusion.v',
 ]]
 
 # Same frame (title) in both decks, compared with speaker notes
 SAME_FRAMES = [
-    ('hylos-general/sections/06-rocq.tex',
+    ('hylos-general/sections/09-backup.tex',
      'hylos-seminar/sections/06-calculation.tex', 'Quicksort, Step by Step'),
-    ('hylos-general/sections/06-rocq.tex',
+    ('hylos-general/sections/09-backup.tex',
      'hylos-seminar/sections/07-dynamorphisms.tex', 'Knapsack, Step by Step'),
 ]
 
 TIKZMARK = re.compile(r'\^\\tikzmark\{[^}]*\}\^')
-# The general deck flags the frames its live demo covers
+# The general deck used to flag the frames its live demo covered
 DEMOTAG = re.compile(r'^ *\\demotag\n', re.M)
 
 
@@ -68,10 +70,6 @@ def main():
     for spec in SAME_FILES:
         g, s = spec.split(':') if ':' in spec else (spec, spec)
         ok &= report(g, read(GEN + g), read(SEM + s))
-    # The quicksort Derive: the general deck adds two \tikzmarks
-    ok &= report('qsort2-derive.v (without \\tikzmark)',
-                 TIKZMARK.sub('', read(GEN + 'hylos-general/code/qsort2-derive.v')),
-                 read(SEM + 'hylos-seminar/code/qsort2-derive.v'))
     for g, s, title in SAME_FRAMES:
         ok &= report(f'frame "{title}"',
                      DEMOTAG.sub('', frame(read(GEN + g), title)),

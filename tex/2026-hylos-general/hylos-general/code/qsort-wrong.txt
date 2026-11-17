@@ -1,0 +1,3 @@
+  rewrite deforest.
+Error: Found no subterm matching "hylo ?g2 ?h2 \o hylo ?g1 ?h1"
+in the current goal.
