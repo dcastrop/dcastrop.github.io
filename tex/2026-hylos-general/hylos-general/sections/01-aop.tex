@@ -9,16 +9,44 @@
   \mainblock{sql-pushdown.sql}
   An ML compiler:
   \mainblock{torch-fusion.py}
-  \begin{itemize}
-    \item<2-> Fixed rules, \textbf{trusted}, not proved: a wrong one
-      miscompiles \emph{silently}.
-    \item<3-> Could we do this for \textbf{our own} programs, with laws
-      that are \textbf{proved}?
-  \end{itemize}
+  % Step 2: should you trust them? A real case. Step 3: a box on top.
+  \only<2->{\par\nointerlineskip\vbox to 0pt{%
+    \begin{tikzpicture}[overlay, remember picture, alt = {Should you really
+        trust them? A real case, PyTorch issue 196468: an attention-shaped
+        pattern rewrite ignores the softmax dimension, silently computing
+        attention over the last axis: a fusion rule whose side condition is
+        never checked.}]
+      \node[anchor = north, fill = white, draw = black!25,
+        rounded corners = 3pt, drop shadow, text width = 150mm,
+        align = left, inner sep = 3mm]
+        at ($(current page.north) + (0, -15mm)$)
+        {{\Large\bfseries\color{bad} Should you really trust them?\par}\medskip
+         \includegraphics[width = \linewidth, alt = {Screenshot of PyTorch
+          issue 196468, open, labelled high priority and correctness
+          (silent)}]{pytorch-196468.png}\par\smallskip
+         \small A fusion rule whose side condition (softmax over the
+         \textbf{last} axis) is never checked.\par
+         {\footnotesize\url{https://github.com/pytorch/pytorch/issues/196468}\par}};
+    \end{tikzpicture}\vss}}
+  \only<3>{\par\nointerlineskip\vbox to 0pt{%
+    \begin{tikzpicture}[overlay, remember picture, alt = {To trust a
+        rewrite, we need a proved law, with its side conditions checked at
+        every use. Can we have that for our own programs?}]
+      \node[fill = yellow!20, draw = golden!80!black, rounded corners = 3pt,
+        drop shadow, text width = 130mm, align = center, inner sep = 5mm,
+        font = \Large, execute at begin node = {\hyphenpenalty = 10000}]
+        at ($(current page.center) + (0, -4mm)$)
+        {To trust a rewrite, we need a \textbf{proved} law, with its side
+        conditions \textbf{checked} at every use. Can we have that for
+        \textbf{our own} programs?};
+    \end{tikzpicture}\vss}}
   \speakernote{SQL: predicate pushdown, a law of relational algebra \\
     PyTorch / XLA: element-wise ops fused into one kernel \\
-    Equal programs, pick the cheaper; rules are trusted (security!) \\
-    The question that starts the algebra of programming}
+    Click: should you trust them? PyTorch \#196468 (open, high priority):
+    the fusion ignores which axis softmax uses; a side condition nobody
+    checks \\
+    Click: trust needs proved laws and checked side conditions; for our own
+    programs: the algebra of programming}
 \end{frame*}
 
 \begin{frame}[vertical-alignment = top]
@@ -43,16 +71,16 @@
       \foreach \x/\y/\s/\t [count = \i] in {
           0.65/1978/1/{\textbf{Backus}: ``an algebra of programs''
             \tlcite{CACM 1978}},
-          3.15/1986--87/-1/{\textbf{Meertens}, \textbf{Bird}: the
-            Bird--Meertens formalism \tlcite{CWI'86; NATO ASI'87}},
-          5.65/1991/1/{\textbf{Meijer}, \textbf{Fokkinga},
-            \textbf{Paterson}: recursion schemes \tlcite{FPCA 1991}},
+          3.15/1986--87/-1/{\textbf{Meertens}, \textbf{Bird}: laws for
+            lists \tlcite{CWI'86; NATO ASI'87}},
+          5.65/1990--91/1/{\textbf{Malcolm}; \textbf{Meijer} et al.: laws
+            for every data type \tlcite{SCP 1990; FPCA 1991}},
           8.15/1997/-1/{\textbf{Bird}, \textbf{de Moor}: \emph{Algebra of
             Programming} \tlcite{Prentice Hall 1997}},
-          10.65/2002/1/{\textbf{Gibbons}: \emph{Calculating Functional
-            Programs} \tlcite{LNCS 2297, 2002}},
-          13.15/2020/-1/{\textbf{Bird}, \textbf{Gibbons}: \emph{Algorithm
-            Design with Haskell} \tlcite{CUP 2020}}} {
+          10.65/2015/1/{\textbf{Hinze}, \textbf{Wu}, \textbf{Gibbons}: one
+            scheme behind them all \tlcite{POPL 2015}},
+          13.15/2027/-1/{\textbf{Gibbons}: \emph{Patterns in Functional
+            Programming} \tlcite{CUP, forthcoming}}} {
         \ifnum\s=1 \def\ea{south}\def\ya{north}%
         \else \def\ea{north}\def\ya{south}\fi
         \fill[accent] (\x, 0) circle (1.2mm);
@@ -72,14 +100,17 @@
     Style? Turing Award lecture, CACM 21(8), 1978 (emphasis added)}
   \slideref{J. Backus. \textbf{Can Programming Be Liberated from the von Neumann Style?} CACM 1978. \rfsep
     R. Bird. \textbf{An Introduction to the Theory of Lists}. 1987. \rfsep
+    G. Malcolm. \textbf{Data Structures and Program Transformation}. SCP 1990. \rfsep
     E. Meijer, M. Fokkinga, R. Paterson. \textbf{Functional Programming with Bananas, Lenses, Envelopes and Barbed Wire}. FPCA 1991. \rfsep
     R. Bird, O. de Moor. \textbf{Algebra of Programming}. Prentice Hall, 1997. \rfsep
-    J. Gibbons. \textbf{Calculating Functional Programs}. 2002. \rfsep
-    R. Bird, J. Gibbons. \textbf{Algorithm Design with Haskell}. CUP, 2020.}
+    R. Hinze, N. Wu, J. Gibbons. \textbf{Conjugate Hylomorphisms, or: The Mother of All Structured Recursion Schemes}. POPL 2015. \rfsep
+    J. Gibbons. \textbf{Patterns in Functional Programming}. CUP, forthcoming (2027).}
   \speakernote{Yes: the algebra of programming (program calculation) \\
     Backus: programs you can do algebra on \\
-    Bird and Meertens: a notation and laws (Squiggol) \\
-    Bird and de Moor; Gibbons; Bird and Gibbons: the textbooks \\
+    Bird and Meertens: a notation and laws for lists (Squiggol) \\
+    Malcolm; Meijer et al.: the same laws for every data type \\
+    Bird and de Moor: the book; Hinze et al.: one scheme (hylos) \\
+    Gibbons: the patterns, in a book (CUP, Feb 2027) \\
     Click: Backus's abstract (1977 Turing lecture)}
 \end{frame}
 

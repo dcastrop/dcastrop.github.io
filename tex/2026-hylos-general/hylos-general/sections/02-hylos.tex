@@ -49,36 +49,69 @@
     about}
 \end{frame*}
 
-\begin{frame}
+\begin{frame}[vertical-alignment = top]
   \frametitle{The Call Tree of Quicksort}
+  \vspace*{5mm}
   \begin{center}
     \begin{tikzpicture}[alt={The call tree of quicksort on the list 3, 1,
-        4, 5, 2. Dividing around pivot 3 gives 1, 2 and 4, 5, which are
-        divided again around pivots 1 and 4. Conquering concatenates the
-        results from the leaves up, giving 1, 2, 3, 4, 5.},
-      level distance = 13mm,
-      level 1/.style = {sibling distance = 46mm},
-      level 2/.style = {sibling distance = 22mm},
-      every node/.style = {box}]
-      \node (r) {$[3,1,4,5,2]$}
-        child {node (l) {$[1,2]$}
-          child {node {$[\,]$}}
-          child {node {$[2]$}}}
-        child {node (rr) {$[4,5]$}
-          child {node {$[\,]$}}
-          child {node {$[5]$}}};
-      \node[hot, right = 4mm of r] {pivot 3};
-      \node[hot, right = 4mm of l] {pivot 1};
-      \node[hot, right = 4mm of rr] {pivot 4};
+        4, 5, 2, drawn as a tree of layers. The root is Node 3, for the
+        input 3, 1, 4, 5, 2. Its children are Node 1, for the input 1, 2,
+        and Node 4, for 4, 5. Node 1 has children Leaf and Node 2; Node 4
+        has children Leaf and Node 5; Node 2 and Node 5 have two Leaf
+        children each. Divide builds the tree from the root down; conquer
+        folds it from the leaves up.},
+      level distance = 8.5mm,
+      level 1/.style = {sibling distance = 52mm},
+      level 2/.style = {sibling distance = 26mm},
+      level 3/.style = {sibling distance = 13mm},
+      every node/.style = {box, font = \small\ttfamily},
+      leaf/.style = {font = \scriptsize\ttfamily, draw = black!30,
+        fill = black!5},
+      inp/.style = {draw = none, fill = none, font = \scriptsize,
+        text = gray, left = 1.5mm}]
+      \node (r) {Node 3}
+        child {node (l) {Node 1}
+          child {node[leaf] {Leaf}}
+          child {node (l2) {Node 2}
+            child {node[leaf] {Leaf}}
+            child {node[leaf] {Leaf}}}}
+        child {node (rr) {Node 4}
+          child {node[leaf] {Leaf}}
+          child {node (r2) {Node 5}
+            child {node[leaf] {Leaf}}
+            child {node[leaf] {Leaf}}}};
+      \node[inp] at (r.west) {$[3,1,4,5,2]$};
+      \node[inp] at (l.west) {$[1,2]$};
+      \node[inp] at (rr.west) {$[4,5]$};
+      \node[inp] at (l2.west) {$[2]$};
+      \node[inp] at (r2.west) {$[5]$};
       \draw[->, very thick, accent] (-6.0, 0.2) -- node[left, draw = none,
-        fill = none, note, text = accent] {\code{divide}} (-6.0, -2.6);
-      \draw[->, very thick, accent2] (6.0, -2.6) -- node[right, draw = none,
+        fill = none, note, text = accent] {\code{divide}} (-6.0, -2.8);
+      \draw[->, very thick, accent2] (6.0, -2.8) -- node[right, draw = none,
         fill = none, note] {\code{conquer}} (6.0, 0.2);
     \end{tikzpicture}
   \end{center}
-  \uncover<2->{The tree is \emph{virtual}: it is never built in memory.}
-  \speakernote{Divide goes down, conquer comes up \\
-    The tree is only the call stack \\
+  \hsblock{layer.hs}
+  \begin{onlyenv}<2->
+    Its type is the \textbf{least fixed point} of \code{Layer}: finite
+    trees, one layer per node.
+    \hsblock{calltree.hs}
+  \end{onlyenv}
+  \par
+  \begin{onlyenv}<3->
+    \code{divide} builds the tree, \code{conquer} folds it; \code{hylo}
+    does both at once, so the tree is \emph{virtual}: it is never built in
+    memory.
+  \end{onlyenv}
+  \par
+  \speakernote{Everyone knows this tree; the point is its type \\
+    Nodes are layers: Leaf, or Node with a pivot; grey: what divide got \\
+    Layer: as in qsort; x marks where the parts go \\
+    Least fixed point: smallest solution of Tree = Layer Tree, finite trees
+    \\
+    Haskell is lazy (also infinite trees); Rocq: finite only, so divide
+    must terminate (Part II) \\
+    Build, then fold = hylo, with no tree (deforestation, soon) \\
     Independent subtrees: parallelism comes back later}
 \end{frame}
 
@@ -104,32 +137,28 @@
     \end{column}
     \begin{column}{0.56\textwidth}
       \small
-      \renewcommand\arraystretch{1.1}
+      \renewcommand\arraystretch{1.4}
       \begin{tabular}{@{}l@{\quad}>{\raggedright\arraybackslash}p{70mm}@{}}
         1987 & \textbf{Hagino}: data types from category theory \\
-        1990 & \textbf{Malcolm}: a fold for every data type, with its laws
-          \\
-        1991 & \textbf{Meijer, Fokkinga, Paterson}: the name
-          \emph{hylomorphism} \\
         1996 & \textbf{Hu, Iwasaki, Takeichi}: found in ordinary programs
           \\
         2006 & \textbf{Capretta, Uustalu, Vene}: when $h$ is unique \\
-        2015 & \textbf{Hinze, Wu, Gibbons}: (almost) every recursion scheme
-          is one \\
+        2020 & \textbf{Ad\'amek, Milius, Moss}: if \code{divide}
+          terminates, $h$ exists and is unique \\
       \end{tabular}
     \end{column}
   \end{columns}
   \slideref{T. Hagino. \textbf{A Categorical Programming Language}. PhD thesis, 1987. \rfsep
-    G. Malcolm. \textbf{Data Structures and Program Transformation}. SCP 1990. \rfsep
-    E. Meijer, M. Fokkinga, R. Paterson. \textbf{Functional Programming with Bananas, Lenses, Envelopes and Barbed Wire}. FPCA 1991. \rfsep
     Z. Hu, H. Iwasaki, M. Takeichi. \textbf{Deriving Structural Hylomorphisms from Recursive Definitions}. ICFP 1996. \rfsep
     V. Capretta, T. Uustalu, V. Vene. \textbf{Recursive Coalgebras from Comonads}. Inf. Comput. 2006. \rfsep
-    R. Hinze, N. Wu, J. Gibbons. \textbf{Conjugate Hylomorphisms, or: The Mother of All Structured Recursion Schemes}. POPL 2015.}
+    J. Ad\'amek, S. Milius, L. S. Moss. \textbf{On Well-Founded and Recursive Coalgebras}. FoSSaCS 2020.}
   \speakernote{F: one layer (Layer in the Haskell); divide: coalgebra,
     conquer: algebra \\
-    Category theory: data types as initial algebras, final coalgebras \\
-    Hylo: Greek matter + form; unfold then fold \\
-    Unique solution only for recursive coalgebras: key for Rocq later}
+    Hagino: data types as initial algebras, final coalgebras \\
+    Name: Meijer et al. 1991 (Greek matter + form: unfold, then fold) \\
+    Hu et al.: the HYLO system finds hylos in ordinary code \\
+    Unique h: recursive coalgebras (CUV); terminating (well-founded)
+    divide suffices (AMM): key for Rocq later}
 \end{frame}
 
 \begin{frame}

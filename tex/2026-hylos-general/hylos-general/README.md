@@ -145,6 +145,12 @@ files `rocqlexer.py`, `qsort2.ml`, `qsort-steps.v`, `knap-steps.v`,
 (`qsort2-derive.v`, plus two `\tikzmark`s here), and the frames "Quicksort,
 Step by Step" (plus a `\demotag` here) and "Knapsack, Step by Step".
 
+`images/pytorch-196468.png`: a screenshot (headless Chrome, 2026-11-17) of
+the public issue https://github.com/pytorch/pytorch/issues/196468, cropped
+to its title, labels and description; shown on "Rewrite Rules You Already
+Trust" as a real case of a fusion rule missing its side condition (the
+softmax axis). The issue was open, with a fix PR (#200011) pending.
+
 ## Demo
 
 `demo/Demo.v` repeats the quicksort calculation (the library's
