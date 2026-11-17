@@ -88,3 +88,41 @@
         at ($(current page.north) + (0, -18mm)$)
         {#2\par\smallskip{\raggedleft\footnotesize --- #3\par}};
     \end{tikzpicture}}\par}
+
+% Footer: "frame/total", bottom right. ltx-talk counts frames, not overlays.
+% (\hfill in font pushes it right: the footer has no alignment key.)
+\EditInstance{footer}{std}{
+  color         = black!50,
+  font          = \hfill\scriptsize,
+  element-order = {framenumber, totalframes},
+  separator     = /,
+  right-hspace  = 4mm,
+}
+
+% The title and Part frames have no footer, and are not counted. (A counter
+% of our own: ltx-talk's frame counter also sets the PDF page labels, which
+% pdfpc uses to group overlays.)
+\makeatletter
+\newcounter{dcpskipped}
+\def\ps@talknofooter{\ps@talk\def\@oddfoot{}\let\@evenfoot\@oddfoot}
+\NewCommandCopy\dcp@titleframe\titleframe
+\RenewDocumentCommand\titleframe{+m +m +m}{\stepcounter{dcpskipped}%
+  \dcp@titleframe{#1}{#2}{#3\thispagestyle{talknofooter}}}
+\NewCommandCopy\dcp@partframe\partframe
+\RenewDocumentCommand\partframe{m m}{\stepcounter{dcpskipped}%
+  \dcp@partframe{#1}{#2\thispagestyle{talknofooter}}}
+\ExplSyntaxOn
+\property_new:nnnn { dcpskipped } { shipout } { 0 } { \int_use:N \c@dcpskipped }
+\AddToHook { enddocument / afterlastpage }
+  { \property_record:nn { dcp-lastpage } { dcpskipped } }
+\cs_set:Npn \@framenumber { \int_eval:n { \c@frame - \c@dcpskipped } }
+\cs_set:Npn \@totalframes
+  {
+    \int_eval:n
+      {
+          \property_ref:nn { lastpage } { totalframes }
+        - \property_ref:nn { dcp-lastpage } { dcpskipped }
+      }
+  }
+\ExplSyntaxOff
+\makeatother

@@ -97,7 +97,7 @@
     `unknowns' are programs in much the same way one transforms equations in
     high school algebra. These transformations are given by algebraic laws
     [\ldots]''}{J. Backus, Can Programming Be Liberated from the von Neumann
-    Style? Turing Award lecture, CACM 21(8), 1978 (emphasis added)}
+    Style? Turing Award lecture, CACM 21(8), 1978}
   \slideref{J. Backus. \textbf{Can Programming Be Liberated from the von Neumann Style?} CACM 1978. \rfsep
     R. Bird. \textbf{An Introduction to the Theory of Lists}. 1987. \rfsep
     G. Malcolm. \textbf{Data Structures and Program Transformation}. SCP 1990. \rfsep
@@ -130,14 +130,21 @@
 
 \begin{frame*}
   \frametitle{The Law Behind It}
+  \vspace*{6mm}
   Both programs are instances of one loop pattern, and the law is about
   the pattern:
   \mainblock{fold.py}
   \mainblock{fold-fusion.py}
-  \begin{itemize}
-    \item<2-> Laws like this follow from one fact: \code{fold} is the
-      \textbf{only} solution of its defining equations.
-  \end{itemize}
+  \uncover<2->{%
+    % A tighter list, in this frame only, so that it fits
+    \EditInstance{list}{enumerate-1}{item-vspace = 2pt}%
+    \EditInstance{block}{std-list-1}{begin-vspace = 2pt, end-vspace = 0pt}%
+    Laws like this follow from two facts:
+    \begin{enumerate}
+    \item \code{map} is an instance of \code{fold}
+    \item \code{fold} is the \textbf{only} solution of its defining equations
+    \end{enumerate}
+  }
   \speakernote{fold = reduce: an accumulator loop \\
     sum, count, max: same loop, different step \\
     Fusion: why the two programs are equal \\

@@ -132,7 +132,7 @@
 \end{frame*}
 
 \begin{frame}
-  \frametitle{Proofs or Code? Every Definition Is a Choice}
+  \frametitle{Definition Trade-off: Proofs or Code?}
   \begin{center}
     \footnotesize
     \renewcommand\arraystretch{1.3}
@@ -214,9 +214,14 @@
   \begin{itemize}[<+->]
     \item Calculations with \code{Derive}: the program starts as an
       unknown; rewrites fill it in.
+      \begin{itemize}[<+->]
+        \item We had our own tactic \code{calculate}
+        \item Rocq modernised the \code{Derive} command in version 9.0, and we
+        have adopted it since.
+      \end{itemize}
     \item Side proofs (termination, well-behaved functions) found
       \textbf{automatically}.
-    \item \textbf{No closures} in the code: divide steps in
+    \item \textbf{No closures} in the code: divide and hylos in
       continuation-passing style.
     \item Dynamic programming over \textbf{arrays}: $O(1)$ lookups,
       loops.
@@ -396,7 +401,7 @@
   \rocqblock{malg.v}
   \rocqblock{malg-fusion.v}
   \begin{itemize}[<+->]
-    \item Part I's list homomorphisms, for \textbf{any} data type and
+    \item List homomorphisms, for \textbf{any} data type and
       \textbf{any} divide step.
     \item Instances: Bird's classic laws; maximum segment sum, cubic to
       linear.
