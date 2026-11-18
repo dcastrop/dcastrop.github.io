@@ -3,7 +3,7 @@ layout: slide
 title: "Hylomorphisms: From the Algebra of Programming to Certified Code"
 venue: CS Seminar Series @ Royal Holloway, University of London
 venueurl: https://rhul-cs-seminars.github.io
-upcoming: true # shown as "Upcoming: <date>"; remove once given
+upcoming: false # shown as "Upcoming: <date>"; remove once given
 date: 2026-11-18 # 13:00, Queens 240 (also streamed on Teams)
 author: David Castro-Perez
 description: 
