@@ -52,17 +52,8 @@
         conditions \textbf{checked} at every use. Can we have that for
         \textbf{our own} programs?};
     \end{tikzpicture}\vss}}
-  \speakernote{SQL: predicate pushdown, a law of relational algebra \\
-    PyTorch: matmul, softmax, matmul matched and replaced by one fused
-    attention op \\
-    Should you trust them? PyTorch \#196468 (open, high priority):
-    one real case of a rewrite applied without checking its condition, not
-    a claim about optimisers in general;
-    The code shown is the correct case (dim -1); write dim 0 and the
-    rewrite still fires, computing dim -1; no error, no warning; the side
-    condition (last axis) nobody checks \\
-    Trust needs proved laws and checked side conditions; for our own
-    programs: the algebra of programming}
+  \speakernote{SQL pushdown; PyTorch attention fusion \\ Bug: dim 0 silently
+      run as dim -1 \\ Trust needs proved laws, checked side conditions}
 \end{frame*}
 
 \begin{frame}
@@ -91,12 +82,6 @@
       go? Can untrusted search (compilers, e-graphs, ML) propose the steps,
       with Rocq checking each one?
   \end{enumerate}
-  \speakernote{Answer to the last slide: laws, proved, side conditions
-    checked \\
-    Theme: spec in, fast program out, every step an equation \\
-    1: the classic theory, with code; laws for parallelism (ours, ICFP
-    2016) \\
-    2: making it machine-checked, with runnable code (ours, with Paviotti
-    and Vollmer) \\
-    3: where we are going; search proposes, Rocq checks}
+  \speakernote{Spec in, fast program out, every step an equation \\ Theory;
+      Rocq; low level}
 \end{frame}

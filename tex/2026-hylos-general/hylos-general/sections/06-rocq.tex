@@ -36,13 +36,8 @@
   \slideref{X. Leroy. \textbf{Formal Verification of a Realistic Compiler}. CACM 2009. \rfsep
     X. Yang, Y. Chen, E. Eide, J. Regehr. \textbf{Finding and Understanding Bugs in C Compilers}. PLDI 2011. \rfsep
     A. Erbsen, J. Philipoom, J. Gross, R. Sloan, A. Chlipala. \textbf{Simple High-Level Code for Cryptographic Arithmetic: With Proofs, Without Compromises}. IEEE S\&P 2019.}
-  \speakernote{Rocq: formerly Coq \\
-    One file: program, spec, proof; the kernel checks; extraction erases
-    proofs \\
-    CompCert: Csmith (PLDI'11) found wrong-code bugs in every other
-    compiler, none in CompCert's verified middle end \\
-    fiat-crypto: field arithmetic in BoringSSL, so in Chrome \\
-    Next: what makes hylomorphisms hard in Rocq}
+  \speakernote{Rocq = Coq \\ Kernel checks; extraction erases proofs \\
+      CompCert; fiat-crypto in Chrome}
 \end{frame}
 
 \begin{frame*}
@@ -52,10 +47,8 @@
   \uncover<2->{Rocq must \emph{see} that each call is on a smaller input; for
     \code{hylo}, that depends on \code{divide}. Workarounds: one termination
     proof per function, and \textbf{no laws}.}
-  \speakernote{Rocq: programs must terminate (the logic stays consistent) \\
-    The recursive call is on divide x, not on a piece of x: rejected \\
-    Quicksort, mergesort: rejected for the same reason \\
-    Program Fixpoint, Equations: a proof per function, no fusion laws}
+  \speakernote{Termination must be visible \\ Call on divide x: rejected \\
+      Workarounds: no laws}
 \end{frame*}
 
 \begin{frame}
@@ -79,11 +72,7 @@
   \end{center}
   \uncover<2->{Every definition trades \textbf{easy proofs} against
     \textbf{clean extracted code}.}
-  \speakernote{Termination: h = h + 1 has no solution, h = h has every
-    one; need recursive coalgebras \\
-    Axioms: funext, axiom K; we want none \\
-    Clean code: what you would write by hand, no Obj.magic \\
-    Theme of this part: proofs vs code}
+  \speakernote{Termination, no axioms, clean code \\ Theme: proofs vs code}
 \end{frame}
 
 \begin{frame*}[vertical-alignment = top]
@@ -118,20 +107,8 @@
   \only<2>{\slideref{Y. Forster, M. Sozeau, N. Tabareau. \textbf{Verified Extraction from Coq to OCaml}. PLDI 2024. \rfsep
     \'E. Tanter, N. Tabareau. \textbf{Lost in Extraction, Recovered: An Approach to Compensate for the Loss of Properties and Type Dependencies when Extracting Coq Components to OCaml}. ML Family Workshop 2015 (extended abstract).}}
   \obstacle{obstacles: no extra axioms, clean code}
-  \speakernote{Container: shapes, and positions per shape (Abbott,
-    Altenkirch, Ghani) \\
-    Positions depend on the shape: a type family \\
-    Extraction: every shape and position through Obj.magic (real output,
-    renamed) \\
-    Obj.magic: fine in a closed program; a foreign caller passing a wrong
-    value: segfault (Tanter, Tabareau: an example) \\
-    PLDI'24 (Forster, Sozeau, Tabareau): interop with unverified code never
-    studied formally; safe for first-order data, higher-order can segfault \\
-    "Your code is fine with Obj.magic": here, yes; in general, maybe not \\
-    Low-level targets need types: no uniform representation to cast into \\
-    Cast-free output: OCaml re-checks our trusted extraction \\
-    Erased types leak into client code: unsafety spreads \\
-    Not performance: Obj.magic is free at run time}
+  \speakernote{Shape + positions \\ Extracts to Obj.magic \\ Foreign caller,
+      wrong value: segfault}
 \end{frame*}
 
 \begin{frame}
@@ -147,12 +124,9 @@
     open.
   \end{itemize}
   \obstacle{obstacle: no extra axioms}
-  \speakernote{Equality: injection gives equal dependent pairs; k1 = k2
-    needs inj\_pair2, i.e. axiom K; fmap id = id needs funext \\
-    No axioms: the low-level target will need assumptions we cannot
-    predict; start from none \\
-    If challenged: consistent alone, yes; consistent with what the target
-    will need, unknown}
+  \speakernote{K: dependent positions; funext: laws about functions \\
+      Target needs unknown: start from none \\ Q: consistent? Alone yes;
+      with the target, unknown}
 \end{frame}
 
 \begin{frame*}
@@ -173,10 +147,8 @@
     \end{tabular}
   \end{center}
   \obstacle{solves: axioms, unchecked casts}
-  \speakernote{One type P of positions, a boolean says which are valid \\
-    Valid: a proof of b = true; unique without axiom K (Hedberg); erased \\
-    Extraction sees cont as a plain function P -> X \\
-    Setoids: every type has =e, functions respect it (A ~> B)}
+  \speakernote{One position type + bool check \\ Equality: same results
+      (setoids) \\ No casts, no axioms}
 \end{frame*}
 
 \begin{frame*}
@@ -240,18 +212,8 @@
 %   \callout<3->{3.6,1.4}{termination proof\\ (deleted from the code)}{recf}
 %   \callout<4->{12.6,1.4}{structurally smaller proof}{He}
   \obstacle{solves: termination}
-  \speakernote{Picture first: the call tree, and a proof of termination of
-    the same shape \\
-    Recurse on the proof, then erase it: standard (Bove, Capretta) \\
-    New: the proof is about the coalgebra only; RecF c = well-founded
-    coalgebra (AMM), so recursive (CUV): unique hylo for every algebra \\
-    Termination proved once per divide, reused by every conquer and law \\
-    RecF c x: c terminates on x; a proof is a finite tree
-    shaped like the call tree \\
-    Recursive coalgebra: RecF for every input; proved once per coalgebra
-    (e.g. pieces are shorter) \\
-    hylo: structural recursion on the proof; proof erased \\
-    RecF iff Acc, but per-position induction: easier proofs, same code}
+  \speakernote{Recurse on a termination proof, then erase it \\ New: proof
+      about divide alone, once \\ Rocq code: backup}
 \end{frame*}
 
 \begin{frame*}
@@ -264,9 +226,7 @@
     \item For \textbf{any} shape of tree and any terminating
       \code{divide}.
   \end{itemize}
-  \speakernote{All laws follow from uniqueness \\
-    Same steps as on paper \\
-    Print Assumptions: nothing}
+  \speakernote{All from uniqueness \\ Same steps as on paper \\ No axioms}
 \end{frame*}
 
 % \begin{frame*}
@@ -319,12 +279,8 @@
       loops.
     \item<4-> Laws for \textbf{associative combiners}, for any data type.
   \end{itemize}
-  \speakernote{Rocq 9 port, then October 2026 \\
-    Derive, arewrite, finished: calculations as on paper \\
-    Instance search: no hand-written properness or termination proofs \\
-    hylo\_cps\_hylo, reenumerate, dyna\_loop, dyna\_iso \\
-    Monoid algebras: list homomorphisms for any shape \\
-    Second group: not polish, new results (dynamic programming, combiners)}
+  \speakernote{Automatic side proofs; CPS: no closures \\ New: DP on arrays;
+      associative combiners}
 \end{frame}
 
 \begin{frame*}[vertical-alignment = top]
@@ -349,14 +305,8 @@
   \codebox<4>{scl}{scr}{scr}
   \callout<4>{12.6,1.5}{side condition of \code{deforest}\\ (out after in
     is the identity): proved here}{scr}
-  \speakernote{\code{Derive}: the program starts as an unknown \\
-    Names as in the talk (library: merge, tsplit, times\_two) \\
-    The spec: quicksort, then double (Part I) \\
-    One line of laws; Rocq fills in the program \\
-    Side conditions: Part I's (map over merge, Lmap\_merge) proved once in
-    the library; deforest's here; a false one has no proof: rejected \\
-    A wrong step, real Rocq error (deforest too early: no hylo
-    after a hylo yet)}
+  \speakernote{Derive: program starts unknown \\ One line of laws \\ Wrong
+      step: rejected}
 \end{frame*}
 
 
@@ -411,10 +361,7 @@
   \frametitle{Extracting \code{qsort\_double}}
   \ocamlblock{qsort2.ml}
   \obstacle{solves obstacle: clean code}
-  \speakernote{Real extraction output, renamed to the talk's names \\
-    Point at the pivot: \code{mul 2 i} \\
-    If asked: ITP 2025's output had a closure per call (backup) \\
-    Next: a step that applies, but whose side condition is false}
+  \speakernote{Real output, renamed \\ Pivot doubled: one pass}
 \end{frame*}
 
 \begin{frame*}[vertical-alignment = top]
@@ -440,24 +387,8 @@
       negated values.
     \item<4-> Goal 2 is \textbf{not provable}.
   \end{itemize}
-  \speakernote{A Derive as before; specification: negate, then sort \\
-    Fusion law: the new divide (divide2) is ours to choose; its side
-    condition says whether the choice is right \\
-    Wrong choice: divide2 = divide, as if negating changed nothing (Rocq:
-    h2 := tsplit) \\
-    Rocq does not refuse the rewrite: it applies it and keeps the side
-    condition as goal 2 \\
-    Goal 1: the program would be plain quicksort; the negation lost
-    silently, as in PyTorch \\
-    Goal 2: false for divide2 = divide: negation changes the pivot and
-    flips the order \\
-    The right divide2: negated pivot, compare negated values; then it
-    fuses \\
-    Machine integers: 0 - x wraps, the order still flips (except 0) \\
-    No proof of goal 2: never finished; real output, renamed (demo, part
-    5) \\
-    If asked: no tensors in our framework; the same failure mode, not
-    PyTorch's programs}
+  \speakernote{Spec: negate, then sort \\ Wrong divide2: goal 2 false \\
+      PyTorch failure, caught}
 \end{frame*}
 
 \begin{frame}[vertical-alignment = top]
@@ -509,16 +440,8 @@
     R. Hinze, N. Wu. \textbf{Histo- and Dynamorphisms Revisited}. WGP 2013. \rfsep
     R. Hinze, N. Wu, J. Gibbons. \textbf{Conjugate Hylomorphisms, or: The Mother of All Structured Recursion Schemes}. POPL 2015.}}
   \only<1-2>{\noslideref}
-  \speakernote{Classic recurrence; items (2, 3), (3, 4), capacity 6 \\
-    Red nodes: recomputed \\
-    Fix: a table of results, the dynamorphism (Kabanov, Vene 2006; Hinze,
-    Wu 2013; Hinze, Wu, Gibbons 2015: a conjugate hylomorphism) \\
-    Ours: the memo table as an array, an initial algebra of the memo-table
-    functor (push one result); dyna\_iso: any table representation gives
-    the same result \\
-    ITP 2025: the table as nested records, linear lookups; since: arrays,
-    and derived from this exponential hylo by rewriting \\
-    The rewriting steps, and their laws: backup}
+  \speakernote{Recomputes: exponential \\ Fix: dynamorphisms, a table \\
+      Ours: array table, O(1)}
 \end{frame}
 
 \begin{frame*}
@@ -528,11 +451,7 @@
   \par\medskip
   A \textbf{loop} over the capacities; each step looks up $K(c - w)$ in
   $O(1)$. Exponential $\Longrightarrow$ linear in the capacity.
-  \speakernote{Simplified from the extracted code (real one in the
-    library) \\
-    \code{knapsack}: a loop counting capacities up; \code{push} adds one
-    entry \\
-    \code{fast\_drop}: jump into the array \\
-    Every step proved}
+  \speakernote{Loop over capacities \\ Exponential to linear, every step
+      proved}
 \end{frame*}
 

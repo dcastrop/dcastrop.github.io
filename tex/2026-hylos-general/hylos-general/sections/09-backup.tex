@@ -30,11 +30,8 @@
     Y. Onoue, Z. Hu, H. Iwasaki, M. Takeichi. \textbf{A Calculational Fusion System HYLO}. Algorithmic Languages and Calculi, 1997. \rfsep
     V. Capretta, T. Uustalu, V. Vene. \textbf{Recursive Coalgebras from Comonads}. Inf. Comput. 2006. \rfsep
     R. Hinze, N. Wu, J. Gibbons. \textbf{Conjugate Hylomorphisms, or: The Mother of All Structured Recursion Schemes}. POPL 2015.}
-  \speakernote{Conjugate hylos: adjunctions give para, histo, accumulations,
-    mutual recursion \\
-    Uniqueness: recursive coalgebras (Part II) \\
-    GHC RULES: foldr/build; acid rain; HYLO system \\
-    Skeletons and cost models: ICFP 2016, FGCS 2018}
+  \speakernote{Conjugate hylos: para, histo, mutual \\ Unique if coalgebra
+      recursive \\ GHC fusion; HYLO system}
 \end{frame}
 
 \begin{frame}
@@ -77,14 +74,8 @@
     Z. Hu, H. Iwasaki, M. Takeichi. \textbf{Deriving Structural Hylomorphisms from Recursive Definitions}. ICFP 1996. \rfsep
     V. Capretta, T. Uustalu, V. Vene. \textbf{Recursive Coalgebras from Comonads}. Inf. Comput. 2006. \rfsep
     J. Ad\'amek, S. Milius, L. S. Moss. \textbf{On Well-Founded and Recursive Coalgebras}. FoSSaCS 2020.}
-  \speakernote{F: one layer (Layer in the Haskell); divide: coalgebra,
-    conquer: algebra \\
-    Hagino: data types as initial algebras, final coalgebras \\
-    Meijer et al. 1991: the first hylomorphisms ("envelopes"), the name
-    (Greek matter + form: unfold, then fold) and their laws \\
-    Hu et al.: the HYLO system finds hylos in ordinary code \\
-    Unique h: recursive coalgebras (CUV); terminating (well-founded)
-    divide suffices (AMM): key for Rocq later}
+  \speakernote{divide = coalgebra, conquer = algebra \\ Unique h: recursive
+      coalgebra}
 \end{frame}
 
 \begin{frame}[vertical-alignment = top]
@@ -117,11 +108,7 @@
         conquer \\
     \end{tabular}
   \end{center}
-  \speakernote{From pen-and-paper theorems to tools \\
-    Lifting = extra state, as in the Java example (tupling) \\
-    Morita et al.: the combiner by program inversion \\
-    Chi, Mu: from the proof that the loops agree, as in Part I \\
-    Farzan and Nicolet: synthesis (ParSynt); nested loops in Part III}
+  \speakernote{Paper theorems to tools \\ Lifting = tupling}
 \end{frame}
 
 \begin{frame*}[vertical-alignment = top]
@@ -137,10 +124,8 @@
       progress (both pieces non-empty, so the call tree is finite). Proof:
       induction on the call tree, using only associativity.
   \end{itemize}
-  \speakernote{A homomorphism is a hylo whose divide step is a parameter \\
-    splitBy: the leaves, and any cut that keeps the order \\
-    halves: balanced, depth log n, parallel; heads: a loop \\
-    Same answer for every cut: pick the cut for the machine}
+  \speakernote{The cut is a parameter \\ Any order-preserving cut: same
+      answer}
 \end{frame*}
 
 \begin{frame}[vertical-alignment = top]
@@ -172,10 +157,8 @@
   \textbf{assumed}.
   \par
   \icfptag
-  \speakernote{Each skeleton has a sequential meaning: a farm computes its
-    worker; dc is a hylomorphism \\
-    The structure goes in the type; the program stays sequential \\
-    Type checking decides equivalence, using the laws}
+  \speakernote{Each skeleton has a sequential meaning \\ Type checking uses
+      the laws}
 \end{frame}
 
 \begin{frame*}[vertical-alignment = top]
@@ -192,11 +175,8 @@
   \end{itemize}
   \slideref{D. Castro, K. Hammond, S. Sarkar, Y. Alguwaifli. \textbf{Automatically Deriving Cost Models for Structured Parallel Processes Using Hylomorphisms}. FGCS 2018.}
   \icfptag
-  \speakernote{Reforestation: deforestation backwards, put the tree back
-    to expose stages \\
-    Type checking: erase the parallelism, normalise, unify with the type \\
-    Commutative merge: the feedback stage needs no order \\
-    Cost model: chunk size and workers; scheduling again}
+  \speakernote{Put the tree back to expose stages \\ Cost model: chunk size,
+      workers}
 \end{frame*}
 
 \begin{frame*}[vertical-alignment = top]
@@ -244,12 +224,8 @@
       \code{p}; \code{merge} is associative and commutative.
   \end{itemize}\par}
   \icfptag
-  \speakernote{Same specification, msort; another parallel structure \\
-    Farms inside the feedback loops: many splitters, many mergers \\
-    Short lists leave the splitters sorted: pipeline law, fun f || fun g =
-    fun (g . f) \\
-    Any pairing of merges is fine: associative and commutative \\
-    Which is faster depends on the machine: the cost model decides}
+  \speakernote{Same spec, other structure \\ Machine decides which is
+      faster}
 \end{frame*}
 
 \begin{frame}[vertical-alignment = top]
@@ -281,12 +257,7 @@
   \end{center}
   Each misses at least one of: any data type, laws as equalities, no
   axioms, clean code.
-  \speakernote{Agda AoPA: relational derivations, no extraction \\
-    Tesson et al., SyDPaCC: list homomorphisms in Coq/Rocq, parallel OCaml
-    (BSML) \\
-    Murata and Emoto: schemes, but funext and no hylos; Braga: per
-    algorithm \\
-    Abreu et al.: termination by typing; funext, impredicative Set; casts}
+  \speakernote{Each misses one of our four goals}
 \end{frame}
 
 \begin{frame}
@@ -311,12 +282,8 @@
   Top two: chosen for both proofs and code. Third: for proofs only. Bottom
   two: easy proofs, costly code; now removed by inlining and
   continuation-passing style.
-  \speakernote{Top: choices made for both proofs and code \\
-    Same-results equality = setoids: no funext, but every function needs a
-    properness proof; rewriting slow \\
-    RecF vs Acc: proofs only \\
-    Bottom three: easy proofs, costly code (record, closure: fixed since
-    ITP 2025)}
+  \speakernote{Top two: proofs and code \\ Bottom two: costly code, fixed
+      since ITP}
 \end{frame}
 
 \begin{frame*}
@@ -327,11 +294,8 @@
   \par
   \callout{3.6,1.4}{termination proof\\ (deleted from the code)}{recf}
   \callout{12.6,1.4}{structurally smaller proof}{He}
-  \speakernote{RecF c x: c terminates on x; a proof is a finite tree
-    shaped like the call tree \\
-    Recursive coalgebra: RecF for every input; proved once per coalgebra \\
-    hylo: structural recursion on the proof; proof erased \\
-    RecF iff Acc, but per-position induction: easier proofs, same code}
+  \speakernote{RecF: proof shaped like the call tree \\ hylo recurses on it;
+      erased \\ RecF iff Acc}
 \end{frame*}
 
 \begin{frame*}[vertical-alignment = top]
@@ -352,11 +316,8 @@
       known layer, and \code{x0 Lbranch} becomes \code{qsort\_double
       l0}; \code{hylo\_cps\_hylo} proves the two equal.
   \end{itemize}
-  \speakernote{Real output of the paper's version (Rocq 9 port), renamed \\
-    x0: the children as a function, a closure each call \\
-    Cause: a match on a match; extraction does not commute them \\
-    CPS: the algebra runs inside the coalgebra's branches; cps\_from\_coalg
-    builds the CPS version from c}
+  \speakernote{Real ITP output, renamed \\ x0: a closure per call \\ Fix:
+      CPS coalgebras}
 \end{frame*}
 
 \begin{frame*}[vertical-alignment = top]
@@ -379,10 +340,7 @@
     \rocqblock{qsort-steps.v}
   \end{onlyenv}
   \par
-  \speakernote{Each step: one law, the term Rocq shows after it \\
-    map\_merge\_fusion: doubling moves inside merge \\
-    hylo\_ana, deforest: the tree between unfold and fold disappears (one step) \\
-    hylo\_cps\_hylo: continuation-passing coalgebra, so the code has no closures}
+  \speakernote{One law per step}
 \end{frame*}
 
 \begin{frame*}[vertical-alignment = top]
@@ -405,10 +363,7 @@
     \rocqblock{knap-steps.v}
   \end{onlyenv}
   \par
-  \speakernote{The goal after each rewrite, as Rocq prints it \\
-    reenumerate: from items to capacities, lookups jump into the array, O(1) \\
-    dyna\_loop: the table is built by a loop counting up \\
-    Last line: a loop over the capacities, one step each}
+  \speakernote{reenumerate: O(1) lookups \\ dyna\_loop: bottom-up loop}
 \end{frame*}
 
 \begin{frame}
@@ -431,10 +386,8 @@
   \end{itemize}
   \slideref{J. Kabanov, V. Vene. \textbf{Recursion Schemes for Dynamic Programming}. MPC 2006. \rfsep
     R. Hinze, N. Wu, J. Gibbons. \textbf{Conjugate Hylomorphisms, or: The Mother of All Structured Recursion Schemes}. POPL 2015.}
-  \speakernote{Dynamorphism: a hylo with a memo table (Kabanov, Vene) \\
-    reenumerate: Hlook, the children are found along the chain \\
-    fast\_drop: O(1) jump, proved equal to the walk \\
-    dyna\_loop: bottom-up loop; dyna\_iso: any table}
+  \speakernote{Dynamorphism: hylo + table \\ dyna\_iso: any table
+      representation}
 \end{frame}
 
 \begin{frame*}
@@ -454,11 +407,7 @@
       from cubic (\code{maximum . map sum . segs}) to linear (Horner's
       rule, a scan, tupling), by \code{Derive}.
   \end{itemize}
-  \speakernote{malg = monoid algebra: combine a node's value with its
-    children's results, in order \\
-    malg\_fusion: one-line proof, from malg\_hom \\
-    Part I's homomorphisms, generalised \\
-    Maximum segment sum: Bird's calculation, machine-checked (examples/MSS.v)}
+  \speakernote{Monoid algebra: homomorphisms for any shape \\ MSS by Derive}
 \end{frame*}
 
 \begin{frame}
@@ -483,13 +432,8 @@
       readable transcription of what was \textbf{proved}.
   \end{itemize}
   \ongoingtag
-  \speakernote{If asked how the leads compare on trust \\
-    ICFP'16: laws assumed \\
-    Gibbon: correct by careful engineering, unverified \\
-    ParSynt: theorems on paper; each join checked; loop translation not
-    verified \\
-    Ours: laws are Rocq theorems; derivation is a certificate \\
-    Without clean extraction, this is only a proof about a model}
+  \speakernote{Ours: laws proved, steps checked \\ Trusted: extraction or
+      printer}
 \end{frame}
 
 \begin{frame*}[vertical-alignment = top]
@@ -512,9 +456,7 @@
     C. Koparkar et al. \textbf{Efficient Tree-Traversals: Reconciling Parallelism and Dense Data Representations}. ICFP 2021. \rfsep
     V. Singhal et al. \textbf{Optimizing Layout of Recursive Datatypes with Marmoset}. ECOOP 2024.}
   \ongoingtag
-  \speakernote{The sum on the buffer (hand-written, not Gibbon's output) \\
-    End witnesses: the cursor returned by each call \\
-    Offsets: random access, needed for parallel traversals \\
-    Order of traversal = order of layout}
+  \speakernote{End witnesses: where subtrees end \\ Offsets: random access
+      \\ Layout: Marmoset}
 \end{frame*}
 

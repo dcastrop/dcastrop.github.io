@@ -50,13 +50,8 @@
   \textbf{The question}: we can calculate good \emph{algorithms}; are they
   the right \emph{programs} for real hardware?
   \ongoingtag
-  \speakernote{Box = verified in Rocq \\
-    Today: exit through OCaml (GC, closures, boxed integers) \\
-    Goal: more laws down to a low-level form, printed directly \\
-    No per-node allocation: buffers allocated up front, none in the loop,
-    no GC (the output buffer still comes from somewhere: regions) \\
-    Layout and scheduling become calculation steps \\
-    Next: three open questions, then the literature on each}
+  \speakernote{Today: OCaml (GC, closures) \\ Goal: laws down to low-level
+      code}
 \end{frame}
 
 \begin{frame}
@@ -87,12 +82,8 @@
   \uncover<4->{Today's laws change the \emph{algorithm}; these would change
     \emph{where data lives} and \emph{how work is scheduled}.}
   \ongoingtag
-  \speakernote{The questions first; the literature on each comes next \\
-    Layout: Gibbon does it as compiler passes; we want a law \\
-    Scheduling: Farzan and Nicolet's theorems; we want a law over nested
-    hylos \\
-    Search: where ML people could join; untrusted, checked by Rocq \\
-    dyna\_loop already turns recursion into a loop}
+  \speakernote{Layout, scheduling, search \\ Change where data lives, not
+      the algorithm}
 \end{frame}
 
 \begin{frame*}[vertical-alignment = top]
@@ -144,14 +135,8 @@
     C. Koparkar et al. \textbf{Efficient Tree-Traversals: Reconciling Parallelism and Dense Data Representations}. ICFP 2021. \rfsep
     V. Singhal et al. \textbf{Optimizing Layout of Recursive Datatypes with Marmoset}. ECOOP 2024.}}
   \openquestion{layout laws}
-  \speakernote{Michael Vollmer's line of work (Gibbon compiler); he is our
-    ITP 2025 co-author: Part III is a plan, not a survey \\
-    Pointer trees: allocation, poor locality \\
-    Serialised: one buffer, read in order \\
-    LoCal: locations as types; ICFP'21: parallelism on dense data \\
-    Marmoset: a cost model picks the field order \\
-    The sum on the buffer (hand-written sketch, not Gibbon's output);
-    the right child is only known after the left one (end witnesses)}
+  \speakernote{Gibbon: Vollmer, our co-author \\ Traverse the buffer itself
+      \\ Right subtree starts where left ends}
 \end{frame*}
 
 % \begin{frame*}
@@ -214,15 +199,8 @@
   \par
   \slideref{A. Farzan, V. Nicolet. \textbf{Modular Divide-and-Conquer Parallelization of Nested Loops}. PLDI 2019. (Splitting: Thm 4.7; lifting: Thm 5.3; their tool: ParSynt.)}
   \openquestion{scheduling laws}
-  \speakernote{Read-only multidimensional data; a loop nest computes a
-    function \\
-    Summarise the inner loop, then parallelise the outer one \\
-    Sound and complete: nothing lost by going modular \\
-    ParSynt: joins by SyGuS; checked in Rosette (bounded), most also in
-    Dafny \\
-    The same story with hylos; homomorphism = monoid algebra (Part
-    II); their theorem (Thm 4.7) justifies parallelising nested hylos level
-    by level; in Rocq a law, proved once}
+  \speakernote{Memoryless inner + homomorphic outer: parallel \\ Lifting:
+      extra state (scale) \\ Our goal: this law for nested hylos}
 \end{frame*}
 
 \begin{frame}
@@ -266,14 +244,8 @@
   \end{itemize}
   \ongoingtag
   \openquestion{search for derivations}
-  \speakernote{Search: heuristics, e-graphs, or an ML model \\
-    Rocq checks the chain of laws; wrong proposals rejected \\
-    Everything clever so far is search: keep it, check its answer \\
-    PyTorch callback: same failure mode, not a claim about tensors (not
-    in our framework); a false side condition cannot be proved \\
-    Q "why not verify a compiler?": CompCert proves the translation, not
-    which optimisation to apply; here search stays untrusted, each
-    derivation is checked}
+  \speakernote{Search untrusted; Rocq checks \\ Derivation = certificate \\
+      False side condition: unprovable}
 \end{frame}
 
 \begin{frame}
@@ -320,10 +292,5 @@
     \end{column}
   \end{columns}
   \ongoingtag
-  \speakernote{Early stage; be honest \\
-    Done: exact-cover splits, machine integers, buffers, tree reductions,
-    writes; materialising into a buffer defined, no laws yet \\
-    Not yet: buffer laws (serialise, deserialise; Gibbon-style cursors
-    are one design, containers give others), exactly-once, nesting,
-    target, cost model}
+  \speakernote{Early stage \\ Left: proved; right: not yet}
 \end{frame}

@@ -58,13 +58,7 @@
     R. Bird, O. de Moor. \textbf{Algebra of Programming}. Prentice Hall, 1997. \rfsep
     R. Hinze, N. Wu, J. Gibbons. \textbf{Conjugate Hylomorphisms, or: The Mother of All Structured Recursion Schemes}. POPL 2015. \rfsep
     J. Gibbons. \textbf{Patterns in Functional Programming}. CUP, forthcoming (2027).}
-  \speakernote{Yes: the algebra of programming (program calculation) \\
-    Backus: programs you can do algebra on \\
-    Bird and Meertens: a notation and laws for lists (Squiggol) \\
-    Malcolm; Meijer et al.: the same laws for every data type \\
-    Bird and de Moor: the book; Hinze et al.: one scheme (hylos) \\
-    Gibbons: the patterns, in a book (CUP, Feb 2027) \\
-    Backus's abstract (1977 Turing lecture)}
+  \speakernote{Backus 1978 to Gibbons 2027 \\ Quote: Backus, Turing lecture}
 \end{frame}
 
 \begin{frame*}
@@ -76,9 +70,8 @@
     \item Laws are proved once; the program is \textbf{correct by
       construction}.
   \end{itemize}
-  \speakernote{Top: obviously right, but a temporary list \\
-    Bottom: what we want to run \\
-    Not tested equal: derived by a law, proved once}
+  \speakernote{Spec: clear, temporary list \\ Program: one loop \\ Equal by
+      a law, not by testing}
 \end{frame*}
 
 \begin{frame*}
@@ -98,8 +91,6 @@
     \item \code{fold} is the \textbf{only} solution of its defining equations
     \end{enumerate}
   }
-  \speakernote{fold = reduce: an accumulator loop \\
-    sum, count, max: same loop, different step \\
-    Fusion: why the two programs are equal \\
-    Uniqueness: the universal property, proof engine of the theory}
+  \speakernote{fold = reduce \\ Fusion: map moves into the step \\
+      Uniqueness: the proof engine}
 \end{frame*}

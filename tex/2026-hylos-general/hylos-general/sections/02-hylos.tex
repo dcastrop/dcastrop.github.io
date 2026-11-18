@@ -38,24 +38,16 @@
       \draw[callout arrow, rounded corners = 1.5mm] (tagnote.west)
         -| ($(pic cs:ta) + (-6mm, 1mm)$) -- ($(pic cs:ta) + (-.9mm, 1mm)$);
     \end{tikzpicture}\vss}}
-  \speakernote{Quicksort, written directly \\
-    Divide (pivot, split the rest); recursion; conquer (glue) \\
-    Factor them out; one generic function \\
-    tag = the case divide found (None: empty list; p:
-    non-empty) and the data conquer needs (the pivot); conquer dispatches on
-    it \\
-    The pattern: a hylomorphism (divide: coalgebra, conquer: algebra)}
+  \speakernote{Divide, solve each part, conquer \\ Factor out: recursion
+      written once \\ tag: which case, what conquer needs}
 \end{frame*}
 
 \begin{frame*}
   \frametitle{Definition of Hylomorphisms}
   \vspace*{3mm}
   \hsblock{hylo-qsort.hs}
-  \speakernote{From here on: Haskell; explain the syntax as needed \\
-    Layer: one layer of the call tree \\
-    f . g: g then f; fmap h: h on every part \\
-    hylo = conquer . fmap hylo . divide: the equation Rocq proves things
-    about}
+  \speakernote{Now Haskell: f . g = g then f; fmap = on every part \\ Layer:
+      one layer of the call tree}
 \end{frame*}
 
 \begin{frame}[vertical-alignment = top]
@@ -113,15 +105,8 @@
     \underline{The tree is \emph{virtual}: it is never built in memory}.
   \end{onlyenv}
   \par
-  \speakernote{Everyone knows this tree; the point is its type \\
-    Nodes are layers: Leaf, or Node with a pivot; grey: what divide got \\
-    Layer: as in qsort; x marks where the parts go \\
-    Least fixed point: smallest solution of Tree = Layer Tree, finite trees
-    \\
-    Haskell is lazy (also infinite trees); Rocq: finite only, so divide
-    must terminate (Part II) \\
-    Build, then fold = hylo, with no tree (deforestation, soon) \\
-    Independent subtrees: parallelism comes back later}
+  \speakernote{Tree = least fixed point of Layer: finite \\ Virtual: never
+      built}
 \end{frame}
 
 \begin{frame}[vertical-alignment = top]
@@ -173,15 +158,8 @@
   \slideref{A. Gill, J. Launchbury, S. Peyton Jones. \textbf{A Short Cut to Deforestation}. FPCA 1993. \rfsep
     S. Peyton Jones, A. Tolmach, T. Hoare. \textbf{Playing by the Rules: Rewriting as a Practical Optimisation Technique in GHC}. Haskell Workshop 2001. \rfsep
     D. Coutts, R. Leshchinskiy, D. Stewart. \textbf{Stream Fusion: From Lists to Streams to Nothing at All}. ICFP 2007.}
-  \speakernote{Fusion: post-processing moves into conquer, pre-processing
-    into divide (either may be the identity) \\
-    The side condition: what PyTorch never checked \\
-    Deforestation: ana builds the tree, cata folds it; together, no tree \\
-    Uniqueness: hylo is the only solution of its equation; it needs care,
-    back in Part II \\
-    Faster: fewer passes, no intermediate data; the usual payoff of
-    calculation; GHC RULES (foldr/build, stream fusion), XLA and Inductor
-    kernel fusion; no numbers}
+  \speakernote{Fusion: pre into divide, post into conquer \\ Side condition:
+      what PyTorch skipped \\ All from uniqueness}
 \end{frame}
 
 \begin{frame*}[vertical-alignment = top]
@@ -201,9 +179,6 @@
     \end{center}
   \end{onlyenv}
   \par
-  \speakernote{Spec: sort, then double \\
-    Side condition, on the slide: map distributes over ++ (Leaf: trivial);
-    by hand here, Rocq checks it in Part II \\
-    Result: the program you would write by hand \\
-    We will redo this in Rocq, and run it}
+  \speakernote{Spec: sort, then double \\ Side condition by hand; Rocq later
+      \\ One pass}
 \end{frame*}

@@ -47,17 +47,8 @@
   \slideref{D. Castro, K. Hammond, S. Sarkar. \textbf{Farms, Pipes, Streams and Reforestation: Reasoning about Structured Parallel Processes using Types and Hylomorphisms}. ICFP 2016. \rfsep
     D. Castro, K. Hammond, S. Sarkar, Y. Alguwaifli. \textbf{Automatically Deriving Cost Models for Structured Parallel Processes Using Hylomorphisms}. FGCS 2018.}
   \icfptag
-  \speakernote{Skeletons: reusable parallel patterns; fb = feedback, farm
-    = replicated workers, || = pipeline \\
-    Split stage: an unfold as a loop; merge stage: a fold as a loop \\
-    Same result as mergesort, many choices of n and k \\
-    sigma: FB = feedback, FARM k = k workers, || = pipeline, FUN =
-    sequential \\
-    Is it equal? The type checker answers, normalising with the laws
-    (reforestation: put the tree back to expose stages) \\
-    Which is fastest? A cost model, from the same structure (FGCS 2018) \\
-    Other structures (splitter and merger farms), the skeleton table,
-    reforestation: backup}
+  \speakernote{Ours, ICFP 2016 \\ Type = parallel structure; type checking
+      proves psort = msort \\ Cost model picks sigma, n, k}
 \end{frame*}
 
 \begin{frame}[vertical-alignment = top]
@@ -88,14 +79,6 @@
   \end{center}}
   \slideref{Tools: HYLO (Hu et al., ICFP'96); MAG (de Moor, Sittampalam, TCS'01); Pointless Haskell, DrHylo (Cunha et al., IFL'05); SkeTo (Matsuzaki, Emoto, HLPP'10); HERMIT (Farmer et al., Haskell'12).}
   \icfptag
-  \speakernote{ICFP'16: soundness on paper, laws taken for granted; cpo
-    semantics \\
-    Side conditions: merging in a feedback loop pairs chunks in any order,
-    so merge must be associative and commutative; never checked: the
-    PyTorch failure mode \\
-    Same elsewhere: compilers (HYLO), transformation systems (MAG, HERMIT),
-    point-free tools (Cunha et al.), skeleton libraries (SkeTo) \\
-    Higher-order code (folds, combinators, skeletons): efficiency left to
-    the compiler's inliner and code generator, both trusted \\
-    Next: can a proof assistant do this?}
+  \speakernote{Laws assumed; side conditions on trust \\ Same in other tools
+      \\ So: a proof assistant?}
 \end{frame}

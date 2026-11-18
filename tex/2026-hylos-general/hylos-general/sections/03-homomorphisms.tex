@@ -24,10 +24,8 @@
   \end{onlyenv}
   \par
   \slideref{R. Bird. \textbf{An Introduction to the Theory of Lists}. Logic of Programming and Calculi of Discrete Design, 1987.}
-  \speakernote{Split anywhere, solve the pieces, combine \\
-    sum, max, sort all qualify; first theorem (Bird): map then reduce \\
-    Scheduling: the runtime picks the split for speed; correctness is
-    settled once}
+  \speakernote{Split anywhere, same answer \\ How to split: scheduling, not
+      correctness}
 \end{frame*}
 
 \begin{frame*}
@@ -38,10 +36,8 @@
       accumulator. Finding it is \textbf{your} job.
     \item Here it needed extra state, \code{scale}: a \textbf{lifting}.
   \end{itemize}
-  \speakernote{Digits to a number: the obvious loop \\
-    Parallel streams: you must supply the combiner \\
-    A wrong combiner: wrong answers, only in parallel \\
-    val alone is not enough: needs scale; same in Spark, OpenMP}
+  \speakernote{Java makes you find the combiner \\ Needs extra state
+      (scale): lifting}
 \end{frame*}
 
 \begin{frame}[vertical-alignment = top]
@@ -88,20 +84,9 @@
   \end{onlyenv}
   \slideref{J. Gibbons. \textbf{The Third Homomorphism Theorem}. JFP 1996. (Conjectured by Bird, proved by Meertens, 1989.) \rfsep
     K. Morita et al. \textbf{Automatic Inversion Generates Divide-and-Conquer Parallel Programs}. PLDI 2007.}
-  \speakernote{Precisely: h = foldl stepL e = foldr stepR e; loop steps
-    take one element, need not be associative \\
-    Left loop: h (xs ++ ys) = foldl stepL (h xs) ys; right loop: foldr stepR
-    (h ys) xs \\
-    So h xs = h xs', h ys = h ys' give equal results: a combiner exists \\
-    The combiner: h (g a ++ g b), g a right inverse of h (h (g a) = a); well
-    defined: the left loop sees g a only through a, the right loop g b
-    through b \\
-    If asked: constructive given g (Morita et al.: g by automatic
-    inversion); naive: rebuilds two lists, reruns h \\
-    Sorting; the efficient combiner comes from further calculation \\
-    Sorting: a sorted list sorts to itself, so g = id; for sorted a, b:
-    sort (a ++ b) = merge a b \\
-    Bird conjectured, Meertens proved it on a train; Gibbons published}
+  \speakernote{Left and right loops agree: a combiner exists \\ Insertion
+      sort to mergesort \\ Bird conjectured, Meertens proved, Gibbons
+      published}
 \end{frame}
 
 % \begin{frame}
