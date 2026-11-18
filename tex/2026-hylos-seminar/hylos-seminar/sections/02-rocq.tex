@@ -1,0 +1,356 @@
+% Part II, hylomorphisms in Rocq (the ITP 2025 library, joint work, credited
+% on the divider): ~19 min. Containers, setoids, recursive coalgebras, hylo
+% and its laws, initial algebras, no axioms, generic definitions and code.
+\partframe{Part II}{Hylomorphisms in Rocq\\[6mm]
+  {\normalsize Joint work with Marco Paviotti and Michael Vollmer\\[1mm]
+  \textit{Program Optimisations via Hylomorphisms for Extraction of
+  Executable Code}, ITP 2025}}
+
+\begin{frame}[vertical-alignment = top]
+  \frametitle{Program Calculation in Proof Assistants}
+  \vspace*{2mm}
+  \begin{center}
+    \footnotesize
+    \renewcommand\arraystretch{1.1}
+    \begin{tabular}{@{}>{\raggedright}p{37mm}l>{\raggedright}p{46mm}
+      >{\raggedright\arraybackslash}p{46mm}@{}}
+      \textbf{Work} & & \textbf{Approach} & \textbf{Limits} \\ \hline
+      Mu, Ko, Jansson, JFP'09 & Agda & relational derivations (AoPA) &
+        extraction not discussed \\
+      Tesson et al., AMAST'10 & Coq/Rocq & list homomorphisms (SyDPaCC),
+        parallel OCaml (BSML) & lists only \\
+      Emoto et al., ITP'14; Loulergue et al., IJPP'17 & Coq/Rocq & list
+        homomorphisms, extracted to parallel code & lists only \\
+      Sculthorpe, Hutton, JFP'14 & Agda & worker/wrapper, with its
+        correctness conditions & one optimisation \\
+      Murata, Emoto, APLAS'19 & Coq/Rocq & recursion schemes & no
+        hylomorphisms, so no divide and conquer; function extensionality
+        \\
+      Larchey-Wendling, Monin, 2022 & Coq/Rocq & general recursion,
+        extracted (the Braga method) & one algorithm at a time \\
+      Abreu et al., POPL'23 & Coq/Rocq & divide and conquer, termination
+        by typing & function extensionality, impredicative \code{Set};
+        extracted code with casts, hard to read \\
+    \end{tabular}
+  \end{center}
+  We want all of: \textbf{any} data type, laws as \textbf{equations},
+  \textbf{no axioms}, \textbf{clean} extracted code.
+  \speakernote{Each misses one of the four \\ Q: Abreu et al.? Typing for
+      termination; funext; casts}
+\end{frame}
+
+\begin{frame*}
+  \frametitle{Why Not Just Write \texttt{hylo}?}
+  \rocqblock{hylo-naive.v}
+  \badblock{hylo-naive-err.txt}
+  \begin{itemize}
+    \item<2-> Termination depends on the coalgebra, which is a parameter.
+    \item<3-> \code{Program Fixpoint}, \code{Equations}, \code{Function}:
+      one termination proof per function, and \textbf{no laws}.
+  \end{itemize}
+  \challenge{challenge: termination}
+  \speakernote{Generic hylo: rejected \\ Workarounds: per function, no
+      laws}
+\end{frame*}
+
+\begin{frame}
+  \frametitle{Three Challenges}
+  \begin{enumerate}
+    \item \textbf{No axioms}: no function extensionality, no axiom K.
+    \item \textbf{Clean extracted code}: what a programmer would write; no
+      \code{Obj.magic}.
+    \item \textbf{Non-structural recursion}: divide and conquer.
+  \end{enumerate}
+  \uncover<2->{%
+    Solutions:
+    \begin{enumerate}
+      \item<2-> Setoids; decidable validity of positions (UIP for free).
+      \item<3-> One type of positions for all shapes, not a family.
+      \item<4-> Recursive coalgebras: recursion on a termination proof.
+    \end{enumerate}}
+  \speakernote{Solutions are the rest of this part \\ Each definition: for
+      the proofs and for the code}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Containers}
+  \[ \ext{S \triangleleft P}\,X = \textstyle\sum_{s : S}\,(P\,s \to X)
+     \qquad
+     \ext{S \triangleleft P}\,f\,(s, g) = (s, f \circ g) \]
+  \begin{center}
+    \begin{tikzpicture}[alt={A value of the quicksort container: the shape
+        Node 3 has two positions, Lbranch and Rbranch, which the function
+        maps to the lists 1, 2 and 4, 5. The shape Leaf has no
+        positions.},
+      node distance = 6mm and 14mm]
+      \node[hot] (s) {shape: $\op{Node}\;3$};
+      \node[box, above right = 0mm and 16mm of s] (l) {$[1,2]$};
+      \node[box, below right = 0mm and 16mm of s] (r) {$[4,5]$};
+      \draw[->] (s) -- node[above, note] {\code{Lbranch}} (l);
+      \draw[->] (s) -- node[below, note] {\code{Rbranch}} (r);
+      \node[hot, right = 34mm of s] (lf) {shape: $\op{Leaf}$};
+      \node[note, right = 2mm of lf] {no positions};
+    \end{tikzpicture}
+  \end{center}
+  Every polynomial functor is a container: one \code{fmap}, one
+  \code{hylo}, one set of laws.
+  \slideref{M. Abbott, T. Altenkirch, N. Ghani. \textbf{Categories of Containers}. FoSSaCS 2003.}
+  \speakernote{Shapes, positions per shape \\ fmap: post-composition}
+\end{frame}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Containers in Rocq: A Bad Attempt}
+  \vspace*{4mm}
+  \begin{onlyenv}<1>
+    \rocqblock{naive-cont.v}
+    Positions are a type \emph{family}.
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+    \badblock{naive-extr.ml}
+    OCaml cannot type \code{Pos C s}: \code{Obj.magic} everywhere. Safe
+    only until foreign code calls it with a wrong value.
+  \end{onlyenv}
+  \par
+  \challenge{challenges: no axioms, clean extraction}
+  \speakernote{Textbook encoding \\ Real extraction output}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{A Bad Attempt: Equality}
+  \rocqblock{naive-eq.v}
+  \badblock{naive-eq.txt}
+  \begin{itemize}
+    \item \code{injection} gives an equality of dependent pairs
+      (\code{existT}): \code{inj\_pair2} needs \textbf{axiom K}.
+    \item \code{fmap id = id}, as functions: \textbf{function
+      extensionality}.
+  \end{itemize}
+  \challenge{challenge: no axioms}
+  \speakernote{Real Print Assumptions output}
+\end{frame*}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Extractable Containers (I)}
+  \vspace*{4mm}
+  \begin{enumerate}
+    \item Decidable equality gives UIP (Hedberg): \alert{no axiom}.
+    \item A predicate subtype \code{\{x | P x\}}, \code{P} in \code{Prop},
+      extracts to the supertype.
+  \end{enumerate}
+  \par
+  \begin{onlyenv}<2->
+    \rocqblock{elem-val-eq.v}
+  \end{onlyenv}
+  \par
+  \callout<3->{12.4,1.9}{UIP on \code{bool}}{uip}
+  \speakernote{Validity proofs: equalities on bool \\ Positions equal iff
+      their values are}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Extractable Containers (II)}
+  \rocqblock{cont-class.v}
+  \begin{itemize}
+    \item One type \code{P} of \textbf{all} positions; \code{valid} says
+      which are positions of a shape.
+    \item Extraction: \code{cont} is a plain function \code{P -> X}.
+  \end{itemize}
+  \callout<2->{13,7.2}{decidable validity}{valid}
+  \callout<3->{13,5.4}{unique, erased}{Valid}
+  \challenge{solved: K, \code{Obj.magic}}
+  \speakernote{A class: Sh, P fixed, no types as fields \\ Valid: b = true,
+      unique and erased}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Example: the Quicksort Functor}
+  \rocqblock{qsort-shapes.v}
+  \begin{center}
+    \renewcommand\arraystretch{1.3}
+    \begin{tabular}{lcc}
+      \textbf{\code{t\_dom}} & \textbf{\code{Lbranch}} &
+        \textbf{\code{Rbranch}} \\
+      \code{Leaf l} & \textcolor{bad}{false} & \textcolor{bad}{false} \\
+      \code{Node a} & \textcolor{good}{true} & \textcolor{good}{true} \\
+    \end{tabular}
+  \end{center}
+  \code{TreeF unit int}: $X \mapsto 1 + \code{int} \times X \times X$.
+  \speakernote{Leaf: no children; Node: two \\ Polynomial functors: Sum,
+      Prod, K, Id instances}
+\end{frame*}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Setoids and Morphisms}
+  \vspace*{2mm}
+  \rocqblock[before upper = {\fvset{fontsize = \footnotesize}}]{setoid.v}
+  \simplified
+  \begin{itemize}
+    \item \code{=e} on \code{A \textasciitilde> B} is pointwise: no
+      function extensionality. Laws are \code{=e} equations: generalised
+      rewriting.
+    \item Extraction erases \code{app\_eq}: a morphism is its function.
+  \end{itemize}
+  \challenge{solved: function extensionality}
+  \speakernote{Every type a setoid; =e default eq \\ Layers equal: same
+      shape, same children at equal positions \\ Q: mode "!"? Search on
+      setoid ?A diverged}
+\end{frame*}
+
+\begin{frame}
+  \frametitle{Recursive Coalgebras (I)}
+  \[ h = a \circ F\,h \circ c \qquad \text{with } F\,X = X,
+     \text{ so } F\,h = h \]
+  \[
+    \renewcommand\arraystretch{1.6}
+    \begin{array}{l@{\qquad}l@{\qquad}l}
+      \uncover<2->{c = \op{id},\ a = \op{succ}} &
+        \uncover<2->{h\,x = h\,x + 1} &
+        \uncover<2->{\text{\textbf{no} solution}} \\
+      \uncover<3->{c = a = \op{id}} &
+        \uncover<3->{h\,x = h\,x} &
+        \uncover<3->{\text{\textbf{every} $h$ is a solution}}
+    \end{array}
+  \]
+  \begin{uncoverenv}<4->
+    $c = \op{id}$ never shrinks its input: $x \mapsto x \mapsto x \mapsto
+    \cdots$
+
+    \textbf{Recursive} $c$: a unique $h$ for every $a$. Sufficient:
+    \textbf{well-founded} $c$, every input reaches the leaves.
+  \end{uncoverenv}
+  \slideref{V. Capretta, T. Uustalu, V. Vene. \textbf{Recursive Coalgebras from Comonads}. Inf. Comput. 2006. \rfsep
+    J. Ad\'amek, S. Milius, L. S. Moss. \textbf{On Well-Founded and Recursive Coalgebras}. FoSSaCS 2020.}
+  \speakernote{No solution, or every one \\ Well-founded implies recursive}
+\end{frame}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Recursive Coalgebras (II)}
+  \vspace*{3mm}
+  \rocqblock{recf.v}
+  \begin{center}
+    \begin{tikzpicture}[alt={A proof of RecF c x is a finite tree that
+        mirrors the call tree: one node for x, with a sub-proof for each
+        child of c x, down to leaves with no valid positions.},
+      level distance = 7mm, sibling distance = 22mm,
+      every node/.style = {box, font = \footnotesize, inner sep = 1.5pt}]
+      \node {$\op{RecF}\,c\,x$}
+        child {node {$\op{RecF}\,c\,x_1$}
+          child {node {leaf}}}
+        child {node {$\op{RecF}\,c\,x_2$}
+          child {node {leaf}} child {node {leaf}}};
+    \end{tikzpicture}
+  \end{center}
+  \begin{itemize}
+    \item \code{RecF c x <-> Acc (child c) x}; in practice, a measure that
+      \code{c} decreases (\code{mk\_wf\_coalg}).
+    \item \code{RecP c <-> forall x, FinF (ana c x)}: only finite trees.
+  \end{itemize}
+  \challenge{solved: termination}
+  \speakernote{Proof shaped like the call tree \\ Induction hypothesis per
+      position, as fmap exposes it}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Recursive Hylomorphisms}
+  \rocqblock{hylo-def-full.v}
+  \callout<2->{14.2,7.6}{termination proof\\ in \code{Prop}: erased}{recf}
+  \callout<3->{10,3.55}{structurally smaller sub-proofs}{He, inv}
+  \callout<4->{9,6.1}{convoy: \code{H} is about \code{c x}}{conv}
+  \speakernote{Structural recursion on H, not x \\ RecF\_inv: Defined, so
+      the guard checker sees through it \\ Result independent of H
+      (hylo\_def\_irr)}
+\end{frame*}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Uniqueness and the Laws}
+  \vspace*{3mm}
+  \rocqblock{hylo-laws.v}
+  \begin{onlyenv}<2->
+    \begin{columns}[t]
+      \begin{column}{0.56\textwidth}
+        \rocqblock{fusion-proof.v}
+      \end{column}
+      \begin{column}{0.42\textwidth}
+        \begin{uncoverenv}<3->
+          \begin{greenbox}
+            \centering The paper proof:
+            \[
+              \begin{tikzcd}[alt={Proof of left fusion: the squares for the
+                  hylo of a and c and for the algebra morphism h paste into
+                  a rectangle whose top is h after the hylo, so by
+                  uniqueness it equals the hylo of b and c.},
+                  column sep = 9mm, row sep = 7mm]
+                F\,C \arrow[r, "F\,\hylo{a}{c}"] \& F\,A
+                  \arrow[r, "F\,h"] \& F\,B \\
+                C \arrow[u, "c"] \arrow[r, "\hylo{a}{c}"'] \& A
+                  \arrow[u, "a"', leftarrow] \arrow[r, "h"'] \& B
+                  \arrow[u, "b"', leftarrow]
+              \end{tikzcd}
+            \]
+          \end{greenbox}
+        \end{uncoverenv}
+      \end{column}
+    \end{columns}
+  \end{onlyenv}
+  \speakernote{hylo\_uniq: the universal property \\ Fusion: uniqueness,
+      four steps (names as above)}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Initial Algebras, from Recursive Coalgebras}
+  \rocqblock{initial.v}
+  \simplified
+  \begin{itemize}
+    \item Initial: an algebra whose inverse is a \textbf{recursive}
+      coalgebra. \code{cata\_univ} is \code{hylo\_uniq}.
+    \item \code{LFix F} is one instance; any two are isomorphic. Later:
+      \textbf{arrays}.
+  \end{itemize}
+  \speakernote{cata, rana: hylos \\ rana: no GFix to LFix conversion \\
+      Instances: LFix, finite GFix, arrays}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{No Axioms}
+  \outblock{assumptions.txt}
+  \begin{itemize}
+    \item Laws and calculations: closed. Machine integers: Rocq's
+      primitive \code{int}, extracted to \code{Uint63}.
+    \item<2-> \textbf{Why?} K and function extensionality are harmless on
+      their own. But low-level targets may need axioms of their own, not
+      yet known: an axiom-free base leaves room for them.
+  \end{itemize}
+  \speakernote{Print Assumptions \\ Q: why avoid consistent axioms? Future
+      combinations}
+\end{frame*}
+
+\begin{frame}
+  \frametitle{Generic for the Proofs, Clean for the Code}
+  \begin{center}
+    \footnotesize
+    \renewcommand\arraystretch{1.3}
+    \begin{tabular}{@{}>{\raggedright}p{36mm}>{\raggedright}p{50mm}
+      >{\raggedright}p{28mm}>{\raggedright\arraybackslash}p{30mm}@{}}
+      \textbf{Definition} & \textbf{Why} & \textbf{Naive extraction} &
+        \textbf{Final code} \\ \hline
+      one type of positions, a \code{bool} check & no axiom K & no
+        \code{Obj.magic} & plain types \\
+      \code{RecF} & induction per position & erased & erased \\
+      setoids & no function extensionality & dictionaries & inlined
+        (\code{finished}) \\
+      one generic \code{hylo} & laws proved \textbf{once}, for every
+        container and recursive coalgebra & a record per call & inlined
+        (\code{finished}) \\
+      children as a function & one \code{fmap} for every container & a
+        closure per call & CPS coalgebras \\
+    \end{tabular}
+  \end{center}
+  \begin{itemize}
+    \item<2-> Genericity is not traded for speed: it is how the laws are
+      proved once.
+    \item<3-> Its run-time cost is removed \textbf{after} calculating, in
+      Rocq, and proved correct (Part III).
+  \end{itemize}
+  \speakernote{Generic: the only way to prove laws once \\ Cost: naive
+      extraction only; gone in Part III}
+\end{frame}

@@ -261,29 +261,33 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Definition Trade-off: Proofs or Code?}
+  \frametitle{Generic for the Proofs, Clean for the Code}
   \begin{center}
     \footnotesize
     \renewcommand\arraystretch{1.3}
-    \begin{tabular}{@{}>{\raggedright}p{46mm}>{\raggedright}p{46mm}
-      >{\raggedright\arraybackslash}p{46mm}@{}}
-      \textbf{Definition} & \textbf{Proofs} & \textbf{Extracted code} \\
-      \hline
-      one type of positions + a check & side proofs about the check &
-        plain types, no unchecked casts \\
-      equality as ``same results'' & no axioms; extra proofs, slower
-        rewriting & extra arguments, unless inlined \\
-      our own termination predicate & simpler induction & identical \\
-      one generic \code{hylo} & laws proved once &
-        a record per call, unless inlined \\
-      children as a function & laws are easy & a closure per call \\
+    \begin{tabular}{@{}>{\raggedright}p{36mm}>{\raggedright}p{50mm}
+      >{\raggedright}p{28mm}>{\raggedright\arraybackslash}p{30mm}@{}}
+      \textbf{Definition} & \textbf{Why} & \textbf{Naive extraction} &
+        \textbf{Final code} \\ \hline
+      one type of positions + a check & no axiom K & no unchecked casts &
+        plain types \\
+      our own termination predicate & simpler induction & erased & erased \\
+      equality as ``same results'' & no function extensionality & extra
+        arguments & inlined \\
+      one generic \code{hylo} & laws proved \textbf{once}, for every data
+        type and terminating divide step & a record per call & inlined \\
+      children as a function & one \code{fmap} for every data type & a
+        closure per call & continuation-passing style \\
     \end{tabular}
   \end{center}
-  Top two: chosen for both proofs and code. Third: for proofs only. Bottom
-  two: easy proofs, costly code; now removed by inlining and
-  continuation-passing style.
-  \speakernote{Top two: proofs and code \\ Bottom two: costly code, fixed
-      since ITP}
+  \begin{itemize}
+    \item Genericity is not traded for speed: it is how the laws are
+      proved once.
+    \item Its run-time cost is removed after calculating, in Rocq, and
+      proved correct.
+  \end{itemize}
+  \speakernote{Generic: the only way to prove laws once \\ Cost: naive
+      extraction only, removed since ITP}
 \end{frame}
 
 \begin{frame*}

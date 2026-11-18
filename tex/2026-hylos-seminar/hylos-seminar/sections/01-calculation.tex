@@ -1,0 +1,350 @@
+% Part I, program calculation: ~13 min. Recursion schemes, their laws, a
+% calculation by hand, homomorphisms, and our ICFP 2016 work
+\partframe{Part I}{Program Calculation}
+
+\begin{frame}[vertical-alignment = top]
+  \frametitle{Programs as Algebra}
+  \vspace*{4.5mm}
+  Specify \emph{clearly}; \textbf{calculate} an efficient program;
+  every step is an \emph{equation}.
+  \par\medskip{\centering
+    \begin{tikzpicture}[alt={A timeline of the algebra of programming.
+        1978: Backus asks for an algebra of programs in his Turing lecture.
+        1986 and 1987: Meertens and Bird, laws for lists. 1990 and 1991:
+        Malcolm, and Meijer, Fokkinga and Paterson, laws for every data
+        type. 1997: Bird and de Moor, the book Algebra of Programming. 2015:
+        Hinze, Wu and Gibbons, one scheme behind them all. Forthcoming:
+        Gibbons, Patterns in Functional Programming.},
+      ev/.style = {box, font = \footnotesize, text width = 30mm,
+        align = center, execute at begin node = {\hyphenpenalty = 10000}},
+      yr/.style = {font = \footnotesize\bfseries, inner sep = 1pt}]
+      \draw[very thick, gray, ->] (-0.6, 0) -- (14.6, 0);
+      % \s = 1: event above the line, year below; \s = -1: the other way
+      % each box: who and what, then a short citation (\tlcite)
+      \foreach \x/\y/\s/\t [count = \i] in {
+          0.65/1978/1/{\textbf{Backus}: ``an algebra of programs''
+            \tlcite{CACM 1978}},
+          3.15/1986--87/-1/{\textbf{Meertens}, \textbf{Bird}: laws for
+            lists \tlcite{CWI'86; NATO ASI'87}},
+          5.65/1990--91/1/{\textbf{Malcolm}; \textbf{Meijer} et al.: laws
+            for every data type \tlcite{SCP 1990; FPCA 1991}},
+          8.15/1997/-1/{\textbf{Bird}, \textbf{de Moor}: \emph{Algebra of
+            Programming} \tlcite{Prentice Hall 1997}},
+          10.65/2015/1/{\textbf{Hinze}, \textbf{Wu}, \textbf{Gibbons}: one
+            scheme behind them all \tlcite{POPL 2015}},
+          13.15/2027/-1/{\textbf{Gibbons}: \emph{Patterns in Functional
+            Programming} \tlcite{CUP, forthcoming}}} {
+        \ifnum\s=1 \def\ea{south}\def\ya{north}%
+        \else \def\ea{north}\def\ya{south}\fi
+        \fill[accent] (\x, 0) circle (1.2mm);
+        \node[yr, anchor = \ya] at (\x, -0.25 * \s) {\y};
+        \node[ev, anchor = \ea] (e\i) at (\x, 0.5 * \s) {\t};
+        \draw[accent] (\x, 0.12 * \s) -- (e\i);
+      }
+    \end{tikzpicture}\par}
+  \excerpt<2>{``Conventional programming languages are growing ever more
+    enormous, but not stronger. [\ldots] Associated with the functional style
+    of programming is an \textbf{algebra of programs} whose variables range
+    over programs and whose operations are combining forms. This algebra can
+    be used to \textbf{transform programs} and to solve equations whose
+    `unknowns' are programs in much the same way one transforms equations in
+    high school algebra. These transformations are given by algebraic laws
+    [\ldots]''}{J. Backus, Can Programming Be Liberated from the von Neumann
+    Style? Turing Award lecture, CACM 21(8), 1978}
+  \slideref{J. Backus. \textbf{Can Programming Be Liberated from the von Neumann Style?} CACM 1978. \rfsep
+    R. Bird. \textbf{An Introduction to the Theory of Lists}. 1987. \rfsep
+    G. Malcolm. \textbf{Data Structures and Program Transformation}. SCP 1990. \rfsep
+    E. Meijer, M. Fokkinga, R. Paterson. \textbf{Functional Programming with Bananas, Lenses, Envelopes and Barbed Wire}. FPCA 1991. \rfsep
+    R. Bird, O. de Moor. \textbf{Algebra of Programming}. Prentice Hall, 1997. \rfsep
+    R. Hinze, N. Wu, J. Gibbons. \textbf{Conjugate Hylomorphisms, or: The Mother of All Structured Recursion Schemes}. POPL 2015. \rfsep
+    J. Gibbons. \textbf{Patterns in Functional Programming}. CUP, forthcoming (2027).}
+  \speakernote{Backus 1978 to Gibbons 2027 \\ Quote: Backus, Turing lecture}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Initial Algebras and Catamorphisms}
+  \[ \List\,A \;\cong\; 1 + A \times \List\,A \;=\; F\,(\List\,A)
+     \qquad \inn = [\op{nil}, \op{cons}] : F\,(\List\,A) \to \List\,A \]
+  \[
+    \begin{tikzcd}[alt={Commuting square: F of mu F maps to F B by F of
+        the fold; in maps F mu F to mu F; a maps F B to B; the fold maps
+        mu F to B.}]
+      F\,\mu F \arrow[r, "F\,\cata{a}"] \arrow[d, "\inn"'] \& F\,B
+        \arrow[d, "a"] \\
+      \mu F \arrow[r, "\cata{a}"', dashed] \& B
+    \end{tikzcd}
+    \qquad
+    f = \cata{a} \iff f \circ \inn = a \circ F\,f
+  \]
+  \begin{itemize}
+    \item An $F$-algebra $a : F\,B \to B$; the fold $\cata{a}$ is the
+      \emph{unique} algebra morphism out of $(\mu F, \inn)$.
+    \item For lists, $\cata{[\op{base}, \op{step}]} = \op{foldr}\;
+      \op{step}\; \op{base}$.
+  \end{itemize}
+  \speakernote{Universal property: every law below is uniqueness \\ F f:
+      fmap, recursive positions only}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Fusion}
+  \[
+    \begin{tikzcd}[alt={Two commuting squares side by side. Left: the fold
+        of a from mu F to B. Right: h from B to C, with F h on top and
+        algebras a and b. The outer rectangle shows h after the fold of a
+        equals the fold of b.}]
+      F\,\mu F \arrow[r, "F\,\cata{a}"] \arrow[d, "\inn"'] \& F\,B
+        \arrow[r, "F\,h"] \arrow[d, "a"] \& F\,C \arrow[d, "b"] \\
+      \mu F \arrow[r, "\cata{a}"'] \arrow[rr, bend right = 30,
+        "\cata{b}"', dashed] \& B \arrow[r, "h"'] \& C
+    \end{tikzcd}
+  \]
+  \[ h \circ a = b \circ F\,h \implies h \circ \cata{a} = \cata{b} \]
+  Two traversals become one, if the \textbf{side condition} holds.
+  \speakernote{Side condition: h an algebra morphism \\ Proof: outer
+      rectangle commutes; uniqueness}
+\end{frame}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Hylomorphisms: Divide and Conquer}
+  \vspace*{2mm}
+  \[
+    \begin{tikzcd}[alt={Commuting square: h maps A to B; c maps A to F A;
+        F h maps F A to F B; a maps F B to B.}, row sep = 7mm]
+      A \arrow[r, "\hylo{a}{c}", dashed] \arrow[d, "c"'] \& B \\
+      F\,A \arrow[r, "F\,\hylo{a}{c}"'] \& F\,B \arrow[u, "a"']
+    \end{tikzcd}
+    \qquad
+    \hylo{a}{c} = a \circ F\,\hylo{a}{c} \circ c
+  \]
+  \hsblock[before upper = {\fvset{fontsize = \footnotesize}}]{hylo-qsort.hs}
+  \speakernote{c divides, a conquers \\ Names as in the library: merge,
+      split}
+\end{frame*}
+
+\begin{frame}[vertical-alignment = top]
+  \frametitle{The Call Tree of Quicksort}
+  \vspace*{5mm}
+  \begin{center}
+    \begin{tikzpicture}[alt={The call tree of quicksort on the list 3, 1,
+        4, 5, 2, drawn as a tree of layers. The root is Node 3, for the
+        input 3, 1, 4, 5, 2. Its children are Node 1, for the input 1, 2,
+        and Node 4, for 4, 5. Node 1 has children Leaf and Node 2; Node 4
+        has children Leaf and Node 5; Node 2 and Node 5 have two Leaf
+        children each. The coalgebra split builds the tree from the root
+        down; the algebra merge folds it from the leaves up.},
+      level distance = 8.5mm,
+      level 1/.style = {sibling distance = 52mm},
+      level 2/.style = {sibling distance = 26mm},
+      level 3/.style = {sibling distance = 13mm},
+      every node/.style = {box, font = \small\ttfamily},
+      leaf/.style = {font = \scriptsize\ttfamily, draw = black!30,
+        fill = black!5},
+      inp/.style = {draw = none, fill = none, font = \scriptsize,
+        text = gray, left = 1.5mm}]
+      \node (r) {Node 3}
+        child {node (l) {Node 1}
+          child {node[leaf] {Leaf}}
+          child {node (l2) {Node 2}
+            child {node[leaf] {Leaf}}
+            child {node[leaf] {Leaf}}}}
+        child {node (rr) {Node 4}
+          child {node[leaf] {Leaf}}
+          child {node (r2) {Node 5}
+            child {node[leaf] {Leaf}}
+            child {node[leaf] {Leaf}}}};
+      \node[inp] at (r.west) {$[3,1,4,5,2]$};
+      \node[inp] at (l.west) {$[1,2]$};
+      \node[inp] at (rr.west) {$[4,5]$};
+      \node[inp] at (l2.west) {$[2]$};
+      \node[inp] at (r2.west) {$[5]$};
+      \draw[->, very thick, accent] (-6.0, 0.2) -- node[left, draw = none,
+        fill = none, note, text = accent] {$\ana{\code{split}}$} (-6.0, -2.8);
+      \draw[->, very thick, accent2] (6.0, -2.8) -- node[right, draw = none,
+        fill = none, note] {$\cata{\code{merge}}$} (6.0, 0.2);
+    \end{tikzpicture}
+  \end{center}
+  \begin{itemize}
+    \item A value of $\mu\,\code{TreeF}$: the \textbf{call tree}.
+      $\hylo{a}{c} = \cata{a} \circ \ana{c}$, when the tree is finite.
+    \item<2-> A hylomorphism consumes each layer as it is produced: the tree
+      is \textbf{virtual}.
+  \end{itemize}
+  \speakernote{Unfold builds it, fold consumes it \\ hylo: never built}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Recursive Coalgebras and Their Laws}
+  $c$ \emph{recursive}: a unique solution $\hylo{a}{c}$ for every $a$.
+  \[
+    \begin{tikzcd}[alt={Left fusion: f after the hylo of a and c equals the
+        hylo of a prime and c.}]
+      A \arrow[r, "\hylo{a}{c}"] \arrow[rd, "\hylo{a'}{c}"', dashed] \& B
+        \arrow[d, "f"] \\
+      \& C
+    \end{tikzcd}
+    \quad
+    \begin{tikzcd}[alt={Deforestation: the unfold of c into mu F followed
+        by the fold of b equals the hylo of b and c.}]
+      A \arrow[r, "\ana{c}"] \arrow[rr, bend right = 30, "\hylo{b}{c}"',
+        dashed] \& \mu F \arrow[r, "\cata{b}"] \& B
+    \end{tikzcd}
+  \]
+  \[
+    \begin{array}{rcl@{\qquad}l}
+      f \circ a = a' \circ F\,f & \implies & f \circ \hylo{a}{c} =
+        \hylo{a'}{c} & \text{(fusion, left)}\\
+      c \circ f = F\,f \circ c' & \implies & \hylo{a}{c} \circ f =
+        \hylo{a}{c'} & \text{(fusion, right)}\\
+      c' \circ a = \op{id} & \implies & \hylo{b}{c'} \circ \hylo{a}{c} =
+        \hylo{b}{c} & \text{(deforestation)}
+    \end{array}
+  \]
+  \slideref{V. Capretta, T. Uustalu, V. Vene. \textbf{Recursive Coalgebras from Comonads}. Inf. Comput. 2006. \rfsep
+    R. Hinze, N. Wu, J. Gibbons. \textbf{Conjugate Hylomorphisms, or: The Mother of All Structured Recursion Schemes}. POPL 2015.}
+  \speakernote{All three from uniqueness \\ Deforestation: no intermediate
+      structure}
+\end{frame}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Calculating Sort-Then-Double}
+  \vspace*{4mm}
+  \hsblock{qsort-calc.hs}
+  \begin{onlyenv}<2->
+    The \textbf{side condition} of this fusion, checked here only
+    \textbf{by hand}:
+    \hsblock{qsort-side.hs}
+  \end{onlyenv}
+  \par
+  \begin{onlyenv}<3->
+    \begin{center}
+      Two passes and a temporary list $\Longrightarrow$ \textbf{one pass},
+      doubling each pivot.
+    \end{center}
+  \end{onlyenv}
+  \par
+  \speakernote{Spec: sort, then double \\ Side condition by hand; in Rocq,
+      Part III}
+\end{frame*}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{List Homomorphisms Are Hylomorphisms}
+  \vspace*{3mm}
+  \hsblock[before upper = {\fvset{fontsize = \scriptsize}}]{hom.hs}
+  \begin{itemize}
+    \item<2-> $h\,(xs \mathbin{+\!\!+} ys) = h\,xs \odot h\,ys$:
+      \textbf{first homomorphism theorem}, $h = \op{reduce}\,(\odot) \circ
+      \op{map}\,f$.
+    \item<3-> Any cut, same result (induction on the call tree): the cut
+      is a \textbf{scheduling} decision.
+  \end{itemize}
+  \slideref{R. Bird. \textbf{An Introduction to the Theory of Lists}. Logic of Programming and Calculi of Discrete Design, 1987.}
+  \speakernote{The cut is a parameter of divide \\ Halves: parallel;
+      heads: a loop}
+\end{frame*}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{The Third Homomorphism Theorem}
+  \vspace*{3mm}
+  \textbf{Theorem.} If $h$ is both leftwards and rightwards,
+  \[ h\,(x : xs) = x \oplus h\,xs \qquad\text{and}\qquad
+     h\,(xs \mathbin{+\!\!+} [x]) = h\,xs \otimes x, \]
+  then $h$ is a list homomorphism, with
+  \hsblock{third-combiner.hs}
+  \begin{itemize}
+    \item<2-> A loop from the left remembers only $h\,xs$; one from the
+      right only $h\,ys$. So $h\,(xs \mathbin{+\!\!+} ys)$ depends only on
+      both.
+    \item<3-> Insertion sort, from either side $\Longrightarrow$ mergesort,
+      by calculation.
+    \item<4-> Combiners derived automatically: weak right inverses (Morita
+      et al.); synthesised for loops (Farzan and Nicolet).
+  \end{itemize}
+  \slideref{J. Gibbons. \textbf{The Third Homomorphism Theorem}. JFP 1996. (Conjectured by Bird, proved by Meertens, 1989.) \rfsep
+    K. Morita et al. \textbf{Automatic Inversion Generates Divide-and-Conquer Parallel Programs}. PLDI 2007. \rfsep
+    A. Farzan, V. Nicolet. \textbf{Synthesis of Divide and Conquer Parallelism for Loops}. PLDI 2017.}
+  \speakernote{Two sequential programs agree: a parallel one exists \\ g:
+      a right inverse of h}
+\end{frame*}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{One Specification, Many Parallel Programs}
+  \vspace*{3mm}
+  \hsblock[before upper = {\fvset{fontsize = \footnotesize}}]{psort.hs}
+  \begin{center}
+    \begin{tikzpicture}[alt={A three-stage parallel sort. A list enters a
+        split stage, which halves every list longer than n and feeds the
+        halves back into its own input. The short lists go to a farm of k
+        workers that sort them. The sorted lists go to a merge stage, which
+        merges two sorted lists and feeds the result back, until one sorted
+        list remains.},
+      stage/.style = {box, font = \small, minimum height = 7mm,
+        minimum width = 12mm, inner sep = 3pt},
+      loop/.style = {->, accent2, thick},
+      >={Stealth[length = 1.5mm]}]
+      \node (in) {list};
+      \node[stage, right = 8mm of in] (sp) {split};
+      \foreach \i/\y in {1/5, 2/0, 3/-5}
+        \node[stage, right = 16mm of sp, yshift = \y mm, minimum height = 5mm]
+          (w\i) {sort};
+      \node[stage, right = 16mm of w2] (mg) {merge};
+      \node[right = 8mm of mg] (out) {sorted};
+      \draw[->] (in) -- (sp);
+      \foreach \i in {1, 2, 3} { \draw[->] (sp) -- (w\i);
+        \draw[->] (w\i) -- (mg); }
+      \draw[->] (mg) -- (out);
+      \draw[loop] (sp.north east) .. controls +(0.6, 0.8) and +(-0.6, 0.8)
+        .. (sp.north west);
+      \draw[loop] (mg.north east) .. controls +(0.6, 0.8) and +(-0.6, 0.8)
+        .. (mg.north west);
+      \node[note, above = 6mm of sp] {halves fed back};
+      \node[note, above = 6mm of mg] {merged pairs fed back};
+      \node[note, above = 0mm of w1] {farm of $k$};
+    \end{tikzpicture}
+  \end{center}
+  \begin{onlyenv}<2->
+    {\centering $\op{psort} : \List\,\op{Int} \xrightarrow{\;\sigma\;}
+      \List\,\op{Int}$ \qquad $\sigma = \op{FB}\,(\op{FUN}\,A) \parallel
+      \op{FARM}\,k\,(\op{FUN}\,A) \parallel \op{FB}\,(\op{FUN}\,A)$\par}
+    \smallskip
+    Types carry the parallel structure; type checking: is there an equal
+    program with this structure (normalise with the hylo laws, unify)? A
+    \textbf{cost model} picks $\sigma$, $n$ and $k$.
+  \end{onlyenv}
+  \slideref{D. Castro, K. Hammond, S. Sarkar. \textbf{Farms, Pipes, Streams and Reforestation: Reasoning about Structured Parallel Processes using Types and Hylomorphisms}. ICFP 2016. \rfsep
+    D. Castro, K. Hammond, S. Sarkar, Y. Alguwaifli. \textbf{Automatically Deriving Cost Models for Structured Parallel Processes Using Hylomorphisms}. FGCS 2018.}
+  \icfptag
+  \speakernote{Ours, ICFP 2016 \\ Reforestation exposes stages \\ Cost model
+      picks sigma, n, k}
+\end{frame*}
+
+\begin{frame}[vertical-alignment = top]
+  \frametitle{What Was Missing}
+  \vspace*{2mm}
+  \begin{itemize}[<+->]
+    \item \textbf{Laws as axioms}: the ICFP 2016 type system assumed them
+      (sound for a cpo semantics); programs could diverge.
+    \item \textbf{Side conditions on trust}: \code{hylo merge halves}
+      becomes \code{... || fb (fun merge)} only if \code{merge} is
+      associative and commutative; the library took the programmer's word
+      for it.
+    \item \textbf{Unverified tools}: they implement the schemes or the
+      rewrites; calculations by hand or by trusted rewriting.
+    \item \textbf{No idiomatic code}: calculated programs stay
+      higher-order; we trust the compiler to inline them.
+  \end{itemize}
+  \uncover<5->{\begin{center}
+    \begin{tikzpicture}[alt={The question for the rest of the talk: can a
+        proof assistant prove each law once, check every rewrite, side
+        conditions included, and still produce efficient code?}]
+      \node[hot, text width = 140mm, align = center, inner sep = 1.5mm]
+        {Can a proof assistant \textbf{prove} each law once,
+        \textbf{check} every rewrite, side conditions included, and still
+        produce \textbf{efficient} code?};
+    \end{tikzpicture}
+  \end{center}}
+  \slideref{Tools: HYLO (Hu et al., ICFP'96); MAG (de Moor, Sittampalam, TCS'01); Pointless Haskell, DrHylo (Cunha et al., IFL'05); SkeTo (Matsuzaki, Emoto, HLPP'10); HERMIT (Farmer et al., Haskell'12).}
+  \icfptag
+  \speakernote{Laws assumed; side conditions on trust \\ Same in other tools
+      \\ So: a proof assistant}
+\end{frame}

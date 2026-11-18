@@ -1,0 +1,89 @@
+% ~2 min: ongoing work (one slide, deliberately brief), summary, thanks
+\begin{frame}[vertical-alignment = top]
+  \frametitle{Ongoing: Towards Low-Level Calculation}
+  \vspace*{6mm}
+  \begin{center}
+    \begin{tikzpicture}[alt={A specification is calculated by laws into
+        a high-level program. Today, the high-level program is extracted to
+        OCaml, with garbage collection, closures and boxed integers. The
+        goal: more laws take the high-level program down to a low-level
+        form, printed as low-level code. The specification, the high-level
+        program and the low-level form sit in a box labelled verified in
+        Rocq.},
+      stage/.style = {box, minimum height = 10mm, text width = 24mm,
+        align = center},
+      lbl/.style = {font = \bfseries},
+      rocq/.style = {draw = accent, fill = accent!6, rounded corners = 6pt,
+        thick, inner xsep = 3mm, inner ysep = 6mm}]
+      \node[stage] (s) at (0, 0) {specification};
+      \node[stage, draw = good, fill = good!8] (h) at (4.6, 0)
+        {high-level program};
+      \node[stage, right = 20mm of h] (o) {OCaml};
+      \node[lbl, above = 1mm of o] {today};
+      \draw[->, thick] (s) -- node[above, note] {laws} (h);
+      \draw[->, thick] (h) -- node[pos = .6, above, note] {extract} (o);
+      \node[note, right = 3mm of o, align = left, text width = 28mm]
+        {GC, closures,\\ boxed integers};
+      \node[stage, draw = good, fill = good!8] (lf) at (4.6, -2.6)
+        {low-level form};
+      \node[hot, minimum height = 10mm, text width = 24mm,
+        align = center, right = 20mm of lf] (l) {\textbf{low-level code}};
+      \node[lbl, above = 1mm of l] {goal};
+      \draw[->, thick] (h) -- node[right, note] {laws} (lf);
+      \draw[->, thick] (lf) -- node[pos = .6, above, note] {print} (l);
+      \begin{scope}[on background layer]
+        \node[rocq, fit = (s) (h) (lf)] (r) {};
+        \node[note, text = accent, anchor = south west, font = \small\bfseries]
+          at (r.south west) {\ verified in Rocq};
+      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+  Laws that change how data is \textbf{represented} and how work is
+  \textbf{scheduled}, every step checked in Rocq.
+  \ongoingtag
+  \speakernote{One slide only \\ Q: details? Early days}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Summary}
+  \begin{itemize}
+    \item \textbf{Program calculation}: hylomorphism laws turn
+      specifications into efficient, parallel programs; until now, laws
+      and side conditions were trusted.
+    \item \textbf{Hylomorphisms in Rocq}: extractable containers, setoids,
+      recursive coalgebras; the laws proved once, \underline{axiom-free}.
+    \item \textbf{Calculating in Rocq}: \code{Derive}, every side condition
+      checked; clean OCaml, down to native arrays; dynamorphisms, monoid
+      algebras.
+  \end{itemize}
+  \begin{center}
+    \textbf{Program optimisation as a verified calculation, not an
+    untrusted compiler transformation.}
+  \end{center}
+  \slideref{D. Castro-Perez, M. Paviotti, M. Vollmer. \textbf{Program Optimisations via Hylomorphisms for Extraction of Executable Code}. ITP 2025. \rfsep
+    Library: \url{https://github.com/dcastrop/rocq-hylomorphisms}}
+  \speakernote{One line per part \\ Back to PyTorch}
+\end{frame}
+
+\stepcounter{dcpskipped}% no footer, not counted (see preamble)
+\begin{frame}
+  \thispagestyle{talknofooter}
+  \vfill
+  \begin{center}
+    \begin{minipage}{.75\textwidth}
+      \begin{sticky}[halign = center]
+        % Latin Modern's 17pt design has a tight word space at \Huge
+        {\Huge\spaceskip = .36em\relax Thank you!\par}
+        \bigskip
+        {\large Questions?\par}
+        \medskip
+        \url{https://github.com/dcastrop/rocq-hylomorphisms}\par
+        \medskip
+        {\small Part II: joint work with Marco Paviotti and Michael
+        Vollmer (ITP 2025).\par}
+      \end{sticky}
+    \end{minipage}
+  \end{center}
+  \vfill
+  \speakernote{Questions}
+\end{frame}

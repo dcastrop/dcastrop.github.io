@@ -26,16 +26,21 @@ SAME_FILES = [
     # (not naive-eq.v: the general deck drops a comment; the general deck
     # shows hylo, not quicksort, failing the termination check)
     'naive-cont.v',
-    'naive-eq.txt', 'cont-class.v', 'recf.v', 'hylo-def.v',
+    'naive-eq.txt', 'cont-class.v', 'recf.v',
     'hylo-laws.v', 'malg.v', 'malg-fusion.v',
+    # the opening, and Rocq rejecting the generic hylo
+    'sql-pushdown.sql', 'torch-fusion.py', 'hylo-naive.v',
+    'hylo-naive-err.txt', 'third-combiner.hs',
 ]]
 
 # Same frame (title) in both decks, compared with speaker notes
 SAME_FRAMES = [
     ('hylos-general/sections/09-backup.tex',
-     'hylos-seminar/sections/06-calculation.tex', 'Quicksort, Step by Step'),
+     'hylos-seminar/sections/03-calculating.tex', 'Quicksort, Step by Step'),
     ('hylos-general/sections/09-backup.tex',
-     'hylos-seminar/sections/07-dynamorphisms.tex', 'Knapsack, Step by Step'),
+     'hylos-seminar/sections/03-calculating.tex', 'Knapsack, Step by Step'),
+    ('hylos-general/sections/00-title.tex',
+     'hylos-seminar/sections/00-title.tex', 'Rewrite Rules You Already Trust'),
 ]
 
 TIKZMARK = re.compile(r'\^\\tikzmark\{[^}]*\}\^')

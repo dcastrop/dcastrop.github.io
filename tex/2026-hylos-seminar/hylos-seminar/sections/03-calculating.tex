@@ -1,0 +1,413 @@
+% Part III, calculating in Rocq (since ITP 2025): ~16 min. Derive, a false
+% side condition, clean extraction (inlining, CPS coalgebras), usability,
+% dynamic programming over arrays, monoid algebras.
+% "Quicksort, Step by Step" and "Knapsack, Step by Step" are shared with the
+% general deck: keep them identical (../check-hylos-sync.py, in tex/).
+\partframe{Part III}{Calculating in Rocq\\[6mm]
+  {\normalsize Since ITP 2025}}
+
+\begin{frame*}
+  \frametitle{Calculating Quicksort with \texttt{Derive}}
+  \rocqblock{qsort-derive.v}
+  \ocamlblock{qsort-extr.ml}
+  \begin{itemize}
+    \item \code{qsort} starts as an unknown; the rewrites build it;
+      \code{finished} fills it in, reduced for extraction.
+    \item \code{qsort} is transparent: it extracts. \code{qsort\_calc} is
+      the (opaque) proof.
+  \end{itemize}
+  \speakernote{Spec: fold after unfold \\ Extracted verbatim}
+\end{frame*}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Fusing a Map into Quicksort}
+  \vspace*{3mm}
+  The side condition of Part I, proved once:
+  \rocqblock{map-merge.v}
+  \begin{onlyenv}<2>
+    \rocqblock{qsort2-derive.v}
+  \end{onlyenv}
+  \begin{onlyenv}<3->
+    \ocamlblock{qsort2.ml}
+  \end{onlyenv}
+  \par
+  \speakernote{merge2 of Part I: merge after natural (nt\_shape id f) \\
+      deforest: side condition l\_out\_in, proved on the spot \\ One pass}
+\end{frame*}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Quicksort, Step by Step}
+  \vspace*{4mm}
+  \begin{onlyenv}<1>
+    \fvset{lastline = 1}%
+    \rocqblock{qsort-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+    \fvset{lastline = 3}%
+    \rocqblock{qsort-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<3>
+    \fvset{lastline = 5}%
+    \rocqblock{qsort-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<4->
+    \fvset{lastline = 7}%
+    \rocqblock{qsort-steps.v}
+  \end{onlyenv}
+  \par
+  \speakernote{One law per step}
+\end{frame*}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{A False Side Condition, Caught}
+  \vspace*{4.5mm}
+  Specification: \code{cata merge \textbackslash o rana tsplit
+  \textbackslash o Lmap negate}. Fusion moves the map into the coalgebra:
+  \par
+  {\centering\small
+    \begin{tabular}{@{}r@{\quad}l@{}}
+      & \code{hylo merge tsplit \textbackslash o Lmap negate =e hylo merge
+        h2} \\
+      if & \code{tsplit \textbackslash o Lmap negate =e fmap (Lmap negate)
+        \textbackslash o h2} \\
+    \end{tabular}\par}
+  Choose \code{h2 := tsplit} (wrong), and Rocq leaves:
+  \badblock[before upper = {\fvset{fontsize = \footnotesize}}]{qsort-negate.txt}
+  \begin{itemize}
+    \item<2-> \textbf{Goal 1}: plain quicksort; the negation
+      \textbf{silently vanishes}.
+    \item<3-> \textbf{Goal 2}, the side condition, is \textbf{false}: on
+      \code{[1, 2]}, pivot \code{-1} with children \code{[-2]}, \code{[]};
+      against pivot \code{1} with \code{[]}, \code{[-2]}.
+    \item<4-> The calculation cannot be finished. (Right \code{h2}: negate
+      the pivot, flip the comparison.)
+  \end{itemize}
+  \speakernote{The PyTorch failure mode \\ Caught: unprovable goal}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Generic Code Is Not Clean Code}
+  Extracting the unreduced \code{hylo merge tsplit}:
+  \ocamlblock{raw-extr.ml}
+  \callout<2->{12,5.85}{dictionaries at run time}{dict}
+  \callout<3->{14.2,4.7}{a record per call}{rec}
+  \uncover<4->{Fix: \code{finished} reduces the derived program, unfolding
+    the \code{unfold\_code} hints (and \code{Extraction Inline}).}
+  \challenge{challenge: clean extraction}
+  \speakernote{Type-safe, but generic \\ Setoid and container dictionaries
+      \\ Inline before extracting}
+\end{frame*}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Closures in the Extracted Code}
+  \vspace*{3mm}
+  \ocamlblock[before upper = {\fvset{fontsize = \scriptsize}}]{itp-qsort.ml}
+  \begin{uncoverenv}<2->
+    ITP 2025's code, verbatim. The generic \code{hylo}, with $c$
+    inlined, is a case of a case:
+    \[
+      \hylo{a}{c}\,x \;=\; \mathbf{case}\;
+        \underbrace{\bigl(\mathbf{case}\;x\;\mathbf{of}\;
+          [\,] \Rightarrow (\op{Leaf}, !) \mid p : t \Rightarrow
+          (\op{Node}\,p,\, g_{l,r})\bigr)}_{c\,x}
+        \;\mathbf{of}\;(s, g) \Rightarrow a\,(s,\, \hylo{a}{c} \circ g)
+    \]
+  \end{uncoverenv}
+  \begin{itemize}
+    \item<3-> Stuck in Rocq for a variable $x$: $a$ never meets a known
+      layer.
+    \item<4-> What comes out: the cases commuted, but $a$ applies
+      $\hylo{a}{c} \circ g_{l,r}$ twice, so it is let-bound: the closure
+      \code{x0}.
+  \end{itemize}
+  \challenge{challenge: clean extraction}
+  \speakernote{Real ITP output \\ g: the children, by position \\ x0: used
+      twice, so not inlined}
+\end{frame*}
+
+\begin{frame}[vertical-alignment = top]
+  \frametitle{The CPS Transform of a Coalgebra}
+  \vspace*{4mm}
+  \textbf{Definition.} For $c\,x = t$, its \emph{CPS transform}
+  \[ \cps{c} : \forall R.\; \Pi_{x : A}\, \bigl(\Pi_{y : F A}\; y = c\,x
+     \to R\bigr) \to R
+     \qquad \cps{c}_R\,x\,k = \langle t \rangle_k \]
+  is defined on the syntax of $t$:
+  \[
+    \renewcommand\arraystretch{1.3}
+    \begin{array}{rcl@{\qquad}l}
+      \langle \mathbf{case}\;e\;\mathbf{of}\;\{p_i \Rightarrow t_i\}
+        \rangle_k & = & \mathbf{case}\;e\;\mathbf{of}\;\{p_i \Rightarrow
+        \langle t_i \rangle_k\} & \text{(branch $i$ knows $e = p_i$)} \\
+      \langle L \rangle_k & = & k\,L\,E_L & \text{($L$ a layer; $E_L :
+        L = c\,x$)}
+    \end{array}
+  \]
+  \begin{uncoverenv}<2->
+    \textbf{Lemma} (CPS law). $\cps{c}_R\,x\,k = k\,(c\,x)\,\op{refl}$.
+  \end{uncoverenv}
+  \begin{itemize}
+    \item<3-> Built by a tactic, \code{cps\_from\_coalg} (each case becomes
+      a \code{convoy}); the law by \code{cps\_law}.
+  \end{itemize}
+  \speakernote{c, with the continuation pushed into every branch \\ E: the
+      layer is c x, from the branch equations}
+\end{frame}
+
+\begin{frame}[vertical-alignment = top]
+  \frametitle{CPS Hylomorphisms}
+  \vspace*{4mm}
+  \textbf{Definition.} By structural recursion on $H :
+  \op{RecF}\,c\,x$:
+  \[ \hylo{a}{c}^{\mathsf{cps}}\,x\,H = \cps{c}_B\,x\,\bigl(\lambda\,(s,
+     g)\,E.\; a\,(s,\; \lambda e.\; \hylo{a}{c}^{\mathsf{cps}}\,(g\,e)\,
+     (H_E\,e))\bigr) \]
+  where $H_E\,e : \op{RecF}\,c\,(g\,e)$ is a sub-proof of $H$, transported
+  along $E : (s, g) = c\,x$.
+  \begin{uncoverenv}<2->
+    \par\medskip
+    \textbf{Theorem.} $\hylo{a}{c}^{\mathsf{cps}} = \hylo{a}{c}$.
+    \par\smallskip
+    \emph{Proof}, with $h = \hylo{a}{c}^{\mathsf{cps}}$ (proofs $H$
+    elided):
+    \[
+      \begin{array}{rcll}
+        h\,x & = & \cps{c}_B\,x\,\bigl(\lambda\,(s, g)\,E.\; a\,(s,\, h
+          \circ g)\bigr) & \{\text{definition of } h\} \\
+        & = & a\,(F\,h\,(c\,x)) & \{\text{CPS law}\}
+      \end{array}
+    \]
+    So $h = a \circ F\,h \circ c$, whose unique solution is $\hylo{a}{c}$
+    (\code{hylo\_uniq}).
+  \end{uncoverenv}
+  \speakernote{E: children of y are children of c x \\ Rocq: hylo\_cps a
+      tsplit\_k; proof by induction on RecF}
+\end{frame}
+
+\begin{frame}[vertical-alignment = top]
+  \frametitle{CPS Is Case-of-Case}
+  \vspace*{4mm}
+  For $c\,x = \mathbf{case}\;x\;\mathbf{of}\;\{p_i \Rightarrow L_i\}$:
+  \[ \cps{c}_R\,x\,k = \mathbf{case}\;x\;\mathbf{of}\;\{p_i \Rightarrow
+     k\,L_i\,E_i\}, \]
+  so
+  \[
+    \renewcommand\arraystretch{1.3}
+    \begin{array}{rcl}
+      \hylo{a}{c}\,x & = & \mathbf{case}\;(\mathbf{case}\;x\;\mathbf{of}\;
+        \{p_i \Rightarrow L_i\})\;\mathbf{of}\;(s, g) \Rightarrow
+        a\,(s,\, \hylo{a}{c} \circ g) \\
+      \hylo{a}{c}^{\mathsf{cps}}\,x & = & \mathbf{case}\;x\;\mathbf{of}\;
+        \{p_i \Rightarrow a\,(F\,\hylo{a}{c}^{\mathsf{cps}}\,L_i)\}
+    \end{array}
+  \]
+  \begin{itemize}
+    \item<2-> The commuting conversion, done \textbf{once}, in $\cps{c}$;
+      the theorem proves it correct.
+    \item<3-> Each $L_i$ is a known layer, so Rocq itself reduces
+      $a\,(F\,h\,L_i)$, before extraction.
+  \end{itemize}
+  \speakernote{Commuting conversion, done once, proved \\ Reduced in Rocq
+      (finished)}
+\end{frame}
+
+\begin{frame}[vertical-alignment = top]
+  \frametitle{Quicksort in CPS}
+  \vspace*{4mm}
+  The CPS transform of quicksort's \code{split}:
+  \[
+    \cps{\op{split}}_R\,x\,k = \mathbf{case}\;x\;\mathbf{of}\;
+    \begin{cases}
+      [\,] \Rightarrow k\,(\op{Leaf}, !)\,E_1 \\
+      p : t \Rightarrow \mathbf{let}\;(l, r) = \op{partition}\,({<}\,p)\,t
+        \;\mathbf{in}\; k\,(\op{Node}\,p,\, g_{l,r})\,E_2
+    \end{cases}
+  \]
+  \begin{uncoverenv}<2->
+    With $h = \hylo{\op{merge}}{\op{split}}^{\mathsf{cps}}$, Rocq reduces:
+    \[
+      \begin{array}{rcl}
+        h\,(p : t) & = & \mathbf{let}\;(l, r) = \op{partition}\,({<}\,p)\,t
+          \;\mathbf{in}\; \op{merge}\,(\op{Node}\,p,\, h \circ g_{l,r}) \\
+        & = & \mathbf{let}\;(l, r) = \op{partition}\,({<}\,p)\,t
+          \;\mathbf{in}\; h\,l \mathbin{+\!\!+} p : h\,r
+      \end{array}
+    \]
+    No closure left for extraction.
+  \end{uncoverenv}
+  \challenge{solved: clean extraction}
+  \speakernote{let (l, r) is a case too \\ merge's case fires; positions
+      known}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Since ITP 2025: Usability}
+  \begin{itemize}
+    \item<1-> Properness and termination: \textbf{instance search}
+      (\code{Proper}, \code{Terminates}); a named function is a morphism,
+      or a recursive coalgebra, by canonical structures.
+    \item<2-> Curried functions as morphisms: an \textbf{Elpi coercion}
+      (\code{B -> I -> A -> B} to \code{B \textasciitilde> I
+      \textasciitilde> A \textasciitilde> B}).
+    \item<3-> Rewriting modulo associativity of \code{\textbackslash o}:
+      \code{arewrite}, steps proved by conversion.
+    \item<4-> Diverging instance search on \code{setoid ?A}: \code{\#[mode
+      = "!"]}.
+  \end{itemize}
+  \speakernote{Before: proofs by hand for every function \\ arewrite: law
+      anywhere in a chain \\ Mode: search ate all memory}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Dynamic Programming: Knapsack}
+  \[ K(0) = 0 \qquad K(c) = \max\,\bigl(\{0\} \cup \{\,K(c - w_i) + v_i
+     \mid 0 < w_i \le c\,\}\bigr) \]
+  \begin{center}
+    \begin{tikzpicture}[alt={Capacities 0 to 6 in a row. The entry for
+        capacity 6 reads the entries for capacities 4 and 3, that is 6
+        minus weight 2 and 6 minus weight 3, for the items of weight 2 and
+        value 3 and of weight 3 and value 4. Every entry is computed once
+        and read many times.},
+      every node/.style = {box, minimum width = 9mm, font = \small}]
+      \foreach \i in {0, ..., 6} {
+        \node (k\i) at (1.3 * \i, 0) {$K(\i)$};
+      }
+      \node[hot, minimum width = 9mm] at (k6) {$K(6)$};
+      \draw[->, accent2, thick] (k6.north) to[bend right = 40]
+        node[above, draw = none, fill = none, note] {$w = 2$} (k4.north);
+      \draw[->, accent2, thick] (k6.south) to[bend left = 40]
+        node[below, draw = none, fill = none, note] {$w = 3$} (k3.south);
+    \end{tikzpicture}
+  \end{center}
+  Items $(w, v)$: $(2, 3)$ and $(3, 4)$, so $K(6) = \max(K(4) + 3, K(3) + 4)
+  = 9$.\par\medskip
+  \uncover<2->{The specification: a hylomorphism over the items that fit,
+    \code{hylo naive\_alg (naive\_c wvs)}. Exponential: it
+    \textbf{recomputes}.}
+  \speakernote{Recursion over items: recomputes \\ Goal: over capacities,
+      with a table}
+\end{frame}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Dynamorphisms in Rocq}
+  \vspace*{5mm}
+  \begin{center}
+    \begin{tikzpicture}[alt={A table for G X = 1 + X is a list of results:
+        the head is the result for c, followed by the results for c minus
+        1, down to 0.},
+      every node/.style = {box, minimum width = 12mm, font = \small},
+      node distance = 0mm]
+      \node[hot] (h) {$K(c)$};
+      \node[right = of h] (a) {$K(c-1)$};
+      \node[right = of a] (b) {$\cdots$};
+      \node[right = of b] (c) {$K(0)$};
+      \node[draw = none, fill = none, note, right = 3mm of c] {a table:
+        $\mu X.\, A \times G\,X$};
+    \end{tikzpicture}
+  \end{center}
+  \rocqblock{memo.v}
+  \begin{itemize}
+    \item The table is \textbf{any} initial algebra of \code{Memo G A}:
+      proofs use \code{LFix}, code uses arrays.
+  \end{itemize}
+  \slideref{J. Kabanov, V. Vene. \textbf{Recursion Schemes for Dynamic Programming}. MPC 2006. \rfsep
+    R. Hinze, N. Wu, J. Gibbons. \textbf{Conjugate Hylomorphisms, or: The Mother of All Structured Recursion Schemes}. POPL 2015.}
+  \speakernote{dyna: hylo into the table, take the head \\ ATab: persistent
+      arrays, proved initial (implicit arguments dropped)}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Changing the Recursion}
+  \rocqblock{reenum.v}
+  \begin{itemize}
+    \item \code{an}, \code{cn}: the naive recursion (over items).
+    \item \code{e}: the recursion we want (count down capacities).
+    \item \code{Hlook}: \code{an} only needs results that \code{e} reaches.
+    \item \code{look\_with}: lookups jump into the array table, $O(1)$.
+  \end{itemize}
+  \speakernote{Hylo equals dyna on another coalgebra \\ Proof: uniqueness
+      of hylo (implicit arguments dropped)}
+\end{frame*}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Knapsack, Step by Step}
+  \vspace*{4mm}
+  \begin{onlyenv}<1>
+    \fvset{lastline = 1}%
+    \rocqblock{knap-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+    \fvset{lastline = 3}%
+    \rocqblock{knap-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<3>
+    \fvset{lastline = 5}%
+    \rocqblock{knap-steps.v}
+  \end{onlyenv}
+  \begin{onlyenv}<4->
+    \fvset{lastline = 10}%
+    \rocqblock{knap-steps.v}
+  \end{onlyenv}
+  \par
+  \speakernote{reenumerate: O(1) lookups \\ dyna\_loop: bottom-up loop}
+\end{frame*}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Knapsack: What Comes Out}
+  \vspace*{5mm}
+  \begin{onlyenv}<1>
+    \ocamlblock[before upper = {\fvset{fontsize = \scriptsize,
+      baselinestretch = .84}}]{knap-arr.ml}
+  \end{onlyenv}
+  \begin{onlyenv}<2->
+    \ocamlblock[before upper = {\fvset{fontsize = \footnotesize}}]{knap-jump.ml}
+    \par\medskip
+    \code{fast\_drop}: jump straight into the right block of the array,
+    $O(1)$. Knapsack is linear in the capacity.
+  \end{onlyenv}
+  \par
+  \speakernote{Real extraction output \\ Loop counting up; push one entry \\
+      fast\_drop: O(1) lookup}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Monoid Algebras}
+  \begin{center}
+    \begin{tikzpicture}[alt={A monoid algebra at a node of shape s: the
+        node's own value leaf s, if any, is combined with the results of
+        the children at positions p1 to pn, in the order of members, using
+        the monoid operation.}, node distance = 8mm]
+      \node[hot] (s) {$\op{leaf}\,s$};
+      \node[box, right = 12mm of s] (k1) {$k\,p_1$};
+      \node[box, right = of k1] (k2) {$k\,p_2$};
+      \node[right = of k2] (dd) {$\cdots$};
+      \node[box, right = of dd] (kn) {$k\,p_n$};
+      \node[above = 9mm of k2, box, draw = good, fill = good!8] (r)
+        {$\op{leaf}\,s \oplus k\,p_1 \oplus k\,p_2 \oplus \cdots \oplus
+         k\,p_n$};
+      \foreach \n in {s, k1, k2, kn} { \draw[->] (\n.north) -- (r.south); }
+      \node[note, right = 2mm of kn] {in the order of \code{members F s}};
+    \end{tikzpicture}
+  \end{center}
+  \rocqblock{malg.v}
+  \rocqblock{malg-fusion.v}
+  List homomorphisms, for \textbf{any} finite container and \textbf{any}
+  recursive coalgebra.
+  \speakernote{Finite containers: members lists the positions \\ One fusion
+      law: Bird's promotions, Horner's rule}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Maximum Segment Sum}
+  \par
+  \begin{onlyenv}<1>
+    \rocqblock{mss.v}
+  \end{onlyenv}
+  \begin{onlyenv}<2>
+    \ocamlblock{mss.ml}
+    Bird's calculation, from cubic to linear, machine-checked.
+  \end{onlyenv}
+  \par
+  \speakernote{Each step a library law \\ Horner: max-plus semiring \\ Scan,
+      tupling: one pass}
+\end{frame*}

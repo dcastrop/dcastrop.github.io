@@ -1,0 +1,2 @@
+goal 1:  hylo merge tsplit =e morphism qsort_negate
+goal 2:  tsplit \o Lmap negate =e fmap (Lmap negate) \o tsplit

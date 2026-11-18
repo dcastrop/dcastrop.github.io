@@ -1,45 +1,91 @@
-% ~2 min
-\titleframe{Program Calculation with Hylomorphisms in Rocq}{%
+% ~3 min: title, the hook (rewrite rules with unchecked side conditions),
+% the plan
+\titleframe{%
+  \huge Program Calculation with\\ Hylomorphisms in Rocq%
+}{%
   \authorblock{David Castro-Perez}{David.CastroPerez@rhul.ac.uk}
     {RHULLogo.png}{Royal Holloway, University of London}}{%
   \par\medskip
-  {\footnotesize Based on joint work with Marco Paviotti and Michael Vollmer
-    (University of Kent):\\ \emph{Program Optimisations via Hylomorphisms
-    for Extraction of Executable Code}, ITP 2025.}%
-  \speakernote{Joint work with Marco Paviotti and Michael Vollmer (ITP
-    2025), updated to the current library.}}
+  {\footnotesize Part II: joint work with Marco Paviotti and Michael
+    Vollmer (University of Kent),\\ \emph{Program Optimisations via
+    Hylomorphisms for Extraction of Executable Code}, ITP 2025.}%
+  \speakernote{Part II: joint, Marco Paviotti, Michael Vollmer (ITP 2025)
+      \\ Part III: since ITP 2025}}
+
+\begin{frame*}[vertical-alignment = top]
+  \frametitle{Rewrite Rules You Already Trust}
+  \vspace*{4mm}
+  A database optimiser:
+  \mainblock{sql-pushdown.sql}
+  An ML compiler:
+  \mainblock{torch-fusion.py}
+  % Step 2: should you trust them? A real case, over the code. Step 3: the
+  % moral, over that.
+  \only<2->{\par\nointerlineskip\vbox to 0pt{%
+    \begin{tikzpicture}[overlay, remember picture, alt = {Should you really
+        trust them? A real case, PyTorch issue 196468: an attention-shaped
+        pattern rewrite ignores the softmax dimension: write dimension 0
+        instead of the last one, and the same rewrite still fires; the
+        compiled code normalises over the last axis, as if dimension -1 had
+        been written. A rewrite rule whose side condition is never
+        checked.}]
+      \node[anchor = north, fill = white, draw = black!25,
+        rounded corners = 3pt, drop shadow, text width = 156mm,
+        align = left, inner sep = 3mm]
+        at ($(current page.north) + (0, -15mm)$)
+        {{\Large\bfseries\color{bad} Should you really trust them?\par}\medskip
+         {\centering
+          \includegraphics[width = 150mm, alt = {Screenshot of PyTorch
+           issue 196468, open, labelled high priority and correctness
+           (silent)}]{pytorch-196468.png}\par}\smallskip
+         \small Write \code{dim=0} instead, and the same rewrite still
+         fires: the compiled code ignores it and normalises over the last
+         axis, as if you had written \code{dim=-1}. A rewrite rule whose
+         side condition (softmax over the \textbf{last} axis) is never
+         checked.\par
+         {\footnotesize\url{https://github.com/pytorch/pytorch/issues/196468}\par}};
+    \end{tikzpicture}\vss}}
+  \only<3>{\par\nointerlineskip\vbox to 0pt{%
+    \begin{tikzpicture}[overlay, remember picture, alt = {To trust a
+        rewrite, we need a proved law, with its side conditions checked at
+        every use. Can we have that for our own programs?}]
+      \node[fill = yellow!20, draw = golden!80!black, rounded corners = 3pt,
+        drop shadow, text width = 130mm, align = center, inner sep = 5mm,
+        font = \Large, execute at begin node = {\hyphenpenalty = 10000}]
+        at ($(current page.center) + (0, -4mm)$)
+        {To trust a rewrite, we need a \textbf{proved} law, with its side
+        conditions \textbf{checked} at every use. Can we have that for
+        \textbf{our own} programs?};
+    \end{tikzpicture}\vss}}
+  \speakernote{SQL pushdown; PyTorch attention fusion \\ Bug: dim 0 silently
+      run as dim -1 \\ Trust needs proved laws, checked side conditions}
+\end{frame*}
 
 \begin{frame}
-  \begin{columns}
-    \begin{column}{0.42\textwidth}
-      \begin{sticky}
-        \textbf{Program calculation:}
-        \begin{itemize}
-          \item Simple specification
-          \item \underline{Rewrite with laws}
-          \item Efficient program
-        \end{itemize}
-      \end{sticky}
-    \end{column}
-    \hspace{5mm}
-    \begin{column}{0.48\textwidth}
-      \begin{sticky}
-        \textbf{Our work:}
-        \begin{itemize}
-          \item Hylomorphisms in Rocq
-          \item \underline{Axiom-free}
-          \item \underline{Idiomatic} OCaml extraction
-        \end{itemize}
-      \end{sticky}
-    \end{column}
-  \end{columns}
-  \slideref{D. Castro-Perez, M. Paviotti, M. Vollmer. \textbf{Program
-    Optimisations via Hylomorphisms for Extraction of Executable Code}. ITP
-    2025. Library: \url{https://github.com/dcastrop/rocq-hylomorphisms}}
-  \speakernote{Program calculation: start from an obviously correct
-    specification, rewrite it with laws; the result is correct by
-    construction. Our contribution: the laws and the recursion scheme in
-    Rocq, without axioms, and calculated programs extract to OCaml a
-    programmer would recognise. The calculations themselves are Rocq
-    \code{rewrite} proofs.}
+  \frametitle{This Talk}
+  \begin{center}
+    \begin{tikzpicture}[alt={A clear but slow specification is turned into
+        a fast program by rewriting with proved laws, in Rocq.},
+      stage/.style = {text width = 30mm, align = center,
+        minimum height = 12mm}]
+      \node[box, stage] (s) {\textbf{clear, slow}\\ specification};
+      \node[hot, stage, right = 46mm of s] (p) {\textbf{fast}\\ program};
+      \draw[->, very thick] (s) -- node[above, note, align = center]
+        {rewrite with\\ \emph{proved laws}} (p);
+    \end{tikzpicture}
+  \end{center}
+  \begin{enumerate}
+    \item \textbf{Program calculation}: recursion schemes, their laws,
+      and parallelism.\\
+      {\small\textcolor{black!60}{The classic theory; our ICFP 2016 work.}}
+    \item \textbf{Hylomorphisms in Rocq}: containers, recursive
+      coalgebras, the laws; no axioms; clean extracted code.\\
+      {\small\textcolor{black!60}{Joint work with M. Paviotti and
+      M. Vollmer (ITP 2025).}}
+    \item \textbf{Calculating in Rocq}: \code{Derive}, clean extraction,
+      dynamic programming over arrays, monoid algebras.\\
+      {\small\textcolor{black!60}{Since ITP 2025.}}
+  \end{enumerate}
+  \speakernote{Spec in, fast program out, every step an equation \\
+      Theory; the library; calculations}
 \end{frame}

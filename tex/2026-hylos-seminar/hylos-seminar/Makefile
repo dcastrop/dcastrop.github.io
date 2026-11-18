@@ -1,12 +1,25 @@
 # Code snippets live in code/; gen/ holds their highlighted LaTeX.
 STYLE ?= friendly
 PYG    = pygmentize -f latex -O escapeinside=^^
-CODE   = $(wildcard code/*.v code/*.ml code/*.txt)
+CODE   = $(filter-out code/rocqlexer.py, $(wildcard code/*.v code/*.ml \
+         code/*.txt code/*.py code/*.hs code/*.sql code/*.java code/*.c))
 GEN    = $(patsubst code/%,gen/%.tex,$(CODE)) gen/pygments.tex
 
 main.pdf: main.tex preamble.tex sections/*.tex ../template/dcptalk.sty $(GEN)
 	TEXINPUTS=../template//: latexmk -lualatex -interaction=nonstopmode main.tex
-	python3 ../template/make-notes.py main --duration 55
+	python3 ../template/make-notes.py main --duration 60
+
+# Slides with their notes on the right half: pdfpc -n right main-presenter.pdf
+presenter: main-presenter.pdf
+
+main-presenter.pdf: main.pdf ../template/make-presenter.py
+	python3 ../template/make-presenter.py main
+	latexmk -lualatex -interaction=nonstopmode main-presenter.tex
+
+# Copies for the website: slides.pdf is linked, slides_notes.pdf is not
+publish: main.pdf main-presenter.pdf
+	cp main.pdf ../slides.pdf
+	cp main-presenter.pdf ../slides_notes.pdf
 
 gen/pygments.tex: Makefile | gen
 	$(PYG) -S $(STYLE) > $@
@@ -20,12 +33,28 @@ gen/%.ml.tex: code/%.ml | gen
 gen/%.txt.tex: code/%.txt | gen
 	$(PYG) -l text -o $@ $<
 
+gen/%.py.tex: code/%.py | gen
+	$(PYG) -l python -o $@ $<
+
+gen/%.hs.tex: code/%.hs | gen
+	$(PYG) -l haskell -o $@ $<
+
+gen/%.sql.tex: code/%.sql | gen
+	$(PYG) -l sql -o $@ $<
+
+gen/%.java.tex: code/%.java | gen
+	$(PYG) -l java -o $@ $<
+
+gen/%.c.tex: code/%.c | gen
+	$(PYG) -l c -o $@ $<
+
 gen:
 	mkdir -p gen
 
 clean:
 	latexmk -C
-	rm -f main.notes main.pdfpc main-notes.md
+	latexmk -C main-presenter.tex
+	rm -f main-presenter.tex main.notes main.pdfpc main-notes.md
 	rm -rf gen
 
-.PHONY: clean
+.PHONY: clean presenter publish

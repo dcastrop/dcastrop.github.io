@@ -9,6 +9,9 @@
 \colorlet{bad}{dcpbad}
 \colorlet{good}{dcpgood}
 
+% Links (\url, \href) in the accent colour, so they stand out
+\hypersetup{colorlinks = true, urlcolor = accent, linkcolor = black}
+
 % Recursion schemes
 % Latin Modern Math has no banana brackets: built as in the paper's lensbans
 \newcommand\cata[1]{\mathopen{(\mkern-3.5mu|}#1\mathclose{|\mkern-3.5mu)}}
@@ -19,3 +22,141 @@
 \newcommand\List{\op{List}}
 \newcommand\inn{\op{in}}
 \newcommand\out{\op{out}}
+% The CPS transform of a coalgebra (cps_from_coalg)
+\newcommand\cps[1]{\overline{#1}}
+\usetikzlibrary{backgrounds}
+
+% Under a code block that is not verbatim tool output or library source
+\newcommand\simplified{\par{\hfill\footnotesize\textcolor{gray}{(simplified)}\par}}
+
+% Code in mainstream languages (Python, SQL, Java, C) is orange, Haskell
+% violet; dcptalk has Rocq blue, OCaml green, errors red, output grey
+\newtcolorbox{mainbox}[1][]{enhanced, drop fuzzy shadow southeast,
+  boxrule = 0pt, colframe = orange!12, colback = orange!12,
+  halign = flush left, #1}
+\newtcolorbox{hsbox}[1][]{enhanced, drop fuzzy shadow southeast,
+  boxrule = 0pt, colframe = violet!8, colback = violet!8,
+  halign = flush left, #1}
+\makeatletter
+\NewDocumentCommand\mainblock{O{} m}{\dcp@code{mainbox}{#1}{#2}}
+\NewDocumentCommand\hsblock{O{} m}{\dcp@code{hsbox}{#1}{#2}}
+\makeatother
+
+% A tag in the top-right corner: which work a frame belongs to. At the end
+% of the frame, like \slideref.
+\NewDocumentCommand\worktag{O{accent} m}{%
+  \def\worktagged{}% the chips (\challenge) then go under the tag
+  \begin{tikzpicture}[overlay, remember picture, alt = {Tag: #2}]
+    \node[anchor = north east, draw = #1, fill = #1!12, text = #1,
+      rounded corners = 2pt, font = \footnotesize\bfseries, inner sep = 3pt]
+      at ($(current page.north east) + (-4mm, -4mm)$) {#2};
+  \end{tikzpicture}\par}
+\newcommand\icfptag{\worktag[accent]{ICFP 2016}}
+\newcommand\ongoingtag{\worktag[accent2]{ongoing}}
+
+% \challenge{text}: a small note under the work tag, naming which of the
+% "Three Challenges" (no axioms, clean extraction, termination) a frame
+% raises or solves. At the end of the frame; a zero-height box, as for \callout, so the
+% frame's content does not move.
+\makeatletter
+\NewDocumentCommand\challenge{m}{%
+  \par\edef\dcp@prevdepth{\the\prevdepth}\nointerlineskip\vbox to 0pt{%
+    \begin{tikzpicture}[overlay, remember picture, alt = {Challenge: #1}]
+      \node[anchor = north east, draw = golden!80!black, fill = yellow!20,
+        rounded corners = 2pt, font = \scriptsize, inner sep = 2pt]
+        at ($(current page.north east)
+          + (-4mm, \ifdefined\worktagged -10.5mm\else -4mm\fi)$) {#1};
+    \end{tikzpicture}\vss}%
+  \prevdepth = \dcp@prevdepth\relax}
+\makeatother
+
+\usetikzlibrary{shadows}
+
+% Inside \slideref: the next reference starts on a new line (no \par: the
+% text also goes into the picture's alt text)
+\newcommand\rfsep{\\}
+% This deck's references sit a little lower than dcptalk's (4mm from the
+% bottom, not 7mm), to make room for one reference per line, under a short
+% rule that separates them from the slide's content (as for footnotes)
+\RenewDocumentCommand\slideref{+m}{%
+  \begin{tikzpicture}[overlay, remember picture, alt = {Reference: #1}]
+    \node[anchor = south west, font = \tiny, text width = 150mm,
+      align = left] at ($(current page.south west) + (10mm, 4mm)$)
+      {\textcolor{black!40}{\rule{25mm}{0.4pt}}\\[0.3ex] #1};
+  \end{tikzpicture}\par}
+
+% \noslideref: the blank line a \slideref leaves, without the reference
+% (for overlays that show no reference, so that the content does not move)
+\newcommand\noslideref{\leavevmode\par}
+
+% A step in a calculation: "= { law }", in grey
+\NewDocumentCommand\calcstep{m}{\hspace*{3mm}\textcolor{black!55}{$=$
+  \{\,#1\,\}}}
+
+% A short citation on its own line, in small grey type (timeline boxes)
+\newcommand\tlcite[1]{\\{\scriptsize\textcolor{gray}{#1}}}
+
+% \excerpt<overlay>{quotation}{source}: a quotation from a paper in a
+% sticky note over the slide, revealed on the given overlay. At the end of
+% the frame.
+\NewDocumentCommand\excerpt{D<>{2-} +m +m}{%
+  \only<#1>{%
+    \begin{tikzpicture}[overlay, remember picture, alt = {Quotation: #2 (#3)}]
+      \node[anchor = north, fill = yellow!20, draw = golden!80!black,
+        rounded corners = 3pt, drop shadow, text width = 158mm,
+        minimum height = 52mm, align = justify, font = \small,
+        inner sep = 4mm]
+        at ($(current page.north) + (0, -21.5mm)$)
+        {#2\par\smallskip{\raggedleft\footnotesize --- #3\par}};
+    \end{tikzpicture}}\par}
+
+% Footer: "frame/total", bottom right. ltx-talk counts frames, not overlays.
+% (\hfill in font pushes it right: the footer has no alignment key.)
+\EditInstance{footer}{std}{
+  color         = black!50,
+  font          = \hfill\scriptsize,
+  element-order = {framenumber, totalframes},
+  separator     = /,
+  right-hspace  = 4mm,
+}
+
+% The title and Part frames have no footer, and are not counted. (A counter
+% of our own: ltx-talk's frame counter also sets the PDF page labels, which
+% pdfpc uses to group overlays.)
+\makeatletter
+\newcounter{dcpskipped}
+\def\ps@talknofooter{\ps@talk\def\@oddfoot{}\let\@evenfoot\@oddfoot}
+\NewCommandCopy\dcp@titleframe\titleframe
+\RenewDocumentCommand\titleframe{+m +m +m}{\stepcounter{dcpskipped}%
+  \dcp@titleframe{#1}{#2}{#3\thispagestyle{talknofooter}}}
+\NewCommandCopy\dcp@partframe\partframe
+\RenewDocumentCommand\partframe{m m}{\stepcounter{dcpskipped}%
+  \dcp@partframe{#1}{#2\thispagestyle{talknofooter}}}
+\ExplSyntaxOn
+\property_new:nnnn { dcpskipped } { shipout } { 0 } { \int_use:N \c@dcpskipped }
+\AddToHook { enddocument / afterlastpage }
+  { \property_record:nn { dcp-lastpage } { dcpskipped } }
+% Backup frames (after \appendix): B1, B2, ... (the first appendix frame is
+% the Backup divider); the total counts the talk's frames only
+\cs_set:Npn \@framenumber
+  {
+    \bool_if:NTF \l__talk_appendix_bool
+      { B \int_eval:n { \c@appendixframe - 1 } }
+      { \int_eval:n { \c@frame - \c@dcpskipped } }
+  }
+\cs_set:Npn \@totalframes
+  {
+    \int_eval:n
+      {
+          \property_ref:nn { lastpage } { frames }
+        - \property_ref:nn { dcp-lastpage } { dcpskipped }
+      }
+  }
+\ExplSyntaxOff
+% \backuppart, after "Thank you!": an uncounted divider, then the backup
+% frames, numbered without a total
+\NewDocumentCommand\backuppart{}{%
+  \appendix
+  \EditInstance{footer}{std}{element-order = {framenumber}}%
+  \dcp@partframe{Backup}{\thispagestyle{talknofooter}}}
+\makeatother
