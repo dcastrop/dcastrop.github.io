@@ -20,8 +20,7 @@
   \par
   \begin{onlyenv}<3->
     Any split gives the same answer, so \emph{how} to split is a
-    \textbf{scheduling} decision (chunks per core, work stealing,
-    cache-sized blocks), not a correctness one.
+    \textbf{scheduling} decision, not a correctness one.
   \end{onlyenv}
   \par
   \slideref{R. Bird. \textbf{An Introduction to the Theory of Lists}. Logic of Programming and Calculi of Discrete Design, 1987.}
@@ -64,15 +63,14 @@
       \node[seg, right = 0mm of xs] (ys) {ys};
       \uncover<2->{
         \draw[lane, accent] ([yshift = 5.5mm]xs.west) -- ([yshift = 5.5mm]xs.east)
-          node[state] {h xs};
-        \draw[rest, accent] ([yshift = 5.5mm]xs.east) -- ([yshift = 5.5mm]ys.east);
+          node[state] (hx) {h xs};
+        \draw[rest, accent] (hx.east) -- ([yshift = 5.5mm]ys.east);
         \node[lbl] at ([yshift = 5.5mm, xshift = -2mm]xs.west) {from the left};
       }
       \uncover<3->{
         \draw[lane, accent2] ([yshift = -5.5mm]ys.east) --
-          ([yshift = -5.5mm]ys.west) node[state] {h ys};
-        \draw[rest, accent2] ([yshift = -5.5mm]ys.west) --
-          ([yshift = -5.5mm]xs.west);
+          ([yshift = -5.5mm]ys.west) node[state] (hy) {h ys};
+        \draw[rest, accent2] (hy.west) -- ([yshift = -5.5mm]xs.west);
         \node[lbl] at ([yshift = -5.5mm, xshift = -2mm]xs.west)
           {from the right};
       }
@@ -81,19 +79,12 @@
     \item<2-> A loop from the left remembers only \code{h xs}: so
       \code{h (xs ++ ys)} needs only \code{h xs} and \code{ys}.
     \item<3-> A loop from the right: only \code{xs} and \code{h ys}.
-    \item<4-> Together: only \code{h xs} and \code{h ys}. The
-      \textbf{combiner}, associative as \code{++} is:
+    \item<4-> Together: \code{h} is a list homomorphism, with a
+      \textbf{combiner} that depends only on \code{h~xs} and \code{h~ys}.
   \end{itemize}
-  \begin{onlyenv}<4->
-    \hsblock{third-combiner.hs}
-  \end{onlyenv}
   \par
   \begin{onlyenv}<5->
-    \small\textbf{Example, sorting}: a sorted list sorts to itself, so
-    \code{g a = a}, and \code{combine a b = sort (a ++ b)}. But \code{a}
-    and \code{b} are already sorted, and for sorted lists \code{sort (a ++
-    b) = merge a b}, one linear pass. Insertion sort, $O(n^2)$, becomes
-    mergesort, $O(n \log n)$.\par
+    \small\textbf{Example, sorting}: Insertion sort agrees whether you sort the list from the left or the right. Hence, we can derive $O(n \log n)$ mergesort from $O(n^2)$ insertion sort by program calculation.\par
   \end{onlyenv}
   \slideref{J. Gibbons. \textbf{The Third Homomorphism Theorem}. JFP 1996. (Conjectured by Bird, proved by Meertens, 1989.) \rfsep
     K. Morita et al. \textbf{Automatic Inversion Generates Divide-and-Conquer Parallel Programs}. PLDI 2007.}
@@ -113,53 +104,53 @@
     Bird conjectured, Meertens proved it on a train; Gibbons published}
 \end{frame}
 
-\begin{frame}
-  \frametitle{One Combiner, Any Cut: a Loop or a Parallel Tree}
-  \begin{center}
-    \begin{tikzpicture}[alt={Two call trees for the same combiner on four
-        elements: a list-shaped tree of depth four, which splits off the
-        first element, and a balanced tree of depth two, which splits in
-        halves. Both visit x0, x1, x2, x3 in the same order.},
-      every node/.style = {box, font = \small}]
-      \begin{scope}[level distance = 8mm, sibling distance = 12mm]
-        \node {$\oplus$}
-          child {node {$x_0$}}
-          child {node {$\oplus$}
-            child {node {$x_1$}}
-            child {node {$\oplus$}
-              child {node {$x_2$}}
-              child {node {$x_3$}}}};
-      \end{scope}
-      \node[draw = none, fill = none, note] at (0, 0.8)
-        {split off the first: a loop};
-      \node[draw = none, fill = none, font = \Large] at (35mm, -1.2)
-        {$=$};
-      \begin{scope}[xshift = 70mm, level distance = 10mm,
-          level 1/.style = {sibling distance = 24mm},
-          level 2/.style = {sibling distance = 12mm}]
-        \node {$\oplus$}
-          child {node {$\oplus$} child {node {$x_0$}} child {node {$x_1$}}}
-          child {node {$\oplus$} child {node {$x_2$}} child {node {$x_3$}}};
-      \end{scope}
-      \node[draw = none, fill = none, note] at (70mm, 0.8)
-        {split in halves: parallel};
-    \end{tikzpicture}
-  \end{center}
-  \begin{itemize}[<+->]
-    \item The loops of the third theorem are hylos too, with fixed cuts
-      (\code{foldl}: the last element; \code{foldr}: the first) and steps
-      that need not be associative.
-    \item Why we care: write two \textbf{sequential} programs and prove they
-      agree; from that proof, the theorem \textbf{calculates} the parallel
-      one (an associative combiner, any cut).
-  \end{itemize}
-  \speakernote{A homomorphism is a hylo whose divide step (the cut) is a
-    parameter; any cut that keeps the order \\
-    Left: split off the first, depth n; right: halves, depth log n \\
-    Associativity of the combiner makes them equal \\
-    foldl, foldr: hylos with a fixed cut and a non-associative step \\
-    Third theorem: a proof that the two loops agree yields the parallel
-    program (associative combine, any cut), by calculation \\
-    Remember: changing the divide step comes back at the end}
-\end{frame}
+% \begin{frame}
+%   \frametitle{One Combiner, Any Cut}
+%   \begin{center}
+%     \begin{tikzpicture}[alt={Two call trees for the same combiner on four
+%         elements: a list-shaped tree of depth four, which splits off the
+%         first element, and a balanced tree of depth two, which splits in
+%         halves. Both visit x0, x1, x2, x3 in the same order.},
+%       every node/.style = {box, font = \small}]
+%       \begin{scope}[level distance = 8mm, sibling distance = 12mm]
+%         \node {$\oplus$}
+%           child {node {$x_0$}}
+%           child {node {$\oplus$}
+%             child {node {$x_1$}}
+%             child {node {$\oplus$}
+%               child {node {$x_2$}}
+%               child {node {$x_3$}}}};
+%       \end{scope}
+%       \node[draw = none, fill = none, note] at (0, 0.8)
+%         {split off the first: a loop};
+%       \node[draw = none, fill = none, font = \Large] at (35mm, -1.2)
+%         {$=$};
+%       \begin{scope}[xshift = 70mm, level distance = 10mm,
+%           level 1/.style = {sibling distance = 24mm},
+%           level 2/.style = {sibling distance = 12mm}]
+%         \node {$\oplus$}
+%           child {node {$\oplus$} child {node {$x_0$}} child {node {$x_1$}}}
+%           child {node {$\oplus$} child {node {$x_2$}} child {node {$x_3$}}};
+%       \end{scope}
+%       \node[draw = none, fill = none, note] at (70mm, 0.8)
+%         {split in halves: parallel};
+%     \end{tikzpicture}
+%   \end{center}
+%   \begin{itemize}[<+->]
+%     \item The loops of the third theorem are hylos too, with fixed cuts
+%       (\code{foldl}: the last element; \code{foldr}: the first) and steps
+%       that need not be associative.
+%     \item Why we care: write two \textbf{sequential} programs and prove they
+%       agree; from that proof, the theorem \textbf{calculates} the parallel
+%       one (an associative combiner, any cut).
+%   \end{itemize}
+%   \speakernote{A homomorphism is a hylo whose divide step (the cut) is a
+%     parameter; any cut that keeps the order \\
+%     Left: split off the first, depth n; right: halves, depth log n \\
+%     Associativity of the combiner makes them equal \\
+%     foldl, foldr: hylos with a fixed cut and a non-associative step \\
+%     Third theorem: a proof that the two loops agree yields the parallel
+%     program (associative combine, any cut), by calculation \\
+%     Remember: changing the divide step comes back at the end}
+% \end{frame}
 

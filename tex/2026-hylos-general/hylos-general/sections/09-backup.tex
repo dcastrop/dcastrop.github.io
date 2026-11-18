@@ -319,6 +319,21 @@
     ITP 2025)}
 \end{frame}
 
+\begin{frame*}
+  \frametitle{Termination: Recursion on a Proof, in Rocq}
+  \rocqblock{recf.v}
+  \rocqblock[width = .8\textwidth]{hylo-def.v}
+  \simplified
+  \par
+  \callout{3.6,1.4}{termination proof\\ (deleted from the code)}{recf}
+  \callout{12.6,1.4}{structurally smaller proof}{He}
+  \speakernote{RecF c x: c terminates on x; a proof is a finite tree
+    shaped like the call tree \\
+    Recursive coalgebra: RecF for every input; proved once per coalgebra \\
+    hylo: structural recursion on the proof; proof erased \\
+    RecF iff Acc, but per-position induction: easier proofs, same code}
+\end{frame*}
+
 \begin{frame*}[vertical-alignment = top]
   \frametitle{ITP 2025's Extracted Quicksort, and Its Closures}
   \vspace*{3mm}
@@ -447,7 +462,7 @@
 \end{frame*}
 
 \begin{frame}
-  \frametitle{What Each Approach Trusts: ICFP 2016, Gibbon, ParSynt, Rocq}
+  \frametitle{What Each Approach Trusts}
   \begin{center}
     \small
     \renewcommand\arraystretch{1.35}

@@ -2,7 +2,7 @@
 \partframe{Part III}{Mechanising Low-Level Program Calculation \\ (Ongoing)}
 
 \begin{frame}[vertical-alignment = top]
-  \frametitle{From Rocq to Code: Today, and the Goal}
+  \frametitle{Our Goal: From Rocq to Low-level Code}
   \vspace*{6mm}
   \begin{center}
     \begin{tikzpicture}[alt={A specification is calculated by laws into
@@ -60,7 +60,7 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Low-Level Calculation: Three Open Questions}
+  \frametitle{Low-Level Calculation: Three (Main) Open Questions}
   \begin{center}
     \begin{tikzpicture}[alt={Three open questions. Layout laws: can a
         proved law turn a tree into a flat buffer, and a traversal into one
@@ -69,24 +69,23 @@
         chain of laws, guided by a cost model?},
       card/.style = {draw = golden!80!black, fill = yellow!20,
         rounded corners = 3pt, text width = 42mm, align = left,
-        minimum height = 30mm, anchor = north, font = \small,
-        text depth = 24mm,
+        minimum height = 20mm, anchor = north, font = \small,
+        text depth = 15mm,
         execute at begin node = {\hyphenpenalty = 10000
           \exhyphenpenalty = 10000}}]
       \node[card] (l) at (0, 0) {\textbf{\normalsize Layout laws}\\[1mm]
-        Can a proved law turn a tree into a flat buffer, and a traversal
-        into one pass over it?};
+        Turn trees into flat buffers, and convert traversals to run over
+        them.};
       \uncover<2->{\node[card] (s) at (47mm, 0)
         {\textbf{\normalsize Scheduling laws}\\[1mm]
-        Can a proved law parallelise nested loops, one level at a time?};}
+        Rewriting between different ``splits''};}
       \uncover<3->{\node[card] (q) at (94mm, 0)
         {\textbf{\normalsize Search for derivations}\\[1mm]
-        Who finds the chain of laws, guided by a cost model?};}
+        A cost-model-guided search over the space of equal programs.};}
     \end{tikzpicture}
   \end{center}
   \uncover<4->{Today's laws change the \emph{algorithm}; these would change
-    \emph{where data lives} and \emph{how work is scheduled}. Already a
-    law: recursion $\to$ loop (knapsack).}
+    \emph{where data lives} and \emph{how work is scheduled}.}
   \ongoingtag
   \speakernote{The questions first; the literature on each comes next \\
     Layout: Gibbon does it as compiler passes; we want a law \\
@@ -120,8 +119,8 @@
         \foreach \v [count = \i from 1, remember = \i as \j (initially 0)]
             in {N, L, 1, L, 2, L, 3}
           \node[cell, right = of c\j] (c\i) {\v};
-        \node[draw = none, fill = none, note, above = 2mm of c3]
-          {one buffer, in preorder};
+        \node[draw = none, fill = none, note, anchor = south]
+          at ([yshift = 2mm]c3.north east) {one buffer, in preorder};
       \end{scope}
     \end{tikzpicture}
   \end{center}
@@ -155,31 +154,31 @@
     the right child is only known after the left one (end witnesses)}
 \end{frame*}
 
-\begin{frame*}
-  \frametitle{Packed Traversals, Read as Hylomorphisms}
-  \mainblock{packed-hylo.py}
-  \begin{itemize}[<+->]
-    \item Reading the buffer: \code{divide}. Summing: \code{conquer}.
-      Together: the tree is \textbf{never built}.
-    \item Writing a buffer: a \code{conquer} step that \textbf{writes},
-      in order.
-    \item Problem: the position in the buffer flows from one child to
-      the \textbf{next} (this does not quite fit the hylomorphism pattern).
-  \end{itemize}
-  \ongoingtag
-  \openquestion{layout laws}
-  \speakernote{Our reading, not Gibbon's formulation \\
-    Spec: unpack the buffer, fold the tree \\
-    Program: traverse the buffer; the tree never exists \\
-    Writes: an associative combiner (Part II) \\
-    Cursor threading: state between siblings; laws beyond plain hylos}
-\end{frame*}
+% \begin{frame*}
+%   \frametitle{Packed Traversals, Read as Hylomorphisms}
+%   \mainblock{packed-hylo.py}
+%   \begin{itemize}[<+->]
+%     \item Reading the buffer: \code{divide}. Summing: \code{conquer}.
+%       Together: the tree is \textbf{never built}.
+%     \item Writing a buffer: a \code{conquer} step that \textbf{writes},
+%       in order.
+%     \item Problem: the position in the buffer flows from one child to
+%       the \textbf{next} (this does not quite fit the hylomorphism pattern).
+%   \end{itemize}
+%   \ongoingtag
+%   \openquestion{layout laws}
+%   \speakernote{Our reading, not Gibbon's formulation \\
+%     Spec: unpack the buffer, fold the tree \\
+%     Program: traverse the buffer; the tree never exists \\
+%     Writes: an associative combiner (Part II) \\
+%     Cursor threading: state between siblings; laws beyond plain hylos}
+% \end{frame*}
 
 \begin{frame*}[vertical-alignment = top]
   \frametitle{Parallelising Nested Loops (Farzan, Nicolet)}
   \vspace*{4mm}
   \mainblock{nested-loop.c}
-  \begin{onlyenv}<1-4>
+  \begin{onlyenv}<1-3>
     \begin{itemize}
       \item<1-> \textbf{Memoryless condition}: a row's result ignores the rows
         before: $s_{i+1} = s_i \oplus g(\mathit{row}_i)$.
@@ -188,12 +187,12 @@
         loop, over the row results, is a homomorphism too.
       \item<3-> \textbf{Lifting theorem}: if the outer loop is not a
         homomorphism, add extra state until it is (as \code{scale} in the
-        Java example); that is enough to make the whole nest one.
-      \item<4-> Their tool, \textbf{ParSynt}, synthesises the combiners and
-        the extra state.
+        Java example).
+%      \item<4-> Their tool, \textbf{ParSynt}, synthesises the combiners and
+%        the extra state.
     \end{itemize}
   \end{onlyenv}
-  \begin{onlyenv}<5->
+  \begin{onlyenv}<4->
     \begin{center}
       \footnotesize
       \renewcommand\arraystretch{1.05}
@@ -227,7 +226,7 @@
 \end{frame*}
 
 \begin{frame}
-  \frametitle{Untrusted Search, Trusted Checking}
+  \frametitle{Cost-Model-Guided Search for Derivations}
   \begin{center}
     \begin{tikzpicture}[alt={A specification and a cost model go into a
         search, which may use heuristics, equality saturation or a learned

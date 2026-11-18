@@ -23,9 +23,21 @@
   \codebox<6>{pc}{pd}{pd}
   \codebox<6>{ta}{tb}{tb}
   \codebox<6>{tc}{td}{td}
-  \callout<6>{14.2,1.3}{\code{tag}: which case \code{divide} found\\
-    (empty: \code{None}; non-empty: the pivot \code{p}),\\ and what
-    \code{conquer} needs from it}{tb, td}
+  % \callout by hand: the arrow to the first tag goes under the code and up
+  % its indentation, not through the line in between
+  \only<6>{\par\nointerlineskip\vbox to 0pt{%
+    \begin{tikzpicture}[overlay, remember picture,
+        shift = (current page.south west), alt = {Note: tag: which case
+        divide found (empty: None; non-empty: the pivot p), and what
+        conquer needs from it}]
+      \node[callout] (tagnote) at (7.4, 1.15) {\code{tag}: which case
+        \code{divide} found\\ (empty: \code{None}; non-empty: the pivot
+        \code{p}),\\ and what \code{conquer} needs from it};
+      \draw[callout arrow]
+        (tagnote) -- ($(pic cs:tc)!.5!(pic cs:td) + (0, -1.4mm)$);
+      \draw[callout arrow, rounded corners = 1.5mm] (tagnote.west)
+        -| ($(pic cs:ta) + (-6mm, 1mm)$) -- ($(pic cs:ta) + (-.9mm, 1mm)$);
+    \end{tikzpicture}\vss}}
   \speakernote{Quicksort, written directly \\
     Divide (pivot, split the rest); recursion; conquer (glue) \\
     Factor them out; one generic function \\
@@ -36,12 +48,9 @@
 \end{frame*}
 
 \begin{frame*}
-  \frametitle{The Pattern, in Haskell}
+  \frametitle{Definition of Hylomorphisms}
+  \vspace*{3mm}
   \hsblock{hylo-qsort.hs}
-  \begin{itemize}
-    \item<2-> Read \code{hylo} right to left: divide, solve every part
-      (\code{fmap}), conquer.
-  \end{itemize}
   \speakernote{From here on: Haskell; explain the syntax as needed \\
     Layer: one layer of the call tree \\
     f . g: g then f; fmap h: h on every part \\
@@ -126,7 +135,8 @@
         conquer.
         Deforestation: building the call tree with ana and then
         folding it with cata equals the hylomorphism, with no tree.},
-      stage/.style = {box, minimum height = 7.5mm, font = \small\ttfamily},
+      stage/.style = {box, minimum height = 7.5mm, font = \small\ttfamily,
+        text height = 1.6ex, text depth = .4ex},
       lbl/.style = {font = \small\bfseries, anchor = south west,
         inner sep = 1pt},
       cond/.style = {note, font = \footnotesize, anchor = north west}]
@@ -157,8 +167,7 @@
     solution of its equation), and are proved \textbf{once}, for every
     divide and conquer.}
   \par
-  \uncover<3->{\small\textbf{Why faster}: one pass instead of two, no
-    intermediate structure (less allocation and memory traffic). Compilers
+  \uncover<3->{\small Compilers
     rely on such rewrites: GHC's list fusion, kernel fusion in ML
     compilers, pushdown in databases.\par}
   \slideref{A. Gill, J. Launchbury, S. Peyton Jones. \textbf{A Short Cut to Deforestation}. FPCA 1993. \rfsep

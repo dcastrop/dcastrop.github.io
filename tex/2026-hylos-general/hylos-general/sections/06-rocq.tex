@@ -18,7 +18,7 @@
       \node[stage, right = 14mm of i, draw = good, fill = good!8] (k)
         {\textbf{kernel}\\ \small checks the proof};
       \node[hot, minimum height = 11mm, text width = 30mm, align = center,
-        right = 22mm of k] (o) {OCaml, Haskell\\ \small code};
+        right = 28mm of k] (o) {OCaml, Haskell\\ \small code};
       \draw[->, thick] (i) -- (k);
       \draw[->, thick] (k) -- node[above, note] {extraction}
         node[below, note] {proofs erased} (o);
@@ -87,7 +87,7 @@
 \end{frame}
 
 \begin{frame*}[vertical-alignment = top]
-  \frametitle{Generic Trees: The Textbook Encoding}
+  \frametitle{A Textbook Encoding of Generic Trees}
   \vspace*{4mm}
   \begin{onlyenv}<1>
     \rocqblock{naive-cont.v}
@@ -101,20 +101,19 @@
     (untrusted) code calling it can exploit them: one wrong value, and the
     program crashes (segfaults).
   \end{onlyenv}
-  \begin{onlyenv}<3>
-    \rocqblock{naive-eq.v}
-    \badblock{naive-eq.txt}
-    \begin{itemize}
-      \item \textbf{Axiom K}: to get \code{k1 = k2} from equal values, as
-        the type of \code{k} depends on \code{s}.
-      \item \textbf{Function extensionality}: for \code{fmap id = id},
-        functions that agree everywhere must be equal.
-    \end{itemize}
-    \textbf{Why no axioms?} These two are consistent on their own. But the
-    low-level target will need assumptions we cannot predict yet, which
-    must combine safely with ours: starting from none keeps every option
-    open.
-  \end{onlyenv}
+%   \begin{onlyenv}<3>
+%     \rocqblock{naive-eq.v}
+%     \badblock{naive-eq.txt}
+%     \begin{itemize}
+%       \item \textbf{Axiom K}: to get \code{k1 = k2} from equal values, as
+%         the type of \code{k} depends on \code{s}.
+%       \item \textbf{Function extensionality}: for \code{fmap id = id},
+%         functions that agree everywhere must be equal.
+%     \end{itemize}
+%     \textbf{Why avoid axioms?} These two are consistent on their own. But the
+%     low-level target will need assumptions we cannot predict yet, which must
+%     combine safely with ours: starting from none keeps every option open.
+%   \end{onlyenv}
   \par
   \only<2>{\slideref{Y. Forster, M. Sozeau, N. Tabareau. \textbf{Verified Extraction from Coq to OCaml}. PLDI 2024. \rfsep
     \'E. Tanter, N. Tabareau. \textbf{Lost in Extraction, Recovered: An Approach to Compensate for the Loss of Properties and Type Dependencies when Extracting Coq Components to OCaml}. ML Family Workshop 2015 (extended abstract).}}
@@ -132,14 +131,29 @@
     Low-level targets need types: no uniform representation to cast into \\
     Cast-free output: OCaml re-checks our trusted extraction \\
     Erased types leak into client code: unsafety spreads \\
-    Not performance: Obj.magic is free at run time \\
-    Equality: injection gives equal dependent pairs; k1 = k2 needs
-    inj\_pair2, i.e. axiom K; fmap id = id needs funext \\
+    Not performance: Obj.magic is free at run time}
+\end{frame*}
+
+\begin{frame}
+  \frametitle{The Textbook Encoding Requires Axioms}
+  \begin{itemize}
+    \item \textbf{Axiom K}: all proofs of an equality are equal. Needed to
+      compare trees whose children's type depends on their shape.
+    \item \textbf{Function extensionality}: functions that agree on every
+      input are equal.
+    \item \textbf{Why avoid them?} Axiom K and function extensionality are
+    consistent with Rocq's core logic, but the low-level target will need
+    assumptions we cannot predict yet.  Starting from none keeps every option
+    open.
+  \end{itemize}
+  \obstacle{obstacle: no extra axioms}
+  \speakernote{Equality: injection gives equal dependent pairs; k1 = k2
+    needs inj\_pair2, i.e. axiom K; fmap id = id needs funext \\
     No axioms: the low-level target will need assumptions we cannot
     predict; start from none \\
     If challenged: consistent alone, yes; consistent with what the target
     will need, unknown}
-\end{frame*}
+\end{frame}
 
 \begin{frame*}
   \frametitle{Our Generic Trees}
@@ -158,7 +172,7 @@
         results'' \\
     \end{tabular}
   \end{center}
-  \obstacle{solves: no extra axioms, no unchecked casts}
+  \obstacle{solves: axioms, unchecked casts}
   \speakernote{One type P of positions, a boolean says which are valid \\
     Valid: a proof of b = true; unique without axiom K (Hedberg); erased \\
     Extraction sees cont as a plain function P -> X \\
@@ -166,7 +180,7 @@
 \end{frame*}
 
 \begin{frame*}
-  \frametitle{Termination: Recursion on a Proof}
+  \frametitle{Termination: Recursive Coalgebras}
   \begin{onlyenv}<1>
     \begin{center}
       \begin{tikzpicture}[alt={Left: the call tree of quicksort on 3, 1, 4,
@@ -214,18 +228,18 @@
     hence \textbf{recursive}: proved once, it gives \emph{every}
     \code{conquer} a unique \code{hylo}, which the laws need.
   \end{onlyenv}
-  \begin{onlyenv}<2->
-    \rocqblock{recf.v}
-    \rocqblock[width = .8\textwidth]{hylo-def.v}
-    \simplified
-  \end{onlyenv}
+%   \begin{onlyenv}<2->
+%     \rocqblock{recf.v}
+%     \rocqblock[width = .8\textwidth]{hylo-def.v}
+%     \simplified
+%   \end{onlyenv}
   \par
   \only<1>{\slideref{A. Bove, V. Capretta. \textbf{Modelling General Recursion in Type Theory}. MSCS 2005. \rfsep
     V. Capretta, T. Uustalu, V. Vene. \textbf{Recursive Coalgebras from Comonads}. Inf. Comput. 2006. \rfsep
     J. Ad\'amek, S. Milius, L. S. Moss. \textbf{On Well-Founded and Recursive Coalgebras}. FoSSaCS 2020.}}
-  \callout<3->{3.6,1.4}{termination proof\\ (deleted from the code)}{recf}
-  \callout<4->{12.6,1.4}{structurally smaller proof}{He}
-  \obstacle{solves obstacle: termination}
+%   \callout<3->{3.6,1.4}{termination proof\\ (deleted from the code)}{recf}
+%   \callout<4->{12.6,1.4}{structurally smaller proof}{He}
+  \obstacle{solves: termination}
   \speakernote{Picture first: the call tree, and a proof of termination of
     the same shape \\
     Recurse on the proof, then erase it: standard (Bove, Capretta) \\
@@ -241,71 +255,69 @@
 \end{frame*}
 
 \begin{frame*}
-  \frametitle{The Laws, Proved Once}
+  \frametitle{Mechanised Hylomorphism Laws}
   \rocqblock{hylo-laws.v}
   \outblock{assumptions-itp.txt}
   \begin{itemize}[<+->]
     \item Proofs follow the pen-and-paper ones: fusion is four rewrites.
-    \item \textbf{No extra axioms}: only Rocq's own logic.
+    \item No extra axioms.
     \item For \textbf{any} shape of tree and any terminating
       \code{divide}.
   \end{itemize}
-  \speakernote{Uniqueness is the universal property; the rest follow \\
+  \speakernote{All laws follow from uniqueness \\
     Same steps as on paper \\
     Print Assumptions: nothing}
 \end{frame*}
 
-\begin{frame*}
-  \frametitle{Generic Code Is Not (Always) Clean Code}
-  Our generic \code{hylo conquer divide} (quicksort), extracted without
-  inlining:
-  \ocamlblock{raw-extr.ml}
-  \callout<2->{14.5,8.2}{extra arguments at run time}{dict}
-  \callout<3->{14,2.6}{a record per call}{rec}
-  \obstacle{obstacle: clean code, still}
-  \speakernote{Not always: this is our generic hylo with Rocq's extraction,
-    not generic code in general \\
-    Type-safe, but setoid and container dictionaries passed at run time \\
-    A record built and taken apart at every call \\
-    ITP: inline by hand-picked hints; still closures (backup)}
-\end{frame*}
+% \begin{frame*}
+%   \frametitle{Generic Code Is Not (Always) Clean Code}
+%   Our generic \code{hylo conquer divide} (quicksort), extracted without
+%   inlining:
+%   \ocamlblock{raw-extr.ml}
+%   \callout<2->{14.5,8.2}{extra arguments at run time}{dict}
+%   \callout<3->{14,2.6}{a record per call}{rec}
+%   \obstacle{obstacle: clean code, still}
+%   \speakernote{Not always: this is our generic hylo with Rocq's extraction,
+%     not generic code in general \\
+%     Type-safe, but setoid and container dictionaries passed at run time \\
+%     A record built and taken apart at every call \\
+%     ITP: inline by hand-picked hints; still closures (backup)}
+% \end{frame*}
 
-\begin{frame}
-  \frametitle{The Price of Our Choices}
-  \begin{itemize}[<+->]
-    \item \textbf{Setoids everywhere}: every function needs a proof that it
-      respects equality; rewriting is slow on large terms.
-    \item \textbf{Termination}: still one proof per divide step (no
-      termination by typing, unlike Abreu et al.).
-    \item \textbf{Clean code needs inlining}: generic definitions must be
-      unfolded before extraction, by hand-picked hints.
-    \item \textbf{Some laws need parametricity} (shortcut fusion): without
-      an axiom, proved only for specific types, such as lists.
-  \end{itemize}
-  \speakernote{Cons of the ITP 2025 design (paper, future work) \\
-    Setoids: properness proofs, slow generalised rewriting, big terms \\
-    Termination: once per coalgebra, but still there \\
-    Inlining: Rocq does not always inline; closures left (backup) \\
-    Acid rain needs parametricity: only for lists}
-\end{frame}
+% \begin{frame}
+%   \frametitle{The Price of Our Choices}
+%   \begin{itemize}[<+->]
+%     \item \textbf{Setoids everywhere}: every function needs a proof that it
+%       respects equality; rewriting is slow on large terms.
+%     \item \textbf{Termination}: still one proof per divide step (no
+%       termination by typing, unlike Abreu~et~al.).
+%     \item \textbf{Clean code needs inlining}: generic definitions must be
+%       unfolded before extraction, by hand-picked hints.
+%     \item \textbf{Some laws need parametricity} (shortcut fusion): without
+%       an axiom, proved only for specific types, such as lists.
+%   \end{itemize}
+%   \speakernote{Cons of the ITP 2025 design (paper, future work) \\
+%     Setoids: properness proofs, slow generalised rewriting, big terms \\
+%     Termination: once per coalgebra, but still there \\
+%     Inlining: Rocq does not always inline; closures left (backup) \\
+%     Acid rain needs parametricity: only for lists}
+% \end{frame}
 
 \begin{frame}[vertical-alignment = top]
   \frametitle{Since ITP 2025}
   \vspace*{8mm}
-  \textbf{Better calculations, cleaner code}
+  \textbf{Improvements}
   \begin{itemize}
-    \item<1-> Calculations with \code{Derive}: the program starts as an
-      unknown; rewrites fill it in.
-    \item<2-> Side proofs (termination, well-behaved functions) found
+    \item<1-> Side proofs (termination, well-behaved functions) found
       \textbf{automatically}.
-    \item<3-> \textbf{No closures} in the code: divide and hylos in
-      continuation-passing style.
+    \item<2-> More idiomatic code extraction via divide and hylos in
+      \emph{continuation-passing style}.
   \end{itemize}
-  \uncover<4->{\textbf{New kinds of calculation}}
+  \uncover<3->{\textbf{New kinds of calculation}}
   \begin{itemize}
-    \item<4-> Dynamic programming over \textbf{arrays}: $O(1)$ lookups,
+    \item<3-> Dynamic programming over \textbf{arrays}: $O(1)$ lookups,
       loops.
-    \item<5-> Laws for \textbf{associative combiners}, for any data type.
+    \item<4-> Laws for \textbf{associative combiners}, for any data type.
   \end{itemize}
   \speakernote{Rocq 9 port, then October 2026 \\
     Derive, arewrite, finished: calculations as on paper \\
@@ -348,60 +360,56 @@
 \end{frame*}
 
 
-\begin{frame}[vertical-alignment = top]
-  \frametitle{The Calculation, by Hand and in Rocq}
-  \vspace*{3mm}
-  \begin{center}
-    \footnotesize
-    \renewcommand\arraystretch{1.2}
-    \begin{tabular}{@{}l@{\hspace{6mm}}l@{}}
-      \textbf{By hand} & \textbf{In Rocq, every step checked} \\ \hline
-      \code{map double . cata conquer . ana divide} &
-        \code{map double \textbackslash o cata conquer \textbackslash o ana
-        divide} \\
-      \uncover<2->{\calcstep{fusion: doubling moves into \code{conquer}}} &
-        \uncover<2->{\calcstep{\code{map\_conquer\_fusion}: side condition
-        proved once}} \\
-      \uncover<2->{\code{cata conquer2 . ana divide}} &
-        \uncover<2->{\code{cata (conquer \textbackslash o double\_pivot)
-        \textbackslash o ana divide}} \\
-      \uncover<3->{\calcstep{deforestation: no tree is built}} &
-        \uncover<3->{\calcstep{\code{hylo\_ana}, \code{deforest}: side
-        condition proved here}} \\
-      \uncover<3->{\code{hylo conquer2 divide}} &
-        \uncover<3->{\code{hylo (conquer \textbackslash o double\_pivot)
-        divide}} \\
-      \uncover<4->{\hspace*{3mm}\textcolor{black!55}{(left to the
-        compiler)}} &
-        \uncover<4->{\calcstep{\code{hylo\_cps\_hylo}: continuation-passing
-        style, no closures}} \\
-      & \uncover<4->{\code{hylo\_cps (conquer \textbackslash o double\_pivot)
-        divide\_k}} \\
-    \end{tabular}
-  \end{center}
-  \begin{onlyenv}<5->
-    \rocqblock[before upper = {\fvset{fontsize = \footnotesize}}]{double-pivot.v}
-    \code{conquer \textbackslash o double\_pivot} is the manual
-    calculation's \code{conquer2}.
-  \end{onlyenv}
-  \par
-  \speakernote{Same calculation as Part I: the terms, and the law between
-    each two \\
-    Same specification on both sides (qsort = cata conquer . ana divide) \\
-    Fusion: Lmap\_merge is Part I's side condition, proved once \\
-    No tree: hylo\_ana, deforest; l\_out\_in proved on the spot \\
-    Clean code: new in Rocq, for extraction (CPS) \\
-    double\_pivot: natural (nt\_shape id times\_two) in the library; a
-    container morphism, identity on positions, so it commutes with fmap}
-\end{frame}
+% \begin{frame}[vertical-alignment = top]
+%   \frametitle{The Calculation, by Hand and in Rocq}
+%   \vspace*{3mm}
+%   \begin{center}
+%     \footnotesize
+%     \renewcommand\arraystretch{1.2}
+%     \begin{tabular}{@{}l@{\hspace{6mm}}l@{}}
+%       \textbf{By hand} & \textbf{In Rocq, every step checked} \\ \hline
+%       \code{map double . cata conquer . ana divide} &
+%         \code{map double \textbackslash o cata conquer \textbackslash o ana
+%         divide} \\
+%       \uncover<2->{\calcstep{fusion: doubling moves into \code{conquer}}} &
+%         \uncover<2->{\calcstep{\code{map\_conquer\_fusion}: side condition
+%         proved once}} \\
+%       \uncover<2->{\code{cata conquer2 . ana divide}} &
+%         \uncover<2->{\code{cata (conquer \textbackslash o double\_pivot)
+%         \textbackslash o ana divide}} \\
+%       \uncover<3->{\calcstep{deforestation: no tree is built}} &
+%         \uncover<3->{\calcstep{\code{hylo\_ana}, \code{deforest}: side
+%         condition proved here}} \\
+%       \uncover<3->{\code{hylo conquer2 divide}} &
+%         \uncover<3->{\code{hylo (conquer \textbackslash o double\_pivot)
+%         divide}} \\
+%       \uncover<4->{\hspace*{3mm}\textcolor{black!55}{(left to the
+%         compiler)}} &
+%         \uncover<4->{\calcstep{\code{hylo\_cps\_hylo}: continuation-passing
+%         style, no closures}} \\
+%       & \uncover<4->{\code{hylo\_cps (conquer \textbackslash o double\_pivot)
+%         divide\_k}} \\
+%     \end{tabular}
+%   \end{center}
+%   \begin{onlyenv}<5->
+%     \rocqblock[before upper = {\fvset{fontsize = \footnotesize}}]{double-pivot.v}
+%     \code{conquer \textbackslash o double\_pivot} is the manual
+%     calculation's \code{conquer2}.
+%   \end{onlyenv}
+%   \par
+%   \speakernote{Same calculation as Part I: the terms, and the law between
+%     each two \\
+%     Same specification on both sides (qsort = cata conquer . ana divide) \\
+%     Fusion: Lmap\_merge is Part I's side condition, proved once \\
+%     No tree: hylo\_ana, deforest; l\_out\_in proved on the spot \\
+%     Clean code: new in Rocq, for extraction (CPS) \\
+%     double\_pivot: natural (nt\_shape id times\_two) in the library; a
+%     container morphism, identity on positions, so it commutes with fmap}
+% \end{frame}
 
-\begin{frame*}[vertical-alignment = top]
-  \frametitle{Quicksort: What Comes Out}
-  \vspace*{4mm}
-  \ocamlblock[before upper = {\fvset{fontsize = \footnotesize}}]{qsort2.ml}
-  \par\medskip
-  The last line, extracted: \textbf{one pass}, doubling each pivot. No
-  closures: the hand-calculated program, now with a proof.
+\begin{frame*}
+  \frametitle{Extracting \code{qsort\_double}}
+  \ocamlblock{qsort2.ml}
   \obstacle{solves obstacle: clean code}
   \speakernote{Real extraction output, renamed to the talk's names \\
     Point at the pivot: \code{mul 2 i} \\
@@ -410,12 +418,16 @@
 \end{frame*}
 
 \begin{frame*}[vertical-alignment = top]
-  \frametitle{A False Side Condition, Caught}
+  \frametitle{A False Side Condition}
   \vspace*{4.5mm}
   Specification: \code{qsort . map negate}. Fusion moves \code{map negate}
-  into the divide step: \code{hylo conquer divide . map negate = hylo
-  conquer divide2}, if \code{divide . map negate = fmap (map negate) .
-  divide2}. Choose \code{divide2 = divide} (wrong), and Rocq leaves:
+  into the divide step:\par
+  {\centering\small
+    \begin{tabular}{@{}r@{\quad}l@{}}
+      & \code{hylo conquer divide . map negate = hylo conquer divide2} \\
+      if & \code{divide . map negate = fmap (map negate) . divide2} \\
+    \end{tabular}\par}
+  Choose \code{divide2 = divide} (wrong), and Rocq leaves:
   \badblock[before upper = {\fvset{fontsize = \footnotesize}}]{qsort-negate.txt}
   \begin{itemize}
     \item<2-> \textbf{Goal 1}: plain quicksort; the negation
@@ -426,8 +438,7 @@
       \code{[-2]}, \code{[]}; against pivot \code{1}, children \code{[]},
       \code{[-2]}. The right \code{divide2} negates the pivot and compares
       negated values.
-    \item<4-> No proof of goal 2: the calculation never finishes. The
-      PyTorch failure mode, \textbf{caught}.
+    \item<4-> Goal 2 is \textbf{not provable}.
   \end{itemize}
   \speakernote{A Derive as before; specification: negate, then sort \\
     Fusion law: the new divide (divide2) is ours to choose; its side
@@ -511,7 +522,7 @@
 \end{frame}
 
 \begin{frame*}
-  \frametitle{Knapsack: What Comes Out}
+  \frametitle{Extracting the Calculated Knapsack}
   \ocamlblock{knap-simple.ml}
   \simplified
   \par\medskip
