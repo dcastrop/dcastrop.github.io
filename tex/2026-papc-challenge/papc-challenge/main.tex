@@ -1,0 +1,29 @@
+% !LW recipe = make-deck
+% Build: make. Requires LaTeX 2025-11-01+, LuaLaTeX and pygmentize.
+% (The magic comment above makes VS Code's LaTeX Workshop build with make.)
+\DocumentMetadata{
+  lang        = en-GB,
+  pdfstandard = ua-2,
+  tagging     = on,
+}
+\documentclass{ltx-talk}
+
+\input{preamble}
+
+\title{We Have a Challenge for You! A Verified Relational Algebra Library in Lean}
+\author{The Proofs and Programs Club}
+\institute{Royal Holloway, University of London}
+\date{19 November 2026}
+
+\begin{document}
+
+\input{sections/00-challenge}
+\input{sections/01-tables}
+\input{sections/02-queries}
+\input{sections/03-laws}
+\input{sections/04-optimiser}
+\input{sections/05-joins}
+\input{sections/06-beyond}
+\input{sections/07-yours}
+
+\end{document}

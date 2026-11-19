@@ -1,0 +1,65 @@
+% Minimal example of the dcptalk style. Build: lualatex example (twice).
+\DocumentMetadata{
+  lang        = en-GB,
+  pdfstandard = ua-2,
+  tagging     = on,
+}
+\documentclass{ltx-talk}
+\usepackage[fonts = lm, codedir = .]{dcptalk}
+\graphicspath{{images/}}
+
+\title{Talk Title}
+\author{David Castro-Perez}
+\date{Seminar, 2026-10-19}
+
+\begin{document}
+
+\titleframe{Talk Title}{%
+  \authorblock*{David Castro-Perez}{David.CastroPerez@rhul.ac.uk}
+    {RHULLogo.png}{Royal Holloway, University of London}\hfill
+  \authorblock{A. Coauthor}{coauthor@kent.ac.uk}{KentLogo.png}
+    {University of Kent}}{Seminar, 2026-10-19}
+
+\begin{frame}
+  \begin{columns}
+    \begin{column}{0.4\textwidth}
+      \begin{sticky}
+        \textbf{The problem}
+        \begin{itemize}
+          \item one
+          \item two
+        \end{itemize}
+      \end{sticky}
+    \end{column}
+    \begin{column}{0.55\textwidth}
+      \begin{sticky}
+        \textbf{Our work}
+        \begin{itemize}
+          \item three
+        \end{itemize}
+      \end{sticky}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\partframe{Part I}{Something}
+
+\begin{frame*}
+  \frametitle{Code with a callout}
+  \begin{bluebox}
+\begin{Verbatim}[commandchars=\\\{\}]
+Definition f x := x + 1.\tikzmark{def}
+\end{Verbatim}
+  \end{bluebox}
+  \begin{greenbox}
+\begin{Verbatim}
+let f x = x + 1
+\end{Verbatim}
+  \end{greenbox}
+  \callout<2->{11,4}{extracts to OCaml}{def}
+  \popup<3>(40,60){This box appears on the third slide.}
+  \speakernote{Say what \code{f} does; the callout comes on the next
+    click. 50\% of the audience will ask about \emph{this}.}
+\end{frame*}
+
+\end{document}

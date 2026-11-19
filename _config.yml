@@ -286,6 +286,12 @@ defaults:
       layout: talk
       author_profile: true
       share: true
+  # Unlisted decks (no _talks entry): reachable by URL, but kept out of
+  # sitemap.xml, which otherwise lists every PDF under tex/
+  - scope:
+      path: "tex/2026-papc-challenge"
+    values:
+      sitemap: false
 
 
 # Sass/SCSS

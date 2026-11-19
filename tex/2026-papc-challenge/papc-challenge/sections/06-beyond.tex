@@ -1,0 +1,77 @@
+% The goals as Lean statements, design decisions, stretch goals, a summary
+% and further reading
+\begin{frame*}
+  \frametitle{Each Level Ends in a Theorem}
+  {\fvset{fontsize = \footnotesize}\leanblock{goals.lean}}
+  \sketch
+  \worktag{Levels 3--5}
+\end{frame*}
+
+\begin{frame}
+  \frametitle{Your Design Decides How Hard the Proofs Are}
+  \begin{itemize}
+    \item \textbf{Attributes}: named or positional? Names make
+      $R \times S = S \times R$ true.
+    \item \textbf{Values}: one type for all columns, or a type per
+      column?
+    \item \textbf{Bad queries}: rejected when evaluated, or impossible to
+      write?
+    \item \textbf{Relations}: lists, bags or sets?
+    \item \textbf{Conditions}: syntax you can inspect, for the side
+      conditions.
+  \end{itemize}
+  \begin{sticky}[halign = center]
+    No design is right first time: if the proofs hurt, change the
+    definitions.
+  \end{sticky}
+  \slideref{\lnk{fpil-universe} \rfsep \lnk{fpil-pitfalls}}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Beyond Level 5: Bags, NULL, Aggregation, SQL}
+  \begin{itemize}
+    \item \textbf{Bags}: SQL keeps duplicates. Which laws survive?
+    \item \textbf{NULL}: missing values, and three truth values.
+    \item \textbf{Aggregation}: \code{GROUP BY}, \code{COUNT},
+      \code{SUM}.
+    \item \textbf{SQL}: translate a fragment of SQL into your algebra.
+    \item \textbf{Codd's theorem}: the algebra and (safe) first-order
+      logic express the same queries.
+    \item \textbf{Containment}: decide whether a conjunctive query's
+      answers are always among another's.
+  \end{itemize}
+  \slideref{\lnk{fpil-tqex} \rfsep
+    A. K. Chandra, P. M. Merlin. \textbf{Optimal Implementation of Conjunctive Queries in Relational Data Bases}. STOC 1977.}
+  \stretchtag
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Lean You Need, at a Glance}
+  {\centering\renewcommand\arraystretch{1.35}
+    {\headerrow\begin{tabular}{@{}l@{\qquad}>{\raggedright\arraybackslash}p{62mm}@{\qquad}>{\raggedright\arraybackslash}p{46mm}@{}}
+      \hline
+      \textbf{Level} & \textbf{Lean} & \textbf{Read first} \\ \hline
+      1 Tables & structures, inductive types, lists & FPIL 1, 3.5 \\
+      2 Queries & recursion; indexed families & FPIL 7.1--7.3; TPIL 7, 8 \\
+      3 Laws & propositions, tactics, sets & FPIL interludes; TPIL 3--5 \\
+      4 Optimiser & induction on your own types & TPIL 7.6, 8 \\
+      5 Fast joins & arrays, hash maps, equivalence & FPIL 8 \\ \hline
+    \end{tabular}}\par}
+  \slideref{\lnk{fpil} \rfsep \lnk{tpil} \rfsep \lnk{mil}}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Others Did This in Coq: Read Them After Trying}
+  Verified relational databases, in Coq (now Rocq):
+  \begin{itemize}
+    \item G. Malecha, G. Morrisett, A. Shinnar, R. Wisnesky. \emph{Toward a
+      Verified Relational Database Management System}. POPL 2010.
+    \item V. Benzaken, \'E. Contejean, S. Dumbrava. \emph{A Coq
+      Formalization of the Relational Data Model}. ESOP 2014.
+    \item S. Chu, K. Weitz, A. Cheung, D. Suciu. \emph{HoTTSQL: Proving
+      Query Rewrites with Univalent SQL Semantics}. PLDI 2017.
+    \item V. Benzaken, \'E. Contejean. \emph{A Coq Mechanised Formal
+      Semantics for Realistic SQL Queries}. CPP 2019.
+  \end{itemize}
+  For the theory of databases: \lnk{ahv}. Addison-Wesley, 1995.
+\end{frame}

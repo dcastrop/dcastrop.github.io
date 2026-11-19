@@ -1,0 +1,200 @@
+% Level 2: a crash course on relational algebra (named perspective, set
+% semantics), then queries as data, and the Lean they need
+\begin{frame}
+  \frametitle{Six Operators Build Every Query}
+  {\centering\small\renewcommand\arraystretch{1.3}
+    {\headerrow\begin{tabular}{@{}l@{\quad}l@{\quad}>{\raggedright\arraybackslash}p{70mm}@{\quad}l@{}}
+      \hline
+      \textbf{Written} & \textbf{Name} & \textbf{Result} & \textbf{SQL} \\
+      \hline
+      $\sel{p}(R)$ & selection & the rows of $R$ that satisfy condition $p$
+        & \code{WHERE} \\
+      $\proj{A}(R)$ & projection & the rows of $R$, keeping only
+        attributes $A$ & \code{SELECT DISTINCT} \\
+      $\ren{a}{b}(R)$ & renaming & $R$, with attribute $a$ renamed to $b$
+        & \code{AS} \\
+      $R \cup S$ & union & the rows in $R$ or in $S$ (same schema) &
+        \code{UNION} \\
+      $R - S$ & difference & the rows in $R$ but not in $S$ (same schema)
+        & \code{EXCEPT} \\
+      $R \times S$ & product & each row of $R$ with each row of $S$
+        (disjoint schemas) & \code{FROM R, S} \\
+      \hline
+    \end{tabular}}\par}
+  \medskip
+  Each operator takes relations and returns a relation, so operators
+  compose: a query is an expression built from table names and the six
+  operators.
+  \slideref{E. F. Codd. \textbf{A Relational Model of Data for Large Shared Data Banks}. CACM 13(6), 1970. \rfsep
+    \lnk{ahv} (1995; free online).}
+  \crashtag
+\end{frame}
+
+\begin{frame}
+  \frametitle{To Be Precise: A Row Is a Function on Its Schema}
+  Fix a set $\mathcal{A}$ of attributes and a set $\mathcal{V}$ of values.
+  \begin{itemize}
+    \item A \textbf{schema} is a finite set $U \subseteq \mathcal{A}$; a
+      \textbf{row} over $U$ is a function $t : U \to \mathcal{V}$.
+    \item A \textbf{relation} over $U$, written $R : U$, is a finite set of
+      rows over $U$.
+    \item $t[A]$ restricts $t$ to $A \subseteq U$. Rows $t : U$ and
+      $s : V$ \textbf{agree} if $t[U \cap V] = s[U \cap V]$; then
+      $t \cup s$ is a row over $U \cup V$.
+    \item A \textbf{condition} over $U$ is $a = b$ or $a = c$ (attributes
+      $a, b \in U$, value $c$), or $\neg p$, $p \wedge q$, $p \vee q$;
+      $t \models p$ when $t$ satisfies $p$.
+  \end{itemize}
+  This is the \emph{named} perspective. In the \emph{unnamed} one, rows
+  are tuples and attributes are positions.
+  \slideref{\lnk{ahv3}}
+  \crashtag
+\end{frame}
+
+\begin{frame}
+  \frametitle{Each Operator Has a Schema Rule and a Row Rule}
+  {\centering\renewcommand\arraystretch{1.35}
+    {\headerrow\begin{tabular}{@{}l@{\quad}l@{\quad}l@{\quad}l@{}}
+      \hline
+      \textbf{Query} & \textbf{Defined when} & \textbf{Schema} &
+        \textbf{Rows} \\ \hline
+      $\sel{p}(R)$ & $R : U$, $p$ over $U$ & $U$ &
+        $\{t \in R \mid t \models p\}$ \\
+      $\proj{A}(R)$ & $R : U$, $A \subseteq U$ & $A$ &
+        $\{t[A] \mid t \in R\}$ \\
+      $\ren{a}{b}(R)$ & $R : U$, $a \in U$, $b \notin U$ &
+        $(U \setminus \{a\}) \cup \{b\}$ & $\{t \circ \beta \mid t \in R\}$ \\
+      $R \cup S$ & $R, S : U$ & $U$ &
+        $\{t \mid t \in R \text{ or } t \in S\}$ \\
+      $R - S$ & $R, S : U$ & $U$ & $\{t \in R \mid t \notin S\}$ \\
+      $R \times S$ & $R : U$, $S : V$, $U \cap V = \emptyset$ & $U \cup V$ &
+        $\{t \cup s \mid t \in R,\ s \in S\}$ \\ \hline
+    \end{tabular}}\par}
+  \medskip
+  Here $\beta$ maps $b$ to $a$, and every other attribute to itself. The
+  schema rule is a type system for queries; the row rule is their meaning.
+  \slideref{\lnk{ahv4} \rfsep \lnk{ahv5}}
+  \crashtag
+\end{frame}
+
+\begin{frame}
+  \frametitle{Every Other Operator Is Derived from the Six}
+  {\centering\renewcommand\arraystretch{1.35}
+    {\headerrow\begin{tabular}{@{}l@{\quad}l@{\quad}l@{}}
+      \hline
+      \textbf{Operator} & \textbf{Definition} & \textbf{Gives} \\ \hline
+      $R \cap S$ & $R - (R - S)$ & the rows in both \\
+      $R \join_{\theta} S$ & $\sel{\theta}(R \times S)$ & the pairs that
+        satisfy $\theta$ (theta join) \\
+      $R \join S$ & $\proj{U \cup V}(\sel{\vec{a} = \vec{a}'}(R \times
+        \ren{\vec{a}}{\vec{a}'}(S)))$ & the pairs that agree (natural join)
+        \\
+      $R \ltimes S$ & $\proj{U}(R \join S)$ & the rows of $R$ with a
+        partner in $S$ (semijoin) \\
+      $R \div S$ & $\proj{U}(R) - \proj{U}((\proj{U}(R) \times S) - R)$ &
+        what relates to \emph{every} row of $S$ (division) \\ \hline
+    \end{tabular}}\par}
+  \medskip
+  Joins: $R : U$, $S : V$, and $\vec{a}$ lists the shared attributes
+  $U \cap V$, renamed to fresh $\vec{a}'$. Division: $R : U \cup V$,
+  $S : V$. Who attended every session?
+  $\rel{Attended} \div \proj{\att{week}}(\rel{Session})$: nobody, yet.
+  \slideref{\lnk{ahv4} \rfsep \lnk{ahv5}}
+  \crashtag
+\end{frame}
+
+\begin{frame}
+  \frametitle{Each Operator Turns Tables into a Table}
+  {\centering
+    \smalltable{$\sel{\att{dept} = \val{CS}}(\rel{Member})$}{ll}
+      {$\att{name}$ & $\att{dept}$}
+      {Alan & CS \\ Grace & CS}\hspace{10mm}
+    \smalltable{$\proj{\att{name}}(\rel{Attended})$}{l}{$\att{name}$}
+      {Ada \\ Alan \\ Grace}\hspace{10mm}
+    \smalltable{$\rel{Member} \join \rel{Attended}$}{llr}
+      {$\att{name}$ & $\att{dept}$ & $\att{week}$}
+      {Ada & Maths & 1 \\ Alan & CS & 1 \\ Alan & CS & 2 \\
+       Grace & CS & 3}\par}
+  \begin{itemize}
+    \item Projection can shrink a table: Alan attended twice, but appears
+      once.
+    \item The join pairs the rows that agree on $\att{name}$.
+    \item \textbf{Try}: who missed week 2?
+      $\proj{\att{name}}(\rel{Member}) -
+      \proj{\att{name}}(\sel{\att{week} = 2}(\rel{Attended}))$
+  \end{itemize}
+  \crashtag
+\end{frame}
+
+\begin{frame}
+  \frametitle{What Relational Algebra Can and Cannot Express}
+  \begin{itemize}
+    \item \textbf{Can}: exactly the domain-independent queries of
+      first-order logic over the tables (\emph{Codd's theorem}).
+    \item With only $\sigma$, $\pi$, $\join$ and equalities joined by
+      $\wedge$: the \textbf{conjunctive queries}, roughly SQL's
+      \code{SELECT}--\code{FROM}--\code{WHERE}. Whether one is contained
+      in another is decidable (and NP-complete).
+    \item Every operator except $-$ is \textbf{monotone}: more rows in
+      the input never mean fewer rows in the answer.
+    \item \textbf{Cannot}: transitive closure (who can reach whom), or
+      counting. SQL adds \code{WITH RECURSIVE} and \code{GROUP BY}.
+  \end{itemize}
+  \slideref{E. F. Codd. \textbf{Relational Completeness of Data Base Sublanguages}. In Data Base Systems, Prentice Hall, 1972. \rfsep
+    A. K. Chandra, P. M. Merlin. \textbf{Optimal Implementation of Conjunctive Queries in Relational Data Bases}. STOC 1977. \rfsep
+    A. V. Aho, J. D. Ullman. \textbf{The Universality of Data Retrieval Languages}. POPL 1979. \rfsep
+    \lnk{ahv6}}
+  \crashtag
+\end{frame}
+
+\begin{frame*}
+  \frametitle{SQL Is Relational Algebra, Almost}
+  \mainblock{club-query.sql}
+  \[
+    = \proj{\att{name}}\bigl(\sel{\att{dept} = \val{CS} \,\wedge\,
+      \att{topic} = \val{Lists}}(\rel{Member} \join \rel{Attended} \join
+      \rel{Session})\bigr) = \{\text{Alan}\}
+  \]
+  \emph{Almost}: SQL keeps duplicate rows unless you write
+  \code{DISTINCT} (its tables are \emph{bags}), and it has \code{NULL},
+  with conditions of three truth values. Both are stretch goals.
+  \slideref{P. Guagliardo, L. Libkin. \textbf{A Formal Semantics of SQL Queries, Its Validation, and Applications}. PVLDB 11(1), 2017.}
+  \crashtag
+\end{frame*}
+
+\begin{frame}
+  \frametitle{Queries Are Data; Their Meaning Is a Function}
+  {\centering
+    \begin{tikzpicture}[alt = {A query is a tree of operators, that is,
+        data. Evaluating it in a database gives its answer, a relation.},
+      stage/.style = {text width = 40mm, align = center,
+        minimum height = 13mm}]
+      \node[box, stage] (q) {\textbf{a query}\\ a tree of operators};
+      \node[hot, stage, right = 36mm of q] (a) {\textbf{its answer}\\ a
+        relation};
+      \draw[->, very thick] (q) -- node[above, note]
+        {$\mathit{eval}\ \mathit{db}$} (a);
+    \end{tikzpicture}\par}
+  \begin{itemize}
+    \item Queries form an inductive type, with a constructor for each
+      operator; $\mathit{eval}$ follows the row rules, by recursion on
+      queries.
+    \item Conditions are data too, so you can tell which attributes a
+      condition mentions.
+    \item The schema rules say which queries make sense. Check them when
+      evaluating, or index queries by their schema so that bad ones cannot
+      be written.
+  \end{itemize}
+  \slideref{\lnk{fpil-tq}}
+  \leveltag{2}
+\end{frame}
+
+\leanframe{Level 2 Needs Recursion and Indexed Families}{2}{%
+  define inductive types of queries and of conditions &
+    \rds{tpil-ctors, tpil-recdata} \\
+  define \code{eval} by recursion on a query, and say why Lean accepts
+    it & \rds{tpil-match, tpil-structrec} \\
+  index queries by their schema, \code{Query : Schema → Type}, so that bad
+    queries do not type-check & \rds{fpil-indexed, fpil-universe,
+    tpil-families} \\
+}{Then do \lnk{fpil-tq}, with its exercises.}

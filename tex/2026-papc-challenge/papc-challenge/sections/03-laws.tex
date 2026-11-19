@@ -1,0 +1,76 @@
+% Level 3: laws, and the Lean they need
+\begin{frame}
+  \frametitle{Selections Move Down, Under Side Conditions}
+  {\centering\renewcommand\arraystretch{1.25}
+    {\headerrow\begin{tabular}{@{}r@{\quad}l@{\qquad}l@{}}
+      \hline
+      & \textbf{Law} & \textbf{Holds when} \\ \hline
+      1 & $\sel{p}(\sel{q}(R)) = \sel{p \wedge q}(R)$ & always \\
+      2 & $\sel{p}(\sel{q}(R)) = \sel{q}(\sel{p}(R))$ & always \\
+      3 & $\sel{p}(R \cup S) = \sel{p}(R) \cup \sel{p}(S)$ & always \\
+      4 & $\sel{p}(R - S) = \sel{p}(R) - S$ & always \\
+      5 & $\sel{p}(R \times S) = \sel{p}(R) \times S$ & $p$ mentions only
+        attributes of $R$ \\
+      6 & $\sel{p}(R \join S) = \sel{p}(R) \join S$ & $p$ mentions only
+        attributes of $R$ \\ \hline
+    \end{tabular}}\par}
+  \medskip
+  In Lean, each side condition is a \textbf{hypothesis} of the theorem.
+  Without it, law 5 is false: $\sel{\att{week} = 2}$ cannot move onto
+  $\rel{Member}$, which has no $\att{week}$.
+  \slideref{\lnk{ahv6} (section 6.1)}
+  \leveltag{3}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Projections and Joins Have Laws, and Traps}
+  {\centering\renewcommand\arraystretch{1.25}
+    {\headerrow\begin{tabular}{@{}r@{\quad}l@{\qquad}l@{}}
+      \hline
+      & \textbf{Law} & \textbf{Holds when} \\ \hline
+      7 & $\proj{A}(\proj{B}(R)) = \proj{A}(R)$ & $A \subseteq B$ \\
+      8 & $\proj{A}(R \cup S) = \proj{A}(R) \cup \proj{A}(S)$ & always \\
+      9 & $\proj{A}(\sel{p}(R)) = \sel{p}(\proj{A}(R))$ & $p$ mentions
+        only attributes in $A$ \\
+      10 & $R \join S = S \join R$ & attributes are named \\
+      11 & $(R \join S) \join T = R \join (S \join T)$ & always \\ \hline
+    \end{tabular}}\par}
+  \medskip
+  \textbf{Not} a law: $\proj{A}(R - S) = \proj{A}(R) - \proj{A}(S)$.
+  \textbf{Try}: find a counterexample.
+  \slideref{\lnk{ahv6} (section 6.1)}
+  \leveltag{3}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Lists, Bags or Sets: Laws Need the Right Equality}
+  {\centering\renewcommand\arraystretch{1.3}
+    {\headerrow\begin{tabular}{@{}l@{\qquad}c@{\qquad}c@{\qquad}l@{}}
+      \hline
+      & \textbf{Order matters} & \textbf{Duplicates matter} & \textbf{In
+        Lean} \\ \hline
+      list & yes & yes & \code{List} \\
+      bag & no & yes & \code{Multiset} \\
+      set & no & no & \code{Finset} \\ \hline
+    \end{tabular}}\par}
+  \begin{itemize}
+    \item Law 1 holds even for lists; law 10 only up to reordering;
+      $R \cup R = R$ only for sets.
+    \item Relational algebra is about sets: start with lists if you like,
+      but the laws need set equality.
+  \end{itemize}
+  \slideref{\lnk{mil-finset} \rfsep \lnk{ml-finset} \rfsep \lnk{ml-multiset}}
+  \leveltag{3}
+\end{frame}
+
+\leanframe{Level 3 Needs Propositions, Tactics and Sets}{3}{%
+  read a proposition as a type, and a proof as a program &
+    \rds{fpil-props, tpil-pat} \\
+  prove equalities with \code{rfl}, \code{rw} and \code{simp} &
+    \rds{tpil-rw, tpil-simp} \\
+  use hypotheses: \code{intro}, \code{exact}, \code{apply}, \code{cases} &
+    \rds{tpil-basic} \\
+  prove facts about lists by \code{induction} & \rds{fpil-tactics} \\
+  prove two sets equal, element by element & \rds{mil-sets, mil-finset} \\
+}{Practise induction and rewriting with the Natural Number Game, on the
+  \lnk{games}.}
