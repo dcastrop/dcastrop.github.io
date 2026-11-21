@@ -568,8 +568,7 @@ class Page:
         n = len(keys)
         return (f'<section class="milestones" aria-labelledby="{hid}">'
                 f'<h2 id="{hid}">Milestones</h2>'
-                f'<p class="ms-intro">Tick each one when Lean accepts your work. '
-                f'Your ticks stay in this browser.</p><ul>{lis}</ul>'
+                f'<p class="ms-intro">Your ticks stay in this browser.</p><ul>{lis}</ul>'
                 f'<p class="ms-progress" data-progress="{" ".join(keys)}">'
                 f'<progress max="{n}" value="0"></progress> '
                 f'<span class="ms-count" aria-live="polite">0 of {n} done</span></p>'
@@ -609,8 +608,7 @@ def level_map():
 
 
 def pdf_list():
-    items = [f'<li><a href="{PDF_BASE}/slides.pdf">The presentation</a> '
-             '</li>']
+    items = [f'<li><a href="{PDF_BASE}/slides.pdf">Introduction to the challenge</a></li>']
     for i in LEVEL:
         items.append(f'<li><a href="{lpdf(i)}">{lname(i)}: '
                      f'{esc(LEVEL[i]["title"])}</a></li>')

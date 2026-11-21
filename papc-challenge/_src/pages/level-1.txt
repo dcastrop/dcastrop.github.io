@@ -25,7 +25,7 @@ learn: read a proposition as a type, and prove an equation by computing | [@tpil
 2. In VS Code, open the Extensions panel, search for **Lean 4**, and install it.
 3. Open a new file (File › New Text File). Click the **∀** at the top right, then Documentation… › Show Setup Guide, and follow the guide: it installs Lean for you.
 
-The guide does the rest, on Windows, macOS and Linux. If you prefer to install by hand, see [lean-lang.org/install](https://lean-lang.org/install/).
+If you prefer to install by hand, see [lean-lang.org/install](https://lean-lang.org/install/).
 
 ### Create your own project, once
 
@@ -46,7 +46,7 @@ From a terminal, `lake new Club` does the same as step 1 ([manual installation](
 - Put the cursor on a line: the **Infoview**, on the right, shows Lean's answer.
 - A red underline is an error: hover over it to read it. A yellow one is a warning, such as a `sorry` still to fill in.
 - `#eval` computes a value; `#check` shows its type.
-- The first time Lean opens a file, it can take a few seconds to answer. Read [@fpil-eval] while you wait.
+- The first time Lean opens a file, it can take a few seconds to answer.
 
 :::
 
@@ -97,7 +97,7 @@ Lean computes with lists; we reason about tables. Definition 1.2 is the bridge b
 
 ### Questions
 
-These are on paper. Try each one before you open its answer.
+Try each one before you open its answer.
 
 ::: q 1.A Write a table as a set
 Write $\rel{Session}$ as a set of pairs. What is $|\rel{Session}|$?

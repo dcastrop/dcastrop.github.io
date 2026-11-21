@@ -44,9 +44,7 @@ Everyone starts at [[1]]. Then come two tracks, which you can take in either ord
 
 @map
 
-The tracks meet at [[6]], which needs both: there, you prove that your programs compute exactly what the laws are about. After it, [[8]] builds on [[7]], and [[9]] can come before or after them.
-
-Each level is a page of short lecture notes. It starts with what you will build and prove, and the book sections to read first. Then comes a little theory to do on paper, with questions and their answers, and then Lean to do on your computer, with exercises and hints. Each level also has milestones to tick, and comes as slides, in PDF.
+The tracks meet at [[6]], which needs both: there, you prove that your programs compute exactly what the laws are about.
 
 ## What you will have built
 
@@ -61,7 +59,7 @@ Each level is a page of short lecture notes. It starts with what you will build 
 
 ## How to start, whenever you like
 
-1. Play the [@nng], in your browser: start with its Tutorial World. There is nothing to install.
+1. Play the [@nng], in your browser: start with its Tutorial World.
 2. Open [[1]]: it shows how to install Lean, what a table is, and how to write your first proof.
 3. Then pick a track, or both.
 
@@ -75,12 +73,12 @@ Tick the milestones on each level page as you go: the map above shows how far yo
 
 @reset
 
-## Slides and references
+## References
 
-- [[laws|Laws at a glance]]: every definition, fact and law of the challenge on one page, with links to where each is proved.
-- The books are [@fpil] and [@tpil], and [@mil] from Level 7 on. Every level links the exact sections to read.
-- For the theory of databases, [@ahv] is free online.
+- [[laws|Laws at a glance]]
+- The books are [@fpil] and [@tpil], and [@mil] from Level 7 on.
+- The theory of databases is in [@ahv].
 
-Each level also comes as slides, in PDF:
+## Slides
 
 @pdfs
