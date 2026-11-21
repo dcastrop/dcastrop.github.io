@@ -1,0 +1,233 @@
+::: glance
+build: difference and intersection, on tables as properties of rows.
+prove: law 4, and that $R \cap S = R - (R - S)$: one half of it needs classical logic.
+learn: prove and use "not": $\neg A$ means "if $A$, then false" | [@tpil-proplogic]
+learn: reason classically: prove $A$ by refuting $\neg A$ | [@tpil-classical]
+:::
+
+::: milestones
+- `Sets.diff` and `Sets.inter` are in your file, and `inter_sub` is accepted.
+- Law 4, for every table (Exercise 3T.1).
+- The classical half of Fact 3T.3 (Exercise 3T.2).
+- `#print axioms` shows you which of your proofs are classical (Exercise 3T.6).
+:::
+
+@toc
+
+::: part theory Difference and intersection
+
+### Difference removes the rows of another table
+
+::: box Definition 3T.1 (Difference, intersection)
+For tables $R$ and $S$ of the same rows: $R - S = \{t \in R \mid t \notin S\}$ and $R \cap S = \{t \in R \mid t \in S\}$.
+:::
+
+Which sessions had nobody? With one-column tables:
+
+$$\pi_1[\rel{Session}] - \pi_2[\rel{Attended}] = \{1, 2, 3, 4\} - \{1, 2, 3\} = \{4\}.$$
+
+In SQL: `EXCEPT` and `INTERSECT`. Read more in [@ahv5].
+
+::: box Law 4
+$\sel{p}(R - S) = \sel{p}(R) - S$.
+:::
+
+::: proof
+For every row $t$:
+$$\begin{aligned}
+t \in \sel{p}(R - S) &\iff t \in R,\ t \notin S \text{ and } p(t) \\
+&\iff t \in \sel{p}(R) \text{ and } t \notin S \\
+&\iff t \in \sel{p}(R) - S.
+\end{aligned}$$
+:::
+
+Law 4 says: to remove rows and then filter, filter first. Note that $S$ is not filtered on the right: filtering it too would also be correct, but it is not needed.
+
+### What "not" means
+
+::: box Definition 3T.2 (Not)
+"Not $A$" means: if $A$, then a contradiction. So $t \notin S$ means: if $t \in S$, then a contradiction.
+:::
+
+So to prove "not $A$", assume $A$ and reach a contradiction; and to use a proof of "not $A$", give it a proof of $A$, and you have a contradiction. Nothing else.
+
+### Intersection comes from difference, classically
+
+::: box Fact 3T.3
+$R \cap S = R - (R - S)$.
+:::
+
+::: proof
+$t \in R - (R - S)$ means: $t \in R$, and not ($t \in R$ and $t \notin S$).
+
+- If $t \in R$ and $t \in S$: then not ($t \in R$ and $t \notin S$), since $t \notin S$ would contradict $t \in S$.
+- If $t \in R$ and not ($t \in R$ and $t \notin S$): then $t \notin S$ is impossible, so **classically** $t \in S$.
+:::
+
+The last step uses: if not-$A$ is impossible, then $A$. It is not provable from Definition 3T.2 alone.
+
+### Constructive and classical
+
+The first half of the proof above *builds* what it claims: from proofs of $t \in R$ and $t \in S$, it makes a proof of the right side. The second half does not: it shows that $t \notin S$ is impossible, and concludes $t \in S$ without ever finding a reason why $t$ is in $S$.
+
+Logic without that step is called *constructive*. Lean is constructive by default, and adds classical logic on request, with two equivalent principles ([@tpil-classical]):
+
+- **Excluded middle**: for every statement $A$, $A$ or not $A$. In Lean: `Classical.em A`.
+- **Proof by contradiction**: if not-$A$ is impossible, then $A$. In Lean: `Classical.byContradiction`.
+
+On the programs track, the question never comes up: whether a row is in a list can be *computed* ([[4f]]), and a computed answer is always yes or no. Tables as properties may be infinite, and then nothing computes membership for you.
+
+### Questions
+
+::: q 3T.A Nothing minus nothing
+Prove $R - R = \emptyset$: no row is in $R - R$.
+
+::: answer
+If $t \in R - R$, then $t \in R$ and $t \notin R$: a contradiction. So no row is in $R - R$.
+:::
+:::
+
+::: q 3T.B Removing a union
+Prove $R - (S \cup T) = (R - S) - T$.
+
+::: answer
+$t \in R - (S \cup T) \iff t \in R$ and not ($t \in S$ or $t \in T$) $\iff t \in R$, $t \notin S$ and $t \notin T$ $\iff t \in (R - S) - T$. The middle step is constructive in both directions: "not ($A$ or $B$)" is the same as "not $A$ and not $B$".
+:::
+:::
+
+::: q 3T.C Is it the other table?
+Is $R - (R - S) = S$?
+
+::: answer
+Not in general: by Fact 3T.3 it is $R \cap S$, which misses the rows of $S$ that are not in $R$. For example, $R = \emptyset$ and $S = \{a\}$.
+:::
+:::
+
+::: q 3T.D Removing an intersection
+Prove $(R - S) \cup (R - T) \subseteq R - (S \cap T)$. Is the other inclusion constructive?
+
+::: answer
+If $t \in R - S$, then $t \in R$, and $t \in S \cap T$ would give $t \in S$, a contradiction; the same for $R - T$. The other inclusion is classical: from $t \in R$ and not ($t \in S$ and $t \in T$), you must decide whether $t \in S$ to know which side $t$ is on. Excluded middle does it.
+:::
+:::
+
+:::
+
+::: part lean Difference, and a classical proof
+
+### Difference and intersection are formulas too
+
+```lean diff.lean
+namespace Sets
+def diff {α : Type} (R S : Table α) : Table α :=
+  fun t => R t ∧ ¬ S t
+
+def inter {α : Type} (R S : Table α) : Table α :=
+  fun t => R t ∧ S t
+end Sets
+```
+
+- Put this after your code of [[2t]]: `Table` and `select` come from there.
+- `¬ A` is `A → False`: a function that turns a proof of `A` into a proof of `False`, which has no proof. Type `¬` as `\not`.
+
+### Half of Fact 3T.3, with no classical logic
+
+```lean first.lean
+-- Inside namespace Sets: one half of Fact 3T.3
+theorem inter_sub {α : Type} (R S : Table α) (t : α) :
+    inter R S t → diff R (diff R S) t :=
+  fun ⟨hr, hs⟩ => ⟨hr, fun ⟨_, hns⟩ => hns hs⟩
+```
+
+- `fun ⟨hr, hs⟩ => …` takes the pair apart: `hr` proves `R t`, and `hs` proves `S t`.
+- The second half of the answer proves a `¬`: it receives a proof of `diff R S t`, whose `hns : ¬ S t` meets `hs`. `hns hs` is the contradiction, a proof of `False`.
+
+### Your turn: law 4, and the classical half
+
+```lean exercises.lean
+-- Inside namespace Sets: law 4
+theorem select_diff {α : Type} (p : α → Prop) (R S : Table α) (t : α) :
+    select p (diff R S) t ↔ diff (select p R) S t :=
+  sorry
+
+-- The other half of Fact 3T.3: this one needs classical logic
+theorem diff_diff_sub {α : Type} (R S : Table α) (t : α) :
+    diff R (diff R S) t → inter R S t :=
+  sorry
+```
+
+::: ex 3T.1 lean Law 4
+Prove `select_diff`.
+
+::: hint
+Unfolded: `(R t ∧ ¬ S t) ∧ p t ↔ (R t ∧ p t) ∧ ¬ S t`. No classical logic: the `¬ S t` is only moved around, like any other proof.
+:::
+:::
+
+::: ex 3T.2 lean The classical half
+Prove `diff_diff_sub`, with `Classical.byContradiction : (¬ A → False) → A`.
+
+::: hint Hint 1
+Start with `fun ⟨hr, hn⟩ => ⟨hr, _⟩`. Here `hn : ¬ diff R S t`, and `_` must prove `S t`.
+:::
+
+::: hint Hint 2
+`Classical.byContradiction (fun hns => _)`: now `hns : ¬ S t`, and `_` must prove `False`. Give `hn` a proof of `diff R S t`.
+:::
+:::
+
+### More exercises
+
+```lean more.lean
+-- Inside namespace Sets
+theorem diff_self {α : Type} (R : Table α) (t : α) :
+    diff R R t ↔ False :=
+  sorry
+
+theorem diff_union {α : Type} (R S T : Table α) (t : α) :
+    diff R (union S T) t ↔ diff (diff R S) T t :=
+  sorry
+
+theorem union_diff_sub {α : Type} (R S T : Table α) (t : α) :
+    union (diff R S) (diff R T) t → diff R (inter S T) t :=
+  sorry
+
+theorem diff_inter_sub {α : Type} (R S T : Table α) (t : α) :
+    diff R (inter S T) t → union (diff R S) (diff R T) t :=
+  sorry
+```
+
+::: ex 3T.3 lean Nothing minus nothing
+Prove `diff_self` (Question 3T.A).
+
+::: hint
+From left to right, `fun ⟨h, hn⟩ => hn h`. From right to left, there is nothing to do: `fun h => h.elim`, since `False` has no proof.
+:::
+:::
+
+::: ex 3T.4 lean Removing a union
+Prove `diff_union` (Question 3T.B), with no classical logic.
+:::
+
+::: ex 3T.5 stretch Removing an intersection
+Prove `union_diff_sub` without classical logic. Then prove `diff_inter_sub` (Question 3T.D) with it.
+
+::: hint
+For `diff_inter_sub`: `(Classical.em (S t)).elim (fun hs => …) (fun hns => …)`. If `S t`, then `T t` is impossible, so `t` is in `diff R T`.
+:::
+:::
+
+::: ex 3T.6 lean Which proofs are classical?
+Lean can list the principles a proof uses. Run:
+
+```lean
+#print axioms Sets.inter_sub
+#print axioms Sets.diff_diff_sub
+```
+
+::: answer
+The first uses none. The second lists `Classical.choice`, among others: the principle that classical logic rests on in Lean.
+:::
+:::
+
+:::

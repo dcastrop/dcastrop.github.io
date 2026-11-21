@@ -1,0 +1,193 @@
+::: glance
+build: `toTable`, the table a list represents.
+prove: that your list programs (programs track) compute the operators on tables (proofs track). So every law holds for your lists.
+learn: prove facts about programs by induction | [@fpil-tactics]
+learn: find and use Lean's lemmas about lists, with `simp` | [@tpil-simp]
+learn: split a goal on an `if` | [@tpil-split]
+:::
+
+::: milestones
+- One file holds both tracks, and `toTable_union` is accepted.
+- `select` computes a selection, for every list (Exercise 6.1).
+- `project` computes an image, for every list (Exercise 6.2).
+- Law 1 for lists, from law 1 for tables, with no new induction (Exercise 6.4).
+- A law of your choice, moved from tables to lists the same way (Exercise 6.5).
+:::
+
+@toc
+
+::: part theory Programs that compute tables
+
+### Why the tracks meet here
+
+The programs track built operators on lists, and checked them on examples. The proofs track proved laws about tables, for every table. Neither says that the programs are *right*: that $\mathit{select}$ on a list computes $\sigma$ on the table it represents. This level proves it, once for each operator. Then every law of the proofs track holds for the programs, with no new proof.
+
+### The programs compute the operators
+
+::: box Definition 6.1
+The table of a list $l$ is $\mathit{table}(l) = \{t \mid t \text{ is in } l\}$: the one $l$ represents (Definition 1.2). A condition $p$ with values in $\B$ gives the property "$p(t) = \true$".
+:::
+
+::: box Theorem 6.2
+For all lists $l$ and $m$:
+$$\begin{aligned}
+\mathit{table}(\mathit{select}\ p\ l) &= \sel{p}(\mathit{table}(l)) & \mathit{table}(l \cat m) &= \mathit{table}(l) \cup \mathit{table}(m) \\
+\mathit{table}(\mathit{project}\ f\ l) &= f[\mathit{table}(l)] & \mathit{table}(\mathit{product}\ l\ m) &= \mathit{table}(l) \times \mathit{table}(m)
+\end{aligned}$$
+:::
+
+On the left, the programs of Levels 2F and 3F; on the right, the operators of Levels 2T to 4T. As a picture: going down by the program and then across to the table, or across first and then down by the operator, gives the same table.
+
+$$\begin{array}{ccc}
+l & \xrightarrow{\ \mathit{table}\ } & \mathit{table}(l) \\
+{\scriptstyle \mathit{select}\ p}\big\downarrow & & \big\downarrow{\scriptstyle \sigma_p} \\
+\mathit{select}\ p\ l & \xrightarrow{\ \mathit{table}\ } & \sel{p}(\mathit{table}(l))
+\end{array}$$
+
+### One induction, and every law comes for free
+
+::: proof Proof of Theorem 6.2, for select
+By induction on $l$. For $[\,]$, both sides are empty. For $t :: l$, if $p(t) = \true$, the table of $t :: \mathit{select}\ p\ l$ is $\{t\} \cup \sel{p}(\mathit{table}(l))$, by the induction hypothesis, which is $\sel{p}(\{t\} \cup \mathit{table}(l))$. If $p(t) = \false$, $t$ is dropped on both sides.
+:::
+
+::: box Corollary 6.3
+Every law of Levels 2T to 4T holds for the tables of lists. For example: $\mathit{table}(\mathit{select}\ p\ (\mathit{select}\ q\ l)) = \mathit{table}(\mathit{select}\ (p \wedge q)\ l)$.
+:::
+
+::: proof
+By Theorem 6.2 twice, both sides are $\sel{p}(\sel{q}(\mathit{table}(l)))$ and $\sel{p \wedge q}(\mathit{table}(l))$, equal by law 1.
+:::
+
+Compare with Fact 5T.4, which proved law 1 for lists by a new induction. Corollary 6.3 needs none: Theorem 6.2 does the work once, for every law at the same time.
+
+### Programs that compare rows
+
+$\mathit{diff}$ and $\mathit{dedup}$ ([[4f]]) compare rows with an equality test. They compute the right tables only if the test is right:
+
+::: box Theorem 6.4
+If $\mathit{eq}$ is an equality test (Definition 4F.1), then $\mathit{table}(\mathit{diff}\ l\ m) = \mathit{table}(l) - \mathit{table}(m)$ and $\mathit{table}(\mathit{dedup}\ l) = \mathit{table}(l)$.
+:::
+
+In Lean, "`==` is an equality test" is the class `LawfulBEq`: it holds for `Nat` and `String`, and for every type whose `==` comes from `DecidableEq`.
+
+### Questions
+
+::: q 6.A Union
+Prove Theorem 6.2 for $\cat$.
+
+::: answer
+$t \in \mathit{table}(l \cat m) \iff t$ is in $l \cat m$ $\iff t$ is in $l$ or $t$ is in $m$ $\iff t \in \mathit{table}(l) \cup \mathit{table}(m)$. No induction: the middle step is a fact about appending.
+:::
+:::
+
+::: q 6.B Projection
+Prove Theorem 6.2 for $\mathit{project}$.
+
+::: answer
+By induction on $l$. For $[\,]$, both sides are empty. For $t :: l$: $\mathit{table}(f(t) :: \mathit{project}\ f\ l) = \{f(t)\} \cup f[\mathit{table}(l)]$ by the induction hypothesis, and $f[\{t\} \cup \mathit{table}(l)] = \{f(t)\} \cup f[\mathit{table}(l)]$ by Fact 4T.5.
+:::
+:::
+
+::: q 6.C A broken equality test
+With the broken test of Question 4F.D, find $l$ and $m$ with $\mathit{table}(\mathit{diff}\ l\ m) \neq \mathit{table}(l) - \mathit{table}(m)$.
+
+::: answer
+$l = [1]$ and $m = [2]$: the broken test finds $1$ "in" $m$, so $\mathit{diff}\ l\ m = [\,]$, but $\{1\} - \{2\} = \{1\}$.
+:::
+:::
+
+::: q 6.D Law 3 for lists, for free
+Show $\mathit{table}(\mathit{select}\ p\ (l \cat m)) = \mathit{table}(\mathit{select}\ p\ l \cat \mathit{select}\ p\ m)$ without induction.
+
+::: answer
+By Theorem 6.2, the left side is $\sel{p}(\mathit{table}(l) \cup \mathit{table}(m))$ and the right side is $\sel{p}(\mathit{table}(l)) \cup \sel{p}(\mathit{table}(m))$. They are equal by law 3.
+:::
+:::
+
+:::
+
+::: part lean The two tracks, joined
+
+### One line joins the two tracks
+
+```lean totable.lean
+-- The table a list represents (Definition 1.2)
+def toTable {α : Type} (l : List α) : Sets.Table α :=
+  fun t => t ∈ l
+
+-- Union is appending: your union (3F) computes Sets.union (2T)
+theorem toTable_union {α : Type} (l m : List α) (t : α) :
+    toTable (union l m) t ↔ Sets.union (toTable l) (toTable m) t := by
+  simp [toTable, union, Sets.union]
+```
+
+- One file now holds both tracks: your programs (`select`, `union`, …) and `Sets` (`Sets.select`, …). If you did only one track, copy the other's definitions from [[5t]] and [[2t]] to [[4t]].
+- `simp` knows that `t ∈ l ++ m` means `t ∈ l ∨ t ∈ m`, and finishes ([@tpil-simp]).
+
+### Your turn: select computes a selection
+
+```lean represent.lean
+-- select computes Sets.select, with the condition "p r = true"
+theorem toTable_select {α : Type} (p : α → Bool) (l : List α) (t : α) :
+    toTable (select p l) t ↔
+      Sets.select (fun r => p r = true) (toTable l) t := by
+  sorry
+```
+
+::: ex 6.1 lean Theorem 6.2 for select
+Induction on `l`; in the `cons` case, `cases h : p row`. Unfold with `simp [toTable, select, Sets.select, h] at ih ⊢`, then finish with `ih` and logic ([[2t]]).
+
+::: hint
+`at ih ⊢` simplifies the induction hypothesis and the goal together, so that they match. If a goal remains, read it in the Infoview: it is usually "`t = row` or …", and `ih` covers the "…".
+:::
+:::
+
+### Your turn: project computes an image
+
+```lean project.lean
+-- project computes Sets.image
+theorem toTable_project {α β : Type} (f : α → β) (l : List α) (s : β) :
+    toTable (project f l) s ↔ Sets.image f (toTable l) s := by
+  sorry
+```
+
+::: ex 6.2 lean Theorem 6.2 for project
+The same, for `project`: the `∃` of [[4t]] comes back (Question 6.B).
+
+::: hint
+In the `cons` case, aim for the goal `f row = s ∨ ∃ t, t ∈ rest ∧ f t = s`: its right side is what `ih` is about. `simp [toTable, project, Sets.image] at ih ⊢` goes most of the way.
+:::
+:::
+
+::: ex 6.3 stretch Product, and difference
+Theorem 6.2 for `product`; and Theorem 6.4 for `diff`, assuming `[BEq α] [LawfulBEq α]`, so that `==` is equality.
+
+::: hint
+For `product`, use `toTable_project` inside the induction. For `diff`, find the lemma that relates `List.contains` and `∈` with [@loogle].
+:::
+:::
+
+### Your turn: a law for lists, with no new induction
+
+```lean law.lean
+-- Law 1 for lists, as tables (Corollary 6.3): no new induction
+theorem toTable_select_select {α : Type} (p q : α → Bool)
+    (l : List α) (t : α) :
+    toTable (select p (select q l)) t ↔
+      toTable (select (fun r => p r && q r) l) t := by
+  sorry
+```
+
+::: ex 6.4 lean Corollary 6.3
+Start with `simp only [toTable_select, Sets.select]`, then finish with logic, or with your `Sets.select_select`.
+:::
+
+::: ex 6.5 lean A law of your choice
+Pick another law of Levels 2T to 4T, and prove it for lists the same way: state it with `toTable`, rewrite with Theorem 6.2, and use the law.
+
+::: hint
+Law 3 is a good first choice (Question 6.D): `toTable (select p (union l m)) t ↔ toTable (union (select p l) (select p m)) t`.
+:::
+:::
+
+:::

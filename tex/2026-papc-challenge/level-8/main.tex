@@ -1,0 +1,106 @@
+% !LW recipe = make-deck
+% Level 8 (after the tracks meet): an optimiser. Theory: query trees
+% rewritten by laws; what a correct optimiser is. Lean: a goal theorem.
+% Build: make (rules in ../common/deck.mk).
+\DocumentMetadata{
+  lang        = en-GB,
+  pdfstandard = ua-2,
+  tagging     = on,
+}
+\documentclass{ltx-talk}
+
+\input{preamble}
+
+\title{Level 8: An Optimiser}
+\author{The Proofs and Programs Club}
+\institute{Royal Holloway, University of London}
+
+\begin{document}
+
+\leveltitle{8}{An Optimiser}{After the tracks meet: leans on TPIL}
+  {After \levellink{7}}{Next: \levellink{9}, if you have not done it}
+
+\levelframe{8}{Level 8 at a Glance}{%
+  \code{optimise}, a function from queries to queries.}{%
+  that \code{optimise q} and \code{q} have the same answer, on every
+  database.}{%
+  write recursive functions from queries to queries &
+    \rds{tpil-structrec} \\
+  prove by induction on a query, one case for each constructor &
+    \rds{tpil-indtac, fpil-indother} \\
+  write proofs that follow your function's cases & \rds{tpil-funind} \\
+  prove termination when the recursion is not structural &
+    \rds{tpil-wf} \\
+}
+
+% ---------------------------------------------------------------- theory
+\theorypart{Query trees, rewritten by the laws}
+\begin{frame}
+  \frametitle{An Optimiser Rewrites Query Trees by the Laws}
+  {\centering
+    \begin{tikzpicture}[alt = {Two query trees with the same answer, where
+        p is dept equals CS and q is topic equals Lists. Before: project
+        name, over select p and q, over the join of (Member join Attended)
+        with Session. After laws 1, 6 and 10: project name, over the join
+        of (select p of Member, joined with Attended) with (select q of
+        Session). The selections now sit next to the tables.},
+      every node/.style = {inner sep = 2pt},
+      tbl/.style = {font = \itshape},
+      level distance = 9mm,
+      level 2/.style = {sibling distance = 32mm},
+      level 3/.style = {sibling distance = 22mm},
+      level 4/.style = {sibling distance = 20mm},
+      edge from parent/.style = {draw, black!50, thick}]
+      \node at (0, 0) {$\proj{\att{name}}$}
+        child {node {$\sel{p \wedge q}$}
+          child {node {$\join$}
+            child {node {$\join$}
+              child {node[tbl] {Member}}
+              child {node[tbl] {Attended}}}
+            child {node[tbl] {Session}}}};
+      \node at (9.6, 0) {$\proj{\att{name}}$}
+        child {node {$\join$}
+          child {node {$\join$}
+            child {node {$\sel{p}$}
+              child {node[tbl] {Member}}}
+            child {node[tbl] {Attended}}}
+          child {node {$\sel{q}$}
+            child {node[tbl] {Session}}}};
+      \draw[->, very thick, accent] (2.4, -1.8) -- node[above, note]
+        {laws 1, 6, 10} (5.8, -1.8);
+    \end{tikzpicture}\par}
+  \medskip
+  With $p$: $\att{dept} = \val{CS}$ and $q$: $\att{topic} = \val{Lists}$.
+  A query is a term (Definition 5F.3), drawn as a tree. Same answer, but
+  only CS members and the Lists session reach the joins.
+  \theorytag{8}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A Correct Optimiser Never Changes an Answer}
+  \defn{Definition 8.1 (Correct optimiser)}{An \emph{optimiser} is a
+    function $\mathit{opt}$ from queries to queries. It is \emph{correct}
+    if $\lBrack \mathit{opt}(q) \rBrack = \lBrack q \rBrack$
+    for every query $q$ and every database (Definition 5F.4).}
+  \begin{itemize}
+    \item To prove it: induction on $q$, one case for each operator, as on
+      lists in Levels 5T and 6.
+    \item In each case, the rewrite is one of the laws of Level 7, and the
+      law's side condition is exactly what $\mathit{opt}$ must check before
+      it rewrites.
+  \end{itemize}
+  \theorytag{8}
+\end{frame}
+
+% ---------------------------------------------------------------- Lean
+\leanpart{A correct optimiser}
+\begin{frame*}
+  \frametitle{Definition 8.1 in Lean Is One Theorem}
+  \leanblock{goal.lean}
+  \sketch
+  Prove it by induction on \code{q}, using your laws of Level 7. Start
+  small: an optimiser that only merges two selections into one (law 1).
+  \leantag{8}
+\end{frame*}
+
+\end{document}

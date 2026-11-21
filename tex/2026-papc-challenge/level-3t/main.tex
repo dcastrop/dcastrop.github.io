@@ -1,0 +1,117 @@
+% !LW recipe = make-deck
+% Level 3T (proofs track, TPIL): difference, proved. Theory: difference,
+% intersection, law 4, and a fact with a classical step. Lean: ¬, and
+% classical logic.
+% Build: make (rules in ../common/deck.mk).
+\DocumentMetadata{
+  lang        = en-GB,
+  pdfstandard = ua-2,
+  tagging     = on,
+}
+\documentclass{ltx-talk}
+
+\input{preamble}
+
+\title{Level 3T: Difference, Proved}
+\author{The Proofs and Programs Club}
+\institute{Royal Holloway, University of London}
+
+\begin{document}
+
+\leveltitle{3T}{Difference, Proved: ``Not'', and Classical Logic}
+  {Proofs track: follows TPIL}{After \levellink{2t}}
+  {Next: \levellink{4t}}
+
+\levelframe{3T}{Level 3T at a Glance}{%
+  difference and intersection, on tables as properties of rows.}{%
+  law 4, and that $R \cap S = R - (R - S)$: one half of it needs
+  classical logic.}{%
+  prove and use ``not'': $\neg A$ means ``if $A$, then false'' &
+    \rds{tpil-proplogic} \\
+  reason classically: prove $A$ by refuting $\neg A$ &
+    \rds{tpil-classical} \\
+}
+
+% ---------------------------------------------------------------- theory
+\theorypart{Difference and intersection}
+
+\begin{frame}
+  \frametitle{Difference Removes the Rows of Another Table}
+  \defn{Definition 3T.1 (Difference, intersection)}{For tables $R$ and
+    $S$ of the same rows: $R - S = \{t \in R \mid t \notin S\}$ and
+    $R \cap S = \{t \in R \mid t \in S\}$.}
+  Which sessions had nobody? With one-column tables:
+  \[
+    \pi_1[\rel{Session}] - \pi_2[\rel{Attended}] = \{1, 2, 3, 4\} - \{1,
+    2, 3\} = \{4\}.
+  \]
+  \defn{Law 4}{$\sel{p}(R - S) = \sel{p}(R) - S$.}
+  \emph{Proof.} $t \in \sel{p}(R - S) \iff t \in R$, $t \notin S$ and
+  $p(t)$ $\iff t \in \sel{p}(R)$ and $t \notin S$ $\iff t \in \sel{p}(R)
+  - S$. \proofend
+  \slideref{\lnk{ahv5}}
+  \theorytag{3T}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Intersection Comes from Difference, Classically}
+  \defn{Definition 3T.2 (Not)}{``Not $A$'' means: if $A$, then a
+    contradiction. So $t \notin S$ means: if $t \in S$, then a
+    contradiction.}
+  \defn{Fact 3T.3}{$R \cap S = R - (R - S)$.}
+  \emph{Proof.} $t \in R - (R - S)$ means: $t \in R$, and not ($t \in R$
+  and $t \notin S$).
+  \begin{itemize}
+    \item If $t \in R$ and $t \in S$: then not ($t \in R$ and
+      $t \notin S$), since $t \notin S$ would contradict $t \in S$.
+    \item If $t \in R$ and not ($t \in R$ and $t \notin S$): then
+      $t \notin S$ is impossible, so \textbf{classically} $t \in S$.
+      \proofend
+  \end{itemize}
+  The last step uses: if not-$A$ is impossible, then $A$. It is not
+  provable from Definition 3T.2 alone.
+  \theorytag{3T}
+\end{frame}
+
+% ---------------------------------------------------------------- Lean
+\leanpart{Difference, and a classical proof}
+
+\begin{frame*}
+  \frametitle{Difference and Intersection Are Formulas Too}
+  \leanblock{diff.lean}
+  \begin{itemize}
+    \item Put this after your code of Level 2T: \code{Table} and
+      \code{select} come from there.
+    \item \code{¬ A} is \code{A → False}: a function that turns a proof
+      of \code{A} into a proof of \code{False}, which has no proof.
+  \end{itemize}
+  \slideref{\lnk{tpil-proplogic}}
+  \leantag{3T}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Half of Fact 3T.3, with No Classical Logic}
+  \leanblock{first.lean}
+  \begin{itemize}
+    \item \code{fun ⟨hr, hs⟩ => \ldots} takes the pair apart: \code{hr}
+      proves \code{R t}, and \code{hs} proves \code{S t}.
+    \item The second half of the answer proves a \code{¬}: it receives a
+      proof of \code{diff R S t}, whose \code{hns : ¬ S t} meets
+      \code{hs}.
+  \end{itemize}
+  \slideref{\lnk{tpil-proplogic}}
+  \leantag{3T}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Your Turn: Law 4, and the Classical Half}
+  \leanblock{exercises.lean}
+  \begin{itemize}
+    \item \ex{3T.1} Law 4. \ex{3T.2} The classical half, with
+      \code{Classical.byContradiction : (¬ A → False) → A}.
+  \end{itemize}
+  \slideref{\lnk{tpil-classical}}
+  \leantag{3T}
+\end{frame*}
+
+\end{document}

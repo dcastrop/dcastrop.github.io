@@ -1,0 +1,176 @@
+::: glance
+build: a hash join and a sort-merge join, on arrays or lists.
+prove: that each computes exactly the join of [[4f]].
+learn: program with `Array`, and show Lean that loops terminate | [@fpil-arrays] · [@fpil-arrterm]
+learn: prove a fast function equal to a simple one | [@fpil-tail] · [@fpil-equiv]
+learn: use `Std.HashMap`, with `Hashable` keys | [@fpil-hash]
+learn: prove equality up to order and duplicates | [@mil-finset] · [@ml-multiset]
+:::
+
+::: milestones
+- `hashJoin` runs, and finds the same four pairs as `joinOn` (Exercise 9.1).
+- `joinOn` is proved to compute the join, as in [[6]] (Exercise 9.2).
+- `hashJoin_correct` (Exercise 9.3).
+- A second fast join, sort-merge, proved correct (Exercise 9.4).
+:::
+
+@toc
+
+::: part theory Fast joins, and when they are correct
+
+### Fast joins must compute the same table
+
+- **The definition**, as a program: for each row of $R$, for each row of $S$, keep the pairs whose keys agree. That is your `joinOn` of [[4f]]: about $|R| \cdot |S|$ steps.
+- **Hash join**: put the rows of $S$ in a hash map, by key; then look up the partners of each row of $R$. About $|R| + |S|$ steps, plus one for each row of the answer.
+- **Sort-merge join**: sort both tables by key, then walk through the two in step, as when merging two sorted lists.
+
+With a thousand rows on each side, that is a million steps against a few thousand. Every database implements several join algorithms, and picks one for each query ([@ahv6], section 6.1).
+
+::: note
+"Future users of large data banks must be protected from having to know how the data is organized in the machine." E. F. Codd, 1970 ([A Relational Model of Data for Large Shared Data Banks](https://doi.org/10.1145/362384.362685)).
+:::
+
+### A correct join algorithm represents the join
+
+::: box Definition 9.1 (Correct join algorithm)
+A function $J$ from two lists to a list is a *correct join* if, whenever $l$ represents $R$ and $m$ represents $S$ (Definition 1.2), $J(l, m)$ represents $R \join_{k_1 = k_2} S$ (Definition 4F.5).
+:::
+
+- The order in which a hash join finds rows does not matter: only the table its list represents.
+- That is Codd's point: how the data is stored and searched is free to change; the answer is not.
+
+### Hash join, on paper
+
+Write $\mathit{index}(k)$ for the rows $s$ of $m$ with $k_2(s) = k$: what the hash map returns for the key $k$. Then
+
+$$\mathit{hashJoin}(l, m) = [\,(t, s) \mid t \text{ in } l,\ s \text{ in } \mathit{index}(k_1(t))\,].$$
+
+::: box Theorem 9.2
+If $\mathit{index}(k)$ represents $\{s \in \mathit{table}(m) \mid k_2(s) = k\}$ for every key $k$, then $\mathit{hashJoin}$ is a correct join.
+:::
+
+::: proof
+$(t, s)$ is in $\mathit{hashJoin}(l, m)$ $\iff$ $t$ is in $l$ and $s$ is in $\mathit{index}(k_1(t))$ $\iff$ $t$ is in $l$, $s$ is in $m$ and $k_2(s) = k_1(t)$ $\iff$ $(t, s) \in \mathit{table}(l) \join_{k_1 = k_2} \mathit{table}(m)$.
+:::
+
+So the whole proof rests on one fact about the hash map: a lookup finds *exactly* the rows with that key. That is a theorem about `Std.HashMap`, and it needs the key's `==` and `hash` to agree.
+
+### Questions
+
+::: q 9.A Count the steps
+How many pairs of rows does `joinOn` compare on $\rel{Attended}$ and $\rel{Session}$? How many lookups does a hash join make?
+
+::: answer
+$4 \cdot 4 = 16$ comparisons. A hash join inserts the 4 sessions, then makes 4 lookups, one for each attendance.
+:::
+:::
+
+::: q 9.B Why not the same list?
+Why does Definition 9.1 ask for the same *table*, not the same list as `joinOn`?
+
+::: answer
+A hash map does not keep rows in the order they were inserted, so a hash join may find the pairs in another order. Asking for the same list would rule out every fast join; asking for the same table is what a user can see.
+:::
+:::
+
+::: q 9.C A broken hash
+What goes wrong if two equal keys can have different hashes?
+
+::: answer
+A lookup searches only the bucket of the key's hash, so it can miss rows whose equal key was stored under another hash. The join then loses pairs, and is no longer correct. In Lean, the class `LawfulHashable` rules this out.
+:::
+:::
+
+:::
+
+::: part lean A correct hash join
+
+### A hash join, in Lean
+
+```lean hashjoin.lean
+import Std.Data.HashMap
+open Std
+
+-- The rows of s, grouped by key
+def buildIndex {β κ : Type} [BEq κ] [Hashable κ] (k₂ : β → κ)
+    (s : List β) : HashMap κ (List β) :=
+  s.foldl (fun m b => m.insert (k₂ b) (b :: m.getD (k₂ b) [])) {}
+
+def hashJoin {α β κ : Type} [BEq κ] [Hashable κ] (k₁ : α → κ) (k₂ : β → κ)
+    (r : List α) (s : List β) : List (α × β) :=
+  let index := buildIndex k₂ s
+  r.flatMap (fun a => (index.getD (k₁ a) []).map (fun b => (a, b)))
+```
+
+- `import` lines go at the very top of the file.
+- `m.getD k d` looks up the key `k`, with the default `d` when it is absent. `flatMap` applies a function that returns a list to each row, and appends the results.
+
+::: ex 9.1 lean Run it
+`#eval hashJoin (fun a => a.2) (fun s => s.1) attended session`, and compare with `joinOn` of [[4f]]: the same four pairs, maybe in another order.
+:::
+
+### Definition 9.1 in Lean is one theorem
+
+```lean goal.lean (sketch)
+-- The hash join computes the join
+theorem hashJoin_correct {α β κ : Type} [BEq κ] [LawfulBEq κ] [Hashable κ]
+    [LawfulHashable κ] (k₁ : α → κ) (k₂ : β → κ) (r : List α) (s : List β)
+    (x : α × β) :
+    x ∈ hashJoin k₁ k₂ r s ↔ x ∈ joinOn k₁ k₂ r s := by sorry
+```
+
+The statement compares the tables the two lists represent, element by element, as `toTable` did in [[6]]. Start from your `joinOn` of [[4f]], proved correct first.
+
+::: ex 9.2 lean joinOn is the join
+Assuming `[LawfulBEq κ]`, prove that `joinOn` computes the join: `x ∈ joinOn k₁ k₂ r s ↔ x.1 ∈ r ∧ x.2 ∈ s ∧ k₁ x.1 = k₂ x.2`, with your theorems of [[6]] for `select` and `product`.
+:::
+
+::: ex 9.3 lean The hash join is correct
+Prove `hashJoin_correct`. First prove the property of Theorem 9.2 for `buildIndex`: `b ∈ (buildIndex k₂ s).getD k [] ↔ b ∈ s ∧ k₂ b = k`.
+
+::: hint
+`buildIndex` is a `foldl`, so prove a more general statement, about `foldl` from any starting map, by induction on `s`. The lemmas you need about `getD` after `insert` are in `Std.HashMap`: find them with [@loogle].
+:::
+:::
+
+::: ex 9.4 stretch Sort-merge join
+Write a sort-merge join on `Array`, and prove it correct the same way. You will need to show Lean that the merge loop terminates ([@fpil-arrterm]), and that sorting keeps the same rows ([@fpil-insort]).
+:::
+
+:::
+
+::: part beyond Stretch goals
+
+### What relational algebra can and cannot express
+
+- **Can**: exactly the domain-independent queries of first-order logic over the tables (*Codd's theorem*).
+- With only $\sigma$, $\pi$, $\join$ and equalities joined by $\wedge$: the **conjunctive queries**, roughly SQL's `SELECT`–`FROM`–`WHERE`. Whether one is contained in another is decidable (and NP-complete).
+- Every operator except $-$ is **monotone**: more rows in the input never mean fewer rows in the answer (Exercise 4T.7 proves it for selection).
+- **Cannot**: transitive closure (who can reach whom), or counting. SQL adds `WITH RECURSIVE` and `GROUP BY`.
+
+Read E. F. Codd, *Relational Completeness of Data Base Sublanguages* (1972); A. K. Chandra and P. M. Merlin, *Optimal Implementation of Conjunctive Queries in Relational Data Bases* (STOC 1977); A. V. Aho and J. D. Ullman, *The Universality of Data Retrieval Languages* (POPL 1979); and [@ahv6].
+
+### Beyond Level 9: bags, NULL, aggregation, SQL
+
+Each of these is a challenge on its own. Pick one, and tell us at the club.
+
+- **Bags**: SQL keeps duplicates. Which laws survive? Redo [[7]] with `Multiset` in place of `Finset`.
+- **NULL**: missing values, and three truth values. Which laws break? Start from [@fpil-tqex].
+- **Aggregation**: `GROUP BY`, `COUNT`, `SUM`. What is the meaning of a query that counts?
+- **SQL**: translate a fragment of SQL into your algebra, and prove the translation keeps the meaning.
+- **Codd's theorem**: the algebra and (safe) first-order logic express the same queries.
+- **Containment**: decide whether a conjunctive query's answers are always among another's.
+- **Cost**: give queries a cost, and prove that your optimiser of [[8]] never makes a query more expensive.
+
+### Others did this in Coq: read them after trying
+
+Verified relational databases, in Coq (now Rocq):
+
+- G. Malecha, G. Morrisett, A. Shinnar, R. Wisnesky. *Toward a Verified Relational Database Management System*. POPL 2010.
+- V. Benzaken, É. Contejean, S. Dumbrava. *A Coq Formalization of the Relational Data Model*. ESOP 2014.
+- S. Chu, K. Weitz, A. Cheung, D. Suciu. *HoTTSQL: Proving Query Rewrites with Univalent SQL Semantics*. PLDI 2017.
+- V. Benzaken, É. Contejean. *A Coq Mechanised Formal Semantics for Realistic SQL Queries*. CPP 2019.
+
+For the theory of databases: [@ahv]. Addison-Wesley, 1995.
+
+:::

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Level 6: Lists Represent Tables · PaPC challenge</title>
+<meta name="description" content="Level 6 of the PaPC challenge: Lists Represent Tables.">
+<link rel="icon" href="assets/papc-logo.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simpledotcss@2.3.7/simple.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="assets/challenge.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="assets/challenge.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the content</a>
+<header>
+<p class="club"><a href="https://papc-rhul.github.io/"><img src="assets/papc-logo.png" alt="" width="38" height="48"> The Proofs and Programs Club @ RHUL</a></p>
+<p class="kicker"><span class="chip track-meet">The two tracks meet</span></p><h1><span class="lvl-k">Level 6</span> Lists Represent Tables</h1>
+<nav aria-label="The challenge"><ul><li><a href="index.html">The challenge</a></li><li><a href="index.html#levels">All levels</a></li><li><a href="laws.html">Laws at a glance</a></li></ul></nav>
+</header>
+<main id="main"><p class="crumbs">After <a href="level-5f.html">Level 5F</a> and <a href="level-5t.html">Level 5T</a> · Next: <a href="level-7.html">Level 7</a> or <a href="level-9.html">Level 9</a> · <a href="https://dcastrop.github.io/tex/2026-papc-challenge/level-6/level-6.pdf">Slides (PDF)</a></p><section class="glance" aria-labelledby="at-a-glance"><h2 id="at-a-glance">At a glance</h2><dl><div><dt>You build</dt><dd><code>toTable</code>, the table a list represents.</dd></div><div><dt>You prove</dt><dd>that your list programs (programs track) compute the operators on tables (proofs track). So every law holds for your lists.</dd></div></dl><div class="table-wrap"><table class="reads"><caption>What to learn first, and where</caption><thead><tr><th scope="col">Learn to</th><th scope="col">Read</th></tr></thead><tbody><tr><td>prove facts about programs by induction</td><td><a class="ref" href="https://lean-lang.org/functional_programming_in_lean/Interlude___-Tactics___-Induction___-and-Proofs/#tactics-induction-proofs">FPIL <cite>Interlude: Tactics, Induction, and Proofs</cite></a></td></tr><tr><td>find and use Lean's lemmas about lists, with <code>simp</code></td><td><a class="ref" href="https://lean-lang.org/theorem_proving_in_lean4/Tactics/#using-the-simplifier">TPIL 5.7 <cite>Using the Simplifier</cite></a></td></tr><tr><td>split a goal on an <code>if</code></td><td><a class="ref" href="https://lean-lang.org/theorem_proving_in_lean4/Tactics/#split-tactic">TPIL 5.8 <cite>Split Tactic</cite></a></td></tr></tbody></table></div></section>
+<section class="milestones" aria-labelledby="milestones"><h2 id="milestones">Milestones</h2><p class="ms-intro">Tick each one when Lean accepts your work. Your ticks stay in this browser.</p><ul><li><label><input type="checkbox" data-milestone="6:m1"> <span>One file holds both tracks, and <code>toTable_union</code> is accepted.</span></label></li><li><label><input type="checkbox" data-milestone="6:m2"> <span><code>select</code> computes a selection, for every list (Exercise 6.1).</span></label></li><li><label><input type="checkbox" data-milestone="6:m3"> <span><code>project</code> computes an image, for every list (Exercise 6.2).</span></label></li><li><label><input type="checkbox" data-milestone="6:m4"> <span>Law 1 for lists, from law 1 for tables, with no new induction (Exercise 6.4).</span></label></li><li><label><input type="checkbox" data-milestone="6:m5"> <span>A law of your choice, moved from tables to lists the same way (Exercise 6.5).</span></label></li></ul><p class="ms-progress" data-progress="6:m1 6:m2 6:m3 6:m4 6:m5"><progress max="5" value="0"></progress> <span class="ms-count" aria-live="polite">0 of 5 done</span></p></section>
+<nav class="toc" aria-label="On this page"><details><summary>On this page</summary><ol><li><a href="#at-a-glance">At a glance</a></li><li><a href="#milestones">Milestones</a></li><li><a href="#theory-on-paper">Theory, on paper</a><ol><li><a href="#why-the-tracks-meet-here">Why the tracks meet here</a></li><li><a href="#the-programs-compute-the-operators">The programs compute the operators</a></li><li><a href="#one-induction-and-every-law-comes-for-free">One induction, and every law comes for free</a></li><li><a href="#programs-that-compare-rows">Programs that compare rows</a></li><li><a href="#questions">Questions</a></li></ol></li><li><a href="#lean-on-your-computer">Lean, on your computer</a><ol><li><a href="#one-line-joins-the-two-tracks">One line joins the two tracks</a></li><li><a href="#your-turn-select-computes-a-selection">Your turn: select computes a selection</a></li><li><a href="#your-turn-project-computes-an-image">Your turn: project computes an image</a></li><li><a href="#your-turn-a-law-for-lists-with-no-new-induction">Your turn: a law for lists, with no new induction</a></li></ol></li></ol></details></nav>
+<section class="part part-theory" aria-labelledby="theory-on-paper"><h2 id="theory-on-paper"><span class="part-k">Theory, on paper</span><span class="part-t">Programs that compute tables</span></h2><h3 id="why-the-tracks-meet-here">Why the tracks meet here</h3>
+<p>The programs track built operators on lists, and checked them on examples. The proofs track proved laws about tables, for every table. Neither says that the programs are <em>right</em>: that \(\mathit{select}\) on a list computes \(\sigma\) on the table it represents. This level proves it, once for each operator. Then every law of the proofs track holds for the programs, with no new proof.</p>
+<h3 id="the-programs-compute-the-operators">The programs compute the operators</h3>
+<div class="box def" id="definition-6-1"><p class="box-h"><span class="box-n">Definition 6.1</span></p><p>The table of a list \(l\) is \(\mathit{table}(l) = \{t \mid t \text{ is in } l\}\): the one \(l\) represents (Definition 1.2). A condition \(p\) with values in \(\B\) gives the property "\(p(t) = \true\)".</p></div>
+<div class="box fact" id="theorem-6-2"><p class="box-h"><span class="box-n">Theorem 6.2</span></p><p>For all lists \(l\) and \(m\):</p>
+<div class="math-display">\[\begin{aligned}
+\mathit{table}(\mathit{select}\ p\ l) &amp;= \sel{p}(\mathit{table}(l)) &amp; \mathit{table}(l \cat m) &amp;= \mathit{table}(l) \cup \mathit{table}(m) \\
+\mathit{table}(\mathit{project}\ f\ l) &amp;= f[\mathit{table}(l)] &amp; \mathit{table}(\mathit{product}\ l\ m) &amp;= \mathit{table}(l) \times \mathit{table}(m)
+\end{aligned}\]</div></div>
+<p>On the left, the programs of Levels 2F and 3F; on the right, the operators of Levels 2T to 4T. As a picture: going down by the program and then across to the table, or across first and then down by the operator, gives the same table.</p>
+<div class="math-display">\[\begin{array}{ccc}
+l &amp; \xrightarrow{\ \mathit{table}\ } &amp; \mathit{table}(l) \\
+{\scriptstyle \mathit{select}\ p}\big\downarrow &amp; &amp; \big\downarrow{\scriptstyle \sigma_p} \\
+\mathit{select}\ p\ l &amp; \xrightarrow{\ \mathit{table}\ } &amp; \sel{p}(\mathit{table}(l))
+\end{array}\]</div>
+<h3 id="one-induction-and-every-law-comes-for-free">One induction, and every law comes for free</h3>
+<div class="proof"><p><em>Proof of Theorem 6.2, for select.</em> By induction on \(l\). For \([\,]\), both sides are empty. For \(t :: l\), if \(p(t) = \true\), the table of \(t :: \mathit{select}\ p\ l\) is \(\{t\} \cup \sel{p}(\mathit{table}(l))\), by the induction hypothesis, which is \(\sel{p}(\{t\} \cup \mathit{table}(l))\). If \(p(t) = \false\), \(t\) is dropped on both sides. <span class="qed" role="img" aria-label="End of proof">∎</span></p></div>
+<div class="box fact" id="corollary-6-3"><p class="box-h"><span class="box-n">Corollary 6.3</span></p><p>Every law of Levels 2T to 4T holds for the tables of lists. For example: \(\mathit{table}(\mathit{select}\ p\ (\mathit{select}\ q\ l)) = \mathit{table}(\mathit{select}\ (p \wedge q)\ l)\).</p></div>
+<div class="proof"><p><em>Proof.</em> By Theorem 6.2 twice, both sides are \(\sel{p}(\sel{q}(\mathit{table}(l)))\) and \(\sel{p \wedge q}(\mathit{table}(l))\), equal by law 1. <span class="qed" role="img" aria-label="End of proof">∎</span></p></div>
+<p>Compare with Fact 5T.4, which proved law 1 for lists by a new induction. Corollary 6.3 needs none: Theorem 6.2 does the work once, for every law at the same time.</p>
+<h3 id="programs-that-compare-rows">Programs that compare rows</h3>
+<p>\(\mathit{diff}\) and \(\mathit{dedup}\) (<a href="level-4f.html">Level 4F</a>) compare rows with an equality test. They compute the right tables only if the test is right:</p>
+<div class="box fact" id="theorem-6-4"><p class="box-h"><span class="box-n">Theorem 6.4</span></p><p>If \(\mathit{eq}\) is an equality test (Definition 4F.1), then \(\mathit{table}(\mathit{diff}\ l\ m) = \mathit{table}(l) - \mathit{table}(m)\) and \(\mathit{table}(\mathit{dedup}\ l) = \mathit{table}(l)\).</p></div>
+<p>In Lean, "<code>==</code> is an equality test" is the class <code>LawfulBEq</code>: it holds for <code>Nat</code> and <code>String</code>, and for every type whose <code>==</code> comes from <code>DecidableEq</code>.</p>
+<h3 id="questions">Questions</h3>
+<div class="q" id="q-6-a"><p class="ex-h"><span class="ex-n">Question 6.A</span> <span class="ex-t">Union</span></p><p>Prove Theorem 6.2 for \(\cat\).</p>
+<details class="answer"><summary>Answer</summary><p>\(t \in \mathit{table}(l \cat m) \iff t\) is in \(l \cat m\) \(\iff t\) is in \(l\) or \(t\) is in \(m\) \(\iff t \in \mathit{table}(l) \cup \mathit{table}(m)\). No induction: the middle step is a fact about appending.</p></details></div>
+<div class="q" id="q-6-b"><p class="ex-h"><span class="ex-n">Question 6.B</span> <span class="ex-t">Projection</span></p><p>Prove Theorem 6.2 for \(\mathit{project}\).</p>
+<details class="answer"><summary>Answer</summary><p>By induction on \(l\). For \([\,]\), both sides are empty. For \(t :: l\): \(\mathit{table}(f(t) :: \mathit{project}\ f\ l) = \{f(t)\} \cup f[\mathit{table}(l)]\) by the induction hypothesis, and \(f[\{t\} \cup \mathit{table}(l)] = \{f(t)\} \cup f[\mathit{table}(l)]\) by Fact 4T.5.</p></details></div>
+<div class="q" id="q-6-c"><p class="ex-h"><span class="ex-n">Question 6.C</span> <span class="ex-t">A broken equality test</span></p><p>With the broken test of Question 4F.D, find \(l\) and \(m\) with \(\mathit{table}(\mathit{diff}\ l\ m) \neq \mathit{table}(l) - \mathit{table}(m)\).</p>
+<details class="answer"><summary>Answer</summary><p>\(l = [1]\) and \(m = [2]\): the broken test finds \(1\) "in" \(m\), so \(\mathit{diff}\ l\ m = [\,]\), but \(\{1\} - \{2\} = \{1\}\).</p></details></div>
+<div class="q" id="q-6-d"><p class="ex-h"><span class="ex-n">Question 6.D</span> <span class="ex-t">Law 3 for lists, for free</span></p><p>Show \(\mathit{table}(\mathit{select}\ p\ (l \cat m)) = \mathit{table}(\mathit{select}\ p\ l \cat \mathit{select}\ p\ m)\) without induction.</p>
+<details class="answer"><summary>Answer</summary><p>By Theorem 6.2, the left side is \(\sel{p}(\mathit{table}(l) \cup \mathit{table}(m))\) and the right side is \(\sel{p}(\mathit{table}(l)) \cup \sel{p}(\mathit{table}(m))\). They are equal by law 3.</p></details></div></section>
+<section class="part part-lean" aria-labelledby="lean-on-your-computer"><h2 id="lean-on-your-computer"><span class="part-k">Lean, on your computer</span><span class="part-t">The two tracks, joined</span></h2><h3 id="one-line-joins-the-two-tracks">One line joins the two tracks</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">totable.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="c">-- The table a list represents (Definition 1.2)</span>
+<span class="k">def</span> toTable {α : <span class="ty">Type</span>} (l : <span class="ty">List</span> α) : Sets.Table α :=
+  <span class="k">fun</span> t =&gt; t ∈ l
+
+<span class="c">-- Union is appending: your union (3F) computes Sets.union (2T)</span>
+<span class="k">theorem</span> toTable_union {α : <span class="ty">Type</span>} (l m : <span class="ty">List</span> α) (t : α) :
+    toTable (union l m) t ↔ Sets.union (toTable l) (toTable m) t := <span class="k">by</span>
+  <span class="t">simp</span> [toTable, union, Sets.union]</code></pre></div>
+<ul><li>One file now holds both tracks: your programs (<code>select</code>, <code>union</code>, …) and <code>Sets</code> (<code>Sets.select</code>, …). If you did only one track, copy the other's definitions from <a href="level-5t.html">Level 5T</a> and <a href="level-2t.html">Level 2T</a> to <a href="level-4t.html">Level 4T</a>.</li><li><code>simp</code> knows that <code>t ∈ l ++ m</code> means <code>t ∈ l ∨ t ∈ m</code>, and finishes (<a class="ref" href="https://lean-lang.org/theorem_proving_in_lean4/Tactics/#using-the-simplifier">TPIL 5.7 <cite>Using the Simplifier</cite></a>).</li></ul>
+<h3 id="your-turn-select-computes-a-selection">Your turn: select computes a selection</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">represent.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="c">-- select computes Sets.select, with the condition "p r = true"</span>
+<span class="k">theorem</span> toTable_select {α : <span class="ty">Type</span>} (p : α → <span class="ty">Bool</span>) (l : <span class="ty">List</span> α) (t : α) :
+    toTable (select p l) t ↔
+      Sets.select (<span class="k">fun</span> r =&gt; p r = true) (toTable l) t := <span class="k">by</span>
+  <span class="sorry">sorry</span></code></pre></div>
+<div class="ex" id="ex-6-1"><p class="ex-h"><span class="ex-n">Exercise 6.1</span> <span class="chip lean">In Lean</span> <span class="ex-t">Theorem 6.2 for select</span></p><p>Induction on <code>l</code>; in the <code>cons</code> case, <code>cases h : p row</code>. Unfold with <code>simp [toTable, select, Sets.select, h] at ih ⊢</code>, then finish with <code>ih</code> and logic (<a href="level-2t.html">Level 2T</a>).</p>
+<details class="hint"><summary>Hint</summary><p><code>at ih ⊢</code> simplifies the induction hypothesis and the goal together, so that they match. If a goal remains, read it in the Infoview: it is usually "<code>t = row</code> or …", and <code>ih</code> covers the "…".</p></details></div>
+<h3 id="your-turn-project-computes-an-image">Your turn: project computes an image</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">project.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="c">-- project computes Sets.image</span>
+<span class="k">theorem</span> toTable_project {α β : <span class="ty">Type</span>} (f : α → β) (l : <span class="ty">List</span> α) (s : β) :
+    toTable (project f l) s ↔ Sets.image f (toTable l) s := <span class="k">by</span>
+  <span class="sorry">sorry</span></code></pre></div>
+<div class="ex" id="ex-6-2"><p class="ex-h"><span class="ex-n">Exercise 6.2</span> <span class="chip lean">In Lean</span> <span class="ex-t">Theorem 6.2 for project</span></p><p>The same, for <code>project</code>: the <code>∃</code> of <a href="level-4t.html">Level 4T</a> comes back (Question 6.B).</p>
+<details class="hint"><summary>Hint</summary><p>In the <code>cons</code> case, aim for the goal <code>f row = s ∨ ∃ t, t ∈ rest ∧ f t = s</code>: its right side is what <code>ih</code> is about. <code>simp [toTable, project, Sets.image] at ih ⊢</code> goes most of the way.</p></details></div>
+<div class="ex" id="ex-6-3"><p class="ex-h"><span class="ex-n">Exercise 6.3</span> <span class="chip stretch">Stretch</span> <span class="ex-t">Product, and difference</span></p><p>Theorem 6.2 for <code>product</code>; and Theorem 6.4 for <code>diff</code>, assuming <code>[BEq α] [LawfulBEq α]</code>, so that <code>==</code> is equality.</p>
+<details class="hint"><summary>Hint</summary><p>For <code>product</code>, use <code>toTable_project</code> inside the induction. For <code>diff</code>, find the lemma that relates <code>List.contains</code> and <code>∈</code> with <a class="ref" href="https://loogle.lean-lang.org/"><cite>Loogle</cite></a>.</p></details></div>
+<h3 id="your-turn-a-law-for-lists-with-no-new-induction">Your turn: a law for lists, with no new induction</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">law.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="c">-- Law 1 for lists, as tables (Corollary 6.3): no new induction</span>
+<span class="k">theorem</span> toTable_select_select {α : <span class="ty">Type</span>} (p q : α → <span class="ty">Bool</span>)
+    (l : <span class="ty">List</span> α) (t : α) :
+    toTable (select p (select q l)) t ↔
+      toTable (select (<span class="k">fun</span> r =&gt; p r &amp;&amp; q r) l) t := <span class="k">by</span>
+  <span class="sorry">sorry</span></code></pre></div>
+<div class="ex" id="ex-6-4"><p class="ex-h"><span class="ex-n">Exercise 6.4</span> <span class="chip lean">In Lean</span> <span class="ex-t">Corollary 6.3</span></p><p>Start with <code>simp only [toTable_select, Sets.select]</code>, then finish with logic, or with your <code>Sets.select_select</code>.</p></div>
+<div class="ex" id="ex-6-5"><p class="ex-h"><span class="ex-n">Exercise 6.5</span> <span class="chip lean">In Lean</span> <span class="ex-t">A law of your choice</span></p><p>Pick another law of Levels 2T to 4T, and prove it for lists the same way: state it with <code>toTable</code>, rewrite with Theorem 6.2, and use the law.</p>
+<details class="hint"><summary>Hint</summary><p>Law 3 is a good first choice (Question 6.D): <code>toTable (select p (union l m)) t ↔ toTable (union (select p l) (select p m)) t</code>.</p></details></div></section><section class="next" aria-labelledby="next-h"><h2 id="next-h">Next</h2><ol class="next-cards"><li><a class="lvl lvl-after-t" href="level-7.html" data-progress="7:m1 7:m2 7:m3 7:m4 7:m5"><span class="lvl-id">Level 7</span> <span class="lvl-t">Laws for every query</span><span class="lvl-p"></span></a></li><li><a class="lvl lvl-after-f" href="level-9.html" data-progress="9:m1 9:m2 9:m3 9:m4"><span class="lvl-id">Level 9</span> <span class="lvl-t">Fast joins</span><span class="lvl-p"></span></a></li></ol><p class="stuck">Stuck, or curious? Ask us: on Discord, or any Thursday.</p></section></main>
+<footer>
+<p>The first challenge of the <a href="https://papc-rhul.github.io/">Proofs and Programs Club @ RHUL</a>.</p>
+<p>Your ticked milestones are kept in this browser only.</p>
+</footer>
+</body>
+</html>

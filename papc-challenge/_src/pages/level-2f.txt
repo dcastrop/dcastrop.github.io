@@ -1,0 +1,259 @@
+::: glance
+build: `select`, which keeps the rows of a table that satisfy a condition.
+prove: facts about selections of the club's tables, by computing.
+learn: define a function by cases on a list: empty, or a first row and the rest | [@fpil-data]
+learn: write one function for tables of any row type | [@fpil-poly]
+learn: pass a function, such as a condition, as an argument | [@fpil-fun]
+:::
+
+::: milestones
+- `select` is defined, with no `sorry` left (Exercise 2F.1).
+- `#eval` shows the rows of week 1, and the CS members (Exercises 2F.2 and 2F.3).
+- Lean checks law 1 on an example, by computing (Exercise 2F.4).
+- You can explain why one example does not prove a law (Question 2F.E).
+:::
+
+@toc
+
+::: part theory Conditions, selection, and selection on lists
+
+### A condition says yes or no to each row
+
+Write $\B = \{\true, \false\}$ for the two truth values.
+
+::: box Definition 2F.1 (Condition)
+A *condition* on rows of $D_1 \times D_2$ is a function $p : D_1 \times D_2 \to \B$.
+:::
+
+For example, on $\rel{Member}$ and on $\rel{Attended}$:
+
+$$\mathit{cs}(n, d) = \true \iff d = \text{CS}, \qquad \mathit{late}(n, w) = \true \iff w \geq 2.$$
+
+So $\mathit{cs}(\text{Alan}, \text{CS}) = \true$ and $\mathit{late}(\text{Ada}, 1) = \false$. A condition is a function like any other: a program can take it as an argument.
+
+::: box Definition 2F.2 (Both conditions)
+$(p \wedge q)(t) = \true$ exactly when $p(t) = \true$ and $q(t) = \true$.
+:::
+
+### Selection keeps the rows that satisfy a condition
+
+::: box Definition 2F.3 (Selection)
+For a table $R$ and a condition $p$, $\ \sel{p}(R) = \{t \in R \mid p(t) = \true\}$.
+:::
+
+::: row
+Table: $\sel{\mathit{cs}}(\rel{Member})$
+| $\att{name}$ | $\att{dept}$ |
+|---|---|
+| Alan | CS |
+| Grace | CS |
+
+Table: $\sel{\mathit{late}}(\rel{Attended})$
+| $\att{name}$ | $\att{week}$ |
+|---|--:|
+| Alan | 2 |
+| Grace | 3 |
+:::
+
+A selection never adds rows: $\sel{p}(R) \subseteq R$. In SQL, a selection is a `WHERE` clause: $\sel{\mathit{cs}}(\rel{Member})$ is `SELECT * FROM Member WHERE dept = 'CS'`. Read more in [@ahv4].
+
+### On a list, selection is three equations
+
+A table is a set; a program works on a list that represents it (Definition 1.2). On a list, selection looks at the first row, decides, and goes on with the rest.
+
+::: box Definition 2F.4 (Selection on lists)
+For a condition $p$:
+$$\begin{aligned}
+\mathit{select}\ p\ [\,] &= [\,] \\
+\mathit{select}\ p\ (t :: l) &= t :: \mathit{select}\ p\ l && \text{if } p(t) = \true \\
+\mathit{select}\ p\ (t :: l) &= \mathit{select}\ p\ l && \text{if } p(t) = \false
+\end{aligned}$$
+:::
+
+Here $t :: l$ is the list with first row $t$, then the list $l$. Every non-empty list has this shape, so the equations cover every list. Each step applies one equation:
+
+$$\begin{aligned}
+&\mathit{select}\ \mathit{late}\ [(\text{Ada}, 1), (\text{Alan}, 1), (\text{Alan}, 2), (\text{Grace}, 3)] \\
+={}& \mathit{select}\ \mathit{late}\ [(\text{Alan}, 1), (\text{Alan}, 2), (\text{Grace}, 3)] && \mathit{late}(\text{Ada}, 1) = \false \\
+={}& \mathit{select}\ \mathit{late}\ [(\text{Alan}, 2), (\text{Grace}, 3)] && \mathit{late}(\text{Alan}, 1) = \false \\
+={}& (\text{Alan}, 2) :: \mathit{select}\ \mathit{late}\ [(\text{Grace}, 3)] && \mathit{late}(\text{Alan}, 2) = \true \\
+={}& (\text{Alan}, 2) :: (\text{Grace}, 3) :: \mathit{select}\ \mathit{late}\ [\,] && \mathit{late}(\text{Grace}, 3) = \true \\
+={}& [(\text{Alan}, 2), (\text{Grace}, 3)].
+\end{aligned}$$
+
+This is exactly how Lean runs your program. The answer represents $\sel{\mathit{late}}(\rel{Attended})$, as it should:
+
+::: box Fact 2F.5
+If $l$ represents $R$ (Definition 1.2), then $\mathit{select}\ p\ l$ represents $\sel{p}(R)$.
+:::
+
+[[6]] proves it, for every list. Here, you check it on examples.
+
+### Laws: two questions, one answer
+
+A *law* says that two ways of asking give the same answer, on every table. The first one:
+
+::: box Law 1
+For every table $R$ and conditions $p$ and $q$: $\ \sel{p}(\sel{q}(R)) = \sel{p \wedge q}(R)$.
+:::
+
+Two selections, one after the other, are one selection with both conditions. In this track you check laws on examples, by computing; [[2t]] proves law 1 for every table. Checking is useful, since it catches false laws, but it is not proving: an example is one table, and a law speaks of all of them.
+
+### Questions
+
+::: q 2F.A Compute a selection
+With $\mathit{early}(n, w) = \true \iff w \leq 1$, what is $\sel{\mathit{early}}(\rel{Attended})$?
+
+::: answer
+$\{(\text{Ada}, 1), (\text{Alan}, 1)\}$.
+:::
+:::
+
+::: q 2F.B Extreme conditions
+What is $\sel{p}(R)$ when $p(t) = \true$ for every row $t$? And when $p(t) = \false$ for every row?
+
+::: answer
+$R$ itself, and the empty table $\emptyset$.
+:::
+:::
+
+::: q 2F.C Step by step
+Compute $\mathit{select}\ \mathit{late}\ [(\text{Grace}, 3), (\text{Ada}, 1)]$ with Definition 2F.4, one equation per step.
+
+::: answer
+$\mathit{select}\ \mathit{late}\ [(\text{Grace}, 3), (\text{Ada}, 1)] = (\text{Grace}, 3) :: \mathit{select}\ \mathit{late}\ [(\text{Ada}, 1)] = (\text{Grace}, 3) :: \mathit{select}\ \mathit{late}\ [\,] = [(\text{Grace}, 3)]$.
+:::
+:::
+
+::: q 2F.D Never more rows
+Why is $|\sel{p}(R)| \leq |R|$, for every $R$ and $p$?
+
+::: answer
+Because $\sel{p}(R) \subseteq R$: a subset of a finite set has at most as many elements.
+:::
+:::
+
+::: q 2F.E Checking is not proving
+Law 1 holds on the example of Exercise 2F.4 below. Does that prove law 1? What would a single example show?
+
+::: answer
+No: it shows law 1 for one table and two conditions. A single example can only *disprove* a law, by giving two different answers. To prove law 1, you show it for every $R$, $p$ and $q$: [[2t]] does.
+:::
+:::
+
+:::
+
+::: part lean Build select, and run it
+
+### Your turn: build select
+
+Add this to `Club.lean`, after the tables of [[1]]:
+
+```lean select.lean
+def select {α : Type} (p : α → Bool) : List α → List α
+  | [] => sorry
+  | row :: rest => sorry
+
+-- Test: should print [("Ada", 1), ("Alan", 1)]
+#eval select (fun row => row.2 == 1) attended
+```
+
+- `{α : Type}` makes `select` work on lists of any row type `α`: pairs of strings, pairs of a string and a number, or anything else ([@fpil-poly]).
+- A condition is a function to `Bool`, Lean's $\B$: `fun row => row.2 == 1` says whether the second column of `row` is 1.
+- The two lines starting with `|` are the two cases of a list, as in Definition 2F.4: empty, or a first row and the rest ([@fpil-data]).
+
+::: ex 2F.1 lean Build select
+Replace the `sorry`s with Definition 2F.4. Then run the test.
+
+::: hint Hint 1
+For `[]`: selecting from no rows gives no rows.
+:::
+
+::: hint Hint 2
+For `row :: rest`, the two cases of Definition 2F.4 become one `if p row then … else …`. Each branch calls `select p rest` on the rest of the list.
+:::
+:::
+
+::: ex 2F.2 lean A fact, by computing
+Prove that `select` keeps 2 rows of week 1:
+
+```lean
+example : (select (fun row => row.2 == 1) attended).length = 2 := rfl
+```
+
+::: hint
+If Lean rejects `rfl`, first check with `#eval` what the left side computes to.
+:::
+:::
+
+::: ex 2F.3 lean The CS members
+`#eval` the CS members, $\sel{\mathit{cs}}(\rel{Member})$. You should see `[("Alan", "CS"), ("Grace", "CS")]`.
+
+::: hint
+`fun row => row.2 == "CS"`, applied to `member`.
+:::
+:::
+
+### Law 1, checked by Lean on an example
+
+```lean law.lean
+-- Law 1, on one example: two selections are one, with both conditions
+example : select (fun r => r.2 ≤ 2) (select (fun r => r.2 ≥ 2) attended)
+        = select (fun r => r.2 ≥ 2 && r.2 ≤ 2) attended := rfl
+```
+
+- `r.2 ≤ 2` is a proposition; where a `Bool` is expected, Lean turns it into one for you, since it can decide it.
+- `&&` is "and" on `Bool`: Definition 2F.2.
+
+::: ex 2F.4 lean Your own example
+Check law 1 on another example of your own: other conditions, or another table.
+:::
+
+::: ex 2F.5 lean Does the order matter?
+Is $\sel{p}(\sel{q}(R)) = \sel{q}(\sel{p}(R))$? Check it in Lean on an example. Then try to find an example where it fails.
+
+::: answer
+You will not find one: it is law 2, and [[2t]] proves it. Even as lists, both sides keep the same rows in the same order.
+:::
+:::
+
+### More exercises
+
+::: ex 2F.6 lean Count the rows that satisfy a condition
+Define `count`, with `select` and `.length`:
+
+```lean
+def count {α : Type} (p : α → Bool) (l : List α) : Nat := sorry
+
+example : count (fun r => r.2 ≥ 2) attended = 2 := rfl
+```
+
+::: hint
+`(select p l).length`.
+:::
+:::
+
+::: ex 2F.7 lean Both conditions, as a function
+Write Definition 2F.2 as a function, and use it to restate the example of law 1:
+
+```lean
+def both {α : Type} (p q : α → Bool) : α → Bool := sorry
+```
+
+::: hint
+`fun r => p r && q r`.
+:::
+:::
+
+::: ex 2F.8 stretch Lean already knows select
+Lean's library calls it `List.filter`. Check that they agree on an example:
+
+```lean
+example : select (fun r => r.2 ≥ 2) attended
+        = attended.filter (fun r => r.2 ≥ 2) := rfl
+```
+
+They agree on every list, too: proving that needs induction, which is [[5t]].
+:::
+
+:::

@@ -1,0 +1,247 @@
+::: glance
+build: nothing new: the list programs `select`, `project` and `product` are given ([[2f]] and [[3f]] build them).
+prove: facts about them for every list, by induction.
+learn: prove by induction, step by step | [@nng] (Addition World)
+learn: rewrite and simplify: `rw`, `simp` | [@tpil-rw] · [@tpil-simp]
+learn: prove by induction on lists, and split on an `if` | [@tpil-indtac] · [@tpil-split]
+learn: prove facts about multiplication | [@nng] (Multiplication World)
+:::
+
+::: milestones
+- `project_length` is accepted, and you replayed its proof with `rw` (Exercise 5T.1).
+- Projections compose, for every list (Exercise 5T.2).
+- Law 1 for lists, as lists (Exercise 5T.3).
+- A product of $m$ rows and $n$ rows has $m \cdot n$ (Exercise 5T.4).
+:::
+
+@toc
+
+::: part theory List programs, and induction
+
+### A list program is a few equations
+
+Write $t :: l$ for the list with first row $t$, then the list $l$. Every list is either $[\,]$ or $t :: l$, and a program on lists gives one equation for each.
+
+::: box Definition 5T.1 (Selection and projection on lists)
+$$\begin{aligned}
+\mathit{select}\ p\ [\,] &= [\,] \\
+\mathit{select}\ p\ (t :: l) &= t :: \mathit{select}\ p\ l && \text{if } p(t) = \true \\
+\mathit{select}\ p\ (t :: l) &= \mathit{select}\ p\ l && \text{if } p(t) = \false \\
+\mathit{project}\ f\ [\,] &= [\,] \\
+\mathit{project}\ f\ (t :: l) &= f(t) :: \mathit{project}\ f\ l
+\end{aligned}$$
+:::
+
+Here $p$ is a condition with values in $\B = \{\true, \false\}$, as a program needs. These lists represent $\sel{p}(R)$ and $f[R]$ ([[6]] proves it). The equations are also how the programs run: each step rewrites with one of them.
+
+### Induction proves a fact about every list
+
+::: box Principle (Induction on lists)
+To prove $P(l)$ for every list $l$: prove $P([\,])$; and prove $P(t :: l)$ for every row $t$ and list $l$, assuming $P(l)$.
+:::
+
+It is the induction of the Natural Number Game: $[\,]$ plays $0$, and $t :: l$ plays $n + 1$. Why is it sound? Every list is built from $[\,]$ by adding rows in front, one at a time, and each step carries $P$ from the shorter list to the longer one.
+
+::: box Fact 5T.2
+$\mathit{length}(\mathit{project}\ f\ l) = \mathit{length}(l)$, for every list $l$.
+:::
+
+::: proof
+By induction on $l$. For $[\,]$, both sides are $0$. For $t :: l$: the length of $\mathit{project}\ f\ (t :: l) = f(t) :: \mathit{project}\ f\ l$ is $1 + \mathit{length}(\mathit{project}\ f\ l)$, which is $1 + \mathit{length}(l)$ by the assumption $P(l)$, the *induction hypothesis*.
+:::
+
+### A proof by induction is a recursive function
+
+The proof of Fact 5T.2 follows the program $\mathit{project}$ case by case: the case $[\,]$ uses its first equation, and the case $t :: l$ its second, plus the induction hypothesis for the shorter list $l$. That is a recursive call: a proof by induction is a recursive function that returns proofs. So, to prove a fact about a program, follow the program's own cases.
+
+### Law 1 holds for lists, too
+
+::: box Fact 5T.3
+$\mathit{project}\ f\ (\mathit{project}\ g\ l) = \mathit{project}\ (f \circ g)\ l$.
+:::
+
+::: box Fact 5T.4 (Law 1, for lists)
+$\mathit{select}\ p\ (\mathit{select}\ q\ l) = \mathit{select}\ (p \wedge q)\ l$, as lists: the same rows, in the same order.
+:::
+
+::: proof
+By induction on $l$. For $[\,]$, both sides are $[\,]$. For $t :: l$, take the cases of $q(t)$ and $p(t)$:
+
+- if $q(t) = \false$, both sides drop $t$, and the induction hypothesis finishes;
+- if $q(t) = \true$, both sides keep $t$ exactly when $p(t) = \true$, and then the induction hypothesis finishes again.
+:::
+
+Fact 5T.4 is stronger than law 1: it says the lists are equal, not only the tables they represent. Not every law is that strong: Question 5T.D finds one that holds for tables but not for lists.
+
+### Questions
+
+::: q 5T.A Projections compose
+Prove Fact 5T.3 on paper.
+
+::: answer
+By induction on $l$. For $[\,]$, both sides are $[\,]$. For $t :: l$: the left side is $\mathit{project}\ f\ (g(t) :: \mathit{project}\ g\ l) = f(g(t)) :: \mathit{project}\ f\ (\mathit{project}\ g\ l)$, which by the induction hypothesis is $(f \circ g)(t) :: \mathit{project}\ (f \circ g)\ l$: the right side.
+:::
+:::
+
+::: q 5T.B Selection never makes a list longer
+Prove $\mathit{length}(\mathit{select}\ p\ l) \leq \mathit{length}(l)$.
+
+::: answer
+By induction on $l$. For $[\,]$: $0 \leq 0$. For $t :: l$, with the induction hypothesis $\mathit{length}(\mathit{select}\ p\ l) \leq \mathit{length}(l)$: if $p(t) = \true$, both sides grow by 1; if $p(t) = \false$, the left side stays and the right side grows by 1.
+:::
+:::
+
+::: q 5T.C Law 2 for lists
+Is $\mathit{select}\ p\ (\mathit{select}\ q\ l) = \mathit{select}\ q\ (\mathit{select}\ p\ l)$, as lists?
+
+::: answer
+Yes. By Fact 5T.4, the two sides are $\mathit{select}\ (p \wedge q)\ l$ and $\mathit{select}\ (q \wedge p)\ l$, and $p(t) \wedge q(t) = q(t) \wedge p(t)$ for every row $t$.
+:::
+:::
+
+::: q 5T.D A law that lists break
+Compute $\mathit{product}\ [a, b]\ [x, y]$, and the list you get from $\mathit{product}\ [x, y]\ [a, b]$ by swapping each pair. Are they equal as lists? Do they represent the same table?
+
+::: answer
+$[(a, x), (a, y), (b, x), (b, y)]$ and $[(a, x), (b, x), (a, y), (b, y)]$: the same pairs, in a different order. Not equal as lists, but they represent the same table. So "the product is commutative, up to swapping" holds for tables, not for lists. [[7]] calls this equality *as bags*.
+:::
+:::
+
+:::
+
+::: part lean Your first proofs by induction
+
+### The programs, in Lean
+
+```lean lists.lean
+def select {α : Type} (p : α → Bool) : List α → List α
+  | [] => []
+  | row :: rest => if p row then row :: select p rest else select p rest
+
+def project {α β : Type} (f : α → β) : List α → List β
+  | [] => []
+  | row :: rest => f row :: project f rest
+
+def product {α β : Type} : List α → List β → List (α × β)
+  | [], _ => []
+  | a :: rest, s => project (fun b => (a, b)) s ++ product rest s
+```
+
+Definition 5T.1, and the product of [[3f]]: copy them, or use yours if you did the programs track ([@tpil-match]). They go outside `namespace Sets`.
+
+### Fact 5T.2 in Lean: your first proof by induction
+
+```lean induction.lean
+theorem project_length {α β : Type} (f : α → β) (t : List α) :
+    (project f t).length = t.length := by
+  induction t with
+  | nil => rfl
+  | cons row rest ih => simp [project, ih]
+```
+
+- The same proof as on paper: one case for `nil`, the empty list, and one for `cons`, a first row and the rest.
+- In the `cons` case, `ih` is the induction hypothesis: `(project f rest).length = rest.length`.
+- `simp [project, ih]` rewrites with the equations of `project`, with `ih`, and with the lemmas Lean knows about `length`, until the goal is closed ([@tpil-simp]).
+
+::: ex 5T.1 lean Replay it with rw
+Replace `simp [project, ih]` with `rw` steps, and watch the goal change in the Infoview after each one ([@tpil-rw]).
+
+::: hint
+`rw [project]` unfolds one step of the program. Then `List.length_cons` rewrites the length of `x :: l` to `l.length + 1`, and `ih` finishes.
+:::
+:::
+
+### Your turn: projections compose
+
+```lean compose.lean
+-- Fact 5T.3: projections compose
+theorem project_project {α β γ : Type} (f : β → γ) (g : α → β)
+    (l : List α) :
+    project f (project g l) = project (fun r => f (g r)) l := by
+  sorry
+```
+
+::: ex 5T.2 lean Projections compose
+Fact 5T.3: the same shape as the proof before. Induction on `l`, then `simp [project, ih]`.
+:::
+
+### Your turn: law 1 for lists
+
+```lean law1.lean
+-- Fact 5T.4: law 1, for lists
+theorem select_select {α : Type} (p q : α → Bool) (l : List α) :
+    select p (select q l) = select (fun r => p r && q r) l := by
+  sorry
+```
+
+`select_select` here is a theorem about lists, outside `namespace Sets`: it does not clash with `Sets.select_select` of [[2t]].
+
+::: ex 5T.3 lean Law 1 for lists
+Prove Fact 5T.4. Induction on `l`. In the `cons` case, take the cases of the conditions, as on paper: `cases hq : q row` and `cases hp : p row`. Then `simp [select, hp, hq, ih]` finishes each case.
+
+::: hint
+`cases hq : q row` makes two goals: one where `hq : q row = false`, one where `hq : q row = true`. `simp` uses `hq` to choose the branch of each `if`.
+:::
+:::
+
+### Your turn: a product of m rows and n rows has m × n
+
+```lean size.lean
+theorem product_length {α β : Type} (r : List α) (s : List β) :
+    (product r s).length = r.length * s.length := by
+  sorry
+```
+
+::: ex 5T.4 lean The size of a product
+Induction on `r`, then `simp [product, project_length, ih]`, using Fact 5T.2. What is left is arithmetic: `Nat.add_mul`, `Nat.one_mul` and `Nat.add_comm` finish it ([@nng], Multiplication World).
+
+::: hint
+Look at the goal after `simp`: it is an equation between sums and products of lengths. `rw [Nat.add_mul, Nat.one_mul, Nat.add_comm]`, or `omega` if it is linear.
+:::
+:::
+
+### More exercises
+
+```lean more.lean
+theorem select_append {α : Type} (p : α → Bool) (l m : List α) :
+    select p (l ++ m) = select p l ++ select p m := by
+  sorry
+
+theorem project_append {α β : Type} (f : α → β) (l m : List α) :
+    project f (l ++ m) = project f l ++ project f m := by
+  sorry
+
+theorem select_length_le {α : Type} (p : α → Bool) (l : List α) :
+    (select p l).length ≤ l.length := by
+  sorry
+
+theorem select_eq_filter {α : Type} (p : α → Bool) (l : List α) :
+    select p l = l.filter p := by
+  sorry
+```
+
+::: ex 5T.5 lean Law 3 for lists
+Prove `select_append`: law 3, with union as `++`, for lists. Induction on `l`; in the `cons` case, `cases h : p row`.
+:::
+
+::: ex 5T.6 lean Projection and append
+Prove `project_append`.
+:::
+
+::: ex 5T.7 lean Selection never makes a list longer
+Prove `select_length_le` (Question 5T.B).
+
+::: hint
+In each case, `simp [select, h]`, then `omega`: it proves goals of linear arithmetic, using `ih`.
+:::
+:::
+
+::: ex 5T.8 stretch select is List.filter
+Prove `select_eq_filter`, so that every lemma Lean knows about `List.filter` applies to your `select`.
+
+::: hint
+The same shape as Exercise 5T.5: `simp [select, List.filter, h, ih]` in each case.
+:::
+:::
+
+:::

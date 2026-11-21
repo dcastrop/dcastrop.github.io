@@ -1,0 +1,210 @@
+% !LW recipe = make-deck
+% Level 1 of the challenge: tables, and a first proof. Everyone starts
+% here; then the programs track (F, FPIL) and the proofs track (T, TPIL).
+% Build: make (rules in ../common/deck.mk). Setup menu names checked
+% against the Lean 4 extension's package.json and
+% https://lean-lang.org/install/ (2026-11-20).
+\DocumentMetadata{
+  lang        = en-GB,
+  pdfstandard = ua-2,
+  tagging     = on,
+}
+\documentclass{ltx-talk}
+
+\input{preamble}
+
+\title{Level 1: Tables, and Your First Proof}
+\author{The Proofs and Programs Club}
+\institute{Royal Holloway, University of London}
+
+\begin{document}
+
+\leveltitle{1}{Tables, and Your First Proof}{Everyone starts here}
+  {Start here}{Next: \levellink{2f} or \levellink{2t}, or both}
+
+\levelframe{1}{Level 1 at a Glance}{%
+  the club's tables in Lean.}{%
+  your first facts about them, by computing.}{%
+  prove your first equations, one step at a time & \rds{nng} (Tutorial
+    World) \\
+  write values and functions, with their types: if you like programs &
+    \rds{fpil-eval, fpil-fun} \\
+  \ldots{} or the same, if you like proofs & \rds{tpil-stt, tpil-defs} \\
+  read a proposition as a type, and prove an equation by computing &
+    \rds{tpil-pat, tpil-eq} \\
+}
+
+% ---------------------------------------------------------------- setup
+\partframe{Before You Start}{Your own Lean project}
+
+\begin{frame}
+  \frametitle{Install Lean in Three Steps}
+  \begin{enumerate}
+    \item Install \textbf{VS Code}: \url{https://code.visualstudio.com/}.
+    \item In VS Code, open the Extensions panel, search for
+      \textbf{Lean 4}, and install it.
+    \item Open a new file (File › New Text File). Click the
+      \textbf{$\forall$} at the top right, then Documentation… › Show
+      Setup Guide, and follow the guide: it installs Lean for you.
+  \end{enumerate}
+  \begin{sticky}[halign = center]
+    That is all. The guide does the rest, on Windows, macOS and Linux.
+  \end{sticky}
+  \slideref{Install Lean: \url{https://lean-lang.org/install/}}
+  \setuptag
+\end{frame}
+
+\begin{frame}
+  \frametitle{Create Your Own Project, Once}
+  \begin{enumerate}
+    \item Click the \textbf{$\forall$}, then New Project… › Create
+      Standalone Project…, and give it a name, such as \code{Club}.
+    \item Open the project. Inside its folder, create a file
+      \code{Club.lean}: it will grow, level by level.
+    \item From Level 7 you need \textbf{Mathlib}, Lean's library of
+      mathematics: make a second project with New Project… › Create
+      Project Using Mathlib… (a large download: use a good connection).
+  \end{enumerate}
+  From a terminal, \code{lake new Club} does the same as step 1.
+  \slideref{Install Lean (manual installation): \url{https://lean-lang.org/install/manual/}}
+  \setuptag
+\end{frame}
+
+\begin{frame*}
+  \frametitle{Lean Answers as You Type}
+  \leanblock{hello.lean}
+  \begin{itemize}
+    \item Put the cursor on a line: the \textbf{Infoview}, on the right,
+      shows Lean's answer.
+    \item A red underline is an error: hover over it to read it. A yellow
+      one is a warning, such as a \code{sorry} still to fill in.
+    \item \code{\#eval} computes a value; \code{\#check} shows its type.
+  \end{itemize}
+  \slideref{\lnk{fpil-eval}}
+  \setuptag
+\end{frame*}
+
+% ---------------------------------------------------------------- theory
+\theorypart{What a table is, and how a list stands for one}
+
+\begin{frame}
+  \frametitle{A Table Is a Finite Set of Rows}
+  Take two sets, $D_1$ and $D_2$: the values allowed in each column.
+  \defn{Definition 1.1 (Row, table)}{A \emph{row} over $D_1$ and $D_2$ is
+    a pair $(d_1, d_2)$ with $d_1 \in D_1$ and $d_2 \in D_2$. A
+    \emph{table} over $D_1$ and $D_2$ is a finite set of rows:
+    $R \subseteq D_1 \times D_2$.}
+  That is all. The \emph{size} of $R$, written $|R|$, is its number of
+  rows. For example, with $\mathit{Name}$ and $\mathit{Dept}$ sets of
+  strings:
+  \[
+    \rel{Member} = \{(\text{Ada}, \text{Maths}),\ (\text{Alan},
+    \text{CS}),\ (\text{Grace}, \text{CS})\} \subseteq \mathit{Name}
+    \times \mathit{Dept}, \qquad |\rel{Member}| = 3.
+  \]
+  For now, every table has two columns. Level 5F allows any number.
+  \slideref{E. F. Codd. \textbf{A Relational Model of Data for Large Shared Data Banks}. CACM 13(6), 1970.}
+  \theorytag{1}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Our Club Has Three Tables}
+  {\centering\small
+    \smalltable{$\rel{Member} \subseteq \mathit{Name} \times
+      \mathit{Dept}$}{ll}{$\att{name}$ & $\att{dept}$}
+      {Ada & Maths \\ Alan & CS \\ Grace & CS}\hspace{8mm}
+    \smalltable{$\rel{Attended} \subseteq \mathit{Name} \times \N$}{lr}
+      {$\att{name}$ & $\att{week}$}
+      {Ada & 1 \\ Alan & 1 \\ Alan & 2 \\ Grace & 3}\hspace{8mm}
+    \smalltable{$\rel{Session} \subseteq \N \times \mathit{Topic}$}{rl}
+      {$\att{week}$ & $\att{topic}$}
+      {1 & Lists \\ 2 & Proofs \\ 3 & Types \\ 4 & Sets}\par}
+  \begin{itemize}
+    \item The headers ($\att{name}$, $\att{week}$, \ldots) are only there
+      to help us read: for now, a column is known by its position.
+    \item Each table is a \emph{set}: its rows have no order, and no row
+      appears twice.
+  \end{itemize}
+  \theorytag{1}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A List Represents a Table}
+  A computer stores rows one after another, in a list. So we say exactly
+  which table a list stands for.
+  \defn{Definition 1.2 (Representation)}{A list $[t_1, \ldots, t_k]$
+    \emph{represents} the table $\{t_1, \ldots, t_k\}$.}
+  Different lists can represent the same table: $[a, b]$, $[b, a]$ and
+  $[a, b, a]$ all represent $\{a, b\}$.
+  \defn{Fact 1.3}{If a list of length $k$ represents $R$, then
+    $|R| \leq k$, with $|R| = k$ exactly when no row repeats in the
+    list.}
+  Lean computes with lists; we reason about tables. Level 6, where the
+  two tracks meet, comes back to this definition.
+  \theorytag{1}
+\end{frame}
+
+% ---------------------------------------------------------------- Lean
+\leanpart{The club's tables, and a proof one word long}
+
+\begin{frame*}
+  \frametitle{In Lean, a Table Is a List of Pairs}
+  \leanblock{tables.lean}
+  \begin{itemize}
+    \item \code{String × Nat} is Lean's $\mathit{Name} \times \N$: the
+      type of pairs. \code{def} names a value and states its type;
+      \code{\#eval} computes it.
+    \item No row repeats in these lists, so they represent our tables
+      exactly (Fact 1.3).
+  \end{itemize}
+  \slideref{\lnk{tpil-stt} \rfsep \lnk{tpil-defs}}
+  \leantag{1}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Your First Proof Is One Word Long}
+  \leanblock{proof.lean}
+  \begin{itemize}
+    \item \code{example : P := proof} states the proposition \code{P}, and
+      proves it. Here \code{P} is \code{attended.length = 4}.
+    \item \code{rfl} proves that a thing equals itself. Lean accepts it
+      here because both sides compute to the same value: 4.
+    \item \textbf{Try}: state \code{attended.length = 5} instead, and read
+      Lean's error. A false statement has no proof.
+  \end{itemize}
+  \slideref{\lnk{tpil-pat} \rfsep \lnk{tpil-eq} \rfsep \lnk{fpil-props}}
+  \leantag{1}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Your Turn: Add the Session Table, and Prove Its Size}
+  \leanblock{session.lean}
+  \begin{itemize}
+    \item \ex{1.1} Replace \code{sorry} with the four sessions of the
+      $\rel{Session}$ table, and \code{\#eval} it.
+    \item \ex{1.2} Prove both examples. Then write and prove one more fact
+      of your own.
+    \item \ex{1.3} State \code{member.length = 4}. Why can you not prove
+      it?
+  \end{itemize}
+  \leantag{1}
+\end{frame*}
+
+\begin{frame}
+  \frametitle{Next, Choose Your Track, or Take Both}
+  \begin{itemize}
+    \item \textbf{Programs first}, from \levellink{2f}: build the
+      operators of relational algebra as Lean programs, and run them. It
+      follows \lnk{fpil}, chapter by chapter.
+    \item \textbf{Proofs first}, from \levellink{2t}: prove the laws of
+      relational algebra in Lean, for every table. It follows
+      \lnk{tpil}, chapter by chapter.
+  \end{itemize}
+  \begin{sticky}
+    Do one track, or both side by side, in any order. They meet at
+    \levellink{6}, which needs both.
+  \end{sticky}
+  \leveltag{1}
+\end{frame}
+
+\end{document}

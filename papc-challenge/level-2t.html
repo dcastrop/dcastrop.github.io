@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Level 2T: Selection and Union, Proved · PaPC challenge</title>
+<meta name="description" content="Level 2T of the PaPC challenge: Selection and Union, Proved.">
+<link rel="icon" href="assets/papc-logo.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simpledotcss@2.3.7/simple.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="assets/challenge.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="assets/challenge.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the content</a>
+<header>
+<p class="club"><a href="https://papc-rhul.github.io/"><img src="assets/papc-logo.png" alt="" width="38" height="48"> The Proofs and Programs Club @ RHUL</a></p>
+<p class="kicker"><span class="chip track-t">Proofs track · follows TPIL</span></p><h1><span class="lvl-k">Level 2T</span> Selection and Union, Proved</h1>
+<nav aria-label="The challenge"><ul><li><a href="index.html">The challenge</a></li><li><a href="index.html#levels">All levels</a></li><li><a href="laws.html">Laws at a glance</a></li></ul></nav>
+</header>
+<main id="main"><p class="crumbs">After <a href="level-1.html">Level 1</a> · Next: <a href="level-3t.html">Level 3T</a> · <a href="https://dcastrop.github.io/tex/2026-papc-challenge/level-2t/level-2t.pdf">Slides (PDF)</a></p><section class="glance" aria-labelledby="at-a-glance"><h2 id="at-a-glance">At a glance</h2><dl><div><dt>You build</dt><dd>tables as properties of rows, and selection and union on them.</dd></div><div><dt>You prove</dt><dd>laws 1, 2 and 3, for every table.</dd></div></dl><div class="table-wrap"><table class="reads"><caption>What to learn first, and where</caption><thead><tr><th scope="col">Learn to</th><th scope="col">Read</th></tr></thead><tbody><tr><td>read a proof of "if \(A\) then \(B\)" as a function from proofs of \(A\) to proofs of \(B\)</td><td><a class="ref" href="https://lean-lang.org/theorem_proving_in_lean4/Propositions-and-Proofs/#propositions-as-types">TPIL 3.1 <cite>Propositions as Types</cite></a></td></tr><tr><td>prove "and", "or" and "if and only if", and use them</td><td><a class="ref" href="https://lean-lang.org/theorem_proving_in_lean4/Propositions-and-Proofs/#propositional-logic">TPIL 3.3 <cite>Propositional Logic</cite></a></td></tr></tbody></table></div></section>
+<section class="milestones" aria-labelledby="milestones"><h2 id="milestones">Milestones</h2><p class="ms-intro">Tick each one when Lean accepts your work. Your ticks stay in this browser.</p><ul><li><label><input type="checkbox" data-milestone="2t:m1"> <span><code>Sets.Table</code>, <code>Sets.select</code> and <code>Sets.union</code> are in your file, and <code>select_sub</code> is accepted.</span></label></li><li><label><input type="checkbox" data-milestone="2t:m2"> <span>Your first proof of your own: a selected row satisfies the condition (Exercise 2T.1).</span></label></li><li><label><input type="checkbox" data-milestone="2t:m3"> <span>Laws 1 and 2, for every table, with no <code>sorry</code> (Exercises 2T.2 and 2T.3).</span></label></li><li><label><input type="checkbox" data-milestone="2t:m4"> <span>Law 3, with "or" (Exercise 2T.4).</span></label></li></ul><p class="ms-progress" data-progress="2t:m1 2t:m2 2t:m3 2t:m4"><progress max="4" value="0"></progress> <span class="ms-count" aria-live="polite">0 of 4 done</span></p></section>
+<nav class="toc" aria-label="On this page"><details><summary>On this page</summary><ol><li><a href="#at-a-glance">At a glance</a></li><li><a href="#milestones">Milestones</a></li><li><a href="#theory-on-paper">Theory, on paper</a><ol><li><a href="#a-condition-is-a-property-of-rows">A condition is a property of rows</a></li><li><a href="#selection-keeps-the-rows-that-satisfy-a-condition">Selection keeps the rows that satisfy a condition</a></li><li><a href="#two-tables-are-equal-when-they-have-the-same-rows">Two tables are equal when they have the same rows</a></li><li><a href="#two-selections-are-one-law-1">Two selections are one: law 1</a></li><li><a href="#union-combines-two-tables-selection-distributes">Union combines two tables; selection distributes</a></li><li><a href="#a-proof-is-a-program">A proof is a program</a></li><li><a href="#questions">Questions</a></li></ol></li><li><a href="#lean-on-your-computer">Lean, on your computer</a><ol><li><a href="#in-lean-a-table-can-be-a-property-of-rows">In Lean, a table can be a property of rows</a></li><li><a href="#your-first-proof-about-every-table">Your first proof about every table</a></li><li><a href="#your-turn-laws-1-and-2">Your turn: laws 1 and 2</a></li><li><a href="#your-turn-law-3-with-or">Your turn: law 3, with "or"</a></li><li><a href="#more-exercises">More exercises</a></li></ol></li></ol></details></nav>
+<section class="part part-theory" aria-labelledby="theory-on-paper"><h2 id="theory-on-paper"><span class="part-k">Theory, on paper</span><span class="part-t">Selection, union, and three laws</span></h2><h3 id="a-condition-is-a-property-of-rows">A condition is a property of rows</h3>
+<p>On the programs track, a condition answers \(\true\) or \(\false\). Here, it is a statement about a row, which may hold or not: we never need to compute it.</p>
+<div class="box def" id="definition-2t-1"><p class="box-h"><span class="box-n">Definition 2T.1</span> (Condition)</p><p>A <em>condition</em> on rows of \(D_1 \times D_2\) is a property \(p\) of rows: for each row \(t\), \(p(t)\) is a statement, which holds or does not.</p></div>
+<p>For example, on \(\rel{Member}\) and on \(\rel{Attended}\):</p>
+<div class="math-display">\[\mathit{cs}(n, d) \text{ holds when } d = \text{CS}, \qquad \mathit{late}(n, w) \text{ holds when } w \geq 2.\]</div>
+<div class="box def" id="definition-2t-2"><p class="box-h"><span class="box-n">Definition 2T.2</span> (Both conditions)</p><p>\((p \wedge q)(t)\) holds exactly when \(p(t)\) holds and \(q(t)\) holds.</p></div>
+<h3 id="selection-keeps-the-rows-that-satisfy-a-condition">Selection keeps the rows that satisfy a condition</h3>
+<div class="box def" id="definition-2t-3"><p class="box-h"><span class="box-n">Definition 2T.3</span> (Selection)</p><p>For a table \(R\) and a condition \(p\), \(\ \sel{p}(R) = \{t \in R \mid p(t)\}\).</p></div>
+<div class="row"><div class="table-wrap"><table><caption>\(\sel{\mathit{cs}}(\rel{Member})\)</caption><thead><tr><th scope="col">\(\att{name}\)</th><th scope="col">\(\att{dept}\)</th></tr></thead><tbody><tr><td>Alan</td><td>CS</td></tr><tr><td>Grace</td><td>CS</td></tr></tbody></table></div>
+<div class="table-wrap"><table><caption>\(\sel{\mathit{late}}(\rel{Attended})\)</caption><thead><tr><th scope="col">\(\att{name}\)</th><th class="r" scope="col">\(\att{week}\)</th></tr></thead><tbody><tr><td>Alan</td><td class="r">2</td></tr><tr><td>Grace</td><td class="r">3</td></tr></tbody></table></div></div>
+<p>A selection never adds rows: \(\sel{p}(R) \subseteq R\). In SQL, a selection is a <code>WHERE</code> clause. Read more in <a class="ref" href="https://webdam.di.ens.fr/Alice/pdfs/Chapter-4.pdf">Abiteboul, Hull, Vianu, Foundations of Databases (1995), ch. 4: <cite>Conjunctive Queries</cite></a>.</p>
+<h3 id="two-tables-are-equal-when-they-have-the-same-rows">Two tables are equal when they have the same rows</h3>
+<p>A law says that two tables are equal, for every table you start from. Two sets are equal when they have the same elements, so to prove \(X = Y\) we prove, for every row \(t\):</p>
+<div class="math-display">\[t \in X \iff t \in Y.\]</div>
+<p>Each of the proofs below is a chain of such "if and only if" steps, and each step unfolds a definition or rearranges "and" and "or". In Lean, the laws are stated in exactly this form.</p>
+<h3 id="two-selections-are-one-law-1">Two selections are one: law 1</h3>
+<div class="box law" id="law-1"><p class="box-h"><span class="box-n">Law 1</span></p><p>For every table \(R\) and conditions \(p\) and \(q\): \(\ \sel{p}(\sel{q}(R)) = \sel{p \wedge q}(R)\).</p></div>
+<div class="proof"><p><em>Proof.</em> For every row \(t\):</p>
+<div class="math-display">\[\begin{aligned}
+t \in \sel{p}(\sel{q}(R)) &amp;\iff t \in \sel{q}(R) \text{ and } p(t) \\
+&amp;\iff t \in R \text{ and } q(t) \text{ and } p(t) \\
+&amp;\iff t \in \sel{p \wedge q}(R).
+\end{aligned}\]</div>
+<p>Each step unfolds a definition: 2T.3, then 2T.3 again, then 2T.2 and 2T.3. <span class="qed" role="img" aria-label="End of proof">∎</span></p></div>
+<div class="box law" id="law-2"><p class="box-h"><span class="box-n">Law 2</span></p><p>\(\sel{p}(\sel{q}(R)) = \sel{q}(\sel{p}(R))\).</p></div>
+<p><strong>Try</strong>: prove law 2 on paper, in the same way, before you open Question 2T.A.</p>
+<h3 id="union-combines-two-tables-selection-distributes">Union combines two tables; selection distributes</h3>
+<div class="box def" id="definition-2t-4"><p class="box-h"><span class="box-n">Definition 2T.4</span> (Union)</p><p>For tables \(R\) and \(S\) of the same rows: \(\ R \cup S = \{t \mid t \in R \text{ or } t \in S\}\).</p></div>
+<div class="box law" id="law-3"><p class="box-h"><span class="box-n">Law 3</span></p><p>\(\sel{p}(R \cup S) = \sel{p}(R) \cup \sel{p}(S)\).</p></div>
+<div class="proof"><p><em>Proof.</em> For every row \(t\):</p>
+<div class="math-display">\[\begin{aligned}
+t \in \sel{p}(R \cup S) &amp;\iff (t \in R \text{ or } t \in S) \text{ and } p(t) \\
+&amp;\iff (t \in R \text{ and } p(t)) \text{ or } (t \in S \text{ and } p(t)) \\
+&amp;\iff t \in \sel{p}(R) \cup \sel{p}(S).
+\end{aligned}\]</div>
+<p>The middle step is the distributive law of "and" over "or": both sides hold exactly when \(p(t)\) holds and \(t\) is in one of the tables. <span class="qed" role="img" aria-label="End of proof">∎</span></p></div>
+<p>A database uses law 3 to filter two tables separately before combining them. Read more in <a class="ref" href="https://webdam.di.ens.fr/Alice/pdfs/Chapter-5.pdf">Abiteboul, Hull, Vianu, Foundations of Databases (1995), ch. 5: <cite>Adding Negation: Algebra and Calculus</cite></a>.</p>
+<h3 id="a-proof-is-a-program">A proof is a program</h3>
+<p>In Lean, a proof is a value, and a statement is its type (<a class="ref" href="https://lean-lang.org/theorem_proving_in_lean4/Propositions-and-Proofs/#propositions-as-types">TPIL 3.1 <cite>Propositions as Types</cite></a>). Each way of building a statement has its own kind of proof:</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">To prove</th><th scope="col">In Lean</th><th scope="col">A proof is</th></tr></thead><tbody><tr><td>\(A\) and \(B\)</td><td><code>A ∧ B</code></td><td>a pair <code>⟨a, b⟩</code> of a proof of <code>A</code> and a proof of <code>B</code></td></tr><tr><td>\(A\) or \(B\)</td><td><code>A ∨ B</code></td><td><code>Or.inl a</code>, from a proof of <code>A</code>; or <code>Or.inr b</code>, from a proof of <code>B</code></td></tr><tr><td>if \(A\) then \(B\)</td><td><code>A → B</code></td><td>a function <code>fun a =&gt; …</code> from proofs of <code>A</code> to proofs of <code>B</code></td></tr><tr><td>\(A\) if and only if \(B\)</td><td><code>A ↔ B</code></td><td>a pair of functions, <code>⟨fun a =&gt; …, fun b =&gt; …⟩</code></td></tr></tbody></table></div>
+<p>And to <em>use</em> a proof <code>h</code>: of <code>A ∧ B</code>, take <code>h.1</code> and <code>h.2</code>; of <code>A ∨ B</code>, take both cases with <code>h.elim</code>; of <code>A → B</code>, apply it, <code>h a</code>. That is all the logic you need for this level.</p>
+<h3 id="questions">Questions</h3>
+<div class="q" id="q-2t-a"><p class="ex-h"><span class="ex-n">Question 2T.A</span> <span class="ex-t">Law 2 on paper</span></p><p>Prove law 2.</p>
+<details class="answer"><summary>Answer</summary><p>For every row \(t\): \(t \in \sel{p}(\sel{q}(R)) \iff t \in R\) and \(q(t)\) and \(p(t)\) \(\iff t \in R\) and \(p(t)\) and \(q(t)\) \(\iff t \in \sel{q}(\sel{p}(R))\). The middle step swaps the two conditions: "and" is commutative.</p></details></div>
+<div class="q" id="q-2t-b"><p class="ex-h"><span class="ex-n">Question 2T.B</span> <span class="ex-t">A selection never adds rows</span></p><p>Prove \(\sel{p}(R) \subseteq R\): if \(t \in \sel{p}(R)\) then \(t \in R\).</p>
+<details class="answer"><summary>Answer</summary><p>If \(t \in \sel{p}(R)\), then \(t \in R\) and \(p(t)\), by Definition 2T.3; in particular \(t \in R\).</p></details></div>
+<div class="q" id="q-2t-c"><p class="ex-h"><span class="ex-n">Question 2T.C</span> <span class="ex-t">Union is commutative</span></p><p>Prove \(R \cup S = S \cup R\).</p>
+<details class="answer"><summary>Answer</summary><p>\(t \in R \cup S \iff t \in R\) or \(t \in S\) \(\iff t \in S\) or \(t \in R\) \(\iff t \in S \cup R\).</p></details></div>
+<div class="q" id="q-2t-d"><p class="ex-h"><span class="ex-n">Question 2T.D</span> <span class="ex-t">Two selections, one union</span></p><p>Prove \(\sel{p}(R) \cup \sel{q}(R) = \sel{p \vee q}(R)\), where \((p \vee q)(t)\) holds when \(p(t)\) holds or \(q(t)\) holds.</p>
+<details class="answer"><summary>Answer</summary><p>\(t \in \sel{p}(R) \cup \sel{q}(R) \iff (t \in R\) and \(p(t))\) or \((t \in R\) and \(q(t))\) \(\iff t \in R\) and (\(p(t)\) or \(q(t)\)) \(\iff t \in \sel{p \vee q}(R)\): the distributive law again, the other way round.</p></details></div></section>
+<section class="part part-lean" aria-labelledby="lean-on-your-computer"><h2 id="lean-on-your-computer"><span class="part-k">Lean, on your computer</span><span class="part-t">Tables as properties, and the three laws</span></h2><h3 id="in-lean-a-table-can-be-a-property-of-rows">In Lean, a table can be a property of rows</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">sets.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="k">namespace</span> Sets
+<span class="c">-- A table, given by its rows: R t says that t is a row of R</span>
+<span class="k">abbrev</span> Table (α : <span class="ty">Type</span>) := α → <span class="ty">Prop</span>
+
+<span class="k">def</span> select {α : <span class="ty">Type</span>} (p : α → <span class="ty">Prop</span>) (R : Table α) : Table α :=
+  <span class="k">fun</span> t =&gt; R t ∧ p t
+
+<span class="k">def</span> union {α : <span class="ty">Type</span>} (R S : Table α) : Table α :=
+  <span class="k">fun</span> t =&gt; R t ∨ S t
+<span class="k">end</span> Sets</code></pre></div>
+<ul><li><code>R t</code> is the statement "\(t\) is a row of \(R\)". So <code>select</code> and <code>union</code> are formulas, with <code>∧</code> and <code>∨</code>: Definitions 2T.3 and 2T.4, word for word.</li><li>A table here may be infinite, and no row is ever computed: this track is about proofs, not programs. <a href="level-6.html">Level 6</a> connects the two.</li><li>Each name inside <code>namespace Sets</code> starts with <code>Sets.</code>, so these do not clash with the programs of the other track. Put your theorems inside the namespace too: before <code>end Sets</code>, or in a new <code>namespace Sets … end Sets</code> block.</li><li>Type <code>∧</code> as <code>\and</code>, <code>∨</code> as <code>\or</code>, <code>→</code> as <code>\to</code>, <code>↔</code> as <code>\iff</code>, and <code>α</code> as <code>\a</code>.</li></ul>
+<h3 id="your-first-proof-about-every-table">Your first proof about every table</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">first.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="c">-- Inside namespace Sets: a selection never adds rows</span>
+<span class="k">theorem</span> select_sub {α : <span class="ty">Type</span>} (p : α → <span class="ty">Prop</span>) (R : Table α) (t : α) :
+    select p R t → R t :=
+  <span class="k">fun</span> h =&gt; h.<span class="n">1</span></code></pre></div>
+<ul><li>This is Question 2T.B. A proof of "if \(A\) then \(B\)" is a function: from a proof <code>h</code> of \(A\), it makes a proof of \(B\).</li><li><code>h</code> proves <code>select p R t</code>, which is <code>R t ∧ p t</code>: a pair. <code>h.1</code> proves <code>R t</code>, and <code>h.2</code> proves <code>p t</code>.</li><li>Put the cursor after <code>:=</code>: the Infoview shows what is left to prove.</li></ul>
+<div class="ex" id="ex-2t-1"><p class="ex-h"><span class="ex-n">Exercise 2T.1</span> <span class="chip lean">In Lean</span> <span class="ex-t">The other half</span></p><p>Prove <code>select p R t → p t</code>.</p>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="c">-- Inside namespace Sets</span>
+<span class="k">theorem</span> select_cond {α : <span class="ty">Type</span>} (p : α → <span class="ty">Prop</span>) (R : Table α) (t : α) :
+    select p R t → p t :=
+  <span class="sorry">sorry</span></code></pre></div>
+<details class="hint"><summary>Hint</summary><p>The same as <code>select_sub</code>, with the other half of the pair.</p></details></div>
+<h3 id="your-turn-laws-1-and-2">Your turn: laws 1 and 2</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">laws12.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="c">-- Inside namespace Sets: law 1</span>
+<span class="k">theorem</span> select_select {α : <span class="ty">Type</span>} (p q : α → <span class="ty">Prop</span>) (R : Table α) (t : α) :
+    select p (select q R) t ↔ select (<span class="k">fun</span> r =&gt; p r ∧ q r) R t :=
+  <span class="sorry">sorry</span>
+
+<span class="c">-- Law 2</span>
+<span class="k">theorem</span> select_comm {α : <span class="ty">Type</span>} (p q : α → <span class="ty">Prop</span>) (R : Table α) (t : α) :
+    select p (select q R) t ↔ select q (select p R) t :=
+  <span class="sorry">sorry</span></code></pre></div>
+<p>Each law is stated for one row <code>t</code>, as "if and only if": the form of the proofs on paper. A proof of <code>A ↔ B</code> is a pair of functions: <code>⟨fun h =&gt; …, fun h =&gt; …⟩</code>.</p>
+<div class="ex" id="ex-2t-2"><p class="ex-h"><span class="ex-n">Exercise 2T.2</span> <span class="chip lean">In Lean</span> <span class="ex-t">Law 1</span></p><p>Prove law 1.</p>
+<details class="hint"><summary>Hint 1</summary><p>Unfolded, the left side is <code>(R t ∧ q t) ∧ p t</code>, and the right side is <code>R t ∧ (p t ∧ q t)</code>.</p></details>
+<details class="hint"><summary>Hint 2</summary><p>From left to right, <code>fun h =&gt; ⟨h.1.1, h.2, h.1.2⟩</code>: <code>⟨a, b, c⟩</code> is short for <code>⟨a, ⟨b, c⟩⟩</code>. Now the other direction.</p></details></div>
+<div class="ex" id="ex-2t-3"><p class="ex-h"><span class="ex-n">Exercise 2T.3</span> <span class="chip lean">In Lean</span> <span class="ex-t">Law 2</span></p><p>Prove law 2.</p>
+<details class="hint"><summary>Hint</summary><p>Unfold both sides on paper first, as in Hint 1 of Exercise 2T.2. Each direction rebuilds the same three proofs in another arrangement.</p></details></div>
+<h3 id="your-turn-law-3-with-or">Your turn: law 3, with "or"</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">law3.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="c">-- Inside namespace Sets: law 3</span>
+<span class="k">theorem</span> select_union {α : <span class="ty">Type</span>} (p : α → <span class="ty">Prop</span>) (R S : Table α) (t : α) :
+    select p (union R S) t ↔ union (select p R) (select p S) t :=
+  <span class="sorry">sorry</span></code></pre></div>
+<ul><li><code>Or.inl a</code> proves <code>A ∨ B</code> from a proof <code>a</code> of <code>A</code>; <code>Or.inr b</code>, from a proof <code>b</code> of <code>B</code>.</li><li>To use <code>h : A ∨ B</code>, take both cases: <code>h.elim (fun a =&gt; …) (fun b =&gt; …)</code>.</li></ul>
+<div class="ex" id="ex-2t-4"><p class="ex-h"><span class="ex-n">Exercise 2T.4</span> <span class="chip lean">In Lean</span> <span class="ex-t">Law 3</span></p><p>Prove law 3.</p>
+<details class="hint"><summary>Hint 1</summary><p>Unfolded: <code>(R t ∨ S t) ∧ p t ↔ (R t ∧ p t) ∨ (S t ∧ p t)</code>.</p></details>
+<details class="hint"><summary>Hint 2</summary><p>From left to right: take <code>h.1</code> apart with <code>h.1.elim</code>. In the first case you have <code>R t</code>, and <code>h.2</code> still proves <code>p t</code>: build <code>Or.inl ⟨_, _⟩</code>.</p></details></div>
+<h3 id="more-exercises">More exercises</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">more.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="c">-- Inside namespace Sets</span>
+<span class="k">theorem</span> union_comm {α : <span class="ty">Type</span>} (R S : Table α) (t : α) :
+    union R S t ↔ union S R t :=
+  <span class="sorry">sorry</span>
+
+<span class="k">theorem</span> select_or {α : <span class="ty">Type</span>} (p q : α → <span class="ty">Prop</span>) (R : Table α) (t : α) :
+    union (select p R) (select q R) t ↔ select (<span class="k">fun</span> r =&gt; p r ∨ q r) R t :=
+  <span class="sorry">sorry</span>
+
+<span class="k">theorem</span> select_true {α : <span class="ty">Type</span>} (R : Table α) (t : α) :
+    select (<span class="k">fun</span> _ =&gt; <span class="ty">True</span>) R t ↔ R t :=
+  <span class="sorry">sorry</span>
+
+<span class="k">theorem</span> union_assoc {α : <span class="ty">Type</span>} (R S T : Table α) (t : α) :
+    union R (union S T) t ↔ union (union R S) T t :=
+  <span class="sorry">sorry</span></code></pre></div>
+<div class="ex" id="ex-2t-5"><p class="ex-h"><span class="ex-n">Exercise 2T.5</span> <span class="chip lean">In Lean</span> <span class="ex-t">Union is commutative</span></p><p>Prove <code>union_comm</code> (Question 2T.C).</p>
+<details class="hint"><summary>Hint</summary><p>Both directions are the same function: <code>fun h =&gt; h.elim Or.inr Or.inl</code>.</p></details></div>
+<div class="ex" id="ex-2t-6"><p class="ex-h"><span class="ex-n">Exercise 2T.6</span> <span class="chip lean">In Lean</span> <span class="ex-t">Two selections, one union</span></p><p>Prove <code>select_or</code> (Question 2T.D).</p></div>
+<div class="ex" id="ex-2t-7"><p class="ex-h"><span class="ex-n">Exercise 2T.7</span> <span class="chip lean">In Lean</span> <span class="ex-t">Selecting everything</span></p><p>Prove <code>select_true</code>. <code>True</code> is the statement with a proof, <code>trivial</code>.</p></div>
+<div class="ex" id="ex-2t-8"><p class="ex-h"><span class="ex-n">Exercise 2T.8</span> <span class="chip stretch">Stretch</span> <span class="ex-t">Union is associative</span></p><p>Prove <code>union_assoc</code>. There are three cases on each side.</p>
+<details class="hint"><summary>Hint</summary><p>Nested <code>elim</code>s: on the left, <code>h.elim (fun hr =&gt; …) (fun hst =&gt; hst.elim (fun hs =&gt; …) (fun ht =&gt; …))</code>.</p></details></div></section><section class="next" aria-labelledby="next-h"><h2 id="next-h">Next</h2><ol class="next-cards"><li><a class="lvl lvl-t" href="level-3t.html" data-progress="3t:m1 3t:m2 3t:m3 3t:m4"><span class="lvl-id">Level 3T</span> <span class="lvl-t">Difference</span><span class="lvl-p"></span></a></li></ol><p class="stuck">Stuck, or curious? Ask us: on Discord, or any Thursday.</p></section></main>
+<footer>
+<p>The first challenge of the <a href="https://papc-rhul.github.io/">Proofs and Programs Club @ RHUL</a>.</p>
+<p>Your ticked milestones are kept in this browser only.</p>
+</footer>
+</body>
+</html>

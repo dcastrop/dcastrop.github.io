@@ -1,0 +1,164 @@
+% !LW recipe = make-deck
+% Level 7 (after the tracks meet): the laws, for every query. Theory: why
+% databases need laws; the laws; side conditions about attributes; which
+% equality. Lean: tables become Finsets; a goal theorem.
+% Build: make (rules in ../common/deck.mk).
+\DocumentMetadata{
+  lang        = en-GB,
+  pdfstandard = ua-2,
+  tagging     = on,
+}
+\documentclass{ltx-talk}
+
+\input{preamble}
+
+\title{Level 7: The Laws, for Every Query}
+\author{The Proofs and Programs Club}
+\institute{Royal Holloway, University of London}
+
+\begin{document}
+
+\leveltitle{7}{The Laws, for Every Query}{After the tracks meet: leans on
+  TPIL}{After \levellink{6}}{Next: \levellink{8}}
+
+\levelframe{7}{Level 7 at a Glance}{%
+  tables as finite sets, so that row order and repeated rows no longer
+  matter.}{%
+  the laws, for every query, each side condition a hypothesis.}{%
+  write conditions as terms, and functions on them by recursion &
+    \rds{tpil-recdata, tpil-structrec} \\
+  turn a decidable proposition into a \code{Bool} & \rds{tpil-dec} \\
+  prove two sets equal, element by element & \rds{mil-sets, mil-finset} \\
+}
+
+% ---------------------------------------------------------------- theory
+\theorypart{Why databases need laws, and the laws for queries}
+
+\begin{frame*}
+  \frametitle{Databases Rewrite Your Queries Using Laws}
+  \mainblock{sql-pushdown.sql}
+  \begin{itemize}
+    \item Faster, and correct only because the filter mentions only
+      \code{users}: a \textbf{side condition}.
+    \item Get it wrong, and the database silently answers wrongly: SQLancer
+      found hundreds of such bugs in mature databases.
+  \end{itemize}
+  \begin{sticky}
+    Each rewrite is a \textbf{law}, and a law can be \textbf{proved}, side
+    condition included.
+  \end{sticky}
+  \slideref{SQLancer: \url{https://github.com/sqlancer/sqlancer} \rfsep
+    M. Rigger, Z. Su. \textbf{Detecting Optimization Bugs in Database Engines via Non-Optimizing Reference Engine Construction}. ESEC/FSE 2020.}
+  \theorytag{7}
+\end{frame*}
+
+\begin{frame}
+  \frametitle{Selections Move Down, Under Side Conditions}
+  {\centering\renewcommand\arraystretch{1.25}
+    {\headerrow\begin{tabular}{@{}r@{\quad}l@{\qquad}l@{}}
+      \hline
+      & \textbf{Law} & \textbf{Holds when} \\ \hline
+      1 & $\sel{p}(\sel{q}(R)) = \sel{p \wedge q}(R)$ & always (2T) \\
+      2 & $\sel{p}(\sel{q}(R)) = \sel{q}(\sel{p}(R))$ & always \\
+      3 & $\sel{p}(R \cup S) = \sel{p}(R) \cup \sel{p}(S)$ & always (2T) \\
+      4 & $\sel{p}(R - S) = \sel{p}(R) - S$ & always (3T) \\
+      5 & $\sel{p}(R \times S) = \sel{p}(R) \times S$ & $p$ mentions only
+        attributes of $R$ \\
+      6 & $\sel{p}(R \join S) = \sel{p}(R) \join S$ & $p$ mentions only
+        attributes of $R$ \\ \hline
+    \end{tabular}}\par}
+  \medskip
+  Levels 2T to 4T proved laws 1 to 5 for two-column tables. Now they are
+  laws about queries of any schema (Level 5F), and their \emph{side
+  conditions} are about attributes.
+  \slideref{\lnk{ahv6} (section 6.1)}
+  \theorytag{7}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Projections and Joins Have Laws, and Traps}
+  {\centering\renewcommand\arraystretch{1.25}
+    {\headerrow\begin{tabular}{@{}r@{\quad}l@{\qquad}l@{}}
+      \hline
+      & \textbf{Law} & \textbf{Holds when} \\ \hline
+      7 & $\proj{A}(\proj{B}(R)) = \proj{A}(R)$ & $A \subseteq B$ \\
+      8 & $\proj{A}(R \cup S) = \proj{A}(R) \cup \proj{A}(S)$ & always \\
+      9 & $\proj{A}(\sel{p}(R)) = \sel{p}(\proj{A}(R))$ & $p$ mentions
+        only attributes in $A$ \\
+      10 & $R \join S = S \join R$ & always \\
+      11 & $(R \join S) \join T = R \join (S \join T)$ & always \\ \hline
+    \end{tabular}}\par}
+  \medskip
+  \textbf{Not} a law: $\proj{A}(R - S) = \proj{A}(R) - \proj{A}(S)$.
+  \textbf{Try}: find two small tables that break it.
+  \slideref{\lnk{ahv6} (section 6.1)}
+  \theorytag{7}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A Side Condition Is About Attributes}
+  \defn{Definition 7.1 (Attributes of a condition)}{Conditions are terms:
+    $a = v$, $a = b$, $\neg c$ and $c \wedge c'$, for attributes $a$, $b$
+    and values $v$. The \emph{attributes} of $c$, $\mathit{attrs}(c)$,
+    are those it mentions.}
+  \defn{Fact 7.2}{If rows $t$ and $t'$ agree on $\mathit{attrs}(c)$, then
+    $c(t) = c(t')$. \emph{Proof}: induction on $c$.}
+  \defn{Law 5}{If $R : U$, $S : V$ and $\mathit{attrs}(p) \subseteq U$,
+    then $\sel{p}(R \times S) = \sel{p}(R) \times S$.}
+  \emph{Proof.} The rows $t \cup s$ and $t$ agree on $U$, so
+  $p(t \cup s) = p(t)$ by Fact 7.2. The rest unfolds the definitions, as
+  in Level 4T. \proofend
+  \theorytag{7}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Lists, Bags or Sets: Which Equality?}
+  \defn{Definition 7.3}{Two lists are equal \emph{as bags} if one is a
+    reordering of the other, and equal \emph{as sets} if they represent
+    the same table (Definition 1.2).}
+  {\centering\renewcommand\arraystretch{1.25}
+    {\headerrow\begin{tabular}{@{}l@{\qquad}c@{\qquad}c@{\qquad}c@{}}
+      \hline
+      & \textbf{as lists} & \textbf{as bags} & \textbf{as sets} \\ \hline
+      $[a, b]$ and $[b, a]$ & no & yes & yes \\
+      $[a, b, a]$ and $[a, b]$ & no & no & yes \\ \hline
+    \end{tabular}}\par}
+  \medskip
+  Relational algebra uses set equality. Law 1 holds even for lists; law
+  10 only for bags or sets; $R \cup R = R$ only for sets.
+  \theorytag{7}
+\end{frame}
+
+% ---------------------------------------------------------------- Lean
+\leanpart{Tables as finite sets, and theorems about queries}
+
+\begin{frame}
+  \frametitle{In Lean, Tables Become Finite Sets}
+  {\centering\renewcommand\arraystretch{1.3}
+    {\headerrow\begin{tabular}{@{}l@{\qquad}l@{\qquad}l@{}}
+      \hline
+      \textbf{Equal as} & \textbf{In Lean} & \textbf{From} \\ \hline
+      lists & \code{List} & Lean \\
+      bags & \code{Multiset} & Mathlib \\
+      sets & \code{Finset} & Mathlib \\ \hline
+    \end{tabular}}\par}
+  \begin{itemize}
+    \item Use your Mathlib project now (Level 1, Before You Start). \code{l.toFinset}
+      turns a list into the table it represents.
+    \item Move your operators from lists to \code{Finset}, or prove them
+      equal as sets: \code{l.toFinset = m.toFinset}.
+  \end{itemize}
+  \slideref{\lnk{mil-finset} \rfsep \lnk{ml-finset} \rfsep \lnk{ml-multiset}}
+  \leantag{7}
+\end{frame}
+
+\begin{frame*}
+  \frametitle{Level 7 Ends in Theorems Like This One}
+  \leanblock{goal.lean}
+  \sketch
+  One theorem for each law. \code{p.attrs ⊆ q₁.schema} is Definition 7.1.
+  Level 4T proved law 5 for two-column tables: start again from there.
+  \leantag{7}
+\end{frame*}
+
+\end{document}

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Level 4T: Product and Projection, Proved: “For All” and “There Exists” · PaPC challenge</title>
+<meta name="description" content="Level 4T of the PaPC challenge: Product and Projection, Proved: “For All” and “There Exists”.">
+<link rel="icon" href="assets/papc-logo.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simpledotcss@2.3.7/simple.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="assets/challenge.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="assets/challenge.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the content</a>
+<header>
+<p class="club"><a href="https://papc-rhul.github.io/"><img src="assets/papc-logo.png" alt="" width="38" height="48"> The Proofs and Programs Club @ RHUL</a></p>
+<p class="kicker"><span class="chip track-t">Proofs track · follows TPIL</span></p><h1><span class="lvl-k">Level 4T</span> Product and Projection, Proved: “For All” and “There Exists”</h1>
+<nav aria-label="The challenge"><ul><li><a href="index.html">The challenge</a></li><li><a href="index.html#levels">All levels</a></li><li><a href="laws.html">Laws at a glance</a></li></ul></nav>
+</header>
+<main id="main"><p class="crumbs">After <a href="level-3t.html">Level 3T</a> · Next: <a href="level-5t.html">Level 5T</a> · <a href="https://dcastrop.github.io/tex/2026-papc-challenge/level-4t/level-4t.pdf">Slides (PDF)</a></p><section class="glance" aria-labelledby="at-a-glance"><h2 id="at-a-glance">At a glance</h2><dl><div><dt>You build</dt><dd>products and images, on tables as properties of rows.</dd></div><div><dt>You prove</dt><dd>that images compose, and law 5, whose side condition is a hypothesis.</dd></div></dl><div class="table-wrap"><table class="reads"><caption>What to learn first, and where</caption><thead><tr><th scope="col">Learn to</th><th scope="col">Read</th></tr></thead><tbody><tr><td>state and use facts about every value: \(\forall\)</td><td><a class="ref" href="https://lean-lang.org/theorem_proving_in_lean4/Quantifiers-and-Equality/#the-universal-quantifier">TPIL 4.1 <cite>The Universal Quantifier</cite></a></td></tr><tr><td>prove and use "there exists": \(\exists\)</td><td><a class="ref" href="https://lean-lang.org/theorem_proving_in_lean4/Quantifiers-and-Equality/#the-existential-quantifier">TPIL 4.4 <cite>The Existential Quantifier</cite></a></td></tr><tr><td>write proofs step by step, with tactics</td><td><a class="ref" href="https://lean-lang.org/theorem_proving_in_lean4/Tactics/#basic-tactics">TPIL 5.2 <cite>Basic Tactics</cite></a></td></tr></tbody></table></div></section>
+<section class="milestones" aria-labelledby="milestones"><h2 id="milestones">Milestones</h2><p class="ms-intro">Tick each one when Lean accepts your work. Your ticks stay in this browser.</p><ul><li><label><input type="checkbox" data-milestone="4t:m1"> <span><code>Sets.product</code> and <code>Sets.image</code> are in your file, and <code>image_of</code> is accepted.</span></label></li><li><label><input type="checkbox" data-milestone="4t:m2"> <span>Images compose (Exercise 4T.1).</span></label></li><li><label><input type="checkbox" data-milestone="4t:m3"> <span>Law 5, with its side condition as a hypothesis (Exercise 4T.2).</span></label></li><li><label><input type="checkbox" data-milestone="4t:m4"> <span>An example that shows why law 5 needs its side condition (Exercise 4T.3).</span></label></li></ul><p class="ms-progress" data-progress="4t:m1 4t:m2 4t:m3 4t:m4"><progress max="4" value="0"></progress> <span class="ms-count" aria-live="polite">0 of 4 done</span></p></section>
+<nav class="toc" aria-label="On this page"><details><summary>On this page</summary><ol><li><a href="#at-a-glance">At a glance</a></li><li><a href="#milestones">Milestones</a></li><li><a href="#theory-on-paper">Theory, on paper</a><ol><li><a href="#a-product-pairs-every-row-with-every-row">A product pairs every row with every row</a></li><li><a href="#an-image-applies-a-function-to-every-row">An image applies a function to every row</a></li><li><a href="#for-all-and-there-exists">"For all" and "there exists"</a></li><li><a href="#images-compose">Images compose</a></li><li><a href="#a-side-condition-is-a-hypothesis-of-the-law">A side condition is a hypothesis of the law</a></li><li><a href="#more-facts-about-images">More facts about images</a></li><li><a href="#questions">Questions</a></li></ol></li><li><a href="#lean-on-your-computer">Lean, on your computer</a><ol><li><a href="#products-and-images-are-formulas-with-there-exists">Products and images are formulas, with "there exists"</a></li><li><a href="#a-first-proof-with-tactics">A first proof with tactics</a></li><li><a href="#your-turn-images-compose">Your turn: images compose</a></li><li><a href="#your-turn-law-5-side-condition-included">Your turn: law 5, side condition included</a></li><li><a href="#more-exercises">More exercises</a></li></ol></li></ol></details></nav>
+<section class="part part-theory" aria-labelledby="theory-on-paper"><h2 id="theory-on-paper"><span class="part-k">Theory, on paper</span><span class="part-t">Products, images, and a side condition</span></h2><h3 id="a-product-pairs-every-row-with-every-row">A product pairs every row with every row</h3>
+<div class="box def" id="definition-4t-1"><p class="box-h"><span class="box-n">Definition 4T.1</span> (Product)</p><p>For tables \(R\) and \(S\): \(\ R \times S = \{(t, s) \mid t \in R \text{ and } s \in S\}\).</p></div>
+<p>Its rows are pairs of rows. For example, \(((\text{Ada}, \text{Maths}), (1, \text{Lists})) \in \rel{Member} \times \rel{Session}\), which has \(3 \cdot 4 = 12\) rows. In SQL: <code>FROM Member, Session</code>.</p>
+<h3 id="an-image-applies-a-function-to-every-row">An image applies a function to every row</h3>
+<div class="box def" id="definition-4t-2"><p class="box-h"><span class="box-n">Definition 4T.2</span> (Image, projection)</p><p>For a function \(f\) on rows, \(f[R] = \{s \mid \text{there is } t \in R \text{ with } f(t) = s\}\). The projections are the images under \(\pi_1(d_1, d_2) = d_1\) and \(\pi_2(d_1, d_2) = d_2\).</p></div>
+<p>For example, \(\pi_2[\rel{Attended}] = \{1, 2, 3\}\): the weeks someone attended. Read more in <a class="ref" href="https://webdam.di.ens.fr/Alice/pdfs/Chapter-4.pdf">Abiteboul, Hull, Vianu, Foundations of Databases (1995), ch. 4: <cite>Conjunctive Queries</cite></a>.</p>
+<p>Membership in an image is a "there is": \(s \in f[R]\) holds when some row of \(R\) is sent to \(s\). To prove it, give the row (a <em>witness</em>); to use it, you get a row, but you do not choose which one.</p>
+<h3 id="for-all-and-there-exists">"For all" and "there exists"</h3>
+<div class="table-wrap"><table><thead><tr><th scope="col">To prove</th><th scope="col">In Lean</th><th scope="col">A proof is</th></tr></thead><tbody><tr><td>for every \(x\), \(P(x)\)</td><td><code>∀ x, P x</code></td><td>a function <code>fun x =&gt; …</code> that proves <code>P x</code> for each <code>x</code></td></tr><tr><td>there is \(x\) with \(P(x)\)</td><td><code>∃ x, P x</code></td><td>a pair <code>⟨w, h⟩</code> of a witness <code>w</code> and a proof <code>h</code> of <code>P w</code></td></tr></tbody></table></div>
+<p>"For all" is a function, like "if … then"; "there exists" is a pair, like "and". To use <code>h : ∀ x, P x</code>, apply it: <code>h a</code> proves <code>P a</code>. To use <code>h : ∃ x, P x</code>, take it apart: <code>obtain ⟨w, hw⟩ := h</code> (<a class="ref" href="https://lean-lang.org/theorem_proving_in_lean4/Quantifiers-and-Equality/#the-universal-quantifier">TPIL 4.1 <cite>The Universal Quantifier</cite></a>, <a class="ref" href="https://lean-lang.org/theorem_proving_in_lean4/Quantifiers-and-Equality/#the-existential-quantifier">TPIL 4.4 <cite>The Existential Quantifier</cite></a>).</p>
+<h3 id="images-compose">Images compose</h3>
+<div class="box fact" id="fact-4t-3"><p class="box-h"><span class="box-n">Fact 4T.3</span> (Composition)</p><p>\(g[f[R]] = (g \circ f)[R]\).</p></div>
+<div class="proof"><p><em>Proof.</em> For every \(s\):</p>
+<div class="math-display">\[\begin{aligned}
+s \in g[f[R]] &amp;\iff \text{there is } u \in f[R] \text{ with } s = g(u) \\
+&amp;\iff \text{there is } t \in R \text{ with } s = g(f(t)) \\
+&amp;\iff s \in (g \circ f)[R].
+\end{aligned}\]</div>
+<p>In the middle step: from left to right, take apart the two "there is"; from right to left, the witness for \(u\) is \(f(t)\). <span class="qed" role="img" aria-label="End of proof">∎</span></p></div>
+<h3 id="a-side-condition-is-a-hypothesis-of-the-law">A side condition is a hypothesis of the law</h3>
+<div class="box def" id="definition-4t-4"><p class="box-h"><span class="box-n">Definition 4T.4</span> (Mentions only \(R\))</p><p>A condition \(p\) on the rows of \(R \times S\) <em>mentions only \(R\)</em> if there is a condition \(p'\) on the rows of \(R\) with: for all \(t\) and \(s\), \(p(t, s)\) holds exactly when \(p'(t)\) holds.</p></div>
+<div class="box law" id="law-5"><p class="box-h"><span class="box-n">Law 5</span></p><p>If \(p\) mentions only \(R\), then \(\sel{p}(R \times S) = \sel{p'}(R) \times S\).</p></div>
+<div class="proof"><p><em>Proof.</em> \((t, s) \in \sel{p}(R \times S) \iff t \in R\), \(s \in S\) and \(p(t, s)\) \(\iff t \in R\), \(p'(t)\) and \(s \in S\) \(\iff (t, s) \in \sel{p'}(R) \times S\). The middle step is the hypothesis, for this \(t\) and \(s\). <span class="qed" role="img" aria-label="End of proof">∎</span></p></div>
+<p>Without the hypothesis, the law makes no sense: a condition on the week of a session cannot be checked on \(\rel{Member}\) alone. Law 5 is what lets a database filter a table <em>before</em> combining it with another, which is much faster (<a class="ref" href="https://webdam.di.ens.fr/Alice/pdfs/Chapter-6.pdf">Abiteboul, Hull, Vianu, Foundations of Databases (1995), ch. 6: <cite>Static Analysis and Optimization</cite></a>, section 6.1). <a href="level-7.html">Level 7</a> states it for queries, where "mentions only \(R\)" becomes a fact about attribute names.</p>
+<h3 id="more-facts-about-images">More facts about images</h3>
+<div class="box fact" id="fact-4t-5"><p class="box-h"><span class="box-n">Fact 4T.5</span></p><p>\(f[R \cup S] = f[R] \cup f[S]\).</p></div>
+<div class="box fact" id="fact-4t-6"><p class="box-h"><span class="box-n">Fact 4T.6</span></p><p>\(f[R \cap S] \subseteq f[R] \cap f[S]\), and the two sides can differ.</p></div>
+<p>Fact 4T.6 is a <em>trap</em>: it looks like Fact 4T.5, but only one inclusion holds. Question 4T.B finds two tables that separate the sides. <a href="level-7.html">Level 7</a> meets the same trap with projection and difference.</p>
+<h3 id="questions">Questions</h3>
+<div class="q" id="q-4t-a"><p class="ex-h"><span class="ex-n">Question 4T.A</span> <span class="ex-t">Project a product</span></p><p>Is \(\pi_1[R \times S] = R\) for all tables \(R\) and \(S\)?</p>
+<details class="answer"><summary>Answer</summary><p>Only when \(S\) is not empty. If \(S = \emptyset\), then \(R \times S = \emptyset\), so \(\pi_1[R \times S] = \emptyset\), whatever \(R\) is. If \(S\) has a row \(s\), each \(t \in R\) is \(\pi_1(t, s)\).</p></details></div>
+<div class="q" id="q-4t-b"><p class="ex-h"><span class="ex-n">Question 4T.B</span> <span class="ex-t">The trap</span></p><p>Find \(f\), \(R\) and \(S\) with \(f[R \cap S] \neq f[R] \cap f[S]\).</p>
+<details class="answer"><summary>Answer</summary><p>\(f = \pi_1\), \(R = \{(a, 1)\}\) and \(S = \{(a, 2)\}\). Then \(R \cap S = \emptyset\), so \(f[R \cap S] = \emptyset\), but \(f[R] \cap f[S] = \{a\}\).</p></details></div>
+<div class="q" id="q-4t-c"><p class="ex-h"><span class="ex-n">Question 4T.C</span> <span class="ex-t">Prove Fact 4T.5</span></p><p>Prove \(f[R \cup S] = f[R] \cup f[S]\).</p>
+<details class="answer"><summary>Answer</summary><p>\(s \in f[R \cup S] \iff\) there is \(t\) with (\(t \in R\) or \(t \in S\)) and \(f(t) = s\) \(\iff\) (there is \(t \in R\) with \(f(t) = s\)) or (there is \(t \in S\) with \(f(t) = s\)) \(\iff s \in f[R] \cup f[S]\).</p></details></div></section>
+<section class="part part-lean" aria-labelledby="lean-on-your-computer"><h2 id="lean-on-your-computer"><span class="part-k">Lean, on your computer</span><span class="part-t">Products, images, and tactics</span></h2><h3 id="products-and-images-are-formulas-with-there-exists">Products and images are formulas, with "there exists"</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">product.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="k">namespace</span> Sets
+<span class="c">-- A row of the product is a pair x: x.1 a row of R, x.2 a row of S</span>
+<span class="k">def</span> product {α β : <span class="ty">Type</span>} (R : Table α) (S : Table β) : Table (α × β) :=
+  <span class="k">fun</span> x =&gt; R x.<span class="n">1</span> ∧ S x.<span class="n">2</span>
+
+<span class="c">-- The image f[R]: the rows s with s = f t for some row t of R</span>
+<span class="k">def</span> image {α β : <span class="ty">Type</span>} (f : α → β) (R : Table α) : Table β :=
+  <span class="k">fun</span> s =&gt; ∃ t, R t ∧ f t = s
+<span class="k">end</span> Sets</code></pre></div>
+<p>After your code of Levels 2T and 3T. <code>∃ t, R t ∧ f t = s</code> says: there is a row <code>t</code> of <code>R</code> with <code>f t = s</code>. Type <code>∃</code> as <code>\ex</code> and <code>∀</code> as <code>\all</code>.</p>
+<h3 id="a-first-proof-with-tactics">A first proof with tactics</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">first.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="c">-- Inside namespace Sets: each row t of R gives the row f t of f[R]</span>
+<span class="k">theorem</span> image_of {α β : <span class="ty">Type</span>} (f : α → β) (R : Table α) (t : α)
+    (h : R t) : image f R (f t) := <span class="k">by</span>
+  <span class="t">exact</span> ⟨t, h, <span class="t">rfl</span>⟩</code></pre></div>
+<ul><li><code>by</code> switches to <em>tactics</em>: commands that build the proof step by step. The Infoview shows what is left to prove after each one (<a class="ref" href="https://lean-lang.org/theorem_proving_in_lean4/Tactics/#basic-tactics">TPIL 5.2 <cite>Basic Tactics</cite></a>).</li><li><code>exact</code> gives the whole proof at once. <code>⟨t, h, rfl⟩</code> proves the <code>∃</code>: <code>t</code> is the witness, <code>h</code> proves <code>R t</code>, and <code>rfl</code> proves <code>f t = f t</code>.</li><li>More tactics: <code>intro h</code> (assume, for <code>→</code> and <code>∀</code>), <code>constructor</code> (split <code>∧</code> and <code>↔</code>), <code>obtain ⟨t, ht⟩ := h</code> (take apart <code>∃</code> and <code>∧</code>), <code>apply</code>.</li></ul>
+<h3 id="your-turn-images-compose">Your turn: images compose</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">compose.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="c">-- Inside namespace Sets: images compose (Fact 4T.3)</span>
+<span class="k">theorem</span> image_image {α β γ : <span class="ty">Type</span>} (f : α → β) (g : β → γ)
+    (R : Table α) (u : γ) :
+    image g (image f R) u ↔ image (<span class="k">fun</span> t =&gt; g (f t)) R u := <span class="k">by</span>
+  <span class="sorry">sorry</span></code></pre></div>
+<div class="ex" id="ex-4t-1"><p class="ex-h"><span class="ex-n">Exercise 4T.1</span> <span class="chip lean">In Lean</span> <span class="ex-t">Images compose</span></p><p>Prove Fact 4T.3. Start with <code>constructor</code>, then <code>intro h</code> in each half.</p>
+<details class="hint"><summary>Hint 1</summary><p>To use <code>h : ∃ t, A t</code>: <code>obtain ⟨t, ht⟩ := h</code> names the witness and its proof. Patterns can nest: <code>obtain ⟨v, ⟨t, ht, hv⟩, hu⟩ := h</code>.</p></details>
+<details class="hint"><summary>Hint 2</summary><p>From left to right, the witness is <code>t</code>; from right to left, you need two witnesses: <code>f t</code> for the outer image, and <code>t</code> for the inner one.</p></details>
+<details class="hint"><summary>Hint 3</summary><p>In a pattern, <code>rfl</code> in place of a proof of <code>x = e</code> replaces <code>x</code> by <code>e</code> everywhere. After <code>obtain ⟨v, ⟨t, ht, rfl⟩, rfl⟩ := h</code>, the goal mentions only <code>t</code>.</p></details></div>
+<h3 id="your-turn-law-5-side-condition-included">Your turn: law 5, side condition included</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">law5.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="c">-- Inside namespace Sets: law 5, with its side condition h</span>
+<span class="k">theorem</span> select_product {α β : <span class="ty">Type</span>} (p : α × β → <span class="ty">Prop</span>) (p' : α → <span class="ty">Prop</span>)
+    (h : ∀ t s, p (t, s) ↔ p' t) (R : Table α) (S : Table β)
+    (t : α) (s : β) :
+    select p (product R S) (t, s) ↔ product (select p' R) S (t, s) := <span class="k">by</span>
+  <span class="sorry">sorry</span></code></pre></div>
+<p>The hypothesis <code>h</code> is Definition 4T.4: it says that <code>p</code> mentions only <code>R</code>, with <code>p'</code> its condition on the rows of <code>R</code>.</p>
+<div class="ex" id="ex-4t-2"><p class="ex-h"><span class="ex-n">Exercise 4T.2</span> <span class="chip lean">In Lean</span> <span class="ex-t">Law 5</span></p><p>Prove law 5. <code>h t s</code> is the side condition for this <code>t</code> and <code>s</code>: use <code>(h t s).1</code> and <code>(h t s).2</code>.</p>
+<details class="hint"><summary>Hint</summary><p><code>constructor</code>, then <code>intro ⟨⟨hr, hs⟩, hp⟩</code> in the first half: <code>(h t s).1 hp</code> proves <code>p' t</code>.</p></details></div>
+<div class="ex" id="ex-4t-3"><p class="ex-h"><span class="ex-n">Exercise 4T.3</span> <span class="chip paper">On paper</span> <span class="ex-t">Why the hypothesis?</span></p><p>On paper: find \(p\), \(R\) and \(S\) that show why law 5 needs its hypothesis.</p>
+<details class="answer"><summary>Answer</summary><p>Take \(R = \rel{Member}\), \(S = \rel{Session}\), and \(p((n, d), (w, x))\): "\(w = 1\)". For a \(p'\) to exist, \(p'(\text{Ada}, \text{Maths})\) would have to hold, since \(p\) holds for \(((\text{Ada}, \text{Maths}), (1, \text{Lists}))\), and also not hold, since \(p\) fails for \(((\text{Ada}, \text{Maths}), (2, \text{Proofs}))\). No such \(p'\) exists: the right side of law 5 cannot even be written.</p></details></div>
+<h3 id="more-exercises">More exercises</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">more.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="c">-- Inside namespace Sets</span>
+<span class="k">theorem</span> image_union {α β : <span class="ty">Type</span>} (f : α → β) (R S : Table α) (u : β) :
+    image f (union R S) u ↔ union (image f R) (image f S) u := <span class="k">by</span>
+  <span class="sorry">sorry</span>
+
+<span class="k">theorem</span> image_inter {α β : <span class="ty">Type</span>} (f : α → β) (R S : Table α) (u : β) :
+    image f (inter R S) u → inter (image f R) (image f S) u := <span class="k">by</span>
+  <span class="sorry">sorry</span>
+
+<span class="k">theorem</span> image_fst_product {α β : <span class="ty">Type</span>} (R : Table α) (S : Table β)
+    (s : β) (hs : S s) (t : α) :
+    image Prod.fst (product R S) t ↔ R t := <span class="k">by</span>
+  <span class="sorry">sorry</span>
+
+<span class="k">theorem</span> select_mono {α : <span class="ty">Type</span>} (p : α → <span class="ty">Prop</span>) (R S : Table α)
+    (h : ∀ t, R t → S t) : ∀ t, select p R t → select p S t := <span class="k">by</span>
+  <span class="sorry">sorry</span></code></pre></div>
+<div class="ex" id="ex-4t-4"><p class="ex-h"><span class="ex-n">Exercise 4T.4</span> <span class="chip lean">In Lean</span> <span class="ex-t">Images and unions</span></p><p>Prove <code>image_union</code> (Fact 4T.5, Question 4T.C).</p></div>
+<div class="ex" id="ex-4t-5"><p class="ex-h"><span class="ex-n">Exercise 4T.5</span> <span class="chip lean">In Lean</span> <span class="ex-t">Images and intersections</span></p><p>Prove <code>image_inter</code>: the half of Fact 4T.6 that holds. Why is there no <code>↔</code>?</p>
+<details class="answer"><summary>Answer</summary><p>The other direction is false: Question 4T.B. A wrong <code>↔</code> would have no proof.</p></details></div>
+<div class="ex" id="ex-4t-6"><p class="ex-h"><span class="ex-n">Exercise 4T.6</span> <span class="chip lean">In Lean</span> <span class="ex-t">Project a product</span></p><p>Prove <code>image_fst_product</code> (Question 4T.A). The hypotheses <code>s</code> and <code>hs</code> say that <code>S</code> is not empty.</p>
+<details class="hint"><summary>Hint</summary><p>From right to left, the witness is the pair <code>(t, s)</code>.</p></details></div>
+<div class="ex" id="ex-4t-7"><p class="ex-h"><span class="ex-n">Exercise 4T.7</span> <span class="chip stretch">Stretch</span> <span class="ex-t">Selection is monotone</span></p><p>Prove <code>select_mono</code>: a bigger table never gives a smaller selection. <a href="level-9.html">Level 9</a> explains why monotone operators matter.</p>
+<details class="hint"><summary>Hint</summary><p><code>intro t ⟨hr, hp⟩</code>, then <code>exact ⟨h t hr, hp⟩</code>. Read <code>h t hr</code> aloud: "<code>h</code>, at <code>t</code>, given <code>hr</code>".</p></details></div></section><section class="next" aria-labelledby="next-h"><h2 id="next-h">Next</h2><ol class="next-cards"><li><a class="lvl lvl-t" href="level-5t.html" data-progress="5t:m1 5t:m2 5t:m3 5t:m4"><span class="lvl-id">Level 5T</span> <span class="lvl-t">Induction on lists</span><span class="lvl-p"></span></a></li></ol><p class="stuck">Stuck, or curious? Ask us: on Discord, or any Thursday.</p></section></main>
+<footer>
+<p>The first challenge of the <a href="https://papc-rhul.github.io/">Proofs and Programs Club @ RHUL</a>.</p>
+<p>Your ticked milestones are kept in this browser only.</p>
+</footer>
+</body>
+</html>

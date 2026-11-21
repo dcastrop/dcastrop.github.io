@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Level 2F: Selection, as a Program · PaPC challenge</title>
+<meta name="description" content="Level 2F of the PaPC challenge: Selection, as a Program.">
+<link rel="icon" href="assets/papc-logo.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simpledotcss@2.3.7/simple.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="assets/challenge.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="assets/challenge.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the content</a>
+<header>
+<p class="club"><a href="https://papc-rhul.github.io/"><img src="assets/papc-logo.png" alt="" width="38" height="48"> The Proofs and Programs Club @ RHUL</a></p>
+<p class="kicker"><span class="chip track-f">Programs track · follows FPIL</span></p><h1><span class="lvl-k">Level 2F</span> Selection, as a Program</h1>
+<nav aria-label="The challenge"><ul><li><a href="index.html">The challenge</a></li><li><a href="index.html#levels">All levels</a></li><li><a href="laws.html">Laws at a glance</a></li></ul></nav>
+</header>
+<main id="main"><p class="crumbs">After <a href="level-1.html">Level 1</a> · Next: <a href="level-3f.html">Level 3F</a> · <a href="https://dcastrop.github.io/tex/2026-papc-challenge/level-2f/level-2f.pdf">Slides (PDF)</a></p><section class="glance" aria-labelledby="at-a-glance"><h2 id="at-a-glance">At a glance</h2><dl><div><dt>You build</dt><dd><code>select</code>, which keeps the rows of a table that satisfy a condition.</dd></div><div><dt>You prove</dt><dd>facts about selections of the club's tables, by computing.</dd></div></dl><div class="table-wrap"><table class="reads"><caption>What to learn first, and where</caption><thead><tr><th scope="col">Learn to</th><th scope="col">Read</th></tr></thead><tbody><tr><td>define a function by cases on a list: empty, or a first row and the rest</td><td><a class="ref" href="https://lean-lang.org/functional_programming_in_lean/Getting-to-Know-Lean/Datatypes-and-Patterns/#datatypes-and-patterns">FPIL 1.5 <cite>Datatypes and Patterns</cite></a></td></tr><tr><td>write one function for tables of any row type</td><td><a class="ref" href="https://lean-lang.org/functional_programming_in_lean/Getting-to-Know-Lean/Polymorphism/#polymorphism">FPIL 1.6 <cite>Polymorphism</cite></a></td></tr><tr><td>pass a function, such as a condition, as an argument</td><td><a class="ref" href="https://lean-lang.org/functional_programming_in_lean/Getting-to-Know-Lean/Functions-and-Definitions/#functions-and-definitions">FPIL 1.3 <cite>Functions and Definitions</cite></a></td></tr></tbody></table></div></section>
+<section class="milestones" aria-labelledby="milestones"><h2 id="milestones">Milestones</h2><p class="ms-intro">Tick each one when Lean accepts your work. Your ticks stay in this browser.</p><ul><li><label><input type="checkbox" data-milestone="2f:m1"> <span><code>select</code> is defined, with no <code>sorry</code> left (Exercise 2F.1).</span></label></li><li><label><input type="checkbox" data-milestone="2f:m2"> <span><code>#eval</code> shows the rows of week 1, and the CS members (Exercises 2F.2 and 2F.3).</span></label></li><li><label><input type="checkbox" data-milestone="2f:m3"> <span>Lean checks law 1 on an example, by computing (Exercise 2F.4).</span></label></li><li><label><input type="checkbox" data-milestone="2f:m4"> <span>You can explain why one example does not prove a law (Question 2F.E).</span></label></li></ul><p class="ms-progress" data-progress="2f:m1 2f:m2 2f:m3 2f:m4"><progress max="4" value="0"></progress> <span class="ms-count" aria-live="polite">0 of 4 done</span></p></section>
+<nav class="toc" aria-label="On this page"><details><summary>On this page</summary><ol><li><a href="#at-a-glance">At a glance</a></li><li><a href="#milestones">Milestones</a></li><li><a href="#theory-on-paper">Theory, on paper</a><ol><li><a href="#a-condition-says-yes-or-no-to-each-row">A condition says yes or no to each row</a></li><li><a href="#selection-keeps-the-rows-that-satisfy-a-condition">Selection keeps the rows that satisfy a condition</a></li><li><a href="#on-a-list-selection-is-three-equations">On a list, selection is three equations</a></li><li><a href="#laws-two-questions-one-answer">Laws: two questions, one answer</a></li><li><a href="#questions">Questions</a></li></ol></li><li><a href="#lean-on-your-computer">Lean, on your computer</a><ol><li><a href="#your-turn-build-select">Your turn: build select</a></li><li><a href="#law-1-checked-by-lean-on-an-example">Law 1, checked by Lean on an example</a></li><li><a href="#more-exercises">More exercises</a></li></ol></li></ol></details></nav>
+<section class="part part-theory" aria-labelledby="theory-on-paper"><h2 id="theory-on-paper"><span class="part-k">Theory, on paper</span><span class="part-t">Conditions, selection, and selection on lists</span></h2><h3 id="a-condition-says-yes-or-no-to-each-row">A condition says yes or no to each row</h3>
+<p>Write \(\B = \{\true, \false\}\) for the two truth values.</p>
+<div class="box def" id="definition-2f-1"><p class="box-h"><span class="box-n">Definition 2F.1</span> (Condition)</p><p>A <em>condition</em> on rows of \(D_1 \times D_2\) is a function \(p : D_1 \times D_2 \to \B\).</p></div>
+<p>For example, on \(\rel{Member}\) and on \(\rel{Attended}\):</p>
+<div class="math-display">\[\mathit{cs}(n, d) = \true \iff d = \text{CS}, \qquad \mathit{late}(n, w) = \true \iff w \geq 2.\]</div>
+<p>So \(\mathit{cs}(\text{Alan}, \text{CS}) = \true\) and \(\mathit{late}(\text{Ada}, 1) = \false\). A condition is a function like any other: a program can take it as an argument.</p>
+<div class="box def" id="definition-2f-2"><p class="box-h"><span class="box-n">Definition 2F.2</span> (Both conditions)</p><p>\((p \wedge q)(t) = \true\) exactly when \(p(t) = \true\) and \(q(t) = \true\).</p></div>
+<h3 id="selection-keeps-the-rows-that-satisfy-a-condition">Selection keeps the rows that satisfy a condition</h3>
+<div class="box def" id="definition-2f-3"><p class="box-h"><span class="box-n">Definition 2F.3</span> (Selection)</p><p>For a table \(R\) and a condition \(p\), \(\ \sel{p}(R) = \{t \in R \mid p(t) = \true\}\).</p></div>
+<div class="row"><div class="table-wrap"><table><caption>\(\sel{\mathit{cs}}(\rel{Member})\)</caption><thead><tr><th scope="col">\(\att{name}\)</th><th scope="col">\(\att{dept}\)</th></tr></thead><tbody><tr><td>Alan</td><td>CS</td></tr><tr><td>Grace</td><td>CS</td></tr></tbody></table></div>
+<div class="table-wrap"><table><caption>\(\sel{\mathit{late}}(\rel{Attended})\)</caption><thead><tr><th scope="col">\(\att{name}\)</th><th class="r" scope="col">\(\att{week}\)</th></tr></thead><tbody><tr><td>Alan</td><td class="r">2</td></tr><tr><td>Grace</td><td class="r">3</td></tr></tbody></table></div></div>
+<p>A selection never adds rows: \(\sel{p}(R) \subseteq R\). In SQL, a selection is a <code>WHERE</code> clause: \(\sel{\mathit{cs}}(\rel{Member})\) is <code>SELECT * FROM Member WHERE dept = 'CS'</code>. Read more in <a class="ref" href="https://webdam.di.ens.fr/Alice/pdfs/Chapter-4.pdf">Abiteboul, Hull, Vianu, Foundations of Databases (1995), ch. 4: <cite>Conjunctive Queries</cite></a>.</p>
+<h3 id="on-a-list-selection-is-three-equations">On a list, selection is three equations</h3>
+<p>A table is a set; a program works on a list that represents it (Definition 1.2). On a list, selection looks at the first row, decides, and goes on with the rest.</p>
+<div class="box def" id="definition-2f-4"><p class="box-h"><span class="box-n">Definition 2F.4</span> (Selection on lists)</p><p>For a condition \(p\):</p>
+<div class="math-display">\[\begin{aligned}
+\mathit{select}\ p\ [\,] &amp;= [\,] \\
+\mathit{select}\ p\ (t :: l) &amp;= t :: \mathit{select}\ p\ l &amp;&amp; \text{if } p(t) = \true \\
+\mathit{select}\ p\ (t :: l) &amp;= \mathit{select}\ p\ l &amp;&amp; \text{if } p(t) = \false
+\end{aligned}\]</div></div>
+<p>Here \(t :: l\) is the list with first row \(t\), then the list \(l\). Every non-empty list has this shape, so the equations cover every list. Each step applies one equation:</p>
+<div class="math-display">\[\begin{aligned}
+&amp;\mathit{select}\ \mathit{late}\ [(\text{Ada}, 1), (\text{Alan}, 1), (\text{Alan}, 2), (\text{Grace}, 3)] \\
+={}&amp; \mathit{select}\ \mathit{late}\ [(\text{Alan}, 1), (\text{Alan}, 2), (\text{Grace}, 3)] &amp;&amp; \mathit{late}(\text{Ada}, 1) = \false \\
+={}&amp; \mathit{select}\ \mathit{late}\ [(\text{Alan}, 2), (\text{Grace}, 3)] &amp;&amp; \mathit{late}(\text{Alan}, 1) = \false \\
+={}&amp; (\text{Alan}, 2) :: \mathit{select}\ \mathit{late}\ [(\text{Grace}, 3)] &amp;&amp; \mathit{late}(\text{Alan}, 2) = \true \\
+={}&amp; (\text{Alan}, 2) :: (\text{Grace}, 3) :: \mathit{select}\ \mathit{late}\ [\,] &amp;&amp; \mathit{late}(\text{Grace}, 3) = \true \\
+={}&amp; [(\text{Alan}, 2), (\text{Grace}, 3)].
+\end{aligned}\]</div>
+<p>This is exactly how Lean runs your program. The answer represents \(\sel{\mathit{late}}(\rel{Attended})\), as it should:</p>
+<div class="box fact" id="fact-2f-5"><p class="box-h"><span class="box-n">Fact 2F.5</span></p><p>If \(l\) represents \(R\) (Definition 1.2), then \(\mathit{select}\ p\ l\) represents \(\sel{p}(R)\).</p></div>
+<p><a href="level-6.html">Level 6</a> proves it, for every list. Here, you check it on examples.</p>
+<h3 id="laws-two-questions-one-answer">Laws: two questions, one answer</h3>
+<p>A <em>law</em> says that two ways of asking give the same answer, on every table. The first one:</p>
+<div class="box law" id="law-1"><p class="box-h"><span class="box-n">Law 1</span></p><p>For every table \(R\) and conditions \(p\) and \(q\): \(\ \sel{p}(\sel{q}(R)) = \sel{p \wedge q}(R)\).</p></div>
+<p>Two selections, one after the other, are one selection with both conditions. In this track you check laws on examples, by computing; <a href="level-2t.html">Level 2T</a> proves law 1 for every table. Checking is useful, since it catches false laws, but it is not proving: an example is one table, and a law speaks of all of them.</p>
+<h3 id="questions">Questions</h3>
+<div class="q" id="q-2f-a"><p class="ex-h"><span class="ex-n">Question 2F.A</span> <span class="ex-t">Compute a selection</span></p><p>With \(\mathit{early}(n, w) = \true \iff w \leq 1\), what is \(\sel{\mathit{early}}(\rel{Attended})\)?</p>
+<details class="answer"><summary>Answer</summary><p>\(\{(\text{Ada}, 1), (\text{Alan}, 1)\}\).</p></details></div>
+<div class="q" id="q-2f-b"><p class="ex-h"><span class="ex-n">Question 2F.B</span> <span class="ex-t">Extreme conditions</span></p><p>What is \(\sel{p}(R)\) when \(p(t) = \true\) for every row \(t\)? And when \(p(t) = \false\) for every row?</p>
+<details class="answer"><summary>Answer</summary><p>\(R\) itself, and the empty table \(\emptyset\).</p></details></div>
+<div class="q" id="q-2f-c"><p class="ex-h"><span class="ex-n">Question 2F.C</span> <span class="ex-t">Step by step</span></p><p>Compute \(\mathit{select}\ \mathit{late}\ [(\text{Grace}, 3), (\text{Ada}, 1)]\) with Definition 2F.4, one equation per step.</p>
+<details class="answer"><summary>Answer</summary><p>\(\mathit{select}\ \mathit{late}\ [(\text{Grace}, 3), (\text{Ada}, 1)] = (\text{Grace}, 3) :: \mathit{select}\ \mathit{late}\ [(\text{Ada}, 1)] = (\text{Grace}, 3) :: \mathit{select}\ \mathit{late}\ [\,] = [(\text{Grace}, 3)]\).</p></details></div>
+<div class="q" id="q-2f-d"><p class="ex-h"><span class="ex-n">Question 2F.D</span> <span class="ex-t">Never more rows</span></p><p>Why is \(|\sel{p}(R)| \leq |R|\), for every \(R\) and \(p\)?</p>
+<details class="answer"><summary>Answer</summary><p>Because \(\sel{p}(R) \subseteq R\): a subset of a finite set has at most as many elements.</p></details></div>
+<div class="q" id="q-2f-e"><p class="ex-h"><span class="ex-n">Question 2F.E</span> <span class="ex-t">Checking is not proving</span></p><p>Law 1 holds on the example of Exercise 2F.4 below. Does that prove law 1? What would a single example show?</p>
+<details class="answer"><summary>Answer</summary><p>No: it shows law 1 for one table and two conditions. A single example can only <em>disprove</em> a law, by giving two different answers. To prove law 1, you show it for every \(R\), \(p\) and \(q\): <a href="level-2t.html">Level 2T</a> does.</p></details></div></section>
+<section class="part part-lean" aria-labelledby="lean-on-your-computer"><h2 id="lean-on-your-computer"><span class="part-k">Lean, on your computer</span><span class="part-t">Build select, and run it</span></h2><h3 id="your-turn-build-select">Your turn: build select</h3>
+<p>Add this to <code>Club.lean</code>, after the tables of <a href="level-1.html">Level 1</a>:</p>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">select.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="k">def</span> select {α : <span class="ty">Type</span>} (p : α → <span class="ty">Bool</span>) : <span class="ty">List</span> α → <span class="ty">List</span> α
+  | [] =&gt; <span class="sorry">sorry</span>
+  | row :: rest =&gt; <span class="sorry">sorry</span>
+
+<span class="c">-- Test: should print [("Ada", 1), ("Alan", 1)]</span>
+<span class="cmd">#eval</span> select (<span class="k">fun</span> row =&gt; row.<span class="n">2</span> == <span class="n">1</span>) attended</code></pre></div>
+<ul><li><code>{α : Type}</code> makes <code>select</code> work on lists of any row type <code>α</code>: pairs of strings, pairs of a string and a number, or anything else (<a class="ref" href="https://lean-lang.org/functional_programming_in_lean/Getting-to-Know-Lean/Polymorphism/#polymorphism">FPIL 1.6 <cite>Polymorphism</cite></a>).</li><li>A condition is a function to <code>Bool</code>, Lean's \(\B\): <code>fun row =&gt; row.2 == 1</code> says whether the second column of <code>row</code> is 1.</li><li>The two lines starting with <code>|</code> are the two cases of a list, as in Definition 2F.4: empty, or a first row and the rest (<a class="ref" href="https://lean-lang.org/functional_programming_in_lean/Getting-to-Know-Lean/Datatypes-and-Patterns/#datatypes-and-patterns">FPIL 1.5 <cite>Datatypes and Patterns</cite></a>).</li></ul>
+<div class="ex" id="ex-2f-1"><p class="ex-h"><span class="ex-n">Exercise 2F.1</span> <span class="chip lean">In Lean</span> <span class="ex-t">Build select</span></p><p>Replace the <code>sorry</code>s with Definition 2F.4. Then run the test.</p>
+<details class="hint"><summary>Hint 1</summary><p>For <code>[]</code>: selecting from no rows gives no rows.</p></details>
+<details class="hint"><summary>Hint 2</summary><p>For <code>row :: rest</code>, the two cases of Definition 2F.4 become one <code>if p row then … else …</code>. Each branch calls <code>select p rest</code> on the rest of the list.</p></details></div>
+<div class="ex" id="ex-2f-2"><p class="ex-h"><span class="ex-n">Exercise 2F.2</span> <span class="chip lean">In Lean</span> <span class="ex-t">A fact, by computing</span></p><p>Prove that <code>select</code> keeps 2 rows of week 1:</p>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="k">example</span> : (select (<span class="k">fun</span> row =&gt; row.<span class="n">2</span> == <span class="n">1</span>) attended).length = <span class="n">2</span> := <span class="t">rfl</span></code></pre></div>
+<details class="hint"><summary>Hint</summary><p>If Lean rejects <code>rfl</code>, first check with <code>#eval</code> what the left side computes to.</p></details></div>
+<div class="ex" id="ex-2f-3"><p class="ex-h"><span class="ex-n">Exercise 2F.3</span> <span class="chip lean">In Lean</span> <span class="ex-t">The CS members</span></p><p><code>#eval</code> the CS members, \(\sel{\mathit{cs}}(\rel{Member})\). You should see <code>[("Alan", "CS"), ("Grace", "CS")]</code>.</p>
+<details class="hint"><summary>Hint</summary><p><code>fun row =&gt; row.2 == "CS"</code>, applied to <code>member</code>.</p></details></div>
+<h3 id="law-1-checked-by-lean-on-an-example">Law 1, checked by Lean on an example</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">law.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="c">-- Law 1, on one example: two selections are one, with both conditions</span>
+<span class="k">example</span> : select (<span class="k">fun</span> r =&gt; r.<span class="n">2</span> ≤ <span class="n">2</span>) (select (<span class="k">fun</span> r =&gt; r.<span class="n">2</span> ≥ <span class="n">2</span>) attended)
+        = select (<span class="k">fun</span> r =&gt; r.<span class="n">2</span> ≥ <span class="n">2</span> &amp;&amp; r.<span class="n">2</span> ≤ <span class="n">2</span>) attended := <span class="t">rfl</span></code></pre></div>
+<ul><li><code>r.2 ≤ 2</code> is a proposition; where a <code>Bool</code> is expected, Lean turns it into one for you, since it can decide it.</li><li><code>&amp;&amp;</code> is "and" on <code>Bool</code>: Definition 2F.2.</li></ul>
+<div class="ex" id="ex-2f-4"><p class="ex-h"><span class="ex-n">Exercise 2F.4</span> <span class="chip lean">In Lean</span> <span class="ex-t">Your own example</span></p><p>Check law 1 on another example of your own: other conditions, or another table.</p></div>
+<div class="ex" id="ex-2f-5"><p class="ex-h"><span class="ex-n">Exercise 2F.5</span> <span class="chip lean">In Lean</span> <span class="ex-t">Does the order matter?</span></p><p>Is \(\sel{p}(\sel{q}(R)) = \sel{q}(\sel{p}(R))\)? Check it in Lean on an example. Then try to find an example where it fails.</p>
+<details class="answer"><summary>Answer</summary><p>You will not find one: it is law 2, and <a href="level-2t.html">Level 2T</a> proves it. Even as lists, both sides keep the same rows in the same order.</p></details></div>
+<h3 id="more-exercises">More exercises</h3>
+<div class="ex" id="ex-2f-6"><p class="ex-h"><span class="ex-n">Exercise 2F.6</span> <span class="chip lean">In Lean</span> <span class="ex-t">Count the rows that satisfy a condition</span></p><p>Define <code>count</code>, with <code>select</code> and <code>.length</code>:</p>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="k">def</span> count {α : <span class="ty">Type</span>} (p : α → <span class="ty">Bool</span>) (l : <span class="ty">List</span> α) : <span class="ty">Nat</span> := <span class="sorry">sorry</span>
+
+<span class="k">example</span> : count (<span class="k">fun</span> r =&gt; r.<span class="n">2</span> ≥ <span class="n">2</span>) attended = <span class="n">2</span> := <span class="t">rfl</span></code></pre></div>
+<details class="hint"><summary>Hint</summary><p><code>(select p l).length</code>.</p></details></div>
+<div class="ex" id="ex-2f-7"><p class="ex-h"><span class="ex-n">Exercise 2F.7</span> <span class="chip lean">In Lean</span> <span class="ex-t">Both conditions, as a function</span></p><p>Write Definition 2F.2 as a function, and use it to restate the example of law 1:</p>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="k">def</span> both {α : <span class="ty">Type</span>} (p q : α → <span class="ty">Bool</span>) : α → <span class="ty">Bool</span> := <span class="sorry">sorry</span></code></pre></div>
+<details class="hint"><summary>Hint</summary><p><code>fun r =&gt; p r &amp;&amp; q r</code>.</p></details></div>
+<div class="ex" id="ex-2f-8"><p class="ex-h"><span class="ex-n">Exercise 2F.8</span> <span class="chip stretch">Stretch</span> <span class="ex-t">Lean already knows select</span></p><p>Lean's library calls it <code>List.filter</code>. Check that they agree on an example:</p>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="k">example</span> : select (<span class="k">fun</span> r =&gt; r.<span class="n">2</span> ≥ <span class="n">2</span>) attended
+        = attended.filter (<span class="k">fun</span> r =&gt; r.<span class="n">2</span> ≥ <span class="n">2</span>) := <span class="t">rfl</span></code></pre></div>
+<p>They agree on every list, too: proving that needs induction, which is <a href="level-5t.html">Level 5T</a>.</p></div></section><section class="next" aria-labelledby="next-h"><h2 id="next-h">Next</h2><ol class="next-cards"><li><a class="lvl lvl-f" href="level-3f.html" data-progress="3f:m1 3f:m2 3f:m3 3f:m4"><span class="lvl-id">Level 3F</span> <span class="lvl-t">Projection, product, union</span><span class="lvl-p"></span></a></li></ol><p class="stuck">Stuck, or curious? Ask us: on Discord, or any Thursday.</p></section></main>
+<footer>
+<p>The first challenge of the <a href="https://papc-rhul.github.io/">Proofs and Programs Club @ RHUL</a>.</p>
+<p>Your ticked milestones are kept in this browser only.</p>
+</footer>
+</body>
+</html>

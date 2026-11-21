@@ -1,0 +1,51 @@
+Every definition, fact and law of the challenge on one page, with links to where each is stated and proved. Use it to look things up; learn them from the levels.
+
+@toc
+
+## Notation
+
+| Write | Read | Defined in |
+|---|---|---|
+| $\sel{p}(R)$ | the rows of $R$ that satisfy $p$ (selection) | [[2f#definition-2f-3|2F]], [[2t#definition-2t-3|2T]] |
+| $f[R]$, $\pi_1[R]$ | $f$ applied to every row (image, projection) | [[3f#definition-3f-1|3F]], [[4t#definition-4t-2|4T]] |
+| $R \times S$ | every row of $R$ paired with every row of $S$ (product) | [[3f#definition-3f-5|3F]], [[4t#definition-4t-1|4T]] |
+| $R \cup S$ | the rows in $R$ or $S$ (union) | [[3f#definition-3f-7|3F]], [[2t#definition-2t-4|2T]] |
+| $R - S$, $R \cap S$ | the rows of $R$ not in $S$; in both | [[4f#definition-4f-3|4F]], [[3t#definition-3t-1|3T]] |
+| $R \join_{k_1 = k_2} S$ | the pairs whose keys agree (join) | [[4f#definition-4f-5|4F]] |
+| $\proj{A}(R)$, $\ren{a}{b}(R)$ | keep the attributes $A$; rename $a$ to $b$ | [[5f|5F]] |
+| $R \join S$, $R \div S$ | natural join; division | [[5f|5F]] |
+| $\lBrack q \rBrack$ | the answer of the query $q$ | [[5f#definition-5f-4|5F]] |
+| $\mathit{table}(l)$ | the table the list $l$ represents | [[1#definition-1-2|1]], [[6#definition-6-1|6]] |
+
+## The laws
+
+| | Law | Holds when | Proved |
+|--:|---|---|---|
+| 1 | $\sel{p}(\sel{q}(R)) = \sel{p \wedge q}(R)$ | always | [[2t#law-1|2T]]; for lists [[5t#fact-5t-4|5T]], [[6#corollary-6-3|6]] |
+| 2 | $\sel{p}(\sel{q}(R)) = \sel{q}(\sel{p}(R))$ | always | [[2t#law-2|2T]] |
+| 3 | $\sel{p}(R \cup S) = \sel{p}(R) \cup \sel{p}(S)$ | always | [[2t#law-3|2T]] |
+| 4 | $\sel{p}(R - S) = \sel{p}(R) - S$ | always | [[3t#law-4|3T]] |
+| 5 | $\sel{p}(R \times S) = \sel{p}(R) \times S$ | $p$ mentions only $R$ | [[4t#law-5|4T]]; for queries [[7#law-5|7]] |
+| 6 | $\sel{p}(R \join S) = \sel{p}(R) \join S$ | $p$ mentions only $R$ | [[7|7]] |
+| 7 | $\proj{A}(\proj{B}(R)) = \proj{A}(R)$ | $A \subseteq B$ | [[7#q-7-c|7]] |
+| 8 | $\proj{A}(R \cup S) = \proj{A}(R) \cup \proj{A}(S)$ | always | [[7|7]]; images [[4t#fact-4t-5|4T]] |
+| 9 | $\proj{A}(\sel{p}(R)) = \sel{p}(\proj{A}(R))$ | $p$ mentions only $A$ | [[7|7]] |
+| 10 | $R \join S = S \join R$ | always | [[7#q-7-d|7]] |
+| 11 | $(R \join S) \join T = R \join (S \join T)$ | always | [[7|7]] |
+
+A side condition is part of the law: without it, the two sides differ, or one of them makes no sense ([[4t#ex-4t-3|Exercise 4T.3]], [[7#q-7-b|Question 7.B]]).
+
+## Traps: these are not laws
+
+| Looks like a law | But | See |
+|---|---|---|
+| $\proj{A}(R - S) = \proj{A}(R) - \proj{A}(S)$ | false: projection can forget what made two rows differ | [[7#q-7-a|Question 7.A]] |
+| $f[R \cap S] = f[R] \cap f[S]$ | only $\subseteq$ holds | [[4t#q-4t-b|Question 4T.B]] |
+| $\pi_1[R \times S] = R$ | only when $S$ is not empty | [[4t#q-4t-a|Question 4T.A]] |
+| $R \times S = S \times R$ | false with positional columns; true with names | [[3f#q-3f-d|Question 3F.D]] |
+| $R - (R - S) = S$ | it is $R \cap S$ | [[3t#q-3t-c|Question 3T.C]] |
+| $l \cat l = l$, for lists | true for the tables they represent, not for lists | [[3f#q-3f-f|Question 3F.F]] |
+
+## Every definition, fact and law, level by level
+
+@index

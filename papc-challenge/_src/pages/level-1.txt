@@ -1,0 +1,245 @@
+::: glance
+build: the club's tables in Lean.
+prove: your first facts about them, by computing.
+learn: prove your first equations, one step at a time | [@nng] (Tutorial World)
+learn: write values and functions, with their types: if you like programs | [@fpil-eval] · [@fpil-fun]
+learn: … or the same, if you like proofs | [@tpil-stt] · [@tpil-defs]
+learn: read a proposition as a type, and prove an equation by computing | [@tpil-pat] · [@tpil-eq]
+:::
+
+::: milestones
+- Lean is installed, and `#eval 1 + 1` shows `2` in the Infoview.
+- Your project has a file `Club.lean` with the tables `member` and `attended`.
+- Lean accepts your first proof, `example : attended.length = 4 := rfl`.
+- You added the `session` table, and proved its size (Exercises 1.1 and 1.2).
+- You can say which table a list with a repeated row represents (Exercise 1.5).
+:::
+
+@toc
+
+::: part setup Your own Lean project
+
+### Install Lean in three steps
+
+1. Install **VS Code**, from [code.visualstudio.com](https://code.visualstudio.com/).
+2. In VS Code, open the Extensions panel, search for **Lean 4**, and install it.
+3. Open a new file (File › New Text File). Click the **∀** at the top right, then Documentation… › Show Setup Guide, and follow the guide: it installs Lean for you.
+
+That is all. The guide does the rest, on Windows, macOS and Linux. If you prefer to install by hand, see [lean-lang.org/install](https://lean-lang.org/install/).
+
+### Create your own project, once
+
+1. Click the **∀**, then New Project… › Create Standalone Project…, and give it a name, such as `Club`.
+2. Open the project. Inside its folder, create a file `Club.lean`: it will grow, level by level.
+3. From [[7]] on, you need **Mathlib**, Lean's library of mathematics: make a second project with New Project… › Create Project Using Mathlib…. It is a large download: use a good connection.
+
+From a terminal, `lake new Club` does the same as step 1 ([manual installation](https://lean-lang.org/install/manual/)).
+
+### Lean answers as you type
+
+```lean hello.lean
+#eval 1 + 1                  -- 2
+#eval "Hello, " ++ "club!"   -- "Hello, club!"
+#check 1 + 1                 -- 1 + 1 : Nat
+```
+
+- Put the cursor on a line: the **Infoview**, on the right, shows Lean's answer.
+- A red underline is an error: hover over it to read it. A yellow one is a warning, such as a `sorry` still to fill in.
+- `#eval` computes a value; `#check` shows its type.
+- The first time Lean opens a file, it can take a few seconds to answer. Read [@fpil-eval] while you wait.
+
+:::
+
+::: part theory What a table is, and how a list stands for one
+
+### A table is a finite set of rows
+
+Take two sets, $D_1$ and $D_2$: the values allowed in each column.
+
+::: box Definition 1.1 (Row, table)
+A *row* over $D_1$ and $D_2$ is a pair $(d_1, d_2)$ with $d_1 \in D_1$ and $d_2 \in D_2$. A *table* over $D_1$ and $D_2$ is a finite set of rows: $R \subseteq D_1 \times D_2$.
+:::
+
+That is all. The *size* of $R$, written $|R|$, is its number of rows. For example, with $\mathit{Name}$ and $\mathit{Dept}$ sets of strings:
+
+$$\rel{Member} = \{(\text{Ada}, \text{Maths}),\ (\text{Alan}, \text{CS}),\ (\text{Grace}, \text{CS})\} \subseteq \mathit{Name} \times \mathit{Dept}, \qquad |\rel{Member}| = 3.$$
+
+For now, every table has two columns. [[5f]] allows any number, and gives the columns names. This is the model E. F. Codd proposed in 1970, and every relational database still uses it ([A Relational Model of Data for Large Shared Data Banks](https://doi.org/10.1145/362384.362685), CACM 13(6)).
+
+### Our club has three tables
+
+@club Member Attended Session
+
+Here $\rel{Member} \subseteq \mathit{Name} \times \mathit{Dept}$, $\rel{Attended} \subseteq \mathit{Name} \times \N$ and $\rel{Session} \subseteq \N \times \mathit{Topic}$.
+
+- The headers ($\att{name}$, $\att{week}$, …) are only there to help us read: for now, a column is known by its position.
+- Each table is a *set*: its rows have no order, and no row appears twice. So the same table can be drawn with its rows in any order.
+
+### A list represents a table
+
+A computer stores rows one after another, in a list. So we say exactly which table a list stands for.
+
+::: box Definition 1.2 (Representation)
+A list $[t_1, \ldots, t_k]$ *represents* the table $\{t_1, \ldots, t_k\}$.
+:::
+
+Different lists can represent the same table: $[a, b]$, $[b, a]$ and $[a, b, a]$ all represent $\{a, b\}$.
+
+::: box Fact 1.3
+If a list of length $k$ represents $R$, then $|R| \leq k$, with $|R| = k$ exactly when no row repeats in the list.
+:::
+
+::: proof
+The rows of $R$ are $t_1, \ldots, t_k$, where a row that appears several times in the list is counted once in $R$. So $R$ has at most $k$ rows, and exactly $k$ when $t_1, \ldots, t_k$ are all different.
+:::
+
+Lean computes with lists; we reason about tables. Definition 1.2 is the bridge between the two, and [[6]], where the two tracks meet, proves that the programs you write respect it.
+
+### Questions
+
+These are on paper. Try each one before you open its answer.
+
+::: q 1.A Write a table as a set
+Write $\rel{Session}$ as a set of pairs. What is $|\rel{Session}|$?
+
+::: answer
+$\rel{Session} = \{(1, \text{Lists}), (2, \text{Proofs}), (3, \text{Types}), (4, \text{Sets})\}$, and $|\rel{Session}| = 4$.
+:::
+:::
+
+::: q 1.B A list with a repeat
+Which table does the list $[(\text{Ada}, 1), (\text{Alan}, 1), (\text{Ada}, 1)]$ represent? Compare its size with the length of the list.
+
+::: answer
+$\{(\text{Ada}, 1), (\text{Alan}, 1)\}$, of size 2. The list has length 3: the row $(\text{Ada}, 1)$ repeats, so $|R| < k$, as Fact 1.3 says.
+:::
+:::
+
+::: q 1.C Many lists, one table
+Give three different lists that represent $\rel{Member}$. How many lists of length 3 represent it?
+
+::: answer
+For example $[(\text{Ada}, \text{Maths}), (\text{Alan}, \text{CS}), (\text{Grace}, \text{CS})]$, the same in reverse, and $[(\text{Ada}, \text{Maths}), (\text{Ada}, \text{Maths}), (\text{Alan}, \text{CS}), (\text{Grace}, \text{CS})]$. A list of length 3 that represents $\rel{Member}$ must hold its 3 rows once each (Fact 1.3), in some order: there are $3 \cdot 2 \cdot 1 = 6$ of them.
+:::
+:::
+
+::: q 1.D The empty table
+Is $\emptyset$ a table? Which lists represent it?
+
+::: answer
+Yes: it is a finite set of rows, with no rows. Only the empty list $[\,]$ represents it, since any row in a list would be a row of its table.
+:::
+:::
+
+:::
+
+::: part lean The club's tables, and a proof one word long
+
+### In Lean, a table is a list of pairs
+
+Type this into `Club.lean`:
+
+```lean tables.lean
+def member : List (String × String) :=
+  [("Ada", "Maths"), ("Alan", "CS"), ("Grace", "CS")]
+
+def attended : List (String × Nat) :=
+  [("Ada", 1), ("Alan", 1), ("Alan", 2), ("Grace", 3)]
+
+#eval member            -- prints the table
+#eval attended.length   -- 4
+```
+
+- `String × Nat` is Lean's $\mathit{Name} \times \N$: the type of pairs. `def` names a value and states its type; `#eval` computes it.
+- No row repeats in these lists, so they represent our tables exactly (Fact 1.3).
+- Read more in [@tpil-stt] and [@tpil-defs], or in [@fpil-types] if you prefer programs.
+
+### Your first proof is one word long
+
+```lean proof.lean
+example : attended.length = 4 := rfl
+```
+
+- `example : P := proof` states the proposition `P`, and proves it. Here `P` is `attended.length = 4`.
+- `rfl` proves that a thing equals itself. Lean accepts it here because both sides compute to the same value: 4.
+- **Try**: state `attended.length = 5` instead, and read Lean's error. A false statement has no proof.
+
+Read [@tpil-pat], then [@tpil-eq], or the [@fpil-props].
+
+### Exercises
+
+::: ex 1.1 lean Add the Session table
+```lean session.lean
+def session : List (Nat × String) :=
+  sorry   -- the four sessions: (1, "Lists"), (2, "Proofs"), ...
+
+example : session.length = 4 := rfl
+example : member.length = 3 := rfl
+```
+
+Replace `sorry` with the four sessions of the $\rel{Session}$ table, and `#eval session`.
+
+::: hint
+The same shape as `attended`, with the two columns the other way round: a number, then a string.
+:::
+:::
+
+::: ex 1.2 lean Prove its size
+Prove both examples above. Then write and prove one more fact of your own about the tables.
+
+::: hint
+While `session` is still `sorry`, Lean cannot compute its length, so `rfl` fails. Fill in Exercise 1.1 first.
+:::
+
+::: hint Some facts to try
+`member.length + attended.length = 7`, or `(member ++ member).length = 6`: `++` appends two lists.
+:::
+:::
+
+::: ex 1.3 lean A statement with no proof
+State `member.length = 4`. Why can you not prove it?
+
+::: answer
+`member.length` computes to 3, and 3 is not 4: `rfl` fails, and so does every other proof, since the statement is false.
+:::
+:::
+
+::: ex 1.4 lean Predict the type
+Before you run each line, write down the type you expect. Then check.
+
+```lean
+#check ("Ada", 1)
+#check member
+#check attended.length
+#check attended.length = 4
+```
+
+::: answer
+`String × Nat`, `List (String × String)`, `Nat`, and `Prop`: `attended.length = 4` is a *proposition*, and `rfl` is a proof of it.
+:::
+:::
+
+::: ex 1.5 lean A list with a repeated row
+```lean
+def twice : List (String × Nat) := attended ++ attended
+
+example : twice.length = 8 := rfl
+```
+
+Prove the example. Then, on paper: which table does `twice` represent, and what is its size?
+
+::: answer
+`twice` represents $\rel{Attended}$ itself, of size 4: every row appears twice in the list, and a table counts each row once (Fact 1.3).
+:::
+:::
+
+:::
+
+## Choose your track, or take both
+
+- **Programs first**, from [[2f]]: build the operators of relational algebra as Lean programs, and run them. It follows [@fpil], chapter by chapter.
+- **Proofs first**, from [[2t]]: prove the laws of relational algebra in Lean, for every table. It follows [@tpil], chapter by chapter.
+
+::: note Not sure which?
+If you enjoy writing programs, start with 2F. If you enjoy puzzles and logic, start with 2T. Many people alternate: one level of each, week by week. The tracks meet at [[6]], which needs both.
+:::

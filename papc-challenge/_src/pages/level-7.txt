@@ -1,0 +1,241 @@
+::: glance
+build: tables as finite sets, so that row order and repeated rows no longer matter.
+prove: the laws, for every query, each side condition a hypothesis.
+learn: write conditions as terms, and functions on them by recursion | [@tpil-recdata] · [@tpil-structrec]
+learn: turn a decidable proposition into a `Bool` | [@tpil-dec]
+learn: prove two sets equal, element by element | [@mil-sets] · [@mil-finset]
+:::
+
+::: milestones
+- Your Mathlib project builds a file that starts with `import Mathlib`.
+- Laws 1 and 3 for finite sets (Exercises 7.1 and 7.2).
+- Your `select` agrees with `Finset.filter` (Exercise 7.3).
+- `Cond.attrs`, and Fact 7.2 by induction on conditions (Exercises 7.4 and 7.5).
+- Law 5, for every query (Exercise 7.6).
+:::
+
+@toc
+
+::: part theory Why databases need laws, and the laws for queries
+
+### Databases rewrite your queries using laws
+
+```sql sql-pushdown.sql
+SELECT o.id
+FROM orders o JOIN users u ON o.user_id = u.id
+WHERE u.country = 'UK';
+-- the optimiser filters users before joining:
+--   filter(join(orders, users)) = join(orders, filter(users))
+```
+
+- Faster: the join meets only the users from the UK. And correct only because the filter mentions only `users`: a **side condition**.
+- Get it wrong, and the database silently answers wrongly. Testing tools such as [SQLancer](https://github.com/sqlancer/sqlancer) have found hundreds of such bugs in mature databases (M. Rigger, Z. Su, [Detecting Optimization Bugs in Database Engines via Non-Optimizing Reference Engine Construction](https://doi.org/10.1145/3368089.3409710), ESEC/FSE 2020).
+
+::: note
+Each rewrite is a **law**, and a law can be **proved**, side condition included.
+:::
+
+### Selections move down, under side conditions
+
+| | Law | Holds when |
+|--:|---|---|
+| 1 | $\sel{p}(\sel{q}(R)) = \sel{p \wedge q}(R)$ | always ([[2t]]) |
+| 2 | $\sel{p}(\sel{q}(R)) = \sel{q}(\sel{p}(R))$ | always ([[2t]]) |
+| 3 | $\sel{p}(R \cup S) = \sel{p}(R) \cup \sel{p}(S)$ | always ([[2t]]) |
+| 4 | $\sel{p}(R - S) = \sel{p}(R) - S$ | always ([[3t]]) |
+| 5 | $\sel{p}(R \times S) = \sel{p}(R) \times S$ | $p$ mentions only attributes of $R$ ([[4t]]) |
+| 6 | $\sel{p}(R \join S) = \sel{p}(R) \join S$ | $p$ mentions only attributes of $R$ |
+
+Levels 2T to 4T proved laws 1 to 5 for two-column tables. Now they are laws about queries of any schema ([[5f]]), and their *side conditions* are about attributes.
+
+### Projections and joins have laws, and traps
+
+| | Law | Holds when |
+|--:|---|---|
+| 7 | $\proj{A}(\proj{B}(R)) = \proj{A}(R)$ | $A \subseteq B$ |
+| 8 | $\proj{A}(R \cup S) = \proj{A}(R) \cup \proj{A}(S)$ | always |
+| 9 | $\proj{A}(\sel{p}(R)) = \sel{p}(\proj{A}(R))$ | $p$ mentions only attributes in $A$ |
+| 10 | $R \join S = S \join R$ | always |
+| 11 | $(R \join S) \join T = R \join (S \join T)$ | always |
+
+**Not** a law: $\proj{A}(R - S) = \proj{A}(R) - \proj{A}(S)$. **Try**: find two small tables that break it, before you open Question 7.A. Read more in [@ahv6] (section 6.1).
+
+### A side condition is about attributes
+
+::: box Definition 7.1 (Attributes of a condition)
+Conditions are terms: $a = v$, $a = b$, $\neg c$ and $c \wedge c'$, for attributes $a$, $b$ and values $v$. The *attributes* of $c$, $\mathit{attrs}(c)$, are those it mentions:
+$$\begin{aligned}
+\mathit{attrs}(a = v) &= \{a\} & \mathit{attrs}(\neg c) &= \mathit{attrs}(c) \\
+\mathit{attrs}(a = b) &= \{a, b\} & \mathit{attrs}(c \wedge c') &= \mathit{attrs}(c) \cup \mathit{attrs}(c')
+\end{aligned}$$
+:::
+
+::: box Fact 7.2
+If rows $t$ and $t'$ agree on $\mathit{attrs}(c)$, then $c(t) = c(t')$.
+:::
+
+::: proof
+By induction on $c$. For $a = v$ and $a = b$: $c$ looks only at $t(a)$ (and $t(b)$), which equal $t'(a)$ (and $t'(b)$). For $\neg c$ and $c \wedge c'$: the induction hypotheses, since $t$ and $t'$ agree on the attributes of each part.
+:::
+
+So "mentions only attributes of $R$" is now a fact you can check, by computing: $\mathit{attrs}(p) \subseteq U$.
+
+::: box Law 5
+If $R : U$, $S : V$ and $\mathit{attrs}(p) \subseteq U$, then $\sel{p}(R \times S) = \sel{p}(R) \times S$.
+:::
+
+::: proof
+The rows $t \cup s$ and $t$ agree on $U$, so $p(t \cup s) = p(t)$ by Fact 7.2. The rest unfolds the definitions, as in [[4t]].
+:::
+
+### Lists, bags or sets: which equality?
+
+::: box Definition 7.3
+Two lists are equal *as bags* if one is a reordering of the other, and equal *as sets* if they represent the same table (Definition 1.2).
+:::
+
+| | as lists | as bags | as sets |
+|---|:-:|:-:|:-:|
+| $[a, b]$ and $[b, a]$ | no | yes | yes |
+| $[a, b, a]$ and $[a, b]$ | no | no | yes |
+
+Relational algebra uses set equality. Law 1 holds even for lists (Fact 5T.4); law 10 only for bags or sets (Question 5T.D); $R \cup R = R$ only for sets.
+
+### Questions
+
+::: q 7.A Break the non-law
+Find $A$, $R$ and $S$ with $\proj{A}(R - S) \neq \proj{A}(R) - \proj{A}(S)$.
+
+::: answer
+$R = \{(a, 1)\}$, $S = \{(a, 2)\}$ over $\{\att{name}, \att{week}\}$, and $A = \{\att{name}\}$. Then $R - S = R$, so $\proj{A}(R - S) = \{a\}$; but $\proj{A}(R) - \proj{A}(S) = \{a\} - \{a\} = \emptyset$. Projection forgets the column that made the rows different.
+:::
+:::
+
+::: q 7.B Why law 9 needs its side condition
+What goes wrong with law 9 for $\proj{\att{name}}(\sel{\att{week} = 1}(\rel{Attended}))$?
+
+::: answer
+The right side, $\sel{\att{week} = 1}(\proj{\att{name}}(\rel{Attended}))$, makes no sense: after the projection there is no $\att{week}$ to test. The side condition, $\mathit{attrs}(p) \subseteq A$, is what makes the right side meaningful.
+:::
+:::
+
+::: q 7.C Prove law 7
+Prove $\proj{A}(\proj{B}(R)) = \proj{A}(R)$ when $A \subseteq B$.
+
+::: answer
+For every row $t$, $(t[B])[A] = t[A]$, since $A \subseteq B$: restricting to $B$ and then to $A$ is restricting to $A$. So $\proj{A}(\proj{B}(R)) = \{(t[B])[A] \mid t \in R\} = \{t[A] \mid t \in R\} = \proj{A}(R)$.
+:::
+:::
+
+::: q 7.D Prove law 10
+Prove $R \join S = S \join R$, with Definition 5F.2.
+
+::: answer
+A row of $R \join S$ is $t \cup s$ for $t \in R$ and $s \in S$ that agree. Agreement is symmetric, and $t \cup s = s \cup t$, since both give each attribute the value of whichever row has it. So the rows of $R \join S$ are exactly those of $S \join R$. With named columns, there is no order of columns to swap: compare Question 3F.D.
+:::
+:::
+
+:::
+
+::: part lean Tables as finite sets, and theorems about queries
+
+### In Lean, tables become finite sets
+
+| Equal as | In Lean | From |
+|---|---|---|
+| lists | `List` | Lean |
+| bags | `Multiset` | Mathlib |
+| sets | `Finset` | Mathlib |
+
+- Use your Mathlib project now ([[1#before-you-start|Level 1, Before you start]]): start your file with `import Mathlib`.
+- `l.toFinset` turns a list into the table it represents.
+- Move your operators from lists to `Finset`, or prove them equal as sets: `l.toFinset = m.toFinset`.
+- On `Finset`, selection is `Finset.filter`, union `∪`, difference `\`, intersection `∩`, image `Finset.image`, and product `s ×ˢ t`. Their lemmas are named after them: `Finset.mem_filter`, `Finset.mem_union`, `Finset.mem_sdiff`, `Finset.mem_image`, `Finset.mem_product`.
+
+Read [@mil-finset], then browse [@ml-finset] and [@ml-multiset].
+
+### Warm-up: laws for finite sets
+
+```lean finset.lean
+import Mathlib
+
+-- Law 3, for finite sets: prove two finite sets equal, element by element
+theorem law3_finset {α : Type} [DecidableEq α] (p : α → Prop)
+    [DecidablePred p] (R S : Finset α) :
+    (R ∪ S).filter p = R.filter p ∪ S.filter p := by
+  ext t
+  simp only [Finset.mem_filter, Finset.mem_union]
+  sorry
+
+-- Law 1, for finite sets
+theorem law1_finset {α : Type} (p q : α → Prop) [DecidablePred p]
+    [DecidablePred q] (R : Finset α) :
+    (R.filter q).filter p = R.filter (fun t => p t ∧ q t) := by
+  sorry
+```
+
+- `ext t` reduces an equation between finite sets to "`t ∈ … ↔ t ∈ …`", for every `t`: the form of every proof of the proofs track.
+- `[DecidablePred p]`: to filter a finite set, Lean must be able to decide `p` on each element ([@tpil-dec]).
+
+::: ex 7.1 lean Law 3 for finite sets
+Finish `law3_finset`. After `simp only`, what is left is the logic of law 3 ([[2t]]).
+:::
+
+::: ex 7.2 lean Law 1 for finite sets
+Prove `law1_finset` the same way. Mathlib proves both laws already: find them, after you have proved them yourself.
+:::
+
+::: ex 7.3 lean From lists to finite sets
+Prove that your `select` represents `Finset.filter`, with your theorem `toTable_select` of [[6]]:
+
+```lean
+theorem select_toFinset {α : Type} [DecidableEq α] (p : α → Bool)
+    (l : List α) :
+    (select p l).toFinset = l.toFinset.filter (fun t => p t = true) := by
+  sorry
+```
+
+::: hint
+`ext t`, then `simp only [List.mem_toFinset, Finset.mem_filter]`. What is left is `toTable_select`, unfolded: `toTable l t` is `t ∈ l`.
+:::
+:::
+
+### Conditions as terms, and the side condition
+
+Following Definition 7.1, conditions become a type you can inspect. With the simpler design of [[5f]]:
+
+```lean attrs.lean
+def Cond.attrs : Cond → List String
+  | .eqConst a _ => [a]
+  | .eqAttr a b => [a, b]
+  | .not c => c.attrs
+  | .and c d => c.attrs ++ d.attrs
+```
+
+::: ex 7.4 lean The schema of a query
+Define `Query.schema`, the schema of a query from the schema rules of [[5f]]. It needs the schemas of the tables of the database, as an argument.
+:::
+
+::: ex 7.5 lean Fact 7.2
+State and prove Fact 7.2 for your conditions, by induction on `c`: if two rows give the same value to every attribute in `c.attrs`, then `c.holds` gives the same answer on both.
+:::
+
+::: ex 7.6 lean Law 5 for every query
+Prove law 5 for every query. Your theorem will look like this one, for your own types:
+
+```lean goal.lean (sketch)
+-- Law 5, with its side condition as the hypothesis h
+theorem select_product (db : Database) (p : Cond) (q₁ q₂ : Query)
+    (h : p.attrs ⊆ q₁.schema) :
+    eval db (.select p (.product q₁ q₂)) =
+      eval db (.product (.select p q₁) q₂) := by sorry
+```
+
+`p.attrs ⊆ q₁.schema` is Definition 7.1. [[4t]] proved law 5 for two-column tables: start again from there, and use Fact 7.2 where it used the hypothesis `h t s`.
+:::
+
+::: ex 7.7 lean One theorem for each law
+State and prove laws 1 to 11 for your queries, each side condition a hypothesis. Then state the non-law of Question 7.A, and check with `#eval` that your counterexample breaks it.
+:::
+
+:::

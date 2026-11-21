@@ -1,0 +1,64 @@
+# key	label	title	url  (copied from tex/2026-papc-challenge/common/links.tex)
+fpil		Functional Programming in Lean (FPIL)	https://lean-lang.org/functional_programming_in_lean/
+tpil		Theorem Proving in Lean 4 (TPIL)	https://lean-lang.org/theorem_proving_in_lean4/
+mil		Mathematics in Lean (MIL)	https://leanprover-community.github.io/mathematics_in_lean/
+mathlib		Mathlib documentation	https://leanprover-community.github.io/mathlib4_docs/
+loogle		Loogle	https://loogle.lean-lang.org/
+games		Lean Game Server	https://adam.math.hhu.de/
+fpil-eval	FPIL 1.1	Evaluating Expressions	https://lean-lang.org/functional_programming_in_lean/Getting-to-Know-Lean/Evaluating-Expressions/#evaluating
+fpil-struct	FPIL 1.4	Structures	https://lean-lang.org/functional_programming_in_lean/Getting-to-Know-Lean/Structures/#structures
+fpil-data	FPIL 1.5	Datatypes and Patterns	https://lean-lang.org/functional_programming_in_lean/Getting-to-Know-Lean/Datatypes-and-Patterns/#datatypes-and-patterns
+fpil-poly	FPIL 1.6	Polymorphism	https://lean-lang.org/functional_programming_in_lean/Getting-to-Know-Lean/Polymorphism/#polymorphism
+fpil-props	FPIL	Interlude: Propositions, Proofs, and Indexing	https://lean-lang.org/functional_programming_in_lean/Interlude___-Propositions___-Proofs___-and-Indexing/#props-proofs-indexing
+fpil-arrays	FPIL 3.4	Arrays and Indexing	https://lean-lang.org/functional_programming_in_lean/Overloading-and-Type-Classes/Arrays-and-Indexing/
+fpil-eqord	FPIL 3.5.3	Equality and Ordering	https://lean-lang.org/functional_programming_in_lean/Overloading-and-Type-Classes/Standard-Classes/#equality-and-ordering
+fpil-hash	FPIL 3.5.4	Hashing	https://lean-lang.org/functional_programming_in_lean/Overloading-and-Type-Classes/Standard-Classes/#hashing
+fpil-deriving	FPIL 3.5.5	Deriving Standard Classes	https://lean-lang.org/functional_programming_in_lean/Overloading-and-Type-Classes/Standard-Classes/#deriving-standard-classes
+fpil-indexed	FPIL 7.1	Indexed Families	https://lean-lang.org/functional_programming_in_lean/Programming-with-Dependent-Types/Indexed-Families/#indexed-families
+fpil-universe	FPIL 7.2	The Universe Design Pattern	https://lean-lang.org/functional_programming_in_lean/Programming-with-Dependent-Types/The-Universe-Design-Pattern/#universe-pattern
+fpil-tq	FPIL 7.3	Worked Example: Typed Queries	https://lean-lang.org/functional_programming_in_lean/Programming-with-Dependent-Types/Worked-Example___-Typed-Queries/#typed-queries
+fpil-tqex	FPIL 7.3.6	Exercises (Typed Queries: Dates, Nullable Types, ...)	https://lean-lang.org/functional_programming_in_lean/Programming-with-Dependent-Types/Worked-Example___-Typed-Queries/#typed-query-exercises
+fpil-pitfalls	FPIL 7.5	Pitfalls of Programming with Dependent Types	https://lean-lang.org/functional_programming_in_lean/Programming-with-Dependent-Types/Pitfalls-of-Programming-with-Dependent-Types/#dependent-type-pitfalls
+fpil-tactics	FPIL	Interlude: Tactics, Induction, and Proofs	https://lean-lang.org/functional_programming_in_lean/Interlude___-Tactics___-Induction___-and-Proofs/#tactics-induction-proofs
+fpil-indother	FPIL Interlude,	Induction on Other Datatypes	https://lean-lang.org/functional_programming_in_lean/Interlude___-Tactics___-Induction___-and-Proofs/#induction-other-types
+fpil-tail	FPIL 8.1	Tail Recursion	https://lean-lang.org/functional_programming_in_lean/Programming___-Proving___-and-Performance/Tail-Recursion/#tail-recursion
+fpil-equiv	FPIL 8.2	Proving Equivalence	https://lean-lang.org/functional_programming_in_lean/Programming___-Proving___-and-Performance/Proving-Equivalence/#proving-tail-rec-equiv
+fpil-arrterm	FPIL 8.3	Arrays and Termination	https://lean-lang.org/functional_programming_in_lean/Programming___-Proving___-and-Performance/Arrays-and-Termination/#array-termination
+fpil-fin	FPIL 8.5	Bounded Numbers	https://lean-lang.org/functional_programming_in_lean/Programming___-Proving___-and-Performance/Bounded-Numbers/#Fin
+fpil-insort	FPIL 8.6	Insertion Sort and Array Mutation	https://lean-lang.org/functional_programming_in_lean/Programming___-Proving___-and-Performance/Insertion-Sort-and-Array-Mutation/#insertion-sort-mutation
+tpil-pat	TPIL 3.1	Propositions as Types	https://lean-lang.org/theorem_proving_in_lean4/Propositions-and-Proofs/#propositions-as-types
+tpil-forall	TPIL 4.1	The Universal Quantifier	https://lean-lang.org/theorem_proving_in_lean4/Quantifiers-and-Equality/#the-universal-quantifier
+tpil-eq	TPIL 4.2	Equality	https://lean-lang.org/theorem_proving_in_lean4/Quantifiers-and-Equality/#equality
+tpil-calc	TPIL 4.3	Calculational Proofs	https://lean-lang.org/theorem_proving_in_lean4/Quantifiers-and-Equality/#calculational-proofs
+tpil-basic	TPIL 5.2	Basic Tactics	https://lean-lang.org/theorem_proving_in_lean4/Tactics/#basic-tactics
+tpil-rw	TPIL 5.6	Rewriting	https://lean-lang.org/theorem_proving_in_lean4/Tactics/#rewriting
+tpil-simp	TPIL 5.7	Using the Simplifier	https://lean-lang.org/theorem_proving_in_lean4/Tactics/#using-the-simplifier
+tpil-ctors	TPIL 7.2	Constructors with Arguments	https://lean-lang.org/theorem_proving_in_lean4/Inductive-Types/#constructors-with-arguments
+tpil-recdata	TPIL 7.5	Other Recursive Data Types	https://lean-lang.org/theorem_proving_in_lean4/Inductive-Types/#other-recursive-data-types
+tpil-indtac	TPIL 7.6	Tactics for Inductive Types	https://lean-lang.org/theorem_proving_in_lean4/Inductive-Types/#tactics-for-inductive-types
+tpil-families	TPIL 7.7	Inductive Families	https://lean-lang.org/theorem_proving_in_lean4/Inductive-Types/#inductive-families
+tpil-match	TPIL 8.1	Pattern Matching	https://lean-lang.org/theorem_proving_in_lean4/Induction-and-Recursion/#pattern-matching
+tpil-structrec	TPIL 8.3	Structural Recursion and Induction	https://lean-lang.org/theorem_proving_in_lean4/Induction-and-Recursion/#structural-recursion-and-induction
+tpil-wf	TPIL 8.5	Well-Founded Recursion and Induction	https://lean-lang.org/theorem_proving_in_lean4/Induction-and-Recursion/#well-founded-recursion-and-induction
+tpil-funind	TPIL 8.6	Functional Induction	https://lean-lang.org/theorem_proving_in_lean4/Induction-and-Recursion/#functional-induction
+tpil-dec	TPIL 10.8	Decidable Propositions	https://lean-lang.org/theorem_proving_in_lean4/Type-Classes/#decidable-propositions
+mil-sets	MIL 4.1	Sets	https://leanprover-community.github.io/mathematics_in_lean/C04_Sets_and_Functions.html#sets
+mil-finset	MIL 6.1	Finsets and Fintypes	https://leanprover-community.github.io/mathematics_in_lean/C06_Discrete_Mathematics.html#finsets-and-fintypes
+ml-finset	Mathlib docs,	Mathlib.Data.Finset.Defs	https://leanprover-community.github.io/mathlib4_docs/Mathlib/Data/Finset/Defs.html
+ml-multiset	Mathlib docs,	Mathlib.Data.Multiset.Defs	https://leanprover-community.github.io/mathlib4_docs/Mathlib/Data/Multiset/Defs.html
+ahv	S. Abiteboul, R. Hull, V. Vianu.	Foundations of Databases	https://webdam.di.ens.fr/Alice/
+ahv3	Abiteboul, Hull, Vianu, Foundations of Databases (1995), ch. 3:	The Relational Model	https://webdam.di.ens.fr/Alice/pdfs/Chapter-3.pdf
+ahv4	Abiteboul, Hull, Vianu, Foundations of Databases (1995), ch. 4:	Conjunctive Queries	https://webdam.di.ens.fr/Alice/pdfs/Chapter-4.pdf
+ahv5	Abiteboul, Hull, Vianu, Foundations of Databases (1995), ch. 5:	Adding Negation: Algebra and Calculus	https://webdam.di.ens.fr/Alice/pdfs/Chapter-5.pdf
+ahv6	Abiteboul, Hull, Vianu, Foundations of Databases (1995), ch. 6:	Static Analysis and Optimization	https://webdam.di.ens.fr/Alice/pdfs/Chapter-6.pdf
+nng		Natural Number Game	https://adam.math.hhu.de/
+tpil-stt	TPIL 2.1	Simple Type Theory	https://lean-lang.org/theorem_proving_in_lean4/Dependent-Type-Theory/#simple-type-theory
+tpil-fun	TPIL 2.3	Function Abstraction and Evaluation	https://lean-lang.org/theorem_proving_in_lean4/Dependent-Type-Theory/#function-abstraction-and-evaluation
+tpil-defs	TPIL 2.4	Definitions	https://lean-lang.org/theorem_proving_in_lean4/Dependent-Type-Theory/#definitions
+tpil-split	TPIL 5.8	Split Tactic	https://lean-lang.org/theorem_proving_in_lean4/Tactics/#split-tactic
+fpil-types	FPIL 1.2	Types	https://lean-lang.org/functional_programming_in_lean/Getting-to-Know-Lean/Types/#getting-to-know-types
+fpil-fun	FPIL 1.3	Functions and Definitions	https://lean-lang.org/functional_programming_in_lean/Getting-to-Know-Lean/Functions-and-Definitions/#functions-and-definitions
+fpil-classes	FPIL 3.2	Type Classes and Polymorphism	https://lean-lang.org/functional_programming_in_lean/Overloading-and-Type-Classes/Type-Classes-and-Polymorphism/#tc-polymorphism
+tpil-proplogic	TPIL 3.3	Propositional Logic	https://lean-lang.org/theorem_proving_in_lean4/Propositions-and-Proofs/#propositional-logic
+tpil-classical	TPIL 3.5	Classical Logic	https://lean-lang.org/theorem_proving_in_lean4/Propositions-and-Proofs/#classical-logic
+tpil-exists	TPIL 4.4	The Existential Quantifier	https://lean-lang.org/theorem_proving_in_lean4/Quantifiers-and-Equality/#the-existential-quantifier

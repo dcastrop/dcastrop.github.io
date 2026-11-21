@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Level 5T: Induction on Lists · PaPC challenge</title>
+<meta name="description" content="Level 5T of the PaPC challenge: Induction on Lists.">
+<link rel="icon" href="assets/papc-logo.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simpledotcss@2.3.7/simple.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="assets/challenge.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="assets/challenge.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the content</a>
+<header>
+<p class="club"><a href="https://papc-rhul.github.io/"><img src="assets/papc-logo.png" alt="" width="38" height="48"> The Proofs and Programs Club @ RHUL</a></p>
+<p class="kicker"><span class="chip track-t">Proofs track · follows TPIL</span></p><h1><span class="lvl-k">Level 5T</span> Induction on Lists</h1>
+<nav aria-label="The challenge"><ul><li><a href="index.html">The challenge</a></li><li><a href="index.html#levels">All levels</a></li><li><a href="laws.html">Laws at a glance</a></li></ul></nav>
+</header>
+<main id="main"><p class="crumbs">After <a href="level-4t.html">Level 4T</a> · Next: <a href="level-6.html">Level 6</a> · <a href="https://dcastrop.github.io/tex/2026-papc-challenge/level-5t/level-5t.pdf">Slides (PDF)</a></p><section class="glance" aria-labelledby="at-a-glance"><h2 id="at-a-glance">At a glance</h2><dl><div><dt>You build</dt><dd>nothing new: the list programs <code>select</code>, <code>project</code> and <code>product</code> are given (<a href="level-2f.html">Level 2F</a> and <a href="level-3f.html">Level 3F</a> build them).</dd></div><div><dt>You prove</dt><dd>facts about them for every list, by induction.</dd></div></dl><div class="table-wrap"><table class="reads"><caption>What to learn first, and where</caption><thead><tr><th scope="col">Learn to</th><th scope="col">Read</th></tr></thead><tbody><tr><td>prove by induction, step by step</td><td><a class="ref" href="https://adam.math.hhu.de/"><cite>Natural Number Game</cite></a> (Addition World)</td></tr><tr><td>rewrite and simplify: <code>rw</code>, <code>simp</code></td><td><a class="ref" href="https://lean-lang.org/theorem_proving_in_lean4/Tactics/#rewriting">TPIL 5.6 <cite>Rewriting</cite></a> · <a class="ref" href="https://lean-lang.org/theorem_proving_in_lean4/Tactics/#using-the-simplifier">TPIL 5.7 <cite>Using the Simplifier</cite></a></td></tr><tr><td>prove by induction on lists, and split on an <code>if</code></td><td><a class="ref" href="https://lean-lang.org/theorem_proving_in_lean4/Inductive-Types/#tactics-for-inductive-types">TPIL 7.6 <cite>Tactics for Inductive Types</cite></a> · <a class="ref" href="https://lean-lang.org/theorem_proving_in_lean4/Tactics/#split-tactic">TPIL 5.8 <cite>Split Tactic</cite></a></td></tr><tr><td>prove facts about multiplication</td><td><a class="ref" href="https://adam.math.hhu.de/"><cite>Natural Number Game</cite></a> (Multiplication World)</td></tr></tbody></table></div></section>
+<section class="milestones" aria-labelledby="milestones"><h2 id="milestones">Milestones</h2><p class="ms-intro">Tick each one when Lean accepts your work. Your ticks stay in this browser.</p><ul><li><label><input type="checkbox" data-milestone="5t:m1"> <span><code>project_length</code> is accepted, and you replayed its proof with <code>rw</code> (Exercise 5T.1).</span></label></li><li><label><input type="checkbox" data-milestone="5t:m2"> <span>Projections compose, for every list (Exercise 5T.2).</span></label></li><li><label><input type="checkbox" data-milestone="5t:m3"> <span>Law 1 for lists, as lists (Exercise 5T.3).</span></label></li><li><label><input type="checkbox" data-milestone="5t:m4"> <span>A product of \(m\) rows and \(n\) rows has \(m \cdot n\) (Exercise 5T.4).</span></label></li></ul><p class="ms-progress" data-progress="5t:m1 5t:m2 5t:m3 5t:m4"><progress max="4" value="0"></progress> <span class="ms-count" aria-live="polite">0 of 4 done</span></p></section>
+<nav class="toc" aria-label="On this page"><details><summary>On this page</summary><ol><li><a href="#at-a-glance">At a glance</a></li><li><a href="#milestones">Milestones</a></li><li><a href="#theory-on-paper">Theory, on paper</a><ol><li><a href="#a-list-program-is-a-few-equations">A list program is a few equations</a></li><li><a href="#induction-proves-a-fact-about-every-list">Induction proves a fact about every list</a></li><li><a href="#a-proof-by-induction-is-a-recursive-function">A proof by induction is a recursive function</a></li><li><a href="#law-1-holds-for-lists-too">Law 1 holds for lists, too</a></li><li><a href="#questions">Questions</a></li></ol></li><li><a href="#lean-on-your-computer">Lean, on your computer</a><ol><li><a href="#the-programs-in-lean">The programs, in Lean</a></li><li><a href="#fact-5t-2-in-lean-your-first-proof-by-induction">Fact 5T.2 in Lean: your first proof by induction</a></li><li><a href="#your-turn-projections-compose">Your turn: projections compose</a></li><li><a href="#your-turn-law-1-for-lists">Your turn: law 1 for lists</a></li><li><a href="#your-turn-a-product-of-m-rows-and-n-rows-has-m-n">Your turn: a product of m rows and n rows has m × n</a></li><li><a href="#more-exercises">More exercises</a></li></ol></li></ol></details></nav>
+<section class="part part-theory" aria-labelledby="theory-on-paper"><h2 id="theory-on-paper"><span class="part-k">Theory, on paper</span><span class="part-t">List programs, and induction</span></h2><h3 id="a-list-program-is-a-few-equations">A list program is a few equations</h3>
+<p>Write \(t :: l\) for the list with first row \(t\), then the list \(l\). Every list is either \([\,]\) or \(t :: l\), and a program on lists gives one equation for each.</p>
+<div class="box def" id="definition-5t-1"><p class="box-h"><span class="box-n">Definition 5T.1</span> (Selection and projection on lists)</p><div class="math-display">\[\begin{aligned}
+\mathit{select}\ p\ [\,] &amp;= [\,] \\
+\mathit{select}\ p\ (t :: l) &amp;= t :: \mathit{select}\ p\ l &amp;&amp; \text{if } p(t) = \true \\
+\mathit{select}\ p\ (t :: l) &amp;= \mathit{select}\ p\ l &amp;&amp; \text{if } p(t) = \false \\
+\mathit{project}\ f\ [\,] &amp;= [\,] \\
+\mathit{project}\ f\ (t :: l) &amp;= f(t) :: \mathit{project}\ f\ l
+\end{aligned}\]</div></div>
+<p>Here \(p\) is a condition with values in \(\B = \{\true, \false\}\), as a program needs. These lists represent \(\sel{p}(R)\) and \(f[R]\) (<a href="level-6.html">Level 6</a> proves it). The equations are also how the programs run: each step rewrites with one of them.</p>
+<h3 id="induction-proves-a-fact-about-every-list">Induction proves a fact about every list</h3>
+<div class="box fact" id="principle-induction-on-lists"><p class="box-h"><span class="box-n">Principle</span> (Induction on lists)</p><p>To prove \(P(l)\) for every list \(l\): prove \(P([\,])\); and prove \(P(t :: l)\) for every row \(t\) and list \(l\), assuming \(P(l)\).</p></div>
+<p>It is the induction of the Natural Number Game: \([\,]\) plays \(0\), and \(t :: l\) plays \(n + 1\). Why is it sound? Every list is built from \([\,]\) by adding rows in front, one at a time, and each step carries \(P\) from the shorter list to the longer one.</p>
+<div class="box fact" id="fact-5t-2"><p class="box-h"><span class="box-n">Fact 5T.2</span></p><p>\(\mathit{length}(\mathit{project}\ f\ l) = \mathit{length}(l)\), for every list \(l\).</p></div>
+<div class="proof"><p><em>Proof.</em> By induction on \(l\). For \([\,]\), both sides are \(0\). For \(t :: l\): the length of \(\mathit{project}\ f\ (t :: l) = f(t) :: \mathit{project}\ f\ l\) is \(1 + \mathit{length}(\mathit{project}\ f\ l)\), which is \(1 + \mathit{length}(l)\) by the assumption \(P(l)\), the <em>induction hypothesis</em>. <span class="qed" role="img" aria-label="End of proof">∎</span></p></div>
+<h3 id="a-proof-by-induction-is-a-recursive-function">A proof by induction is a recursive function</h3>
+<p>The proof of Fact 5T.2 follows the program \(\mathit{project}\) case by case: the case \([\,]\) uses its first equation, and the case \(t :: l\) its second, plus the induction hypothesis for the shorter list \(l\). That is a recursive call: a proof by induction is a recursive function that returns proofs. So, to prove a fact about a program, follow the program's own cases.</p>
+<h3 id="law-1-holds-for-lists-too">Law 1 holds for lists, too</h3>
+<div class="box fact" id="fact-5t-3"><p class="box-h"><span class="box-n">Fact 5T.3</span></p><p>\(\mathit{project}\ f\ (\mathit{project}\ g\ l) = \mathit{project}\ (f \circ g)\ l\).</p></div>
+<div class="box fact" id="fact-5t-4"><p class="box-h"><span class="box-n">Fact 5T.4</span> (Law 1, for lists)</p><p>\(\mathit{select}\ p\ (\mathit{select}\ q\ l) = \mathit{select}\ (p \wedge q)\ l\), as lists: the same rows, in the same order.</p></div>
+<div class="proof"><p><em>Proof.</em> By induction on \(l\). For \([\,]\), both sides are \([\,]\). For \(t :: l\), take the cases of \(q(t)\) and \(p(t)\):</p>
+<ul><li>if \(q(t) = \false\), both sides drop \(t\), and the induction hypothesis finishes;</li><li>if \(q(t) = \true\), both sides keep \(t\) exactly when \(p(t) = \true\), and then the induction hypothesis finishes again.</li></ul><p class="qed-line"><span class="qed" role="img" aria-label="End of proof">∎</span></p></div>
+<p>Fact 5T.4 is stronger than law 1: it says the lists are equal, not only the tables they represent. Not every law is that strong: Question 5T.D finds one that holds for tables but not for lists.</p>
+<h3 id="questions">Questions</h3>
+<div class="q" id="q-5t-a"><p class="ex-h"><span class="ex-n">Question 5T.A</span> <span class="ex-t">Projections compose</span></p><p>Prove Fact 5T.3 on paper.</p>
+<details class="answer"><summary>Answer</summary><p>By induction on \(l\). For \([\,]\), both sides are \([\,]\). For \(t :: l\): the left side is \(\mathit{project}\ f\ (g(t) :: \mathit{project}\ g\ l) = f(g(t)) :: \mathit{project}\ f\ (\mathit{project}\ g\ l)\), which by the induction hypothesis is \((f \circ g)(t) :: \mathit{project}\ (f \circ g)\ l\): the right side.</p></details></div>
+<div class="q" id="q-5t-b"><p class="ex-h"><span class="ex-n">Question 5T.B</span> <span class="ex-t">Selection never makes a list longer</span></p><p>Prove \(\mathit{length}(\mathit{select}\ p\ l) \leq \mathit{length}(l)\).</p>
+<details class="answer"><summary>Answer</summary><p>By induction on \(l\). For \([\,]\): \(0 \leq 0\). For \(t :: l\), with the induction hypothesis \(\mathit{length}(\mathit{select}\ p\ l) \leq \mathit{length}(l)\): if \(p(t) = \true\), both sides grow by 1; if \(p(t) = \false\), the left side stays and the right side grows by 1.</p></details></div>
+<div class="q" id="q-5t-c"><p class="ex-h"><span class="ex-n">Question 5T.C</span> <span class="ex-t">Law 2 for lists</span></p><p>Is \(\mathit{select}\ p\ (\mathit{select}\ q\ l) = \mathit{select}\ q\ (\mathit{select}\ p\ l)\), as lists?</p>
+<details class="answer"><summary>Answer</summary><p>Yes. By Fact 5T.4, the two sides are \(\mathit{select}\ (p \wedge q)\ l\) and \(\mathit{select}\ (q \wedge p)\ l\), and \(p(t) \wedge q(t) = q(t) \wedge p(t)\) for every row \(t\).</p></details></div>
+<div class="q" id="q-5t-d"><p class="ex-h"><span class="ex-n">Question 5T.D</span> <span class="ex-t">A law that lists break</span></p><p>Compute \(\mathit{product}\ [a, b]\ [x, y]\), and the list you get from \(\mathit{product}\ [x, y]\ [a, b]\) by swapping each pair. Are they equal as lists? Do they represent the same table?</p>
+<details class="answer"><summary>Answer</summary><p>\([(a, x), (a, y), (b, x), (b, y)]\) and \([(a, x), (b, x), (a, y), (b, y)]\): the same pairs, in a different order. Not equal as lists, but they represent the same table. So "the product is commutative, up to swapping" holds for tables, not for lists. <a href="level-7.html">Level 7</a> calls this equality <em>as bags</em>.</p></details></div></section>
+<section class="part part-lean" aria-labelledby="lean-on-your-computer"><h2 id="lean-on-your-computer"><span class="part-k">Lean, on your computer</span><span class="part-t">Your first proofs by induction</span></h2><h3 id="the-programs-in-lean">The programs, in Lean</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">lists.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="k">def</span> select {α : <span class="ty">Type</span>} (p : α → <span class="ty">Bool</span>) : <span class="ty">List</span> α → <span class="ty">List</span> α
+  | [] =&gt; []
+  | row :: rest =&gt; <span class="k">if</span> p row <span class="k">then</span> row :: select p rest <span class="k">else</span> select p rest
+
+<span class="k">def</span> project {α β : <span class="ty">Type</span>} (f : α → β) : <span class="ty">List</span> α → <span class="ty">List</span> β
+  | [] =&gt; []
+  | row :: rest =&gt; f row :: project f rest
+
+<span class="k">def</span> product {α β : <span class="ty">Type</span>} : <span class="ty">List</span> α → <span class="ty">List</span> β → <span class="ty">List</span> (α × β)
+  | [], _ =&gt; []
+  | a :: rest, s =&gt; project (<span class="k">fun</span> b =&gt; (a, b)) s ++ product rest s</code></pre></div>
+<p>Definition 5T.1, and the product of <a href="level-3f.html">Level 3F</a>: copy them, or use yours if you did the programs track (<a class="ref" href="https://lean-lang.org/theorem_proving_in_lean4/Induction-and-Recursion/#pattern-matching">TPIL 8.1 <cite>Pattern Matching</cite></a>). They go outside <code>namespace Sets</code>.</p>
+<h3 id="fact-5t-2-in-lean-your-first-proof-by-induction">Fact 5T.2 in Lean: your first proof by induction</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">induction.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="k">theorem</span> project_length {α β : <span class="ty">Type</span>} (f : α → β) (t : <span class="ty">List</span> α) :
+    (project f t).length = t.length := <span class="k">by</span>
+  <span class="t">induction</span> t <span class="k">with</span>
+  | nil =&gt; <span class="t">rfl</span>
+  | cons row rest ih =&gt; <span class="t">simp</span> [project, ih]</code></pre></div>
+<ul><li>The same proof as on paper: one case for <code>nil</code>, the empty list, and one for <code>cons</code>, a first row and the rest.</li><li>In the <code>cons</code> case, <code>ih</code> is the induction hypothesis: <code>(project f rest).length = rest.length</code>.</li><li><code>simp [project, ih]</code> rewrites with the equations of <code>project</code>, with <code>ih</code>, and with the lemmas Lean knows about <code>length</code>, until the goal is closed (<a class="ref" href="https://lean-lang.org/theorem_proving_in_lean4/Tactics/#using-the-simplifier">TPIL 5.7 <cite>Using the Simplifier</cite></a>).</li></ul>
+<div class="ex" id="ex-5t-1"><p class="ex-h"><span class="ex-n">Exercise 5T.1</span> <span class="chip lean">In Lean</span> <span class="ex-t">Replay it with rw</span></p><p>Replace <code>simp [project, ih]</code> with <code>rw</code> steps, and watch the goal change in the Infoview after each one (<a class="ref" href="https://lean-lang.org/theorem_proving_in_lean4/Tactics/#rewriting">TPIL 5.6 <cite>Rewriting</cite></a>).</p>
+<details class="hint"><summary>Hint</summary><p><code>rw [project]</code> unfolds one step of the program. Then <code>List.length_cons</code> rewrites the length of <code>x :: l</code> to <code>l.length + 1</code>, and <code>ih</code> finishes.</p></details></div>
+<h3 id="your-turn-projections-compose">Your turn: projections compose</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">compose.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="c">-- Fact 5T.3: projections compose</span>
+<span class="k">theorem</span> project_project {α β γ : <span class="ty">Type</span>} (f : β → γ) (g : α → β)
+    (l : <span class="ty">List</span> α) :
+    project f (project g l) = project (<span class="k">fun</span> r =&gt; f (g r)) l := <span class="k">by</span>
+  <span class="sorry">sorry</span></code></pre></div>
+<div class="ex" id="ex-5t-2"><p class="ex-h"><span class="ex-n">Exercise 5T.2</span> <span class="chip lean">In Lean</span> <span class="ex-t">Projections compose</span></p><p>Fact 5T.3: the same shape as the proof before. Induction on <code>l</code>, then <code>simp [project, ih]</code>.</p></div>
+<h3 id="your-turn-law-1-for-lists">Your turn: law 1 for lists</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">law1.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="c">-- Fact 5T.4: law 1, for lists</span>
+<span class="k">theorem</span> select_select {α : <span class="ty">Type</span>} (p q : α → <span class="ty">Bool</span>) (l : <span class="ty">List</span> α) :
+    select p (select q l) = select (<span class="k">fun</span> r =&gt; p r &amp;&amp; q r) l := <span class="k">by</span>
+  <span class="sorry">sorry</span></code></pre></div>
+<p><code>select_select</code> here is a theorem about lists, outside <code>namespace Sets</code>: it does not clash with <code>Sets.select_select</code> of <a href="level-2t.html">Level 2T</a>.</p>
+<div class="ex" id="ex-5t-3"><p class="ex-h"><span class="ex-n">Exercise 5T.3</span> <span class="chip lean">In Lean</span> <span class="ex-t">Law 1 for lists</span></p><p>Prove Fact 5T.4. Induction on <code>l</code>. In the <code>cons</code> case, take the cases of the conditions, as on paper: <code>cases hq : q row</code> and <code>cases hp : p row</code>. Then <code>simp [select, hp, hq, ih]</code> finishes each case.</p>
+<details class="hint"><summary>Hint</summary><p><code>cases hq : q row</code> makes two goals: one where <code>hq : q row = false</code>, one where <code>hq : q row = true</code>. <code>simp</code> uses <code>hq</code> to choose the branch of each <code>if</code>.</p></details></div>
+<h3 id="your-turn-a-product-of-m-rows-and-n-rows-has-m-n">Your turn: a product of m rows and n rows has m × n</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">size.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="k">theorem</span> product_length {α β : <span class="ty">Type</span>} (r : <span class="ty">List</span> α) (s : <span class="ty">List</span> β) :
+    (product r s).length = r.length * s.length := <span class="k">by</span>
+  <span class="sorry">sorry</span></code></pre></div>
+<div class="ex" id="ex-5t-4"><p class="ex-h"><span class="ex-n">Exercise 5T.4</span> <span class="chip lean">In Lean</span> <span class="ex-t">The size of a product</span></p><p>Induction on <code>r</code>, then <code>simp [product, project_length, ih]</code>, using Fact 5T.2. What is left is arithmetic: <code>Nat.add_mul</code>, <code>Nat.one_mul</code> and <code>Nat.add_comm</code> finish it (<a class="ref" href="https://adam.math.hhu.de/"><cite>Natural Number Game</cite></a>, Multiplication World).</p>
+<details class="hint"><summary>Hint</summary><p>Look at the goal after <code>simp</code>: it is an equation between sums and products of lengths. <code>rw [Nat.add_mul, Nat.one_mul, Nat.add_comm]</code>, or <code>omega</code> if it is linear.</p></details></div>
+<h3 id="more-exercises">More exercises</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">more.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="k">theorem</span> select_append {α : <span class="ty">Type</span>} (p : α → <span class="ty">Bool</span>) (l m : <span class="ty">List</span> α) :
+    select p (l ++ m) = select p l ++ select p m := <span class="k">by</span>
+  <span class="sorry">sorry</span>
+
+<span class="k">theorem</span> project_append {α β : <span class="ty">Type</span>} (f : α → β) (l m : <span class="ty">List</span> α) :
+    project f (l ++ m) = project f l ++ project f m := <span class="k">by</span>
+  <span class="sorry">sorry</span>
+
+<span class="k">theorem</span> select_length_le {α : <span class="ty">Type</span>} (p : α → <span class="ty">Bool</span>) (l : <span class="ty">List</span> α) :
+    (select p l).length ≤ l.length := <span class="k">by</span>
+  <span class="sorry">sorry</span>
+
+<span class="k">theorem</span> select_eq_filter {α : <span class="ty">Type</span>} (p : α → <span class="ty">Bool</span>) (l : <span class="ty">List</span> α) :
+    select p l = l.filter p := <span class="k">by</span>
+  <span class="sorry">sorry</span></code></pre></div>
+<div class="ex" id="ex-5t-5"><p class="ex-h"><span class="ex-n">Exercise 5T.5</span> <span class="chip lean">In Lean</span> <span class="ex-t">Law 3 for lists</span></p><p>Prove <code>select_append</code>: law 3, with union as <code>++</code>, for lists. Induction on <code>l</code>; in the <code>cons</code> case, <code>cases h : p row</code>.</p></div>
+<div class="ex" id="ex-5t-6"><p class="ex-h"><span class="ex-n">Exercise 5T.6</span> <span class="chip lean">In Lean</span> <span class="ex-t">Projection and append</span></p><p>Prove <code>project_append</code>.</p></div>
+<div class="ex" id="ex-5t-7"><p class="ex-h"><span class="ex-n">Exercise 5T.7</span> <span class="chip lean">In Lean</span> <span class="ex-t">Selection never makes a list longer</span></p><p>Prove <code>select_length_le</code> (Question 5T.B).</p>
+<details class="hint"><summary>Hint</summary><p>In each case, <code>simp [select, h]</code>, then <code>omega</code>: it proves goals of linear arithmetic, using <code>ih</code>.</p></details></div>
+<div class="ex" id="ex-5t-8"><p class="ex-h"><span class="ex-n">Exercise 5T.8</span> <span class="chip stretch">Stretch</span> <span class="ex-t">select is List.filter</span></p><p>Prove <code>select_eq_filter</code>, so that every lemma Lean knows about <code>List.filter</code> applies to your <code>select</code>.</p>
+<details class="hint"><summary>Hint</summary><p>The same shape as Exercise 5T.5: <code>simp [select, List.filter, h, ih]</code> in each case.</p></details></div></section><section class="next" aria-labelledby="next-h"><h2 id="next-h">Next</h2><ol class="next-cards"><li><a class="lvl lvl-meet" href="level-6.html" data-progress="6:m1 6:m2 6:m3 6:m4 6:m5"><span class="lvl-id">Level 6</span> <span class="lvl-t">Lists represent tables</span><span class="lvl-p"></span></a></li></ol><p class="stuck">Stuck, or curious? Ask us: on Discord, or any Thursday.</p></section></main>
+<footer>
+<p>The first challenge of the <a href="https://papc-rhul.github.io/">Proofs and Programs Club @ RHUL</a>.</p>
+<p>Your ticked milestones are kept in this browser only.</p>
+</footer>
+</body>
+</html>

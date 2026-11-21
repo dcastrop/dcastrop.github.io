@@ -1,0 +1,147 @@
+% !LW recipe = make-deck
+% Level 4T (proofs track, TPIL): product and projection, proved. Theory:
+% products, images, composition, a side condition (law 5). Lean: ∀, ∃,
+% and tactics.
+% Build: make (rules in ../common/deck.mk).
+\DocumentMetadata{
+  lang        = en-GB,
+  pdfstandard = ua-2,
+  tagging     = on,
+}
+\documentclass{ltx-talk}
+
+\input{preamble}
+
+\title{Level 4T: Product and Projection, Proved}
+\author{The Proofs and Programs Club}
+\institute{Royal Holloway, University of London}
+
+\begin{document}
+
+\leveltitle{4T}{Product and Projection, Proved: ``For All'' and ``There
+  Exists''}{Proofs track: follows TPIL}{After \levellink{3t}}
+  {Next: \levellink{5t}}
+
+\levelframe{4T}{Level 4T at a Glance}{%
+  products and images, on tables as properties of rows.}{%
+  that images compose, and law 5, whose side condition is a
+  hypothesis.}{%
+  state and use facts about every value: $\forall$ & \rds{tpil-forall} \\
+  prove and use ``there exists'': $\exists$ & \rds{tpil-exists} \\
+  write proofs step by step, with tactics & \rds{tpil-basic} \\
+}
+
+% ---------------------------------------------------------------- theory
+\theorypart{Products, images, and a side condition}
+
+\begin{frame}
+  \frametitle{A Product Pairs Every Row with Every Row}
+  \defn{Definition 4T.1 (Product)}{For tables $R$ and $S$:
+    \ $R \times S = \{(t, s) \mid t \in R \text{ and } s \in S\}$.}
+  Its rows are pairs of rows. For example,
+  $((\text{Ada}, \text{Maths}), (1, \text{Lists})) \in \rel{Member} \times
+  \rel{Session}$, which has $3 \cdot 4 = 12$ rows. In SQL:
+  \code{FROM Member, Session}.
+  \defn{Definition 4T.2 (Image, projection)}{For a function $f$ on rows,
+    $f[R] = \{s \mid \text{there is } t \in R \text{ with } f(t) =
+    s\}$. The projections are the images under $\pi_1(d_1, d_2) = d_1$
+    and $\pi_2(d_1, d_2) = d_2$.}
+  For example, $\pi_2[\rel{Attended}] = \{1, 2, 3\}$: the weeks someone
+  attended.
+  \slideref{\lnk{ahv4}}
+  \theorytag{4T}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Images Compose}
+  \defn{Fact 4T.3 (Composition)}{$g[f[R]] = (g \circ f)[R]$.}
+  \emph{Proof.} For every $s$:
+  \[
+    \begin{array}{@{}r@{\quad}l@{}}
+      s \in g[f[R]] & \iff \text{there is } u \in f[R] \text{ with }
+        s = g(u) \\
+      & \iff \text{there is } t \in R \text{ with } s = g(f(t)) \\
+      & \iff s \in (g \circ f)[R]. \\
+    \end{array}
+  \]
+  \proofend\par
+  In the middle step: from left to right, take apart the two ``there
+  is''; from right to left, the witness for $u$ is $f(t)$.
+  \theorytag{4T}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A Side Condition Is a Hypothesis of the Law}
+  \defn{Definition 4T.4 (Mentions only $R$)}{A condition $p$ on the rows
+    of $R \times S$ \emph{mentions only $R$} if there is a condition $p'$
+    on the rows of $R$ with: for all $t$ and $s$, $p(t, s)$ holds
+    exactly when $p'(t)$ holds.}
+  \defn{Law 5}{If $p$ mentions only $R$, then $\sel{p}(R \times S) =
+    \sel{p'}(R) \times S$.}
+  \emph{Proof.} $(t, s) \in \sel{p}(R \times S) \iff t \in R$, $s \in S$
+  and $p(t, s)$ $\iff t \in R$, $p'(t)$ and $s \in S$ $\iff (t, s) \in
+  \sel{p'}(R) \times S$. \proofend
+  \par\medskip
+  Without the hypothesis, the law makes no sense: a condition on the week
+  of a session cannot be checked on $\rel{Member}$ alone.
+  \slideref{\lnk{ahv6} (section 6.1)}
+  \theorytag{4T}
+\end{frame}
+
+% ---------------------------------------------------------------- Lean
+\leanpart{Products, images, and tactics}
+
+\begin{frame*}
+  \frametitle{Products and Images Are Formulas, with ``There Exists''}
+  \leanblock{product.lean}
+  \begin{itemize}
+    \item After your code of Levels 2T and 3T. \code{∃ t, R t ∧ f t = s}
+      says: there is a row \code{t} of \code{R} with \code{f t = s}.
+  \end{itemize}
+  \slideref{\lnk{tpil-exists}}
+  \leantag{4T}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{A First Proof with Tactics}
+  \leanblock{first.lean}
+  \begin{itemize}
+    \item \code{by} switches to \emph{tactics}: commands that build the
+      proof step by step. The Infoview shows what is left to prove.
+    \item \code{exact} gives the whole proof at once. \code{⟨t, h, rfl⟩}
+      proves the \code{∃}: \code{t} is the witness.
+    \item More tactics: \code{intro}, \code{constructor}, \code{cases},
+      \code{apply}.
+  \end{itemize}
+  \slideref{\lnk{tpil-basic} \rfsep \lnk{tpil-exists}}
+  \leantag{4T}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Your Turn: Images Compose}
+  \leanblock{compose.lean}
+  \begin{itemize}
+    \item \ex{4T.1} Prove Fact 4T.3. Start with \code{constructor}, then
+      \code{intro h} in each half.
+    \item To use \code{h : ∃ t, A t}: \code{obtain ⟨t, ht⟩ := h} names
+      the witness and its proof.
+  \end{itemize}
+  \slideref{\lnk{tpil-exists} \rfsep \lnk{tpil-basic}}
+  \leantag{4T}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Your Turn: Law 5, Side Condition Included}
+  \leanblock{law5.lean}
+  \begin{itemize}
+    \item \ex{4T.2} Prove law 5. \code{h t s} is the side condition for
+      this \code{t} and \code{s}: use \code{(h t s).1} and
+      \code{(h t s).2}.
+    \item \ex{4T.3} On paper: find $p$, $R$ and $S$ that show why law 5
+      needs its hypothesis.
+  \end{itemize}
+  \slideref{\lnk{tpil-forall}}
+  \leantag{4T}
+\end{frame*}
+
+\end{document}

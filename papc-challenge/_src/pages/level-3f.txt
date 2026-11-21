@@ -1,0 +1,292 @@
+::: glance
+build: `project`, `product` and `union`.
+prove: the sizes of products and unions of the club's tables, by computing.
+learn: write functions on pairs, and on lists of any type | [@fpil-poly]
+learn: define a function by cases, calling itself on the rest of the list | [@fpil-data]
+learn: check a function on examples: `#eval`, and proofs by `rfl` | [@fpil-eval] · [@fpil-props]
+:::
+
+::: milestones
+- `project` works: the test prints the four names (Exercise 3F.1).
+- `product` works, and Lean proves that 3 members and 4 sessions make 12 pairs (Exercises 3F.3 and 3F.4).
+- `union` works, and Lean proves the size of the example (Exercise 3F.5).
+- You can explain why a list can be longer than the table it represents (Exercises 3F.2 and 3F.6).
+:::
+
+@toc
+
+::: part theory Images, products and unions
+
+### Projection keeps the columns you ask for
+
+::: box Definition 3F.1 (Image)
+For a function $f$ on rows, the *image* of a table $R$ is $f[R] = \{f(t) \mid t \in R\}$.
+:::
+
+::: box Definition 3F.2 (Projection)
+The projections onto the first and the second column are the images under $\pi_1(d_1, d_2) = d_1$ and $\pi_2(d_1, d_2) = d_2$.
+:::
+
+::: row
+Table: $\pi_1[\rel{Attended}]$
+| $\att{name}$ |
+|---|
+| Ada |
+| Alan |
+| Grace |
+
+Table: $\pi_2[\rel{Attended}]$
+| $\att{week}$ |
+|--:|
+| 1 |
+| 2 |
+| 3 |
+:::
+
+The result of a projection is a table with one column. In SQL: `SELECT DISTINCT name FROM Attended`. Read more in [@ahv4].
+
+### An image can shrink a table, but never grow it
+
+::: box Fact 3F.3
+$|f[R]| \leq |R|$.
+:::
+
+::: proof
+Each element of $f[R]$ is $f(t)$ for some row $t \in R$. So $f[R]$ has at most one element for each row of $R$.
+:::
+
+Alan attended twice, but appears once in $\pi_1[\rel{Attended}]$: four rows became three names. A list would keep him twice.
+
+::: box Fact 3F.4 (Composition)
+$g[f[R]] = (g \circ f)[R]$.
+:::
+
+::: proof
+For every $s$:
+$$\begin{aligned}
+s \in g[f[R]] &\iff s = g(u) \text{ for some } u \in f[R] \\
+&\iff s = g(f(t)) \text{ for some } t \in R \\
+&\iff s \in (g \circ f)[R].
+\end{aligned}$$
+:::
+
+### A product pairs every row with every row
+
+::: box Definition 3F.5 (Product)
+For tables $R$ and $S$: $\ R \times S = \{(t, s) \mid t \in R \text{ and } s \in S\}$.
+:::
+
+Its rows are pairs of rows. For example, $((\text{Ada}, \text{Maths}), (1, \text{Lists})) \in \rel{Member} \times \rel{Session}$.
+
+::: box Fact 3F.6
+$|R \times S| = |R| \cdot |S|$.
+:::
+
+::: proof
+Each row $t \in R$ gives $|S|$ pairs $(t, s)$, one for each $s \in S$, and pairs from different rows $t$ differ. So there are $|R|$ groups of $|S|$ pairs.
+:::
+
+So $\rel{Member} \times \rel{Session}$ has $3 \cdot 4 = 12$ rows. In SQL: `FROM Member, Session`. On its own a product is rarely what you want; [[4f]] keeps only the pairs that match, which is a *join*.
+
+### Union combines two tables; on lists, it is appending
+
+::: box Definition 3F.7 (Union)
+For tables $R$ and $S$ of the same rows: $\ R \cup S = \{t \mid t \in R \text{ or } t \in S\}$.
+:::
+
+::: box Fact 3F.8
+If $l$ represents $R$ and $m$ represents $S$ (Definition 1.2), then $l \cat m$ represents $R \cup S$.
+:::
+
+::: proof
+The rows of $l \cat m$ are those of $l$ and those of $m$.
+:::
+
+The list $l \cat m$ may repeat a row, but it still represents the right table. In SQL: `UNION`. Read more in [@ahv5].
+
+### On lists, projection and product are equations too
+
+::: box Definition 3F.9 (Projection and product on lists)
+For a function $f$ on rows:
+$$\begin{aligned}
+\mathit{project}\ f\ [\,] &= [\,] \\
+\mathit{project}\ f\ (t :: l) &= f(t) :: \mathit{project}\ f\ l \\
+\mathit{product}\ [\,]\ m &= [\,] \\
+\mathit{product}\ (t :: l)\ m &= \mathit{project}\ (s \mapsto (t, s))\ m \cat \mathit{product}\ l\ m
+\end{aligned}$$
+:::
+
+The last line pairs $t$ with every row of $m$, then does the same for the rest of $l$. For example:
+
+$$\begin{aligned}
+\mathit{product}\ [a, b]\ [x, y] &= \mathit{project}\ (s \mapsto (a, s))\ [x, y] \cat \mathit{product}\ [b]\ [x, y] \\
+&= [(a, x), (a, y)] \cat [(b, x), (b, y)] \cat [\,] \\
+&= [(a, x), (a, y), (b, x), (b, y)].
+\end{aligned}$$
+
+[[6]] proves that these lists represent $f[R]$ and $R \times S$.
+
+### Questions
+
+::: q 3F.A Project the members
+Compute $\pi_1[\rel{Member}]$ and $\pi_2[\rel{Member}]$. Which one is smaller than $\rel{Member}$, and why?
+
+::: answer
+$\pi_1[\rel{Member}] = \{\text{Ada}, \text{Alan}, \text{Grace}\}$ and $\pi_2[\rel{Member}] = \{\text{Maths}, \text{CS}\}$. The second has 2 rows, not 3: Alan and Grace are both in CS, and the image counts CS once.
+:::
+:::
+
+::: q 3F.B When no row is lost
+When is $|f[R]| = |R|$?
+
+::: answer
+Exactly when $f$ gives different results on different rows of $R$ (it is *injective* on $R$). Then no two rows meet, and each row gives its own element.
+:::
+:::
+
+::: q 3F.C Count the pairs
+How many rows do $\rel{Member} \times \rel{Member}$ and $\rel{Attended} \times \rel{Session}$ have?
+
+::: answer
+$3 \cdot 3 = 9$ and $4 \cdot 4 = 16$, by Fact 3F.6.
+:::
+:::
+
+::: q 3F.D Is the product symmetric?
+Is $R \times S = S \times R$?
+
+::: answer
+Not in general: the rows of $R \times S$ are pairs $(t, s)$, and those of $S \times R$ are pairs $(s, t)$. The two tables have the same size, and swapping each pair turns one into the other. With named columns ([[5f]]) the order of the columns disappears, and the two become equal.
+:::
+:::
+
+::: q 3F.E The size of a union
+Show that $|R \cup S| \leq |R| + |S|$. When are the two sides equal?
+
+::: answer
+Every row of $R \cup S$ is in $R$ or in $S$, so $R \cup S$ has at most $|R| + |S|$ rows. A row in both is counted twice on the right, so the sides are equal exactly when no row is in both: $R \cap S = \emptyset$.
+:::
+:::
+
+::: q 3F.F A union with itself
+Is $R \cup R = R$? Is $l \cat l$ the same list as $l$?
+
+::: answer
+$R \cup R = R$, since "$t \in R$ or $t \in R$" is "$t \in R$". But $l \cat l$ is twice as long as $l$, unless $l = [\,]$. Both represent the same table: lists keep repeats, tables do not.
+:::
+:::
+
+:::
+
+::: part lean Build project, product and union
+
+### Your turn: build project
+
+```lean project.lean
+def project {α β : Type} (f : α → β) : List α → List β
+  | [] => sorry
+  | row :: rest => sorry
+
+-- Test: should print ["Ada", "Alan", "Alan", "Grace"]
+#eval project (fun row => row.1) attended
+```
+
+`project` has two type parameters: rows of type `α` go in, values of type `β` come out. `row.1` is the first column of `row`.
+
+::: ex 3F.1 lean Build project
+Replace the `sorry`s with Definition 3F.9.
+
+::: hint
+The same shape as `select`, with no `if`: `f row` goes in front of the projection of `rest`.
+:::
+:::
+
+::: ex 3F.2 paper Why twice?
+The test prints Alan twice, but the table $\pi_1[\rel{Attended}]$ has him once. Why?
+
+::: answer
+The list keeps every row it computes, and Alan has two rows in `attended`. The list still represents $\pi_1[\rel{Attended}]$: Definition 1.2 forgets repeats. See Fact 3F.3.
+:::
+:::
+
+### Your turn: build product
+
+```lean product.lean
+def product {α β : Type} : List α → List β → List (α × β)
+  | [], _ => sorry
+  | a :: rest, s => sorry
+
+example : (product member session).length = 12 := rfl
+```
+
+`product` takes two lists; its cases look at the first one. `_` stands for an argument that the case does not use.
+
+::: ex 3F.3 lean Build product
+Pair `a` with each row of `s` (use your `project`), then `++` the product of the rest.
+
+::: hint
+`project (fun b => (a, b)) s` pairs `a` with every row of `s`.
+:::
+:::
+
+::: ex 3F.4 lean Twelve pairs
+Prove the example: 3 members and 4 sessions make 12 pairs (Fact 3F.6). Then `#eval product member session`, and find the pair of Ada and the session on Lists.
+:::
+
+### Your turn: build union
+
+```lean union.lean
+def union {α : Type} (r s : List α) : List α := sorry
+
+example : (union member member).length = 6 := rfl
+```
+
+::: ex 3F.5 lean Build union
+`union` is `r ++ s` (Fact 3F.8). Prove the example.
+:::
+
+::: ex 3F.6 paper Six rows, three rows
+The list `union member member` has 6 rows, but the table it represents has 3. Why?
+
+::: answer
+Every row of `member` appears twice in it. Definition 1.2 counts each row once, so the table is $\rel{Member} \cup \rel{Member} = \rel{Member}$, of size 3 (Fact 1.3, Question 3F.F).
+:::
+:::
+
+### More exercises
+
+::: ex 3F.7 lean Predict, then run
+Predict what each line prints, then check:
+
+```lean
+#eval project (fun row => row.2) member
+#eval project (fun row => row.1) (select (fun row => row.2 == "CS") member)
+```
+
+::: answer
+`["Maths", "CS", "CS"]`, and `["Alan", "Grace"]`: the names of the CS members, a selection followed by a projection.
+:::
+:::
+
+::: ex 3F.8 lean Swap the columns
+Question 3F.D says that swapping each pair turns $R \times S$ into $S \times R$. Define `swap`, and check one consequence:
+
+```lean
+def swap {α β : Type} : α × β → β × α := fun (a, b) => sorry
+
+example : (project swap (product member session)).length = 12 := rfl
+#eval project swap attended
+```
+:::
+
+::: ex 3F.9 stretch Lean already knows project
+Lean's library calls it `List.map`. Check that they agree on an example:
+
+```lean
+example : project (fun r => r.1) attended = attended.map (fun r => r.1) := rfl
+```
+
+Proving that they agree on every list needs induction: see [[5t]].
+:::
+
+:::

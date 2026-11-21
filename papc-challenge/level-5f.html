@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Level 5F: Named Columns, and a Query Language · PaPC challenge</title>
+<meta name="description" content="Level 5F of the PaPC challenge: Named Columns, and a Query Language.">
+<link rel="icon" href="assets/papc-logo.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simpledotcss@2.3.7/simple.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="assets/challenge.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="assets/challenge.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the content</a>
+<header>
+<p class="club"><a href="https://papc-rhul.github.io/"><img src="assets/papc-logo.png" alt="" width="38" height="48"> The Proofs and Programs Club @ RHUL</a></p>
+<p class="kicker"><span class="chip track-f">Programs track · follows FPIL</span></p><h1><span class="lvl-k">Level 5F</span> Named Columns, and a Query Language</h1>
+<nav aria-label="The challenge"><ul><li><a href="index.html">The challenge</a></li><li><a href="index.html#levels">All levels</a></li><li><a href="laws.html">Laws at a glance</a></li></ul></nav>
+</header>
+<main id="main"><p class="crumbs">After <a href="level-4f.html">Level 4F</a> · Next: <a href="level-6.html">Level 6</a> · <a href="https://dcastrop.github.io/tex/2026-papc-challenge/level-5f/level-5f.pdf">Slides (PDF)</a></p><section class="glance" aria-labelledby="at-a-glance"><h2 id="at-a-glance">At a glance</h2><dl><div><dt>You build</dt><dd>rows of any schema, a type of queries with the six operators, and <code>eval</code>, which computes a query's answer.</dd></div><div><dt>You prove</dt><dd>that <code>eval</code> answers the club's queries correctly, by computing.</dd></div></dl><div class="table-wrap"><table class="reads"><caption>What to learn first, and where</caption><thead><tr><th scope="col">Learn to</th><th scope="col">Read</th></tr></thead><tbody><tr><td>define structures, and inductive types, and match on them</td><td><a class="ref" href="https://lean-lang.org/functional_programming_in_lean/Getting-to-Know-Lean/Structures/#structures">FPIL 1.4 <cite>Structures</cite></a> · <a class="ref" href="https://lean-lang.org/functional_programming_in_lean/Getting-to-Know-Lean/Datatypes-and-Patterns/#datatypes-and-patterns">FPIL 1.5 <cite>Datatypes and Patterns</cite></a></td></tr><tr><td>derive equality and printing for your types</td><td><a class="ref" href="https://lean-lang.org/functional_programming_in_lean/Overloading-and-Type-Classes/Standard-Classes/#deriving-standard-classes">FPIL 3.5.5 <cite>Deriving Standard Classes</cite></a></td></tr><tr><td>index a type by values, as in <code>Query : Schema → Type</code></td><td><a class="ref" href="https://lean-lang.org/functional_programming_in_lean/Programming-with-Dependent-Types/Indexed-Families/#indexed-families">FPIL 7.1 <cite>Indexed Families</cite></a> · <a class="ref" href="https://lean-lang.org/functional_programming_in_lean/Programming-with-Dependent-Types/The-Universe-Design-Pattern/#universe-pattern">FPIL 7.2 <cite>The Universe Design Pattern</cite></a> · <a class="ref" href="https://lean-lang.org/functional_programming_in_lean/Programming-with-Dependent-Types/Worked-Example___-Typed-Queries/#typed-queries">FPIL 7.3 <cite>Worked Example: Typed Queries</cite></a></td></tr></tbody></table></div></section>
+<section class="milestones" aria-labelledby="milestones"><h2 id="milestones">Milestones</h2><p class="ms-intro">Tick each one when Lean accepts your work. Your ticks stay in this browser.</p><ul><li><label><input type="checkbox" data-milestone="5f:m1"> <span>The club's three tables, with named columns (Exercise 5F.1).</span></label></li><li><label><input type="checkbox" data-milestone="5f:m2"> <span><code>Query</code>, and conditions as their own type (Exercise 5F.2).</span></label></li><li><label><input type="checkbox" data-milestone="5f:m3"> <span><code>eval</code>, with one case for each operator (Exercise 5F.3).</span></label></li><li><label><input type="checkbox" data-milestone="5f:m4"> <span><code>#eval</code> answers "CS members who attended the session on Lists" with Alan (Exercise 5F.4).</span></label></li><li><label><input type="checkbox" data-milestone="5f:m5"> <span>The natural join and division, derived from the six and tested (Exercise 5F.5).</span></label></li></ul><p class="ms-progress" data-progress="5f:m1 5f:m2 5f:m3 5f:m4 5f:m5"><progress max="5" value="0"></progress> <span class="ms-count" aria-live="polite">0 of 5 done</span></p></section>
+<nav class="toc" aria-label="On this page"><details><summary>On this page</summary><ol><li><a href="#at-a-glance">At a glance</a></li><li><a href="#milestones">Milestones</a></li><li><a href="#theory-on-paper">Theory, on paper</a><ol><li><a href="#from-positions-to-names-a-row-is-a-function">From positions to names: a row is a function</a></li><li><a href="#rows-that-agree-can-be-glued-together">Rows that agree can be glued together</a></li><li><a href="#each-operator-has-a-schema-rule-and-a-row-rule">Each operator has a schema rule and a row rule</a></li><li><a href="#every-other-operator-is-derived-from-the-six">Every other operator is derived from the six</a></li><li><a href="#a-query-is-a-term-its-meaning-is-a-table">A query is a term; its meaning is a table</a></li><li><a href="#sql-is-relational-algebra-almost">SQL is relational algebra, almost</a></li><li><a href="#questions">Questions</a></li></ol></li><li><a href="#lean-on-your-computer">Lean, on your computer</a><ol><li><a href="#two-ways-to-start">Two ways to start</a></li><li><a href="#exercises">Exercises</a></li><li><a href="#your-design-decides-how-hard-the-proofs-are">Your design decides how hard the proofs are</a></li></ol></li></ol></details></nav>
+<section class="part part-theory" aria-labelledby="theory-on-paper"><h2 id="theory-on-paper"><span class="part-k">Theory, on paper</span><span class="part-t">Named columns; queries and their meaning</span></h2><h3 id="from-positions-to-names-a-row-is-a-function">From positions to names: a row is a function</h3>
+<p>Until now a column was known by its position. Now it gets a name. Fix a set \(\mathcal{A}\) of <em>attributes</em> (column names) and, for each \(a \in \mathcal{A}\), a set \(\mathit{dom}(a)\) of values.</p>
+<div class="box def" id="definition-5f-1"><p class="box-h"><span class="box-n">Definition 5F.1</span> (Schema, row, table)</p><p>A <em>schema</em> is a finite set \(U \subseteq \mathcal{A}\). A <em>row</em> over \(U\) is a function \(t\) giving each \(a \in U\) a value \(t(a) \in \mathit{dom}(a)\). A <em>table</em> over \(U\), written \(R : U\), is a finite set of rows over \(U\).</p></div>
+<p>For example, Alan's row of \(\rel{Member} : \{\att{name}, \att{dept}\}\) is the function \(t\) with \(t(\att{name}) = \text{Alan}\) and \(t(\att{dept}) = \text{CS}\). A row has no first or second column any more, only named ones. Read more in <a class="ref" href="https://webdam.di.ens.fr/Alice/pdfs/Chapter-3.pdf">Abiteboul, Hull, Vianu, Foundations of Databases (1995), ch. 3: <cite>The Relational Model</cite></a>.</p>
+<h3 id="rows-that-agree-can-be-glued-together">Rows that agree can be glued together</h3>
+<div class="box def" id="definition-5f-2"><p class="box-h"><span class="box-n">Definition 5F.2</span> (Restriction, agreement)</p><p>For a row \(t\) over \(U\) and \(A \subseteq U\), \(t[A]\) is \(t\) restricted to \(A\). Rows \(t : U\) and \(s : V\) <em>agree</em> if \(t[U \cap V] = s[U \cap V]\); then \(t \cup s\) is their union, a row over \(U \cup V\).</p></div>
+<p>For example, these two rows agree on \(\att{week}\), the attribute they share, so they glue into one:</p>
+<div class="math-display">\[\begin{aligned}
+t &amp;= \{\att{name} \mapsto \text{Alan},\ \att{week} \mapsto 1\} \\
+s &amp;= \{\att{week} \mapsto 1,\ \att{topic} \mapsto \text{Lists}\} \\
+t \cup s &amp;= \{\att{name} \mapsto \text{Alan},\ \att{week} \mapsto 1,\ \att{topic} \mapsto \text{Lists}\}
+\end{aligned}\]</div>
+<p>If \(t\) said week 2, the rows would not agree, and \(t \cup s\) would give \(\att{week}\) two values: it would not be a row.</p>
+<h3 id="each-operator-has-a-schema-rule-and-a-row-rule">Each operator has a schema rule and a row rule</h3>
+<div class="table-wrap"><table><thead><tr><th scope="col">Query</th><th scope="col">Defined when</th><th scope="col">Schema</th><th scope="col">Rows</th></tr></thead><tbody><tr><td>\(\sel{p}(R)\)</td><td>\(R : U\), \(p\) on rows over \(U\)</td><td>\(U\)</td><td>\(\{t \in R \mid p(t) = \true\}\)</td></tr><tr><td>\(\proj{A}(R)\)</td><td>\(R : U\), \(A \subseteq U\)</td><td>\(A\)</td><td>\(\{t[A] \mid t \in R\}\)</td></tr><tr><td>\(\ren{a}{b}(R)\)</td><td>\(R : U\), \(a \in U\), \(b \notin U\)</td><td>\((U \setminus \{a\}) \cup \{b\}\)</td><td>\(\{t \circ \beta \mid t \in R\}\)</td></tr><tr><td>\(R \cup S\)</td><td>\(R, S : U\)</td><td>\(U\)</td><td>\(\{t \mid t \in R \text{ or } t \in S\}\)</td></tr><tr><td>\(R - S\)</td><td>\(R, S : U\)</td><td>\(U\)</td><td>\(\{t \in R \mid t \notin S\}\)</td></tr><tr><td>\(R \times S\)</td><td>\(R : U\), \(S : V\), \(U \cap V = \emptyset\)</td><td>\(U \cup V\)</td><td>\(\{t \cup s \mid t \in R,\ s \in S\}\)</td></tr></tbody></table></div>
+<p>The operators of Levels 2F to 4F, now with names, and one new one, <em>renaming</em>: \(\beta\) maps \(b\) to \(a\), and every other attribute to itself, so the row \(t \circ \beta\) has the value of \(a\) under the name \(b\). The schema rule says when a query makes sense. For example, \(\proj{\att{name}}(\rel{Attended})\) has schema \(\{\att{name}\}\), but \(\proj{\att{topic}}(\rel{Attended})\) makes no sense: \(\rel{Attended}\) has no \(\att{topic}\). Read more in <a class="ref" href="https://webdam.di.ens.fr/Alice/pdfs/Chapter-4.pdf">Abiteboul, Hull, Vianu, Foundations of Databases (1995), ch. 4: <cite>Conjunctive Queries</cite></a> and <a class="ref" href="https://webdam.di.ens.fr/Alice/pdfs/Chapter-5.pdf">Abiteboul, Hull, Vianu, Foundations of Databases (1995), ch. 5: <cite>Adding Negation: Algebra and Calculus</cite></a>.</p>
+<h3 id="every-other-operator-is-derived-from-the-six">Every other operator is derived from the six</h3>
+<div class="table-wrap"><table><thead><tr><th scope="col">Operator</th><th scope="col">Definition</th><th scope="col">Gives</th></tr></thead><tbody><tr><td>\(R \cap S\)</td><td>\(R - (R - S)\)</td><td>the rows in both</td></tr><tr><td>\(R \join_{\theta} S\)</td><td>\(\sel{\theta}(R \times S)\)</td><td>the pairs that satisfy \(\theta\) (theta join)</td></tr><tr><td>\(R \join S\)</td><td>\(\proj{U \cup V}(\sel{\vec{a} = \vec{a}'}(R \times \ren{\vec{a}}{\vec{a}'}(S)))\)</td><td>the rows that agree, glued (natural join)</td></tr><tr><td>\(R \ltimes S\)</td><td>\(\proj{U}(R \join S)\)</td><td>the rows of \(R\) with a partner in \(S\) (semijoin)</td></tr><tr><td>\(R \div S\)</td><td>\(\proj{U}(R) - \proj{U}((\proj{U}(R) \times S) - R)\)</td><td>what relates to <em>every</em> row of \(S\) (division)</td></tr></tbody></table></div>
+<p>Joins: \(R : U\), \(S : V\), and \(\vec{a}\) lists the shared attributes \(U \cap V\), renamed to fresh \(\vec{a}'\). Division: \(R : U \cup V\), \(S : V\). For example, the natural join glues each attendance to its session:</p>
+<div class="table-wrap"><table><caption>\(\rel{Attended} \join \rel{Session}\)</caption><thead><tr><th scope="col">\(\att{name}\)</th><th class="r" scope="col">\(\att{week}\)</th><th scope="col">\(\att{topic}\)</th></tr></thead><tbody><tr><td>Ada</td><td class="r">1</td><td>Lists</td></tr><tr><td>Alan</td><td class="r">1</td><td>Lists</td></tr><tr><td>Alan</td><td class="r">2</td><td>Proofs</td></tr><tr><td>Grace</td><td class="r">3</td><td>Types</td></tr></tbody></table></div>
+<p>Who attended every session? \(\rel{Attended} \div \proj{\att{week}}(\rel{Session})\): nobody, yet. Who attended every session of the first two weeks? \(\rel{Attended} \div \proj{\att{week}}(\sel{\att{week} \leq 2}(\rel{Session})) = \{\text{Alan}\}\).</p>
+<h3 id="a-query-is-a-term-its-meaning-is-a-table">A query is a term; its meaning is a table</h3>
+<div class="box def" id="definition-5f-3"><p class="box-h"><span class="box-n">Definition 5F.3</span> (Query)</p><p>Queries are the terms \(\ q ::= T \mid \sel{p}(q) \mid \proj{A}(q) \mid \ren{a}{b}(q) \mid q \cup q \mid q - q \mid q \times q\), where \(T\) is a table name.</p></div>
+<div class="box def" id="definition-5f-4"><p class="box-h"><span class="box-n">Definition 5F.4</span> (Meaning)</p><p>For a <em>database</em> \(\mathit{db}\), which gives a table \(\mathit{db}(T)\) to each name \(T\): \(\lBrack T \rBrack = \mathit{db}(T)\), \(\ \lBrack \sel{p}(q) \rBrack = \sel{p}(\lBrack q \rBrack)\), …, \(\ \lBrack q_1 \times q_2 \rBrack = \lBrack q_1 \rBrack \times \lBrack q_2 \rBrack\).</p></div>
+<p>One equation for each operator: the meaning of a query comes from the meanings of its parts. In Lean, queries are an inductive type, and their meaning is a recursive function, <code>eval</code> (<a class="ref" href="https://lean-lang.org/functional_programming_in_lean/Programming-with-Dependent-Types/Worked-Example___-Typed-Queries/#typed-queries">FPIL 7.3 <cite>Worked Example: Typed Queries</cite></a>).</p>
+<div class="box fact" id="fact-5f-5"><p class="box-h"><span class="box-n">Fact 5F.5</span> (Queries mean tables of their schema)</p><p>If the schema rules give the query \(q\) the schema \(U\), then \(\lBrack q \rBrack\) is a table over \(U\).</p></div>
+<div class="proof"><p><em>Proof.</em> By induction on \(q\): for a name \(T\), it is the schema of \(\mathit{db}(T)\); for each operator, the row rule builds rows over exactly the schema its schema rule gives, from rows of the right schemas, which the induction gives. <span class="qed" role="img" aria-label="End of proof">∎</span></p></div>
+<p>Fact 5F.5 is what the schema rules are for: a query that passes them always has a meaningful answer. FPIL's design makes Lean check the schema rules for you, so a bad query cannot even be written.</p>
+<h3 id="sql-is-relational-algebra-almost">SQL is relational algebra, almost</h3>
+<div class="code code-sql"><div class="code-bar"><span class="code-lang">SQL</span><span class="code-cap">club-query.sql</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="c">-- Which CS members attended the session on Lists?</span>
+<span class="k">SELECT</span> <span class="k">DISTINCT</span> m.name
+<span class="k">FROM</span> Member m
+  <span class="k">JOIN</span> Attended a <span class="k">ON</span> m.name = a.name
+  <span class="k">JOIN</span> Session  s <span class="k">ON</span> a.week = s.week
+<span class="k">WHERE</span> m.dept = <span class="s">'CS'</span> <span class="k">AND</span> s.topic = <span class="s">'Lists'</span>;</code></pre></div>
+<div class="math-display">\[= \proj{\att{name}}\bigl(\sel{\att{dept} = \val{CS} \,\wedge\, \att{topic} = \val{Lists}}(\rel{Member} \join \rel{Attended} \join \rel{Session})\bigr) = \{\text{Alan}\}\]</div>
+<p>With only the six operators, the joins become a product of renamed tables, and a selection:</p>
+<div class="math-display">\[\proj{\att{name}}\bigl(\sel{\att{name} = \att{who} \,\wedge\, \att{week} = \att{wk} \,\wedge\, \att{dept} = \val{CS} \,\wedge\, \att{topic} = \val{Lists}}(\rel{Member} \times \ren{\att{name}}{\att{who}}(\rel{Attended}) \times \ren{\att{week}}{\att{wk}}(\rel{Session}))\bigr)\]</div>
+<p><em>Almost</em>: SQL keeps duplicate rows unless you write <code>DISTINCT</code> (its tables are <em>bags</em>), and it has <code>NULL</code>, with conditions of three truth values. Both are stretch goals, at the end of <a href="level-9.html">Level 9</a>. Read P. Guagliardo and L. Libkin, <a href="https://doi.org/10.14778/3151113.3151116">A Formal Semantics of SQL Queries, Its Validation, and Applications</a>, PVLDB 11(1), 2017.</p>
+<h3 id="questions">Questions</h3>
+<div class="q" id="q-5f-a"><p class="ex-h"><span class="ex-n">Question 5F.A</span> <span class="ex-t">Schemas</span></p><p>What are the schemas of \(\rel{Attended} \join \rel{Session}\) and of \(\rel{Member} \join \rel{Session}\)? What is the second one?</p>
+<details class="answer"><summary>Answer</summary><p>\(\{\att{name}, \att{week}, \att{topic}\}\), and \(\{\att{name}, \att{dept}, \att{week}, \att{topic}\}\). \(\rel{Member}\) and \(\rel{Session}\) share no attribute, so every pair of rows agrees: their natural join is their product, with \(3 \cdot 4 = 12\) rows.</p></details></div>
+<div class="q" id="q-5f-b"><p class="ex-h"><span class="ex-n">Question 5F.B</span> <span class="ex-t">Why must a product's schemas be disjoint?</span></p><p>Why does \(R \times S\) require \(U \cap V = \emptyset\)?</p>
+<details class="answer"><summary>Answer</summary><p>If \(R\) and \(S\) shared an attribute \(a\), a row \(t \in R\) and a row \(s \in S\) could give \(a\) different values, and then \(t \cup s\) is not a row (Definition 5F.2). Gluing only the rows that agree is the natural join; the product renames first, so that nothing is shared.</p></details></div>
+<div class="q" id="q-5f-c"><p class="ex-h"><span class="ex-n">Question 5F.C</span> <span class="ex-t">Division</span></p><p>Check that \(\rel{Attended} \div \proj{\att{week}}(\sel{\att{week} \leq 2}(\rel{Session})) = \{\text{Alan}\}\) with the definition of \(\div\).</p>
+<details class="answer"><summary>Answer</summary><p>With \(U = \{\att{name}\}\) and \(S = \{1, 2\}\) (weeks): \(\proj{U}(\rel{Attended}) = \{\text{Ada}, \text{Alan}, \text{Grace}\}\). Its product with \(S\) has 6 rows; removing the rows of \(\rel{Attended}\) leaves \((\text{Ada}, 2)\), \((\text{Grace}, 1)\) and \((\text{Grace}, 2)\), whose names are Ada and Grace. So the answer is \(\{\text{Ada}, \text{Alan}, \text{Grace}\} - \{\text{Ada}, \text{Grace}\} = \{\text{Alan}\}\).</p></details></div>
+<div class="q" id="q-5f-d"><p class="ex-h"><span class="ex-n">Question 5F.D</span> <span class="ex-t">A query of your own</span></p><p>Write a query for "the topics of the sessions that Grace attended", with the six operators.</p>
+<details class="answer"><summary>Answer</summary><p>One answer: \(\proj{\att{topic}}(\sel{\att{name} = \val{Grace} \,\wedge\, \att{week} = \att{wk}}(\rel{Attended} \times \ren{\att{week}}{\att{wk}}(\rel{Session})))\), whose answer is \(\{\text{Types}\}\).</p></details></div></section>
+<section class="part part-lean" aria-labelledby="lean-on-your-computer"><h2 id="lean-on-your-computer"><span class="part-k">Lean, on your computer</span><span class="part-t">A query language for the club</span></h2><h3 id="two-ways-to-start">Two ways to start</h3>
+<p>The book's way is the right one in the end, but it needs dependent types. If they feel too much at first, start with the simpler design below, and move to the book's later.</p>
+<ul><li><strong>The book's way</strong>: work through <a class="ref" href="https://lean-lang.org/functional_programming_in_lean/Programming-with-Dependent-Types/Worked-Example___-Typed-Queries/#typed-queries">FPIL 7.3 <cite>Worked Example: Typed Queries</cite></a>. A schema is a list of columns, <code>Row s</code> is a type that depends on the schema <code>s</code>, and <code>Query s</code> has only the queries that make sense: Lean checks the schema rules for you.</li><li><strong>A simpler way</strong>: one type of values, rows as lists of pairs (attribute, value), and one type of queries. A bad query can be written, and gives a meaningless answer.</li></ul>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">the simpler design</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="k">inductive</span> Value <span class="k">where</span>
+  | str (s : <span class="ty">String</span>)
+  | nat (n : <span class="ty">Nat</span>)
+  <span class="k">deriving</span> BEq, Repr
+
+<span class="k">abbrev</span> Row := <span class="ty">List</span> (<span class="ty">String</span> × Value)   <span class="c">-- attribute ↦ value</span>
+<span class="k">abbrev</span> Table := <span class="ty">List</span> Row
+<span class="k">abbrev</span> Database := <span class="ty">String</span> → Table
+
+<span class="k">inductive</span> Cond <span class="k">where</span>
+  | eqConst (a : <span class="ty">String</span>) (v : Value)  <span class="c">-- a = v</span>
+  | eqAttr (a b : <span class="ty">String</span>)             <span class="c">-- a = b</span>
+  | not (c : Cond)
+  | and (c d : Cond)
+
+<span class="k">inductive</span> Query <span class="k">where</span>
+  | table (name : <span class="ty">String</span>)
+  | select (c : Cond) (q : Query)
+  | project (attrs : <span class="ty">List</span> <span class="ty">String</span>) (q : Query)
+  | rename (a b : <span class="ty">String</span>) (q : Query)
+  | union (q r : Query)
+  | diff (q r : Query)
+  | product (q r : Query)</code></pre></div>
+<ul><li><code>deriving BEq, Repr</code> gives <code>Value</code> an equality test and a way to print (<a class="ref" href="https://lean-lang.org/functional_programming_in_lean/Overloading-and-Type-Classes/Standard-Classes/#deriving-standard-classes">FPIL 3.5.5 <cite>Deriving Standard Classes</cite></a>).</li><li><code>List.lookup a t</code> finds the value of attribute <code>a</code> in the row <code>t</code>, if there is one: an <code>Option Value</code>.</li></ul>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">meaning</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="k">def</span> Cond.holds : Cond → Row → <span class="ty">Bool</span>
+  | .eqConst a v, t =&gt; List.lookup a t == some v
+  | .eqAttr a b, t =&gt; List.lookup a t == List.lookup b t
+  | .not c, t =&gt; !(c.holds t)
+  | .and c d, t =&gt; c.holds t &amp;&amp; d.holds t
+
+<span class="k">def</span> eval (db : Database) : Query → Table
+  | .table n =&gt; db n
+  | .select c q =&gt; select (<span class="k">fun</span> t =&gt; c.holds t) (eval db q)
+  | .project attrs q =&gt; <span class="sorry">sorry</span>
+  | .rename a b q =&gt; <span class="sorry">sorry</span>
+  | .union q r =&gt; <span class="sorry">sorry</span>
+  | .diff q r =&gt; <span class="sorry">sorry</span>
+  | .product q r =&gt; <span class="sorry">sorry</span></code></pre></div>
+<p><code>eval</code> reuses your <code>select</code> of <a href="level-2f.html">Level 2F</a>. The other cases reuse your <code>project</code>, <code>union</code>, <code>diff</code> and <code>product</code>.</p>
+<h3 id="exercises">Exercises</h3>
+<div class="ex" id="ex-5f-1"><p class="ex-h"><span class="ex-n">Exercise 5F.1</span> <span class="chip lean">In Lean</span> <span class="ex-t">The club's tables, with names</span></p><p>Write the club's three tables with named columns, and a database that gives each name its table.</p>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="k">def</span> memberT : Table :=
+  [ [(<span class="s">"name"</span>, .str <span class="s">"Ada"</span>), (<span class="s">"dept"</span>, .str <span class="s">"Maths"</span>)],
+    [(<span class="s">"name"</span>, .str <span class="s">"Alan"</span>), (<span class="s">"dept"</span>, .str <span class="s">"CS"</span>)],
+    [(<span class="s">"name"</span>, .str <span class="s">"Grace"</span>), (<span class="s">"dept"</span>, .str <span class="s">"CS"</span>)] ]
+
+<span class="k">def</span> attendedT : Table := <span class="sorry">sorry</span>
+<span class="k">def</span> sessionT : Table := <span class="sorry">sorry</span>
+
+<span class="k">def</span> clubDb : Database
+  | <span class="s">"Member"</span> =&gt; memberT
+  | <span class="s">"Attended"</span> =&gt; attendedT
+  | <span class="s">"Session"</span> =&gt; sessionT
+  | _ =&gt; []</code></pre></div>
+<p>If you follow the book, write the same three tables with its <code>Row</code> and <code>Table</code>.</p></div>
+<div class="ex" id="ex-5f-2"><p class="ex-h"><span class="ex-n">Exercise 5F.2</span> <span class="chip lean">In Lean</span> <span class="ex-t">Queries and conditions</span></p><p>In the simpler design they are given above. In the book's design, define <code>Query</code>, with one constructor for each case of Definition 5F.3, and conditions as their own inductive type, so that <a href="level-7.html">Level 7</a> can inspect them.</p></div>
+<div class="ex" id="ex-5f-3"><p class="ex-h"><span class="ex-n">Exercise 5F.3</span> <span class="chip lean">In Lean</span> <span class="ex-t">The meaning of a query</span></p><p>Define <code>eval</code>, one case for each equation of Definition 5F.4, reusing your operators of Levels 2F to 4F.</p>
+<details class="hint"><summary>Projection</summary><p>Keep, in each row, the pairs whose attribute is in <code>attrs</code>: <code>t.filter (fun p =&gt; attrs.contains p.1)</code>.</p></details>
+<details class="hint"><summary>Renaming</summary><p>Change the name of the pair whose attribute is <code>a</code>: <code>t.map (fun p =&gt; if p.1 == a then (b, p.2) else p)</code>.</p></details>
+<details class="hint"><summary>Product</summary><p>Glue the two rows of each pair: a row is a list, so gluing is <code>++</code>. Use your <code>product</code>, then your <code>project</code>.</p></details></div>
+<div class="ex" id="ex-5f-4"><p class="ex-h"><span class="ex-n">Exercise 5F.4</span> <span class="chip lean">In Lean</span> <span class="ex-t">The question of the SQL query</span></p><p>Write the query "CS members who attended the session on Lists" as a <code>Query</code>, and <code>#eval eval clubDb</code> on it. The answer is one row: Alan's name.</p>
+<details class="hint"><summary>Hint</summary><p>Follow the last formula of "SQL is relational algebra, almost". It starts:</p>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="k">def</span> listsQuery : Query :=
+  .project [<span class="s">"name"</span>]
+    (.select (.and (.eqAttr <span class="s">"name"</span> <span class="s">"who"</span>) <span class="sorry">sorry</span>)
+      (.product (.table <span class="s">"Member"</span>) <span class="sorry">sorry</span>))</code></pre></div></details></div>
+<div class="ex" id="ex-5f-5"><p class="ex-h"><span class="ex-n">Exercise 5F.5</span> <span class="chip lean">In Lean</span> <span class="ex-t">Derived operators</span></p><p>Define the natural join and division from the six (as functions from queries to queries), and test them on the club's tables: the attendances glued to their sessions, and Question 5F.C.</p>
+<details class="hint"><summary>Hint</summary><p>In the simpler design, a function <code>naturalJoin (q r : Query) : Query</code> needs to know the shared attributes. Pass them as an argument at first: <code>naturalJoin (shared : List String) (q r : Query)</code>.</p></details></div>
+<h3 id="your-design-decides-how-hard-the-proofs-are">Your design decides how hard the proofs are</h3>
+<ul><li><strong>Columns</strong>: named or positional? Names make \(R \times S = S \times R\) true.</li><li><strong>Values</strong>: one type for all columns, or a type per column?</li><li><strong>Bad queries</strong>: rejected when evaluated, or impossible to write?</li><li><strong>Tables</strong>: lists for now; finite sets at <a href="level-7.html">Level 7</a>.</li><li><strong>Conditions</strong>: syntax you can inspect, for the side conditions of <a href="level-7.html">Level 7</a>.</li><li><strong>Rows</strong>: in the simpler design, two lists with the same pairs in a different order are different rows. Is that a problem for <code>diff</code>?</li></ul>
+<div class="note"><p>No design is right first time: if the proofs hurt, change the definitions. Read <a class="ref" href="https://lean-lang.org/functional_programming_in_lean/Programming-with-Dependent-Types/The-Universe-Design-Pattern/#universe-pattern">FPIL 7.2 <cite>The Universe Design Pattern</cite></a> and <a class="ref" href="https://lean-lang.org/functional_programming_in_lean/Programming-with-Dependent-Types/Pitfalls-of-Programming-with-Dependent-Types/#dependent-type-pitfalls">FPIL 7.5 <cite>Pitfalls of Programming with Dependent Types</cite></a> before you choose.</p></div></section><section class="next" aria-labelledby="next-h"><h2 id="next-h">Next</h2><ol class="next-cards"><li><a class="lvl lvl-meet" href="level-6.html" data-progress="6:m1 6:m2 6:m3 6:m4 6:m5"><span class="lvl-id">Level 6</span> <span class="lvl-t">Lists represent tables</span><span class="lvl-p"></span></a></li></ol><p class="stuck">Stuck, or curious? Ask us: on Discord, or any Thursday.</p></section></main>
+<footer>
+<p>The first challenge of the <a href="https://papc-rhul.github.io/">Proofs and Programs Club @ RHUL</a>.</p>
+<p>Your ticked milestones are kept in this browser only.</p>
+</footer>
+</body>
+</html>

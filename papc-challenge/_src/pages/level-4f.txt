@@ -1,0 +1,245 @@
+::: glance
+build: `dedup`, `diff` and `inter`; and `joinOn`, a join, as a selection of a product.
+prove: which sessions had nobody, and the size of a join, by computing.
+learn: write functions for every type whose values can be compared | [@fpil-classes]
+learn: compare values with `==`, and test membership in a list | [@fpil-eqord]
+:::
+
+::: milestones
+- `dedup` removes repeats, and Lean proves the example (Exercise 4F.1).
+- `diff` and `inter` work: Lean proves that week 4 had nobody (Exercises 4F.2 and 4F.3).
+- `joinOn` joins $\rel{Attended}$ and $\rel{Session}$ on the week (Exercise 4F.4).
+- You answered a question about the club with a join, a selection and a projection (Exercise 4F.6).
+:::
+
+@toc
+
+::: part theory Equal rows, difference, and joins
+
+### Comparing rows needs an equality test
+
+Selection, projection, product and union never compare two rows. Removing repeats, difference and joins do, so a program needs a way to tell whether two values are equal.
+
+::: box Definition 4F.1 (Equality test)
+An *equality test* on $D$ is a function $\mathit{eq} : D \times D \to \B$ with $\mathit{eq}(t, s) = \true$ exactly when $t = s$.
+:::
+
+::: box Definition 4F.2 (Membership, duplicates)
+With $\mathit{eq}$:
+$$\begin{aligned}
+\mathit{contains}\ [\,]\ t &= \false \\
+\mathit{contains}\ (s :: l)\ t &= \mathit{eq}(s, t) \text{ or } \mathit{contains}\ l\ t \\
+\mathit{dedup}\ [\,] &= [\,] \\
+\mathit{dedup}\ (t :: l) &= \mathit{dedup}\ l && \text{if } \mathit{contains}\ l\ t = \true \\
+\mathit{dedup}\ (t :: l) &= t :: \mathit{dedup}\ l && \text{if } \mathit{contains}\ l\ t = \false
+\end{aligned}$$
+:::
+
+So $\mathit{contains}\ l\ t = \true$ exactly when $t$ is in the table $l$ represents. $\mathit{dedup}$ drops a row when another copy comes later, so it keeps the last copy of each row:
+
+$$\mathit{dedup}\ [1, 1, 2, 3] = \mathit{dedup}\ [1, 2, 3] = 1 :: \mathit{dedup}\ [2, 3] = \cdots = [1, 2, 3].$$
+
+In Lean, `==` is the equality test, from the type class `BEq` ([@fpil-eqord]).
+
+### Difference removes the rows of another table
+
+::: box Definition 4F.3 (Difference, intersection)
+For tables $R$ and $S$ of the same rows: $R - S = \{t \in R \mid t \notin S\}$ and $R \cap S = \{t \in R \mid t \in S\}$.
+:::
+
+Which sessions had nobody? With one-column tables:
+
+$$\pi_1[\rel{Session}] - \pi_2[\rel{Attended}] = \{1, 2, 3, 4\} - \{1, 2, 3\} = \{4\}.$$
+
+On lists, a difference is a selection ([[2f]]), with the condition "not in $m$":
+
+$$\mathit{diff}\ l\ m = \mathit{select}\ (t \mapsto \text{not } \mathit{contains}\ m\ t)\ l.$$
+
+In SQL: `EXCEPT`. Read more in [@ahv5].
+
+::: box Fact 4F.4
+$R \cap S = R - (R - S)$.
+:::
+
+So intersection needs no program of its own. [[3t]] proves Fact 4F.4, and finds that one half of it needs classical logic.
+
+### A join is a selection of a product
+
+::: box Definition 4F.5 (Join)
+For functions $k_1$ on the rows of $R$ and $k_2$ on the rows of $S$ (their *keys*): $\ R \join_{k_1 = k_2} S = \{(t, s) \in R \times S \mid k_1(t) = k_2(s)\}$.
+:::
+
+It is a selection of the product ([[2f]] and [[3f]]), with the condition $\mathit{eq}(k_1(t), k_2(s))$. Joining on the week, with $k_1 = \pi_2$ and $k_2 = \pi_1$:
+
+Table: $\rel{Attended} \join_{\pi_2 = \pi_1} \rel{Session}$
+| row of $\rel{Attended}$ | row of $\rel{Session}$ |
+|---|---|
+| (Ada, 1) | (1, Lists) |
+| (Alan, 1) | (1, Lists) |
+| (Alan, 2) | (2, Proofs) |
+| (Grace, 3) | (3, Types) |
+
+Of the 16 pairs in the product, the join keeps the 4 whose weeks agree. In SQL: `Attended a JOIN Session s ON a.week = s.week`. Joins are how a database answers questions that need two tables, such as "who came to the session on Proofs?".
+
+### Questions
+
+::: q 4F.A Two differences
+Compute $\pi_1[\rel{Session}] - \pi_2[\rel{Attended}]$ and $\pi_2[\rel{Attended}] - \pi_1[\rel{Session}]$.
+
+::: answer
+$\{4\}$, and $\emptyset$: every week someone attended had a session.
+:::
+:::
+
+::: q 4F.B Is difference symmetric?
+Is $R - S = S - R$ for every $R$ and $S$?
+
+::: answer
+No: Question 4F.A gives $\{4\} \neq \emptyset$. In fact $R - S$ and $S - R$ never share a row.
+:::
+:::
+
+::: q 4F.C Join on the name
+Compute $\rel{Member} \join_{\pi_1 = \pi_1} \rel{Attended}$.
+
+::: answer
+Four pairs: $((\text{Ada}, \text{Maths}), (\text{Ada}, 1))$, $((\text{Alan}, \text{CS}), (\text{Alan}, 1))$, $((\text{Alan}, \text{CS}), (\text{Alan}, 2))$ and $((\text{Grace}, \text{CS}), (\text{Grace}, 3))$.
+:::
+:::
+
+::: q 4F.D A broken equality test
+Suppose $\mathit{eq}(t, s) = \true$ for all $t$ and $s$, which breaks Definition 4F.1. What do $\mathit{dedup}$ and $\mathit{diff}$ compute?
+
+::: answer
+$\mathit{contains}\ l\ t = \true$ whenever $l$ is not empty. So $\mathit{dedup}\ l$ keeps only the last row of $l$, and $\mathit{diff}\ l\ m = [\,]$ whenever $m$ is not empty. The programs are only as correct as the equality test: [[6]] assumes a lawful one.
+:::
+:::
+
+::: q 4F.E Intersection, two ways
+Check Fact 4F.4 on $R = \{1, 2, 3\}$ and $S = \{2, 3, 4\}$.
+
+::: answer
+$R - S = \{1\}$, so $R - (R - S) = \{2, 3\} = R \cap S$.
+:::
+:::
+
+:::
+
+::: part lean Build dedup, diff, inter and joinOn
+
+### Your turn: build dedup
+
+```lean dedup.lean
+def dedup {α : Type} [BEq α] : List α → List α
+  | [] => sorry
+  | row :: rest => sorry   -- hint: rest.contains row
+
+example : dedup (project (fun row => row.2) attended) = [1, 2, 3] := rfl
+```
+
+- `[BEq α]`: rows of type `α` have an equality test, `==`, and `l.contains row` uses it ([@fpil-classes]).
+- Pairs of strings and numbers have one already, so `dedup` works on all our tables.
+
+::: ex 4F.1 lean Build dedup
+Complete `dedup` with Definition 4F.2, and prove the example.
+
+::: hint
+`if rest.contains row then … else …`, with `dedup rest` in both branches.
+:::
+:::
+
+### Your turn: build diff and inter
+
+```lean diff.lean
+def diff {α : Type} [BEq α] (r s : List α) : List α := sorry
+def inter {α : Type} [BEq α] (r s : List α) : List α := sorry
+
+-- Which sessions had nobody?
+example : diff (project (fun s => s.1) session)
+               (project (fun a => a.2) attended) = [4] := rfl
+```
+
+::: ex 4F.2 lean Build diff
+`diff`: a selection, with `s.contains row`.
+
+::: hint
+`select (fun row => !(s.contains row)) r`. `!` is "not" on `Bool`.
+:::
+:::
+
+::: ex 4F.3 lean Build inter
+`inter`: from `diff` alone (Fact 4F.4). Then prove the example.
+
+::: hint
+`diff r (diff r s)`. Check it: `#eval inter [1, 2, 3] [2, 3, 4]` should print `[2, 3]`.
+:::
+:::
+
+### Your turn: derive a join from select and product
+
+```lean join.lean
+def joinOn {α β κ : Type} [BEq κ] (k₁ : α → κ) (k₂ : β → κ)
+    (r : List α) (s : List β) : List (α × β) :=
+  sorry
+
+-- Attended ⋈ Session, on the week
+example : (joinOn (fun a => a.2) (fun s => s.1) attended session).length = 4 :=
+  rfl
+```
+
+- `k₁` and `k₂` are the keys of Definition 4F.5: here, each row's week. Their values, of type `κ`, need an equality test.
+- Type `k₁` as `k\1` in VS Code, and `κ` as `\kappa`.
+
+::: ex 4F.4 lean Build joinOn
+Complete `joinOn`: `select` the pairs of `product r s` whose keys are equal. Then prove the example.
+
+::: hint
+A pair `x` of the product has `x.1` from `r` and `x.2` from `s`: compare `k₁ x.1` with `k₂ x.2`.
+:::
+:::
+
+### More exercises
+
+::: ex 4F.5 lean Join on the name
+`#eval` Question 4F.C: join `member` and `attended` on the name. You should see four pairs.
+
+::: hint
+`joinOn (fun m => m.1) (fun a => a.1) member attended`.
+:::
+:::
+
+::: ex 4F.6 lean Who came to the session on Proofs?
+Answer it with `joinOn`, `select` and `project`, in one expression. `#eval` it: the answer is `["Alan"]`.
+
+::: hint Hint 1
+Join `attended` and `session` on the week; keep the pairs whose session's topic is `"Proofs"`; then project each pair to the name.
+:::
+
+::: hint Hint 2
+In a pair `x` of the join, the topic is `x.2.2` and the name is `x.1.1`.
+:::
+:::
+
+::: ex 4F.7 lean Who never came?
+Compute the names of members who attended no session, with `diff` and `project`. What do you get, and why?
+
+::: answer
+`diff (project (fun m => m.1) member) (project (fun a => a.1) attended)` is `[]`: every member attended at least once.
+:::
+:::
+
+::: ex 4F.8 stretch A semijoin
+The *semijoin* keeps the rows of $R$ that have at least one partner in $S$, without pairing them. Define it, and find the members who attended in week 2:
+
+```lean
+def semijoin {α β κ : Type} [BEq κ] (k₁ : α → κ) (k₂ : β → κ)
+    (r : List α) (s : List β) : List α :=
+  sorry
+```
+
+::: hint
+`select (fun a => s.any (fun b => k₁ a == k₂ b)) r`. Then use it on `member` and the week-2 rows of `attended`.
+:::
+:::
+
+:::

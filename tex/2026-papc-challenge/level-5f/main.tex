@@ -1,0 +1,202 @@
+% !LW recipe = make-deck
+% Level 5F (programs track, FPIL): named columns, and queries as data.
+% Theory: rows as functions, schema and row rules, derived operators,
+% query terms and their meaning, SQL. Lean: a query language.
+% Build: make (rules in ../common/deck.mk).
+\DocumentMetadata{
+  lang        = en-GB,
+  pdfstandard = ua-2,
+  tagging     = on,
+}
+\documentclass{ltx-talk}
+
+\input{preamble}
+
+\title{Level 5F: Named Columns, and a Query Language}
+\author{The Proofs and Programs Club}
+\institute{Royal Holloway, University of London}
+
+\begin{document}
+
+\leveltitle{5F}{Named Columns, and a Query Language}
+  {Programs track: follows FPIL}{After \levellink{4f}}
+  {Next: \levellink{6}, with \levellink{5t}}
+
+\levelframe{5F}{Level 5F at a Glance}{%
+  rows of any schema, a type of queries with the six operators, and
+  \code{eval}, which computes a query's answer.}{%
+  that \code{eval} answers the club's queries correctly, by computing.}{%
+  define structures, and inductive types, and match on them &
+    \rds{fpil-struct, fpil-data} \\
+  derive equality and printing for your types & \rds{fpil-deriving} \\
+  index a type by values, as in \code{Query : Schema → Type} &
+    \rds{fpil-indexed, fpil-universe, fpil-tq} \\
+}
+
+% ---------------------------------------------------------------- theory
+\theorypart{Named columns; queries and their meaning}
+\begin{frame}
+  \frametitle{From Positions to Names: A Row Is a Function}
+  Until now a column was known by its position. Now it gets a name. Fix a
+  set $\mathcal{A}$ of \emph{attributes} (column names) and, for each
+  $a \in \mathcal{A}$, a set $\mathit{dom}(a)$ of values.
+  \defn{Definition 5F.1 (Schema, row, table)}{A \emph{schema} is a finite
+    set $U \subseteq \mathcal{A}$. A \emph{row} over $U$ is a function $t$
+    giving each $a \in U$ a value $t(a) \in \mathit{dom}(a)$. A
+    \emph{table} over $U$, written $R : U$, is a finite set of rows over
+    $U$.}
+  For example, Alan's row of $\rel{Member} : \{\att{name}, \att{dept}\}$
+  is the function $t$ with $t(\att{name}) = \text{Alan}$ and
+  $t(\att{dept}) = \text{CS}$.
+  \slideref{\lnk{ahv3}}
+  \theorytag{5F}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Rows That Agree Can Be Glued Together}
+  \defn{Definition 5F.2 (Restriction, agreement)}{For a row $t$ over $U$
+    and $A \subseteq U$, $t[A]$ is $t$ restricted to $A$. Rows $t : U$ and
+    $s : V$ \emph{agree} if $t[U \cap V] = s[U \cap V]$; then $t \cup s$
+    is their union, a row over $U \cup V$.}
+  For example, these two rows agree on $\att{week}$, the attribute they
+  share, so they glue into one:
+  \[
+    \begin{array}{@{}r@{\;=\;}l@{}}
+      t & \{\att{name} \mapsto \text{Alan},\ \att{week} \mapsto 1\} \\
+      s & \{\att{week} \mapsto 1,\ \att{topic} \mapsto \text{Lists}\} \\
+      t \cup s & \{\att{name} \mapsto \text{Alan},\ \att{week} \mapsto 1,\
+        \att{topic} \mapsto \text{Lists}\} \\
+    \end{array}
+  \]
+  \slideref{\lnk{ahv3}}
+  \theorytag{5F}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Each Operator Has a Schema Rule and a Row Rule}
+  {\centering\renewcommand\arraystretch{1.35}
+    {\headerrow\begin{tabular}{@{}l@{\quad}l@{\quad}l@{\quad}l@{}}
+      \hline
+      \textbf{Query} & \textbf{Defined when} & \textbf{Schema} &
+        \textbf{Rows} \\ \hline
+      $\sel{p}(R)$ & $R : U$, $p$ on rows over $U$ & $U$ &
+        $\{t \in R \mid p(t) = \true\}$ \\
+      $\proj{A}(R)$ & $R : U$, $A \subseteq U$ & $A$ &
+        $\{t[A] \mid t \in R\}$ \\
+      $\ren{a}{b}(R)$ & $R : U$, $a \in U$, $b \notin U$ &
+        $(U \setminus \{a\}) \cup \{b\}$ & $\{t \circ \beta \mid t \in R\}$ \\
+      $R \cup S$ & $R, S : U$ & $U$ &
+        $\{t \mid t \in R \text{ or } t \in S\}$ \\
+      $R - S$ & $R, S : U$ & $U$ & $\{t \in R \mid t \notin S\}$ \\
+      $R \times S$ & $R : U$, $S : V$, $U \cap V = \emptyset$ & $U \cup V$ &
+        $\{t \cup s \mid t \in R,\ s \in S\}$ \\ \hline
+    \end{tabular}}\par}
+  \medskip
+  The operators of Levels 2F to 4F, now with names, and one new one,
+  \emph{renaming}: $\beta$ maps $b$ to $a$, and every other attribute to
+  itself. The schema rule says when a query makes sense.
+  \slideref{\lnk{ahv4} \rfsep \lnk{ahv5}}
+  \theorytag{5F}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Every Other Operator Is Derived from the Six}
+  {\centering\renewcommand\arraystretch{1.35}
+    {\headerrow\begin{tabular}{@{}l@{\quad}l@{\quad}l@{}}
+      \hline
+      \textbf{Operator} & \textbf{Definition} & \textbf{Gives} \\ \hline
+      $R \cap S$ & $R - (R - S)$ & the rows in both \\
+      $R \join_{\theta} S$ & $\sel{\theta}(R \times S)$ & the pairs that
+        satisfy $\theta$ (theta join) \\
+      $R \join S$ & $\proj{U \cup V}(\sel{\vec{a} = \vec{a}'}(R \times
+        \ren{\vec{a}}{\vec{a}'}(S)))$ & the rows that agree, glued
+        (natural join) \\
+      $R \ltimes S$ & $\proj{U}(R \join S)$ & the rows of $R$ with a
+        partner in $S$ (semijoin) \\
+      $R \div S$ & $\proj{U}(R) - \proj{U}((\proj{U}(R) \times S) - R)$ &
+        what relates to \emph{every} row of $S$ (division) \\ \hline
+    \end{tabular}}\par}
+  \medskip
+  Joins: $R : U$, $S : V$, and $\vec{a}$ lists the shared attributes
+  $U \cap V$, renamed to fresh $\vec{a}'$. Division: $R : U \cup V$,
+  $S : V$. Who attended every session?
+  $\rel{Attended} \div \proj{\att{week}}(\rel{Session})$: nobody, yet.
+  \slideref{\lnk{ahv4} \rfsep \lnk{ahv5}}
+  \theorytag{5F}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A Query Is a Term; Its Meaning Is a Table}
+  \defn{Definition 5F.3 (Query)}{Queries are the terms
+    \ $q ::= T \mid \sel{p}(q) \mid \proj{A}(q) \mid \ren{a}{b}(q) \mid q
+    \cup q \mid q - q \mid q \times q$, \ where $T$ is a table name.}
+  \defn{Definition 5F.4 (Meaning)}{For a \emph{database} $\mathit{db}$,
+    which gives a table $\mathit{db}(T)$ to each name $T$:
+    \ $\lBrack T \rBrack = \mathit{db}(T)$, \
+    $\lBrack \sel{p}(q) \rBrack = \sel{p}(\lBrack q
+    \rBrack)$, \ \ldots, \ $\lBrack q_1 \times q_2 \rBrack =
+    \lBrack q_1 \rBrack \times \lBrack q_2 \rBrack$.}
+  One equation for each operator: the meaning of a query comes from the
+  meanings of its parts. In Lean, queries are an inductive type, and their
+  meaning is a recursive function, \code{eval}.
+  \slideref{\lnk{fpil-tq}}
+  \theorytag{5F}
+\end{frame}
+
+\begin{frame*}
+  \frametitle{SQL Is Relational Algebra, Almost}
+  \mainblock{club-query.sql}
+  \[
+    = \proj{\att{name}}\bigl(\sel{\att{dept} = \val{CS} \,\wedge\,
+      \att{topic} = \val{Lists}}(\rel{Member} \join \rel{Attended} \join
+      \rel{Session})\bigr) = \{\text{Alan}\}
+  \]
+  \emph{Almost}: SQL keeps duplicate rows unless you write
+  \code{DISTINCT} (its tables are \emph{bags}), and it has \code{NULL},
+  with conditions of three truth values. Both are stretch goals.
+  \slideref{P. Guagliardo, L. Libkin. \textbf{A Formal Semantics of SQL Queries, Its Validation, and Applications}. PVLDB 11(1), 2017.}
+  \theorytag{5F}
+\end{frame*}
+
+% ---------------------------------------------------------------- Lean
+\leanpart{A query language for the club}
+\begin{frame}
+  \frametitle{Your Turn: A Query Language for the Club}
+  \begin{itemize}
+    \item \ex{5F.1} Work through FPIL 7.3: column types, schemas, rows and
+      tables (Definition 5F.1). Write the club's three tables with it.
+    \item \ex{5F.2} Define \code{Query}, with one constructor for each case
+      of Definition 5F.3, and conditions as their own inductive type.
+    \item \ex{5F.3} Define \code{eval}, one case for each equation of
+      Definition 5F.4, reusing your operators of Levels 2F to 4F.
+    \item \ex{5F.4} Write the query ``CS members who attended the session
+      on Lists''. \code{\#eval} it: the answer is Alan.
+    \item \ex{5F.5} Define the natural join and division from the six, and
+      test them.
+  \end{itemize}
+  \slideref{\lnk{fpil-tq} \rfsep \lnk{fpil-tqex}}
+  \leantag{5F}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Your Design Decides How Hard the Proofs Are}
+  \begin{itemize}
+    \item \textbf{Columns}: named or positional? Names make
+      $R \times S = S \times R$ true.
+    \item \textbf{Values}: one type for all columns, or a type per
+      column?
+    \item \textbf{Bad queries}: rejected when evaluated, or impossible to
+      write?
+    \item \textbf{Tables}: lists for now; finite sets at Level 7.
+    \item \textbf{Conditions}: syntax you can inspect, for the side
+      conditions of Level 7.
+  \end{itemize}
+  \begin{sticky}[halign = center]
+    No design is right first time: if the proofs hurt, change the
+    definitions.
+  \end{sticky}
+  \slideref{\lnk{fpil-universe} \rfsep \lnk{fpil-pitfalls}}
+  \leantag{5F}
+\end{frame}
+
+\end{document}

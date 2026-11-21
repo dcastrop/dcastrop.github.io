@@ -1,0 +1,160 @@
+% !LW recipe = make-deck
+% Level 3F (programs track, FPIL): projection, product and union. Theory:
+% images, products, unions, and their list equations. Lean: build
+% project, product and union.
+% Build: make (rules in ../common/deck.mk).
+\DocumentMetadata{
+  lang        = en-GB,
+  pdfstandard = ua-2,
+  tagging     = on,
+}
+\documentclass{ltx-talk}
+
+\input{preamble}
+
+\title{Level 3F: Projection, Product and Union, as Programs}
+\author{The Proofs and Programs Club}
+\institute{Royal Holloway, University of London}
+
+\begin{document}
+
+\leveltitle{3F}{Projection, Product and Union, as Programs}
+  {Programs track: follows FPIL}{After \levellink{2f}}
+  {Next: \levellink{4f}}
+
+\levelframe{3F}{Level 3F at a Glance}{%
+  \code{project}, \code{product} and \code{union}.}{%
+  the sizes of products and unions of the club's tables, by
+  computing.}{%
+  write functions on pairs, and on lists of any type & \rds{fpil-poly} \\
+  define a function by cases, calling itself on the rest of the list &
+    \rds{fpil-data} \\
+  check a function on examples: \code{\#eval}, and proofs by \code{rfl} &
+    \rds{fpil-eval, fpil-props} \\
+}
+
+% ---------------------------------------------------------------- theory
+\theorypart{Images, products and unions}
+
+\begin{frame}
+  \frametitle{Projection Keeps the Columns You Ask For}
+  \defn{Definition 3F.1 (Image)}{For a function $f$ on rows, the
+    \emph{image} of a table $R$ is $f[R] = \{f(t) \mid t \in R\}$.}
+  \defn{Definition 3F.2 (Projection)}{The projections onto the first and
+    the second column are the images under $\pi_1(d_1, d_2) = d_1$ and
+    $\pi_2(d_1, d_2) = d_2$.}
+  {\centering
+    \smalltable{$\pi_1[\rel{Attended}]$}{l}{$\att{name}$}
+      {Ada \\ Alan \\ Grace}\hspace{16mm}
+    \smalltable{$\pi_2[\rel{Attended}]$}{r}{$\att{week}$}
+      {1 \\ 2 \\ 3}\par}
+  \slideref{\lnk{ahv4}}
+  \theorytag{3F}
+\end{frame}
+
+\begin{frame}
+  \frametitle{An Image Can Shrink a Table, but Never Grow It}
+  \defn{Fact 3F.3}{$|f[R]| \leq |R|$.}
+  Alan attended twice, but appears once in $\pi_1[\rel{Attended}]$: four
+  rows became three names. A list would keep him twice.
+  \defn{Fact 3F.4 (Composition)}{$g[f[R]] = (g \circ f)[R]$.}
+  \emph{Proof.} For every $s$:
+  \[
+    \begin{array}{@{}r@{\quad}l@{}}
+      s \in g[f[R]] & \iff s = g(u) \text{ for some } u \in f[R] \\
+      & \iff s = g(f(t)) \text{ for some } t \in R \iff s \in (g \circ
+        f)[R]. \\
+    \end{array}
+  \]
+  \proofend
+  \theorytag{3F}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A Product Pairs Every Row with Every Row}
+  \defn{Definition 3F.5 (Product)}{For tables $R$ and $S$:
+    \ $R \times S = \{(t, s) \mid t \in R \text{ and } s \in S\}$.}
+  Its rows are pairs of rows. For example,
+  $((\text{Ada}, \text{Maths}), (1, \text{Lists})) \in \rel{Member} \times
+  \rel{Session}$.
+  \defn{Fact 3F.6}{$|R \times S| = |R| \cdot |S|$.}
+  So $\rel{Member} \times \rel{Session}$ has $3 \cdot 4 = 12$ rows. In SQL:
+  \code{FROM Member, Session}.
+  \slideref{\lnk{ahv4}}
+  \theorytag{3F}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Union Combines Two Tables; on Lists, It Is Appending}
+  \defn{Definition 3F.7 (Union)}{For tables $R$ and $S$ of the same rows:
+    \ $R \cup S = \{t \mid t \in R \text{ or } t \in S\}$.}
+  \defn{Fact 3F.8}{If $l$ represents $R$ and $m$ represents $S$
+    (Definition 1.2), then $l \mathbin{+\!\!+} m$ represents $R \cup S$.}
+  \emph{Proof.} The rows of $l \mathbin{+\!\!+} m$ are those of $l$ and
+  those of $m$. \proofend
+  \par\medskip
+  The list $l \mathbin{+\!\!+} m$ may repeat a row, but it still
+  represents the right table. In SQL: \code{UNION}.
+  \slideref{\lnk{ahv5}}
+  \theorytag{3F}
+\end{frame}
+
+\begin{frame}
+  \frametitle{On Lists, Projection and Product Are Equations Too}
+  \defn{Definition 3F.9 (Projection and product on lists)}{For a function
+    $f$ on rows:
+    \[
+      \begin{array}{@{}l@{\;=\;}l@{}}
+        \mathit{project}\ f\ [\,] & [\,] \\
+        \mathit{project}\ f\ (t :: l) & f(t) :: \mathit{project}\ f\ l \\
+        \mathit{product}\ [\,]\ m & [\,] \\
+        \mathit{product}\ (t :: l)\ m & \mathit{project}\ (s \mapsto (t,
+          s))\ m \mathbin{+\!\!+} \mathit{product}\ l\ m \\
+      \end{array}
+    \]}
+  The last line pairs $t$ with every row of $m$, then does the same for
+  the rest of $l$. Level 6 proves that these lists represent $f[R]$ and
+  $R \times S$.
+  \theorytag{3F}
+\end{frame}
+
+% ---------------------------------------------------------------- Lean
+\leanpart{Build project, product and union}
+
+\begin{frame*}
+  \frametitle{Your Turn: Build project}
+  \leanblock{project.lean}
+  \begin{itemize}
+    \item \ex{3F.1} Replace the \code{sorry}s with Definition 3F.9.
+    \item \ex{3F.2} The test prints Alan twice, but the table
+      $\pi_1[\rel{Attended}]$ has him once. Why? (Fact 3F.3.)
+  \end{itemize}
+  \slideref{\lnk{fpil-poly}}
+  \leantag{3F}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Your Turn: Build product}
+  \leanblock{product.lean}
+  \begin{itemize}
+    \item \ex{3F.3} Pair \code{a} with each row of \code{s} (use your
+      \code{project}), then \code{++} the product of the rest.
+    \item \ex{3F.4} Prove the example: 3 members and 4 sessions make 12
+      pairs (Fact 3F.6).
+  \end{itemize}
+  \leantag{3F}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Your Turn: Build union}
+  \leanblock{union.lean}
+  \begin{itemize}
+    \item \ex{3F.5} \code{union} is \code{r ++ s} (Fact 3F.8). Prove the
+      example.
+    \item \ex{3F.6} The list has 6 rows, but the table it represents has
+      3. Why? (Fact 1.3.)
+  \end{itemize}
+  \leantag{3F}
+\end{frame*}
+
+\end{document}

@@ -1,0 +1,133 @@
+% !LW recipe = make-deck
+% Level 6 (the tracks meet): lists represent tables. Theory: the table of
+% a list, Boolean conditions as properties, the programs compute the
+% operators, so the laws hold for lists. Lean: toTable, and the theorems.
+% Build: make (rules in ../common/deck.mk).
+\DocumentMetadata{
+  lang        = en-GB,
+  pdfstandard = ua-2,
+  tagging     = on,
+}
+\documentclass{ltx-talk}
+
+\input{preamble}
+
+\title{Level 6: Lists Represent Tables}
+\author{The Proofs and Programs Club}
+\institute{Royal Holloway, University of London}
+
+\begin{document}
+
+\leveltitle{6}{Lists Represent Tables}{The two tracks meet}
+  {After \levellink{5f} and \levellink{5t}}
+  {Next: \levellink{7} or \levellink{9}}
+
+\levelframe{6}{Level 6 at a Glance}{%
+  \code{toTable}, the table a list represents.}{%
+  that your list programs (programs track) compute the operators on
+  tables (proofs track). So every law holds for your lists.}{%
+  prove facts about programs by induction & \rds{fpil-tactics} \\
+  find and use Lean's lemmas about lists, with \code{simp} &
+    \rds{tpil-simp} \\
+  split a goal on an \code{if} & \rds{tpil-split} \\
+}
+
+% ---------------------------------------------------------------- theory
+\theorypart{Programs that compute tables}
+
+\begin{frame}
+  \frametitle{The Programs Compute the Operators}
+  \defn{Definition 6.1}{The table of a list $l$ is $\mathit{table}(l) =
+    \{t \mid t \text{ is in } l\}$: the one $l$ represents (Definition
+    1.2). A condition $p$ with values in $\B$ gives the property ``$p(t)
+    = \true$''.}
+  \defn{Theorem 6.2}{For all lists $l$ and $m$:
+    \[
+      \begin{array}{@{}r@{\;=\;}l@{\qquad}r@{\;=\;}l@{}}
+        \mathit{table}(\mathit{select}\ p\ l) & \sel{p}(\mathit{table}(l))
+          & \mathit{table}(l \mathbin{+\!\!+} m) & \mathit{table}(l) \cup
+          \mathit{table}(m) \\
+        \mathit{table}(\mathit{project}\ f\ l) & f[\mathit{table}(l)] &
+          \mathit{table}(\mathit{product}\ l\ m) & \mathit{table}(l)
+          \times \mathit{table}(m) \\
+      \end{array}
+    \]}
+  On the left, the programs of Levels 2F and 3F; on the right, the
+  operators of Levels 2T to 4T.
+  \theorytag{6}
+\end{frame}
+
+\begin{frame}
+  \frametitle{One Induction, and Every Law Comes for Free}
+  \emph{Proof of Theorem 6.2, for $\mathit{select}$.} By induction on $l$.
+  For $[\,]$, both sides are empty. For $t :: l$, if $p(t) = \true$, the
+  table of $t :: \mathit{select}\ p\ l$ is $\{t\} \cup
+  \sel{p}(\mathit{table}(l))$, by the assumption, which is
+  $\sel{p}(\{t\} \cup \mathit{table}(l))$. If $p(t) = \false$, $t$ is
+  dropped on both sides. \proofend
+  \defn{Corollary 6.3}{Every law of Levels 2T to 4T holds for the tables
+    of lists. For example: $\mathit{table}(\mathit{select}\ p\
+    (\mathit{select}\ q\ l)) = \mathit{table}(\mathit{select}\ (p \wedge
+    q)\ l)$.}
+  \emph{Proof.} By Theorem 6.2 twice, both sides are
+  $\sel{p}(\sel{q}(\mathit{table}(l)))$ and $\sel{p \wedge
+  q}(\mathit{table}(l))$, equal by law 1. \proofend
+  \theorytag{6}
+\end{frame}
+
+% ---------------------------------------------------------------- Lean
+\leanpart{The two tracks, joined}
+
+\begin{frame*}
+  \frametitle{One Line Joins the Two Tracks}
+  \leanblock{totable.lean}
+  \begin{itemize}
+    \item One file now holds both tracks: your programs (\code{select},
+      \code{union}, \ldots) and \code{Sets} (\code{Sets.select}, \ldots).
+    \item \code{simp} knows that \code{t ∈ l ++ m} means \code{t ∈ l ∨ t ∈
+      m}, and finishes.
+  \end{itemize}
+  \slideref{\lnk{tpil-simp}}
+  \leantag{6}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Your Turn: select Computes a Selection}
+  \leanblock{represent.lean}
+  \begin{itemize}
+    \item \ex{6.1} Induction on \code{l}; in the \code{cons} case,
+      \code{cases h : p row}.
+    \item Unfold with \code{simp [toTable, select, Sets.select, h] at ih
+      ⊢}, then finish with \code{ih} and logic (Level 2T).
+  \end{itemize}
+  \slideref{\lnk{fpil-tactics} \rfsep \lnk{tpil-split}}
+  \leantag{6}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Your Turn: project Computes an Image}
+  \leanblock{project.lean}
+  \begin{itemize}
+    \item \ex{6.2} The same, for \code{project}: the \code{∃} of Level 4T
+      comes back.
+    \item \ex{6.3} Stretch: \code{product}; and \code{diff}, assuming
+      \code{[LawfulBEq α]}, so that \code{==} is equality.
+  \end{itemize}
+  \slideref{\lnk{tpil-exists}}
+  \leantag{6}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Your Turn: A Law for Lists, with No New Induction}
+  \leanblock{law.lean}
+  \begin{itemize}
+    \item \ex{6.4} Corollary 6.3. Start with \code{simp only
+      [toTable\_select, Sets.select]}, then finish with logic, or with
+      your \code{Sets.select\_select}.
+    \item \ex{6.5} Pick another law of Levels 2T to 4T, and prove it for
+      lists the same way.
+  \end{itemize}
+  \leantag{6}
+\end{frame*}
+
+\end{document}

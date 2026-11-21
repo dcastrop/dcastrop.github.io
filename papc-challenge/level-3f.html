@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Level 3F: Projection, Product and Union, as Programs · PaPC challenge</title>
+<meta name="description" content="Level 3F of the PaPC challenge: Projection, Product and Union, as Programs.">
+<link rel="icon" href="assets/papc-logo.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simpledotcss@2.3.7/simple.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="assets/challenge.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="assets/challenge.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the content</a>
+<header>
+<p class="club"><a href="https://papc-rhul.github.io/"><img src="assets/papc-logo.png" alt="" width="38" height="48"> The Proofs and Programs Club @ RHUL</a></p>
+<p class="kicker"><span class="chip track-f">Programs track · follows FPIL</span></p><h1><span class="lvl-k">Level 3F</span> Projection, Product and Union, as Programs</h1>
+<nav aria-label="The challenge"><ul><li><a href="index.html">The challenge</a></li><li><a href="index.html#levels">All levels</a></li><li><a href="laws.html">Laws at a glance</a></li></ul></nav>
+</header>
+<main id="main"><p class="crumbs">After <a href="level-2f.html">Level 2F</a> · Next: <a href="level-4f.html">Level 4F</a> · <a href="https://dcastrop.github.io/tex/2026-papc-challenge/level-3f/level-3f.pdf">Slides (PDF)</a></p><section class="glance" aria-labelledby="at-a-glance"><h2 id="at-a-glance">At a glance</h2><dl><div><dt>You build</dt><dd><code>project</code>, <code>product</code> and <code>union</code>.</dd></div><div><dt>You prove</dt><dd>the sizes of products and unions of the club's tables, by computing.</dd></div></dl><div class="table-wrap"><table class="reads"><caption>What to learn first, and where</caption><thead><tr><th scope="col">Learn to</th><th scope="col">Read</th></tr></thead><tbody><tr><td>write functions on pairs, and on lists of any type</td><td><a class="ref" href="https://lean-lang.org/functional_programming_in_lean/Getting-to-Know-Lean/Polymorphism/#polymorphism">FPIL 1.6 <cite>Polymorphism</cite></a></td></tr><tr><td>define a function by cases, calling itself on the rest of the list</td><td><a class="ref" href="https://lean-lang.org/functional_programming_in_lean/Getting-to-Know-Lean/Datatypes-and-Patterns/#datatypes-and-patterns">FPIL 1.5 <cite>Datatypes and Patterns</cite></a></td></tr><tr><td>check a function on examples: <code>#eval</code>, and proofs by <code>rfl</code></td><td><a class="ref" href="https://lean-lang.org/functional_programming_in_lean/Getting-to-Know-Lean/Evaluating-Expressions/#evaluating">FPIL 1.1 <cite>Evaluating Expressions</cite></a> · <a class="ref" href="https://lean-lang.org/functional_programming_in_lean/Interlude___-Propositions___-Proofs___-and-Indexing/#props-proofs-indexing">FPIL <cite>Interlude: Propositions, Proofs, and Indexing</cite></a></td></tr></tbody></table></div></section>
+<section class="milestones" aria-labelledby="milestones"><h2 id="milestones">Milestones</h2><p class="ms-intro">Tick each one when Lean accepts your work. Your ticks stay in this browser.</p><ul><li><label><input type="checkbox" data-milestone="3f:m1"> <span><code>project</code> works: the test prints the four names (Exercise 3F.1).</span></label></li><li><label><input type="checkbox" data-milestone="3f:m2"> <span><code>product</code> works, and Lean proves that 3 members and 4 sessions make 12 pairs (Exercises 3F.3 and 3F.4).</span></label></li><li><label><input type="checkbox" data-milestone="3f:m3"> <span><code>union</code> works, and Lean proves the size of the example (Exercise 3F.5).</span></label></li><li><label><input type="checkbox" data-milestone="3f:m4"> <span>You can explain why a list can be longer than the table it represents (Exercises 3F.2 and 3F.6).</span></label></li></ul><p class="ms-progress" data-progress="3f:m1 3f:m2 3f:m3 3f:m4"><progress max="4" value="0"></progress> <span class="ms-count" aria-live="polite">0 of 4 done</span></p></section>
+<nav class="toc" aria-label="On this page"><details><summary>On this page</summary><ol><li><a href="#at-a-glance">At a glance</a></li><li><a href="#milestones">Milestones</a></li><li><a href="#theory-on-paper">Theory, on paper</a><ol><li><a href="#projection-keeps-the-columns-you-ask-for">Projection keeps the columns you ask for</a></li><li><a href="#an-image-can-shrink-a-table-but-never-grow-it">An image can shrink a table, but never grow it</a></li><li><a href="#a-product-pairs-every-row-with-every-row">A product pairs every row with every row</a></li><li><a href="#union-combines-two-tables-on-lists-it-is-appending">Union combines two tables; on lists, it is appending</a></li><li><a href="#on-lists-projection-and-product-are-equations-too">On lists, projection and product are equations too</a></li><li><a href="#questions">Questions</a></li></ol></li><li><a href="#lean-on-your-computer">Lean, on your computer</a><ol><li><a href="#your-turn-build-project">Your turn: build project</a></li><li><a href="#your-turn-build-product">Your turn: build product</a></li><li><a href="#your-turn-build-union">Your turn: build union</a></li><li><a href="#more-exercises">More exercises</a></li></ol></li></ol></details></nav>
+<section class="part part-theory" aria-labelledby="theory-on-paper"><h2 id="theory-on-paper"><span class="part-k">Theory, on paper</span><span class="part-t">Images, products and unions</span></h2><h3 id="projection-keeps-the-columns-you-ask-for">Projection keeps the columns you ask for</h3>
+<div class="box def" id="definition-3f-1"><p class="box-h"><span class="box-n">Definition 3F.1</span> (Image)</p><p>For a function \(f\) on rows, the <em>image</em> of a table \(R\) is \(f[R] = \{f(t) \mid t \in R\}\).</p></div>
+<div class="box def" id="definition-3f-2"><p class="box-h"><span class="box-n">Definition 3F.2</span> (Projection)</p><p>The projections onto the first and the second column are the images under \(\pi_1(d_1, d_2) = d_1\) and \(\pi_2(d_1, d_2) = d_2\).</p></div>
+<div class="row"><div class="table-wrap"><table><caption>\(\pi_1[\rel{Attended}]\)</caption><thead><tr><th scope="col">\(\att{name}\)</th></tr></thead><tbody><tr><td>Ada</td></tr><tr><td>Alan</td></tr><tr><td>Grace</td></tr></tbody></table></div>
+<div class="table-wrap"><table><caption>\(\pi_2[\rel{Attended}]\)</caption><thead><tr><th class="r" scope="col">\(\att{week}\)</th></tr></thead><tbody><tr><td class="r">1</td></tr><tr><td class="r">2</td></tr><tr><td class="r">3</td></tr></tbody></table></div></div>
+<p>The result of a projection is a table with one column. In SQL: <code>SELECT DISTINCT name FROM Attended</code>. Read more in <a class="ref" href="https://webdam.di.ens.fr/Alice/pdfs/Chapter-4.pdf">Abiteboul, Hull, Vianu, Foundations of Databases (1995), ch. 4: <cite>Conjunctive Queries</cite></a>.</p>
+<h3 id="an-image-can-shrink-a-table-but-never-grow-it">An image can shrink a table, but never grow it</h3>
+<div class="box fact" id="fact-3f-3"><p class="box-h"><span class="box-n">Fact 3F.3</span></p><p>\(|f[R]| \leq |R|\).</p></div>
+<div class="proof"><p><em>Proof.</em> Each element of \(f[R]\) is \(f(t)\) for some row \(t \in R\). So \(f[R]\) has at most one element for each row of \(R\). <span class="qed" role="img" aria-label="End of proof">∎</span></p></div>
+<p>Alan attended twice, but appears once in \(\pi_1[\rel{Attended}]\): four rows became three names. A list would keep him twice.</p>
+<div class="box fact" id="fact-3f-4"><p class="box-h"><span class="box-n">Fact 3F.4</span> (Composition)</p><p>\(g[f[R]] = (g \circ f)[R]\).</p></div>
+<div class="proof"><p><em>Proof.</em> For every \(s\):</p>
+<div class="math-display">\[\begin{aligned}
+s \in g[f[R]] &amp;\iff s = g(u) \text{ for some } u \in f[R] \\
+&amp;\iff s = g(f(t)) \text{ for some } t \in R \\
+&amp;\iff s \in (g \circ f)[R].
+\end{aligned}\]</div><p class="qed-line"><span class="qed" role="img" aria-label="End of proof">∎</span></p></div>
+<h3 id="a-product-pairs-every-row-with-every-row">A product pairs every row with every row</h3>
+<div class="box def" id="definition-3f-5"><p class="box-h"><span class="box-n">Definition 3F.5</span> (Product)</p><p>For tables \(R\) and \(S\): \(\ R \times S = \{(t, s) \mid t \in R \text{ and } s \in S\}\).</p></div>
+<p>Its rows are pairs of rows. For example, \(((\text{Ada}, \text{Maths}), (1, \text{Lists})) \in \rel{Member} \times \rel{Session}\).</p>
+<div class="box fact" id="fact-3f-6"><p class="box-h"><span class="box-n">Fact 3F.6</span></p><p>\(|R \times S| = |R| \cdot |S|\).</p></div>
+<div class="proof"><p><em>Proof.</em> Each row \(t \in R\) gives \(|S|\) pairs \((t, s)\), one for each \(s \in S\), and pairs from different rows \(t\) differ. So there are \(|R|\) groups of \(|S|\) pairs. <span class="qed" role="img" aria-label="End of proof">∎</span></p></div>
+<p>So \(\rel{Member} \times \rel{Session}\) has \(3 \cdot 4 = 12\) rows. In SQL: <code>FROM Member, Session</code>. On its own a product is rarely what you want; <a href="level-4f.html">Level 4F</a> keeps only the pairs that match, which is a <em>join</em>.</p>
+<h3 id="union-combines-two-tables-on-lists-it-is-appending">Union combines two tables; on lists, it is appending</h3>
+<div class="box def" id="definition-3f-7"><p class="box-h"><span class="box-n">Definition 3F.7</span> (Union)</p><p>For tables \(R\) and \(S\) of the same rows: \(\ R \cup S = \{t \mid t \in R \text{ or } t \in S\}\).</p></div>
+<div class="box fact" id="fact-3f-8"><p class="box-h"><span class="box-n">Fact 3F.8</span></p><p>If \(l\) represents \(R\) and \(m\) represents \(S\) (Definition 1.2), then \(l \cat m\) represents \(R \cup S\).</p></div>
+<div class="proof"><p><em>Proof.</em> The rows of \(l \cat m\) are those of \(l\) and those of \(m\). <span class="qed" role="img" aria-label="End of proof">∎</span></p></div>
+<p>The list \(l \cat m\) may repeat a row, but it still represents the right table. In SQL: <code>UNION</code>. Read more in <a class="ref" href="https://webdam.di.ens.fr/Alice/pdfs/Chapter-5.pdf">Abiteboul, Hull, Vianu, Foundations of Databases (1995), ch. 5: <cite>Adding Negation: Algebra and Calculus</cite></a>.</p>
+<h3 id="on-lists-projection-and-product-are-equations-too">On lists, projection and product are equations too</h3>
+<div class="box def" id="definition-3f-9"><p class="box-h"><span class="box-n">Definition 3F.9</span> (Projection and product on lists)</p><p>For a function \(f\) on rows:</p>
+<div class="math-display">\[\begin{aligned}
+\mathit{project}\ f\ [\,] &amp;= [\,] \\
+\mathit{project}\ f\ (t :: l) &amp;= f(t) :: \mathit{project}\ f\ l \\
+\mathit{product}\ [\,]\ m &amp;= [\,] \\
+\mathit{product}\ (t :: l)\ m &amp;= \mathit{project}\ (s \mapsto (t, s))\ m \cat \mathit{product}\ l\ m
+\end{aligned}\]</div></div>
+<p>The last line pairs \(t\) with every row of \(m\), then does the same for the rest of \(l\). For example:</p>
+<div class="math-display">\[\begin{aligned}
+\mathit{product}\ [a, b]\ [x, y] &amp;= \mathit{project}\ (s \mapsto (a, s))\ [x, y] \cat \mathit{product}\ [b]\ [x, y] \\
+&amp;= [(a, x), (a, y)] \cat [(b, x), (b, y)] \cat [\,] \\
+&amp;= [(a, x), (a, y), (b, x), (b, y)].
+\end{aligned}\]</div>
+<p><a href="level-6.html">Level 6</a> proves that these lists represent \(f[R]\) and \(R \times S\).</p>
+<h3 id="questions">Questions</h3>
+<div class="q" id="q-3f-a"><p class="ex-h"><span class="ex-n">Question 3F.A</span> <span class="ex-t">Project the members</span></p><p>Compute \(\pi_1[\rel{Member}]\) and \(\pi_2[\rel{Member}]\). Which one is smaller than \(\rel{Member}\), and why?</p>
+<details class="answer"><summary>Answer</summary><p>\(\pi_1[\rel{Member}] = \{\text{Ada}, \text{Alan}, \text{Grace}\}\) and \(\pi_2[\rel{Member}] = \{\text{Maths}, \text{CS}\}\). The second has 2 rows, not 3: Alan and Grace are both in CS, and the image counts CS once.</p></details></div>
+<div class="q" id="q-3f-b"><p class="ex-h"><span class="ex-n">Question 3F.B</span> <span class="ex-t">When no row is lost</span></p><p>When is \(|f[R]| = |R|\)?</p>
+<details class="answer"><summary>Answer</summary><p>Exactly when \(f\) gives different results on different rows of \(R\) (it is <em>injective</em> on \(R\)). Then no two rows meet, and each row gives its own element.</p></details></div>
+<div class="q" id="q-3f-c"><p class="ex-h"><span class="ex-n">Question 3F.C</span> <span class="ex-t">Count the pairs</span></p><p>How many rows do \(\rel{Member} \times \rel{Member}\) and \(\rel{Attended} \times \rel{Session}\) have?</p>
+<details class="answer"><summary>Answer</summary><p>\(3 \cdot 3 = 9\) and \(4 \cdot 4 = 16\), by Fact 3F.6.</p></details></div>
+<div class="q" id="q-3f-d"><p class="ex-h"><span class="ex-n">Question 3F.D</span> <span class="ex-t">Is the product symmetric?</span></p><p>Is \(R \times S = S \times R\)?</p>
+<details class="answer"><summary>Answer</summary><p>Not in general: the rows of \(R \times S\) are pairs \((t, s)\), and those of \(S \times R\) are pairs \((s, t)\). The two tables have the same size, and swapping each pair turns one into the other. With named columns (<a href="level-5f.html">Level 5F</a>) the order of the columns disappears, and the two become equal.</p></details></div>
+<div class="q" id="q-3f-e"><p class="ex-h"><span class="ex-n">Question 3F.E</span> <span class="ex-t">The size of a union</span></p><p>Show that \(|R \cup S| \leq |R| + |S|\). When are the two sides equal?</p>
+<details class="answer"><summary>Answer</summary><p>Every row of \(R \cup S\) is in \(R\) or in \(S\), so \(R \cup S\) has at most \(|R| + |S|\) rows. A row in both is counted twice on the right, so the sides are equal exactly when no row is in both: \(R \cap S = \emptyset\).</p></details></div>
+<div class="q" id="q-3f-f"><p class="ex-h"><span class="ex-n">Question 3F.F</span> <span class="ex-t">A union with itself</span></p><p>Is \(R \cup R = R\)? Is \(l \cat l\) the same list as \(l\)?</p>
+<details class="answer"><summary>Answer</summary><p>\(R \cup R = R\), since "\(t \in R\) or \(t \in R\)" is "\(t \in R\)". But \(l \cat l\) is twice as long as \(l\), unless \(l = [\,]\). Both represent the same table: lists keep repeats, tables do not.</p></details></div></section>
+<section class="part part-lean" aria-labelledby="lean-on-your-computer"><h2 id="lean-on-your-computer"><span class="part-k">Lean, on your computer</span><span class="part-t">Build project, product and union</span></h2><h3 id="your-turn-build-project">Your turn: build project</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">project.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="k">def</span> project {α β : <span class="ty">Type</span>} (f : α → β) : <span class="ty">List</span> α → <span class="ty">List</span> β
+  | [] =&gt; <span class="sorry">sorry</span>
+  | row :: rest =&gt; <span class="sorry">sorry</span>
+
+<span class="c">-- Test: should print ["Ada", "Alan", "Alan", "Grace"]</span>
+<span class="cmd">#eval</span> project (<span class="k">fun</span> row =&gt; row.<span class="n">1</span>) attended</code></pre></div>
+<p><code>project</code> has two type parameters: rows of type <code>α</code> go in, values of type <code>β</code> come out. <code>row.1</code> is the first column of <code>row</code>.</p>
+<div class="ex" id="ex-3f-1"><p class="ex-h"><span class="ex-n">Exercise 3F.1</span> <span class="chip lean">In Lean</span> <span class="ex-t">Build project</span></p><p>Replace the <code>sorry</code>s with Definition 3F.9.</p>
+<details class="hint"><summary>Hint</summary><p>The same shape as <code>select</code>, with no <code>if</code>: <code>f row</code> goes in front of the projection of <code>rest</code>.</p></details></div>
+<div class="ex" id="ex-3f-2"><p class="ex-h"><span class="ex-n">Exercise 3F.2</span> <span class="chip paper">On paper</span> <span class="ex-t">Why twice?</span></p><p>The test prints Alan twice, but the table \(\pi_1[\rel{Attended}]\) has him once. Why?</p>
+<details class="answer"><summary>Answer</summary><p>The list keeps every row it computes, and Alan has two rows in <code>attended</code>. The list still represents \(\pi_1[\rel{Attended}]\): Definition 1.2 forgets repeats. See Fact 3F.3.</p></details></div>
+<h3 id="your-turn-build-product">Your turn: build product</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">product.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="k">def</span> product {α β : <span class="ty">Type</span>} : <span class="ty">List</span> α → <span class="ty">List</span> β → <span class="ty">List</span> (α × β)
+  | [], _ =&gt; <span class="sorry">sorry</span>
+  | a :: rest, s =&gt; <span class="sorry">sorry</span>
+
+<span class="k">example</span> : (product member session).length = <span class="n">12</span> := <span class="t">rfl</span></code></pre></div>
+<p><code>product</code> takes two lists; its cases look at the first one. <code>_</code> stands for an argument that the case does not use.</p>
+<div class="ex" id="ex-3f-3"><p class="ex-h"><span class="ex-n">Exercise 3F.3</span> <span class="chip lean">In Lean</span> <span class="ex-t">Build product</span></p><p>Pair <code>a</code> with each row of <code>s</code> (use your <code>project</code>), then <code>++</code> the product of the rest.</p>
+<details class="hint"><summary>Hint</summary><p><code>project (fun b =&gt; (a, b)) s</code> pairs <code>a</code> with every row of <code>s</code>.</p></details></div>
+<div class="ex" id="ex-3f-4"><p class="ex-h"><span class="ex-n">Exercise 3F.4</span> <span class="chip lean">In Lean</span> <span class="ex-t">Twelve pairs</span></p><p>Prove the example: 3 members and 4 sessions make 12 pairs (Fact 3F.6). Then <code>#eval product member session</code>, and find the pair of Ada and the session on Lists.</p></div>
+<h3 id="your-turn-build-union">Your turn: build union</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">union.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="k">def</span> union {α : <span class="ty">Type</span>} (r s : <span class="ty">List</span> α) : <span class="ty">List</span> α := <span class="sorry">sorry</span>
+
+<span class="k">example</span> : (union member member).length = <span class="n">6</span> := <span class="t">rfl</span></code></pre></div>
+<div class="ex" id="ex-3f-5"><p class="ex-h"><span class="ex-n">Exercise 3F.5</span> <span class="chip lean">In Lean</span> <span class="ex-t">Build union</span></p><p><code>union</code> is <code>r ++ s</code> (Fact 3F.8). Prove the example.</p></div>
+<div class="ex" id="ex-3f-6"><p class="ex-h"><span class="ex-n">Exercise 3F.6</span> <span class="chip paper">On paper</span> <span class="ex-t">Six rows, three rows</span></p><p>The list <code>union member member</code> has 6 rows, but the table it represents has 3. Why?</p>
+<details class="answer"><summary>Answer</summary><p>Every row of <code>member</code> appears twice in it. Definition 1.2 counts each row once, so the table is \(\rel{Member} \cup \rel{Member} = \rel{Member}\), of size 3 (Fact 1.3, Question 3F.F).</p></details></div>
+<h3 id="more-exercises">More exercises</h3>
+<div class="ex" id="ex-3f-7"><p class="ex-h"><span class="ex-n">Exercise 3F.7</span> <span class="chip lean">In Lean</span> <span class="ex-t">Predict, then run</span></p><p>Predict what each line prints, then check:</p>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="cmd">#eval</span> project (<span class="k">fun</span> row =&gt; row.<span class="n">2</span>) member
+<span class="cmd">#eval</span> project (<span class="k">fun</span> row =&gt; row.<span class="n">1</span>) (select (<span class="k">fun</span> row =&gt; row.<span class="n">2</span> == <span class="s">"CS"</span>) member)</code></pre></div>
+<details class="answer"><summary>Answer</summary><p><code>["Maths", "CS", "CS"]</code>, and <code>["Alan", "Grace"]</code>: the names of the CS members, a selection followed by a projection.</p></details></div>
+<div class="ex" id="ex-3f-8"><p class="ex-h"><span class="ex-n">Exercise 3F.8</span> <span class="chip lean">In Lean</span> <span class="ex-t">Swap the columns</span></p><p>Question 3F.D says that swapping each pair turns \(R \times S\) into \(S \times R\). Define <code>swap</code>, and check one consequence:</p>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="k">def</span> swap {α β : <span class="ty">Type</span>} : α × β → β × α := <span class="k">fun</span> (a, b) =&gt; <span class="sorry">sorry</span>
+
+<span class="k">example</span> : (project swap (product member session)).length = <span class="n">12</span> := <span class="t">rfl</span>
+<span class="cmd">#eval</span> project swap attended</code></pre></div></div>
+<div class="ex" id="ex-3f-9"><p class="ex-h"><span class="ex-n">Exercise 3F.9</span> <span class="chip stretch">Stretch</span> <span class="ex-t">Lean already knows project</span></p><p>Lean's library calls it <code>List.map</code>. Check that they agree on an example:</p>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="k">example</span> : project (<span class="k">fun</span> r =&gt; r.<span class="n">1</span>) attended = attended.map (<span class="k">fun</span> r =&gt; r.<span class="n">1</span>) := <span class="t">rfl</span></code></pre></div>
+<p>Proving that they agree on every list needs induction: see <a href="level-5t.html">Level 5T</a>.</p></div></section><section class="next" aria-labelledby="next-h"><h2 id="next-h">Next</h2><ol class="next-cards"><li><a class="lvl lvl-f" href="level-4f.html" data-progress="4f:m1 4f:m2 4f:m3 4f:m4"><span class="lvl-id">Level 4F</span> <span class="lvl-t">Difference and joins</span><span class="lvl-p"></span></a></li></ol><p class="stuck">Stuck, or curious? Ask us: on Discord, or any Thursday.</p></section></main>
+<footer>
+<p>The first challenge of the <a href="https://papc-rhul.github.io/">Proofs and Programs Club @ RHUL</a>.</p>
+<p>Your ticked milestones are kept in this browser only.</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,255 @@
+::: glance
+build: products and images, on tables as properties of rows.
+prove: that images compose, and law 5, whose side condition is a hypothesis.
+learn: state and use facts about every value: $\forall$ | [@tpil-forall]
+learn: prove and use "there exists": $\exists$ | [@tpil-exists]
+learn: write proofs step by step, with tactics | [@tpil-basic]
+:::
+
+::: milestones
+- `Sets.product` and `Sets.image` are in your file, and `image_of` is accepted.
+- Images compose (Exercise 4T.1).
+- Law 5, with its side condition as a hypothesis (Exercise 4T.2).
+- An example that shows why law 5 needs its side condition (Exercise 4T.3).
+:::
+
+@toc
+
+::: part theory Products, images, and a side condition
+
+### A product pairs every row with every row
+
+::: box Definition 4T.1 (Product)
+For tables $R$ and $S$: $\ R \times S = \{(t, s) \mid t \in R \text{ and } s \in S\}$.
+:::
+
+Its rows are pairs of rows. For example, $((\text{Ada}, \text{Maths}), (1, \text{Lists})) \in \rel{Member} \times \rel{Session}$, which has $3 \cdot 4 = 12$ rows. In SQL: `FROM Member, Session`.
+
+### An image applies a function to every row
+
+::: box Definition 4T.2 (Image, projection)
+For a function $f$ on rows, $f[R] = \{s \mid \text{there is } t \in R \text{ with } f(t) = s\}$. The projections are the images under $\pi_1(d_1, d_2) = d_1$ and $\pi_2(d_1, d_2) = d_2$.
+:::
+
+For example, $\pi_2[\rel{Attended}] = \{1, 2, 3\}$: the weeks someone attended. Read more in [@ahv4].
+
+Membership in an image is a "there is": $s \in f[R]$ holds when some row of $R$ is sent to $s$. To prove it, give the row (a *witness*); to use it, you get a row, but you do not choose which one.
+
+### "For all" and "there exists"
+
+| To prove | In Lean | A proof is |
+|---|---|---|
+| for every $x$, $P(x)$ | `∀ x, P x` | a function `fun x => …` that proves `P x` for each `x` |
+| there is $x$ with $P(x)$ | `∃ x, P x` | a pair `⟨w, h⟩` of a witness `w` and a proof `h` of `P w` |
+
+"For all" is a function, like "if … then"; "there exists" is a pair, like "and". To use `h : ∀ x, P x`, apply it: `h a` proves `P a`. To use `h : ∃ x, P x`, take it apart: `obtain ⟨w, hw⟩ := h` ([@tpil-forall], [@tpil-exists]).
+
+### Images compose
+
+::: box Fact 4T.3 (Composition)
+$g[f[R]] = (g \circ f)[R]$.
+:::
+
+::: proof
+For every $s$:
+$$\begin{aligned}
+s \in g[f[R]] &\iff \text{there is } u \in f[R] \text{ with } s = g(u) \\
+&\iff \text{there is } t \in R \text{ with } s = g(f(t)) \\
+&\iff s \in (g \circ f)[R].
+\end{aligned}$$
+In the middle step: from left to right, take apart the two "there is"; from right to left, the witness for $u$ is $f(t)$.
+:::
+
+### A side condition is a hypothesis of the law
+
+::: box Definition 4T.4 (Mentions only $R$)
+A condition $p$ on the rows of $R \times S$ *mentions only $R$* if there is a condition $p'$ on the rows of $R$ with: for all $t$ and $s$, $p(t, s)$ holds exactly when $p'(t)$ holds.
+:::
+
+::: box Law 5
+If $p$ mentions only $R$, then $\sel{p}(R \times S) = \sel{p'}(R) \times S$.
+:::
+
+::: proof
+$(t, s) \in \sel{p}(R \times S) \iff t \in R$, $s \in S$ and $p(t, s)$ $\iff t \in R$, $p'(t)$ and $s \in S$ $\iff (t, s) \in \sel{p'}(R) \times S$. The middle step is the hypothesis, for this $t$ and $s$.
+:::
+
+Without the hypothesis, the law makes no sense: a condition on the week of a session cannot be checked on $\rel{Member}$ alone. Law 5 is what lets a database filter a table *before* combining it with another, which is much faster ([@ahv6], section 6.1). [[7]] states it for queries, where "mentions only $R$" becomes a fact about attribute names.
+
+### More facts about images
+
+::: box Fact 4T.5
+$f[R \cup S] = f[R] \cup f[S]$.
+:::
+
+::: box Fact 4T.6
+$f[R \cap S] \subseteq f[R] \cap f[S]$, and the two sides can differ.
+:::
+
+Fact 4T.6 is a *trap*: it looks like Fact 4T.5, but only one inclusion holds. Question 4T.B finds two tables that separate the sides. [[7]] meets the same trap with projection and difference.
+
+### Questions
+
+::: q 4T.A Project a product
+Is $\pi_1[R \times S] = R$ for all tables $R$ and $S$?
+
+::: answer
+Only when $S$ is not empty. If $S = \emptyset$, then $R \times S = \emptyset$, so $\pi_1[R \times S] = \emptyset$, whatever $R$ is. If $S$ has a row $s$, each $t \in R$ is $\pi_1(t, s)$.
+:::
+:::
+
+::: q 4T.B The trap
+Find $f$, $R$ and $S$ with $f[R \cap S] \neq f[R] \cap f[S]$.
+
+::: answer
+$f = \pi_1$, $R = \{(a, 1)\}$ and $S = \{(a, 2)\}$. Then $R \cap S = \emptyset$, so $f[R \cap S] = \emptyset$, but $f[R] \cap f[S] = \{a\}$.
+:::
+:::
+
+::: q 4T.C Prove Fact 4T.5
+Prove $f[R \cup S] = f[R] \cup f[S]$.
+
+::: answer
+$s \in f[R \cup S] \iff$ there is $t$ with ($t \in R$ or $t \in S$) and $f(t) = s$ $\iff$ (there is $t \in R$ with $f(t) = s$) or (there is $t \in S$ with $f(t) = s$) $\iff s \in f[R] \cup f[S]$.
+:::
+:::
+
+:::
+
+::: part lean Products, images, and tactics
+
+### Products and images are formulas, with "there exists"
+
+```lean product.lean
+namespace Sets
+-- A row of the product is a pair x: x.1 a row of R, x.2 a row of S
+def product {α β : Type} (R : Table α) (S : Table β) : Table (α × β) :=
+  fun x => R x.1 ∧ S x.2
+
+-- The image f[R]: the rows s with s = f t for some row t of R
+def image {α β : Type} (f : α → β) (R : Table α) : Table β :=
+  fun s => ∃ t, R t ∧ f t = s
+end Sets
+```
+
+After your code of Levels 2T and 3T. `∃ t, R t ∧ f t = s` says: there is a row `t` of `R` with `f t = s`. Type `∃` as `\ex` and `∀` as `\all`.
+
+### A first proof with tactics
+
+```lean first.lean
+-- Inside namespace Sets: each row t of R gives the row f t of f[R]
+theorem image_of {α β : Type} (f : α → β) (R : Table α) (t : α)
+    (h : R t) : image f R (f t) := by
+  exact ⟨t, h, rfl⟩
+```
+
+- `by` switches to *tactics*: commands that build the proof step by step. The Infoview shows what is left to prove after each one ([@tpil-basic]).
+- `exact` gives the whole proof at once. `⟨t, h, rfl⟩` proves the `∃`: `t` is the witness, `h` proves `R t`, and `rfl` proves `f t = f t`.
+- More tactics: `intro h` (assume, for `→` and `∀`), `constructor` (split `∧` and `↔`), `obtain ⟨t, ht⟩ := h` (take apart `∃` and `∧`), `apply`.
+
+### Your turn: images compose
+
+```lean compose.lean
+-- Inside namespace Sets: images compose (Fact 4T.3)
+theorem image_image {α β γ : Type} (f : α → β) (g : β → γ)
+    (R : Table α) (u : γ) :
+    image g (image f R) u ↔ image (fun t => g (f t)) R u := by
+  sorry
+```
+
+::: ex 4T.1 lean Images compose
+Prove Fact 4T.3. Start with `constructor`, then `intro h` in each half.
+
+::: hint Hint 1
+To use `h : ∃ t, A t`: `obtain ⟨t, ht⟩ := h` names the witness and its proof. Patterns can nest: `obtain ⟨v, ⟨t, ht, hv⟩, hu⟩ := h`.
+:::
+
+::: hint Hint 2
+From left to right, the witness is `t`; from right to left, you need two witnesses: `f t` for the outer image, and `t` for the inner one.
+:::
+
+::: hint Hint 3
+In a pattern, `rfl` in place of a proof of `x = e` replaces `x` by `e` everywhere. After `obtain ⟨v, ⟨t, ht, rfl⟩, rfl⟩ := h`, the goal mentions only `t`.
+:::
+:::
+
+### Your turn: law 5, side condition included
+
+```lean law5.lean
+-- Inside namespace Sets: law 5, with its side condition h
+theorem select_product {α β : Type} (p : α × β → Prop) (p' : α → Prop)
+    (h : ∀ t s, p (t, s) ↔ p' t) (R : Table α) (S : Table β)
+    (t : α) (s : β) :
+    select p (product R S) (t, s) ↔ product (select p' R) S (t, s) := by
+  sorry
+```
+
+The hypothesis `h` is Definition 4T.4: it says that `p` mentions only `R`, with `p'` its condition on the rows of `R`.
+
+::: ex 4T.2 lean Law 5
+Prove law 5. `h t s` is the side condition for this `t` and `s`: use `(h t s).1` and `(h t s).2`.
+
+::: hint
+`constructor`, then `intro ⟨⟨hr, hs⟩, hp⟩` in the first half: `(h t s).1 hp` proves `p' t`.
+:::
+:::
+
+::: ex 4T.3 paper Why the hypothesis?
+On paper: find $p$, $R$ and $S$ that show why law 5 needs its hypothesis.
+
+::: answer
+Take $R = \rel{Member}$, $S = \rel{Session}$, and $p((n, d), (w, x))$: "$w = 1$". For a $p'$ to exist, $p'(\text{Ada}, \text{Maths})$ would have to hold, since $p$ holds for $((\text{Ada}, \text{Maths}), (1, \text{Lists}))$, and also not hold, since $p$ fails for $((\text{Ada}, \text{Maths}), (2, \text{Proofs}))$. No such $p'$ exists: the right side of law 5 cannot even be written.
+:::
+:::
+
+### More exercises
+
+```lean more.lean
+-- Inside namespace Sets
+theorem image_union {α β : Type} (f : α → β) (R S : Table α) (u : β) :
+    image f (union R S) u ↔ union (image f R) (image f S) u := by
+  sorry
+
+theorem image_inter {α β : Type} (f : α → β) (R S : Table α) (u : β) :
+    image f (inter R S) u → inter (image f R) (image f S) u := by
+  sorry
+
+theorem image_fst_product {α β : Type} (R : Table α) (S : Table β)
+    (s : β) (hs : S s) (t : α) :
+    image Prod.fst (product R S) t ↔ R t := by
+  sorry
+
+theorem select_mono {α : Type} (p : α → Prop) (R S : Table α)
+    (h : ∀ t, R t → S t) : ∀ t, select p R t → select p S t := by
+  sorry
+```
+
+::: ex 4T.4 lean Images and unions
+Prove `image_union` (Fact 4T.5, Question 4T.C).
+:::
+
+::: ex 4T.5 lean Images and intersections
+Prove `image_inter`: the half of Fact 4T.6 that holds. Why is there no `↔`?
+
+::: answer
+The other direction is false: Question 4T.B. A wrong `↔` would have no proof.
+:::
+:::
+
+::: ex 4T.6 lean Project a product
+Prove `image_fst_product` (Question 4T.A). The hypotheses `s` and `hs` say that `S` is not empty.
+
+::: hint
+From right to left, the witness is the pair `(t, s)`.
+:::
+:::
+
+::: ex 4T.7 stretch Selection is monotone
+Prove `select_mono`: a bigger table never gives a smaller selection. [[9]] explains why monotone operators matter.
+
+::: hint
+`intro t ⟨hr, hp⟩`, then `exact ⟨h t hr, hp⟩`. Read `h t hr` aloud: "`h`, at `t`, given `hr`".
+:::
+:::
+
+:::

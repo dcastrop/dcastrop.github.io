@@ -1,0 +1,125 @@
+% !LW recipe = make-deck
+% Level 2F (programs track, FPIL): selection. Theory: conditions,
+% selection, select on lists. Lean: build select; law 1 on an example.
+% Build: make (rules in ../common/deck.mk).
+\DocumentMetadata{
+  lang        = en-GB,
+  pdfstandard = ua-2,
+  tagging     = on,
+}
+\documentclass{ltx-talk}
+
+\input{preamble}
+
+\title{Level 2F: Selection, as a Program}
+\author{The Proofs and Programs Club}
+\institute{Royal Holloway, University of London}
+
+\begin{document}
+
+\leveltitle{2F}{Selection, as a Program}{Programs track: follows FPIL}
+  {After \levellink{1}}{Next: \levellink{3f}}
+
+\levelframe{2F}{Level 2F at a Glance}{%
+  \code{select}, which keeps the rows of a table that satisfy a
+  condition.}{%
+  facts about selections of the club's tables, by computing.}{%
+  define a function by cases on a list: empty, or a first row and the rest
+    & \rds{fpil-data} \\
+  write one function for tables of any row type & \rds{fpil-poly} \\
+  pass a function, such as a condition, as an argument & \rds{fpil-fun} \\
+}
+
+% ---------------------------------------------------------------- theory
+\theorypart{Conditions, selection, and selection on lists}
+
+\begin{frame}
+  \frametitle{A Condition Says Yes or No to Each Row}
+  Write $\B = \{\true, \false\}$ for the two truth values.
+  \defn{Definition 2F.1 (Condition)}{A \emph{condition} on rows of
+    $D_1 \times D_2$ is a function $p : D_1 \times D_2 \to \B$.}
+  For example, on $\rel{Member}$ and on $\rel{Attended}$:
+  \[
+    \mathit{cs}(n, d) = \true \iff d = \text{CS}, \qquad
+    \mathit{late}(n, w) = \true \iff w \geq 2.
+  \]
+  \defn{Definition 2F.2 (Both conditions)}{$(p \wedge q)(t) = \true$
+    exactly when $p(t) = \true$ and $q(t) = \true$.}
+  \theorytag{2F}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Selection Keeps the Rows That Satisfy a Condition}
+  \defn{Definition 2F.3 (Selection)}{For a table $R$ and a condition $p$,
+    \ $\sel{p}(R) = \{t \in R \mid p(t) = \true\}$.}
+  {\centering
+    \smalltable{$\sel{\mathit{cs}}(\rel{Member})$}{ll}
+      {$\att{name}$ & $\att{dept}$}
+      {Alan & CS \\ Grace & CS}\hspace{16mm}
+    \smalltable{$\sel{\mathit{late}}(\rel{Attended})$}{lr}
+      {$\att{name}$ & $\att{week}$}
+      {Alan & 2 \\ Grace & 3}\par}
+  \medskip
+  A selection never adds rows: $\sel{p}(R) \subseteq R$. In SQL, a
+  selection is a \code{WHERE} clause.
+  \slideref{\lnk{ahv4}}
+  \theorytag{2F}
+\end{frame}
+
+\begin{frame}
+  \frametitle{On a List, Selection Is Three Equations}
+  \defn{Definition 2F.4 (Selection on lists)}{For a condition $p$:
+    \[
+      \begin{array}{@{}l@{\;=\;}l@{\qquad}l@{}}
+        \mathit{select}\ p\ [\,] & [\,] \\
+        \mathit{select}\ p\ (t :: l) & t :: \mathit{select}\ p\ l &
+          \text{if } p(t) = \true \\
+        \mathit{select}\ p\ (t :: l) & \mathit{select}\ p\ l &
+          \text{if } p(t) = \false \\
+      \end{array}
+    \]}
+  Here $t :: l$ is the list with first row $t$, then the list $l$. For
+  example:
+  \[
+    \mathit{select}\ \mathit{late}\ [(\text{Alan}, 1), (\text{Alan}, 2)]
+    = \mathit{select}\ \mathit{late}\ [(\text{Alan}, 2)]
+    = [(\text{Alan}, 2)].
+  \]
+  \defn{Fact 2F.5}{If $l$ represents $R$ (Definition 1.2), then
+    $\mathit{select}\ p\ l$ represents $\sel{p}(R)$. Level 6 proves it.}
+  \theorytag{2F}
+\end{frame}
+
+% ---------------------------------------------------------------- Lean
+\leanpart{Build select, and run it}
+
+\begin{frame*}
+  \frametitle{Your Turn: Build select}
+  \leanblock{select.lean}
+  \begin{itemize}
+    \item A condition is a function to \code{Bool}, Lean's $\B$:
+      \code{fun row => row.2 == 1}.
+    \item \ex{2F.1} Replace the \code{sorry}s with Definition 2F.4: use
+      \code{if p row then \ldots{} else \ldots}.
+    \item \ex{2F.2} Prove that \code{select} keeps 2 rows of week 1, by
+      \code{rfl}. \ex{2F.3} \code{\#eval} the CS members.
+  \end{itemize}
+  \slideref{\lnk{fpil-data} \rfsep \lnk{fpil-poly}}
+  \leantag{2F}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Law 1, Checked by Lean on an Example}
+  \leanblock{law.lean}
+  \begin{itemize}
+    \item \textbf{Law 1}: $\sel{p}(\sel{q}(R)) = \sel{p \wedge q}(R)$:
+      two selections are one. Level 2T proves it for every table; here
+      Lean checks one case, by computing.
+    \item \ex{2F.4} Check law 1 on another example of your own.
+    \item \ex{2F.5} Is $\sel{p}(\sel{q}(R)) = \sel{q}(\sel{p}(R))$?
+      Check it in Lean on an example.
+  \end{itemize}
+  \leantag{2F}
+\end{frame*}
+
+\end{document}

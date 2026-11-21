@@ -1,0 +1,142 @@
+% !LW recipe = make-deck
+% Level 9 (after the tracks meet): fast joins. Theory: algorithms and
+% their cost; what a correct algorithm is. Lean: a goal theorem. Then
+% the stretch goals.
+% Build: make (rules in ../common/deck.mk).
+\DocumentMetadata{
+  lang        = en-GB,
+  pdfstandard = ua-2,
+  tagging     = on,
+}
+\documentclass{ltx-talk}
+
+\input{preamble}
+
+\title{Level 9: Fast Joins}
+\author{The Proofs and Programs Club}
+\institute{Royal Holloway, University of London}
+
+\begin{document}
+
+\leveltitle{9}{Fast Joins}{After the tracks meet: leans on FPIL}
+  {After \levellink{6}}{Next: \levellink{7}, if you have not done it}
+
+\levelframe{9}{Level 9 at a Glance}{%
+  a hash join and a sort-merge join, on arrays.}{%
+  that each computes exactly the join of Level 4F.}{%
+  program with \code{Array}, and show Lean that loops terminate &
+    \rds{fpil-arrays, fpil-arrterm} \\
+  prove a fast function equal to a simple one &
+    \rds{fpil-tail, fpil-equiv} \\
+  use \code{Std.HashMap}, with \code{Hashable} keys & \rds{fpil-hash} \\
+  prove equality up to order and duplicates &
+    \rds{mil-finset, ml-multiset} \\
+}
+
+% ---------------------------------------------------------------- theory
+\theorypart{Fast joins, and when they are correct}
+\begin{frame}
+  \frametitle{Fast Joins Must Compute the Same Table}
+  \begin{itemize}
+    \item \textbf{The definition}, as a program: for each row of $R$, for
+      each row of $S$, keep the pairs whose keys agree. About
+      $|R| \cdot |S|$ steps.
+    \item \textbf{Hash join}: put the rows of $S$ in a hash map, by key;
+      then look up the partners of each row of $R$. About $|R| + |S|$
+      steps.
+  \end{itemize}
+  \begin{sticky}
+    ``Future users of large data banks must be protected from having to
+    know how the data is organized in the machine.''\hfill --- E. F. Codd,
+    1970
+  \end{sticky}
+  \slideref{E. F. Codd. \textbf{A Relational Model of Data for Large Shared Data Banks}. CACM 13(6), 1970. \rfsep
+    \lnk{ahv6} (section 6.1)}
+  \theorytag{9}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A Correct Join Algorithm Represents the Join}
+  \defn{Definition 9.1 (Correct join algorithm)}{A function $J$ from two
+    lists to a list is a \emph{correct join} if, whenever $l$ represents
+    $R$ and $m$ represents $S$ (Definition 1.2), $J(l, m)$ represents
+    $R \join_{k_1 = k_2} S$ (Definition 4F.5).}
+  \begin{itemize}
+    \item The order in which a hash join finds rows does not matter: only
+      the table its list represents.
+    \item That is Codd's point: how the data is stored and searched is
+      free to change; the answer is not.
+  \end{itemize}
+  \theorytag{9}
+\end{frame}
+
+% ---------------------------------------------------------------- Lean
+\leanpart{A correct hash join}
+\begin{frame*}
+  \frametitle{Definition 9.1 in Lean Is One Theorem}
+  \leanblock{goal.lean}
+  \sketch
+  \code{toRelation} gives the table a list represents. Start from your
+  \code{joinOn} of Level 4F, proved correct first, as in Level 6.
+  \leantag{9}
+\end{frame*}
+
+% ---------------------------------------------------------------- beyond
+\partframe{Beyond Level 9}{Stretch goals}
+
+\begin{frame}
+  \frametitle{What Relational Algebra Can and Cannot Express}
+  \begin{itemize}
+    \item \textbf{Can}: exactly the domain-independent queries of
+      first-order logic over the tables (\emph{Codd's theorem}).
+    \item With only $\sigma$, $\pi$, $\join$ and equalities joined by
+      $\wedge$: the \textbf{conjunctive queries}, roughly SQL's
+      \code{SELECT}--\code{FROM}--\code{WHERE}. Whether one is contained
+      in another is decidable (and NP-complete).
+    \item Every operator except $-$ is \textbf{monotone}: more rows in
+      the input never mean fewer rows in the answer.
+    \item \textbf{Cannot}: transitive closure (who can reach whom), or
+      counting. SQL adds \code{WITH RECURSIVE} and \code{GROUP BY}.
+  \end{itemize}
+  \slideref{E. F. Codd. \textbf{Relational Completeness of Data Base Sublanguages}. In Data Base Systems, Prentice Hall, 1972. \rfsep
+    A. K. Chandra, P. M. Merlin. \textbf{Optimal Implementation of Conjunctive Queries in Relational Data Bases}. STOC 1977. \rfsep
+    A. V. Aho, J. D. Ullman. \textbf{The Universality of Data Retrieval Languages}. POPL 1979. \rfsep
+    \lnk{ahv6}}
+  \stretchtag
+\end{frame}
+
+\begin{frame}
+  \frametitle{Beyond Level 9: Bags, NULL, Aggregation, SQL}
+  \begin{itemize}
+    \item \textbf{Bags}: SQL keeps duplicates. Which laws survive?
+    \item \textbf{NULL}: missing values, and three truth values.
+    \item \textbf{Aggregation}: \code{GROUP BY}, \code{COUNT},
+      \code{SUM}.
+    \item \textbf{SQL}: translate a fragment of SQL into your algebra.
+    \item \textbf{Codd's theorem}: the algebra and (safe) first-order
+      logic express the same queries.
+    \item \textbf{Containment}: decide whether a conjunctive query's
+      answers are always among another's.
+  \end{itemize}
+  \slideref{\lnk{fpil-tqex} \rfsep
+    A. K. Chandra, P. M. Merlin. \textbf{Optimal Implementation of Conjunctive Queries in Relational Data Bases}. STOC 1977.}
+  \stretchtag
+\end{frame}
+
+\begin{frame}
+  \frametitle{Others Did This in Coq: Read Them After Trying}
+  Verified relational databases, in Coq (now Rocq):
+  \begin{itemize}
+    \item G. Malecha, G. Morrisett, A. Shinnar, R. Wisnesky. \emph{Toward a
+      Verified Relational Database Management System}. POPL 2010.
+    \item V. Benzaken, \'E. Contejean, S. Dumbrava. \emph{A Coq
+      Formalization of the Relational Data Model}. ESOP 2014.
+    \item S. Chu, K. Weitz, A. Cheung, D. Suciu. \emph{HoTTSQL: Proving
+      Query Rewrites with Univalent SQL Semantics}. PLDI 2017.
+    \item V. Benzaken, \'E. Contejean. \emph{A Coq Mechanised Formal
+      Semantics for Realistic SQL Queries}. CPP 2019.
+  \end{itemize}
+  For the theory of databases: \lnk{ahv}. Addison-Wesley, 1995.
+\end{frame}
+
+\end{document}

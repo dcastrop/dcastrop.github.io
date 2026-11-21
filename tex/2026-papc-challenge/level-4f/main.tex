@@ -1,0 +1,136 @@
+% !LW recipe = make-deck
+% Level 4F (programs track, FPIL): comparing rows. Theory: equality tests,
+% membership, difference, joins. Lean: dedup, diff, inter, joinOn.
+% Build: make (rules in ../common/deck.mk).
+\DocumentMetadata{
+  lang        = en-GB,
+  pdfstandard = ua-2,
+  tagging     = on,
+}
+\documentclass{ltx-talk}
+
+\input{preamble}
+
+\title{Level 4F: Difference and Joins, by Comparing Rows}
+\author{The Proofs and Programs Club}
+\institute{Royal Holloway, University of London}
+
+\begin{document}
+
+\leveltitle{4F}{Difference and Joins, by Comparing Rows}
+  {Programs track: follows FPIL}{After \levellink{3f}}
+  {Next: \levellink{5f}}
+
+\levelframe{4F}{Level 4F at a Glance}{%
+  \code{dedup}, \code{diff} and \code{inter}; and \code{joinOn}, a join,
+  as a selection of a product.}{%
+  which sessions had nobody, and the size of a join, by computing.}{%
+  write functions for every type whose values can be compared &
+    \rds{fpil-classes} \\
+  compare values with \code{==}, and test membership in a list &
+    \rds{fpil-eqord} \\
+}
+
+% ---------------------------------------------------------------- theory
+\theorypart{Equal rows, difference, and joins}
+
+\begin{frame}
+  \frametitle{Comparing Rows Needs an Equality Test}
+  \defn{Definition 4F.1 (Equality test)}{An \emph{equality test} on $D$
+    is a function $\mathit{eq} : D \times D \to \B$ with
+    $\mathit{eq}(t, s) = \true$ exactly when $t = s$.}
+  \defn{Definition 4F.2 (Membership, duplicates)}{With $\mathit{eq}$:
+    \[
+      \begin{array}{@{}l@{\;=\;}l@{\qquad}l@{}}
+        \mathit{contains}\ [\,]\ t & \false \\
+        \mathit{contains}\ (s :: l)\ t & \mathit{eq}(s, t) \text{ or }
+          \mathit{contains}\ l\ t \\
+        \mathit{dedup}\ [\,] & [\,] \\
+        \mathit{dedup}\ (t :: l) & \mathit{dedup}\ l & \text{if }
+          \mathit{contains}\ l\ t = \true \\
+        \mathit{dedup}\ (t :: l) & t :: \mathit{dedup}\ l & \text{if }
+          \mathit{contains}\ l\ t = \false \\
+      \end{array}
+    \]}
+  So $\mathit{contains}\ l\ t = \true$ exactly when $t$ is in the table
+  $l$ represents. In Lean, \code{==} is the equality test, from
+  \code{BEq}.
+  \theorytag{4F}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Difference Removes the Rows of Another Table}
+  \defn{Definition 4F.3 (Difference, intersection)}{For tables $R$ and
+    $S$ of the same rows: $R - S = \{t \in R \mid t \notin S\}$ and
+    $R \cap S = \{t \in R \mid t \in S\}$.}
+  Which sessions had nobody? With one-column tables:
+  \[
+    \pi_1[\rel{Session}] - \pi_2[\rel{Attended}] = \{1, 2, 3, 4\} - \{1,
+    2, 3\} = \{4\}.
+  \]
+  On lists, a difference is a selection (Level 2F), with the condition
+  ``not in $m$'': \
+  $\mathit{diff}\ l\ m = \mathit{select}\ (t \mapsto \text{not }
+  \mathit{contains}\ m\ t)\ l$. \ In SQL: \code{EXCEPT}.
+  \defn{Fact 4F.4}{$R \cap S = R - (R - S)$. Level 3T proves it.}
+  \slideref{\lnk{ahv5}}
+  \theorytag{4F}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A Join Is a Selection of a Product}
+  \defn{Definition 4F.5 (Join)}{For functions $k_1$ on the rows of $R$ and
+    $k_2$ on the rows of $S$ (their \emph{keys}):
+    \ $R \join_{k_1 = k_2} S = \{(t, s) \in R \times S \mid k_1(t) =
+    k_2(s)\}$.}
+  It is a selection of the product (Levels 2F and 3F), with the condition
+  $\mathit{eq}(k_1(t), k_2(s))$. Joining on the week, with $k_1 = \pi_2$
+  and $k_2 = \pi_1$:\par
+  {\centering\small
+    \smalltable{$\rel{Attended} \join_{\pi_2 = \pi_1}
+      \rel{Session}$}{ll}{row of $\rel{Attended}$ & row of $\rel{Session}$}
+      {(Ada, 1) & (1, Lists) \\ (Alan, 1) & (1, Lists) \\
+       (Alan, 2) & (2, Proofs) \\ (Grace, 3) & (3, Types)}\par}
+  \theorytag{4F}
+\end{frame}
+
+% ---------------------------------------------------------------- Lean
+\leanpart{Build dedup, diff, inter and joinOn}
+
+\begin{frame*}
+  \frametitle{Your Turn: Build dedup}
+  \leanblock{dedup.lean}
+  \begin{itemize}
+    \item \code{[BEq α]}: rows of type \code{α} have an equality test,
+      \code{==}, and \code{l.contains row} uses it.
+    \item \ex{4F.1} Complete \code{dedup} with Definition 4F.2, and prove
+      the example.
+  \end{itemize}
+  \slideref{\lnk{fpil-classes} \rfsep \lnk{fpil-eqord}}
+  \leantag{4F}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Your Turn: Build diff and inter}
+  \leanblock{diff.lean}
+  \begin{itemize}
+    \item \ex{4F.2} \code{diff}: a selection, with \code{s.contains row}.
+    \item \ex{4F.3} \code{inter}: from \code{diff} alone (Fact 4F.4). Then
+      prove the example.
+  \end{itemize}
+  \leantag{4F}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Your Turn: Derive a Join from select and product}
+  \leanblock{join.lean}
+  \begin{itemize}
+    \item \code{k₁} and \code{k₂} are the keys of Definition 4F.5: here,
+      each row's week.
+    \item \ex{4F.4} Complete \code{joinOn}: \code{select} the pairs of
+      \code{product r s} whose keys are equal. Then prove the example.
+  \end{itemize}
+  \leantag{4F}
+\end{frame*}
+
+\end{document}

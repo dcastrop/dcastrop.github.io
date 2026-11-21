@@ -1,0 +1,159 @@
+% !LW recipe = make-deck
+% Level 5T (proofs track, TPIL): induction on lists. Theory: list programs
+% as equations; induction; a proof. Lean: the programs (given), the first
+% induction (worked), then exercises.
+% Build: make (rules in ../common/deck.mk).
+\DocumentMetadata{
+  lang        = en-GB,
+  pdfstandard = ua-2,
+  tagging     = on,
+}
+\documentclass{ltx-talk}
+
+\input{preamble}
+
+\title{Level 5T: Induction on Lists}
+\author{The Proofs and Programs Club}
+\institute{Royal Holloway, University of London}
+
+\begin{document}
+
+\leveltitle{5T}{Induction on Lists}{Proofs track: follows TPIL}
+  {After \levellink{4t}}{Next: \levellink{6}, with \levellink{5f}}
+
+\levelframe{5T}{Level 5T at a Glance}{%
+  nothing new: the list programs \code{select}, \code{project} and
+  \code{product} are given (Levels 2F and 3F build them).}{%
+  facts about them for every list, by induction.}{%
+  prove by induction, step by step & \rds{nng} (Addition World) \\
+  rewrite and simplify: \code{rw}, \code{simp} & \rds{tpil-rw, tpil-simp}
+    \\
+  prove by induction on lists, and split on an \code{if} &
+    \rds{tpil-indtac, tpil-split} \\
+  prove facts about multiplication & \rds{nng} (Multiplication World) \\
+}
+
+% ---------------------------------------------------------------- theory
+\theorypart{List programs, and induction}
+
+\begin{frame}
+  \frametitle{A List Program Is a Few Equations}
+  Write $t :: l$ for the list with first row $t$, then the list $l$.
+  \defn{Definition 5T.1 (Selection and projection on lists)}{
+    \[
+      \begin{array}{@{}l@{\;=\;}l@{\qquad}l@{}}
+        \mathit{select}\ p\ [\,] & [\,] \\
+        \mathit{select}\ p\ (t :: l) & t :: \mathit{select}\ p\ l &
+          \text{if } p(t) = \true \\
+        \mathit{select}\ p\ (t :: l) & \mathit{select}\ p\ l &
+          \text{if } p(t) = \false \\
+        \mathit{project}\ f\ [\,] & [\,] \\
+        \mathit{project}\ f\ (t :: l) & f(t) :: \mathit{project}\ f\ l \\
+      \end{array}
+    \]}
+  Here $p$ is a condition with values in $\B = \{\true, \false\}$, as a
+  program needs. These lists represent $\sel{p}(R)$ and $f[R]$ (Level 6
+  proves it).
+  \theorytag{5T}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Induction Proves a Fact About Every List}
+  \defn{Principle (Induction on lists)}{To prove $P(l)$ for every list
+    $l$: prove $P([\,])$; and prove $P(t :: l)$ for every row $t$ and
+    list $l$, assuming $P(l)$.}
+  It is the induction of the Natural Number Game: $[\,]$ plays $0$, and
+  $t :: l$ plays $n + 1$.
+  \defn{Fact 5T.2}{$\mathit{length}(\mathit{project}\ f\ l) =
+    \mathit{length}(l)$, for every list $l$.}
+  \emph{Proof.} For $[\,]$, both sides are $0$. For $t :: l$: the length
+  of $\mathit{project}\ f\ (t :: l) = f(t) :: \mathit{project}\ f\ l$ is
+  $1 + \mathit{length}(\mathit{project}\ f\ l)$, which is
+  $1 + \mathit{length}(l)$ by assumption. \proofend
+  \theorytag{5T}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Law 1 Holds for Lists, Too}
+  \defn{Fact 5T.3}{$\mathit{project}\ f\ (\mathit{project}\ g\ l) =
+    \mathit{project}\ (f \circ g)\ l$.}
+  \defn{Fact 5T.4 (Law 1, for lists)}{$\mathit{select}\ p\
+    (\mathit{select}\ q\ l) = \mathit{select}\ (p \wedge q)\ l$, as lists:
+    the same rows, in the same order.}
+  \emph{Proof.} By induction on $l$. For $[\,]$, both sides are $[\,]$.
+  For $t :: l$, take the cases of $q(t)$ and $p(t)$:
+  \begin{itemize}
+    \item if $q(t) = \false$, both sides drop $t$, and the assumption
+      finishes;
+    \item if $q(t) = \true$, both sides keep $t$ exactly when $p(t) =
+      \true$. \proofend
+  \end{itemize}
+  \theorytag{5T}
+\end{frame}
+
+% ---------------------------------------------------------------- Lean
+\leanpart{Your first proofs by induction}
+
+\begin{frame*}
+  \frametitle{The Programs, in Lean}
+  \leanblock{lists.lean}
+  \begin{itemize}
+    \item Definition 5T.1, and Level 3F's product: copy them, or use
+      yours.
+  \end{itemize}
+  \slideref{\lnk{tpil-match}}
+  \leantag{5T}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Fact 5T.2 in Lean: Your First Proof by Induction}
+  \leanblock{induction.lean}
+  \begin{itemize}
+    \item The same proof as on paper: one case for \code{nil}, one for
+      \code{cons}. \code{simp} unfolds \code{project}; \code{ih} is the
+      assumption $P(l)$.
+    \item \ex{5T.1} Replace \code{simp [project, ih]} with \code{rw}
+      steps, and watch the goal change in the Infoview.
+  \end{itemize}
+  \slideref{\lnk{tpil-indtac} \rfsep \lnk{nng} (Addition World)}
+  \leantag{5T}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Your Turn: Projections Compose}
+  \leanblock{compose.lean}
+  \begin{itemize}
+    \item \ex{5T.2} Fact 5T.3: the same shape as the proof before.
+      Induction on \code{l}, then \code{simp [project, ih]}.
+  \end{itemize}
+  \slideref{\lnk{tpil-indtac} \rfsep \lnk{tpil-simp}}
+  \leantag{5T}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Your Turn: Law 1 for Lists}
+  \leanblock{law1.lean}
+  \begin{itemize}
+    \item \ex{5T.3} Fact 5T.4. Induction on \code{l}. In the \code{cons}
+      case, take the cases of the conditions, as on paper: \code{cases hq
+      : q row} and \code{cases hp : p row}.
+    \item Then \code{simp [select, hp, hq, ih]} finishes each case.
+  \end{itemize}
+  \slideref{\lnk{tpil-indtac} \rfsep \lnk{tpil-split}}
+  \leantag{5T}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Your Turn: A Product of m Rows and n Rows Has m × n}
+  \leanblock{size.lean}
+  \begin{itemize}
+    \item \ex{5T.4} Induction on \code{r}, then \code{simp [product,
+      project\_length, ih]}, using Fact 5T.2.
+    \item What is left is arithmetic: \code{Nat.add\_mul},
+      \code{Nat.one\_mul} and \code{Nat.add\_comm} finish it.
+  \end{itemize}
+  \slideref{\lnk{nng} (Multiplication World) \rfsep \lnk{tpil-rw}}
+  \leantag{5T}
+\end{frame*}
+
+\end{document}

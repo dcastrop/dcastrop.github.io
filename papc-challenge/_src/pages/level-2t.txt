@@ -1,0 +1,313 @@
+::: glance
+build: tables as properties of rows, and selection and union on them.
+prove: laws 1, 2 and 3, for every table.
+learn: read a proof of "if $A$ then $B$" as a function from proofs of $A$ to proofs of $B$ | [@tpil-pat]
+learn: prove "and", "or" and "if and only if", and use them | [@tpil-proplogic]
+:::
+
+::: milestones
+- `Sets.Table`, `Sets.select` and `Sets.union` are in your file, and `select_sub` is accepted.
+- Your first proof of your own: a selected row satisfies the condition (Exercise 2T.1).
+- Laws 1 and 2, for every table, with no `sorry` (Exercises 2T.2 and 2T.3).
+- Law 3, with "or" (Exercise 2T.4).
+:::
+
+@toc
+
+::: part theory Selection, union, and three laws
+
+### A condition is a property of rows
+
+On the programs track, a condition answers $\true$ or $\false$. Here, it is a statement about a row, which may hold or not: we never need to compute it.
+
+::: box Definition 2T.1 (Condition)
+A *condition* on rows of $D_1 \times D_2$ is a property $p$ of rows: for each row $t$, $p(t)$ is a statement, which holds or does not.
+:::
+
+For example, on $\rel{Member}$ and on $\rel{Attended}$:
+
+$$\mathit{cs}(n, d) \text{ holds when } d = \text{CS}, \qquad \mathit{late}(n, w) \text{ holds when } w \geq 2.$$
+
+::: box Definition 2T.2 (Both conditions)
+$(p \wedge q)(t)$ holds exactly when $p(t)$ holds and $q(t)$ holds.
+:::
+
+### Selection keeps the rows that satisfy a condition
+
+::: box Definition 2T.3 (Selection)
+For a table $R$ and a condition $p$, $\ \sel{p}(R) = \{t \in R \mid p(t)\}$.
+:::
+
+::: row
+Table: $\sel{\mathit{cs}}(\rel{Member})$
+| $\att{name}$ | $\att{dept}$ |
+|---|---|
+| Alan | CS |
+| Grace | CS |
+
+Table: $\sel{\mathit{late}}(\rel{Attended})$
+| $\att{name}$ | $\att{week}$ |
+|---|--:|
+| Alan | 2 |
+| Grace | 3 |
+:::
+
+A selection never adds rows: $\sel{p}(R) \subseteq R$. In SQL, a selection is a `WHERE` clause. Read more in [@ahv4].
+
+### Two tables are equal when they have the same rows
+
+A law says that two tables are equal, for every table you start from. Two sets are equal when they have the same elements, so to prove $X = Y$ we prove, for every row $t$:
+
+$$t \in X \iff t \in Y.$$
+
+Each of the proofs below is a chain of such "if and only if" steps, and each step unfolds a definition or rearranges "and" and "or". In Lean, the laws are stated in exactly this form.
+
+### Two selections are one: law 1
+
+::: box Law 1
+For every table $R$ and conditions $p$ and $q$: $\ \sel{p}(\sel{q}(R)) = \sel{p \wedge q}(R)$.
+:::
+
+::: proof
+For every row $t$:
+$$\begin{aligned}
+t \in \sel{p}(\sel{q}(R)) &\iff t \in \sel{q}(R) \text{ and } p(t) \\
+&\iff t \in R \text{ and } q(t) \text{ and } p(t) \\
+&\iff t \in \sel{p \wedge q}(R).
+\end{aligned}$$
+Each step unfolds a definition: 2T.3, then 2T.3 again, then 2T.2 and 2T.3.
+:::
+
+::: box Law 2
+$\sel{p}(\sel{q}(R)) = \sel{q}(\sel{p}(R))$.
+:::
+
+**Try**: prove law 2 on paper, in the same way, before you open Question 2T.A.
+
+### Union combines two tables; selection distributes
+
+::: box Definition 2T.4 (Union)
+For tables $R$ and $S$ of the same rows: $\ R \cup S = \{t \mid t \in R \text{ or } t \in S\}$.
+:::
+
+::: box Law 3
+$\sel{p}(R \cup S) = \sel{p}(R) \cup \sel{p}(S)$.
+:::
+
+::: proof
+For every row $t$:
+$$\begin{aligned}
+t \in \sel{p}(R \cup S) &\iff (t \in R \text{ or } t \in S) \text{ and } p(t) \\
+&\iff (t \in R \text{ and } p(t)) \text{ or } (t \in S \text{ and } p(t)) \\
+&\iff t \in \sel{p}(R) \cup \sel{p}(S).
+\end{aligned}$$
+The middle step is the distributive law of "and" over "or": both sides hold exactly when $p(t)$ holds and $t$ is in one of the tables.
+:::
+
+A database uses law 3 to filter two tables separately before combining them. Read more in [@ahv5].
+
+### A proof is a program
+
+In Lean, a proof is a value, and a statement is its type ([@tpil-pat]). Each way of building a statement has its own kind of proof:
+
+| To prove | In Lean | A proof is |
+|---|---|---|
+| $A$ and $B$ | `A ∧ B` | a pair `⟨a, b⟩` of a proof of `A` and a proof of `B` |
+| $A$ or $B$ | `A ∨ B` | `Or.inl a`, from a proof of `A`; or `Or.inr b`, from a proof of `B` |
+| if $A$ then $B$ | `A → B` | a function `fun a => …` from proofs of `A` to proofs of `B` |
+| $A$ if and only if $B$ | `A ↔ B` | a pair of functions, `⟨fun a => …, fun b => …⟩` |
+
+And to *use* a proof `h`: of `A ∧ B`, take `h.1` and `h.2`; of `A ∨ B`, take both cases with `h.elim`; of `A → B`, apply it, `h a`. That is all the logic you need for this level.
+
+### Questions
+
+::: q 2T.A Law 2 on paper
+Prove law 2.
+
+::: answer
+For every row $t$: $t \in \sel{p}(\sel{q}(R)) \iff t \in R$ and $q(t)$ and $p(t)$ $\iff t \in R$ and $p(t)$ and $q(t)$ $\iff t \in \sel{q}(\sel{p}(R))$. The middle step swaps the two conditions: "and" is commutative.
+:::
+:::
+
+::: q 2T.B A selection never adds rows
+Prove $\sel{p}(R) \subseteq R$: if $t \in \sel{p}(R)$ then $t \in R$.
+
+::: answer
+If $t \in \sel{p}(R)$, then $t \in R$ and $p(t)$, by Definition 2T.3; in particular $t \in R$.
+:::
+:::
+
+::: q 2T.C Union is commutative
+Prove $R \cup S = S \cup R$.
+
+::: answer
+$t \in R \cup S \iff t \in R$ or $t \in S$ $\iff t \in S$ or $t \in R$ $\iff t \in S \cup R$.
+:::
+:::
+
+::: q 2T.D Two selections, one union
+Prove $\sel{p}(R) \cup \sel{q}(R) = \sel{p \vee q}(R)$, where $(p \vee q)(t)$ holds when $p(t)$ holds or $q(t)$ holds.
+
+::: answer
+$t \in \sel{p}(R) \cup \sel{q}(R) \iff (t \in R$ and $p(t))$ or $(t \in R$ and $q(t))$ $\iff t \in R$ and ($p(t)$ or $q(t)$) $\iff t \in \sel{p \vee q}(R)$: the distributive law again, the other way round.
+:::
+:::
+
+:::
+
+::: part lean Tables as properties, and the three laws
+
+### In Lean, a table can be a property of rows
+
+```lean sets.lean
+namespace Sets
+-- A table, given by its rows: R t says that t is a row of R
+abbrev Table (α : Type) := α → Prop
+
+def select {α : Type} (p : α → Prop) (R : Table α) : Table α :=
+  fun t => R t ∧ p t
+
+def union {α : Type} (R S : Table α) : Table α :=
+  fun t => R t ∨ S t
+end Sets
+```
+
+- `R t` is the statement "$t$ is a row of $R$". So `select` and `union` are formulas, with `∧` and `∨`: Definitions 2T.3 and 2T.4, word for word.
+- A table here may be infinite, and no row is ever computed: this track is about proofs, not programs. [[6]] connects the two.
+- Each name inside `namespace Sets` starts with `Sets.`, so these do not clash with the programs of the other track. Put your theorems inside the namespace too: before `end Sets`, or in a new `namespace Sets … end Sets` block.
+- Type `∧` as `\and`, `∨` as `\or`, `→` as `\to`, `↔` as `\iff`, and `α` as `\a`.
+
+### Your first proof about every table
+
+```lean first.lean
+-- Inside namespace Sets: a selection never adds rows
+theorem select_sub {α : Type} (p : α → Prop) (R : Table α) (t : α) :
+    select p R t → R t :=
+  fun h => h.1
+```
+
+- This is Question 2T.B. A proof of "if $A$ then $B$" is a function: from a proof `h` of $A$, it makes a proof of $B$.
+- `h` proves `select p R t`, which is `R t ∧ p t`: a pair. `h.1` proves `R t`, and `h.2` proves `p t`.
+- Put the cursor after `:=`: the Infoview shows what is left to prove.
+
+::: ex 2T.1 lean The other half
+Prove `select p R t → p t`.
+
+```lean
+-- Inside namespace Sets
+theorem select_cond {α : Type} (p : α → Prop) (R : Table α) (t : α) :
+    select p R t → p t :=
+  sorry
+```
+
+::: hint
+The same as `select_sub`, with the other half of the pair.
+:::
+:::
+
+### Your turn: laws 1 and 2
+
+```lean laws12.lean
+-- Inside namespace Sets: law 1
+theorem select_select {α : Type} (p q : α → Prop) (R : Table α) (t : α) :
+    select p (select q R) t ↔ select (fun r => p r ∧ q r) R t :=
+  sorry
+
+-- Law 2
+theorem select_comm {α : Type} (p q : α → Prop) (R : Table α) (t : α) :
+    select p (select q R) t ↔ select q (select p R) t :=
+  sorry
+```
+
+Each law is stated for one row `t`, as "if and only if": the form of the proofs on paper. A proof of `A ↔ B` is a pair of functions: `⟨fun h => …, fun h => …⟩`.
+
+::: ex 2T.2 lean Law 1
+Prove law 1.
+
+::: hint Hint 1
+Unfolded, the left side is `(R t ∧ q t) ∧ p t`, and the right side is `R t ∧ (p t ∧ q t)`.
+:::
+
+::: hint Hint 2
+From left to right, `fun h => ⟨h.1.1, h.2, h.1.2⟩`: `⟨a, b, c⟩` is short for `⟨a, ⟨b, c⟩⟩`. Now the other direction.
+:::
+:::
+
+::: ex 2T.3 lean Law 2
+Prove law 2.
+
+::: hint
+Unfold both sides on paper first, as in Hint 1 of Exercise 2T.2. Each direction rebuilds the same three proofs in another arrangement.
+:::
+:::
+
+### Your turn: law 3, with "or"
+
+```lean law3.lean
+-- Inside namespace Sets: law 3
+theorem select_union {α : Type} (p : α → Prop) (R S : Table α) (t : α) :
+    select p (union R S) t ↔ union (select p R) (select p S) t :=
+  sorry
+```
+
+- `Or.inl a` proves `A ∨ B` from a proof `a` of `A`; `Or.inr b`, from a proof `b` of `B`.
+- To use `h : A ∨ B`, take both cases: `h.elim (fun a => …) (fun b => …)`.
+
+::: ex 2T.4 lean Law 3
+Prove law 3.
+
+::: hint Hint 1
+Unfolded: `(R t ∨ S t) ∧ p t ↔ (R t ∧ p t) ∨ (S t ∧ p t)`.
+:::
+
+::: hint Hint 2
+From left to right: take `h.1` apart with `h.1.elim`. In the first case you have `R t`, and `h.2` still proves `p t`: build `Or.inl ⟨_, _⟩`.
+:::
+:::
+
+### More exercises
+
+```lean more.lean
+-- Inside namespace Sets
+theorem union_comm {α : Type} (R S : Table α) (t : α) :
+    union R S t ↔ union S R t :=
+  sorry
+
+theorem select_or {α : Type} (p q : α → Prop) (R : Table α) (t : α) :
+    union (select p R) (select q R) t ↔ select (fun r => p r ∨ q r) R t :=
+  sorry
+
+theorem select_true {α : Type} (R : Table α) (t : α) :
+    select (fun _ => True) R t ↔ R t :=
+  sorry
+
+theorem union_assoc {α : Type} (R S T : Table α) (t : α) :
+    union R (union S T) t ↔ union (union R S) T t :=
+  sorry
+```
+
+::: ex 2T.5 lean Union is commutative
+Prove `union_comm` (Question 2T.C).
+
+::: hint
+Both directions are the same function: `fun h => h.elim Or.inr Or.inl`.
+:::
+:::
+
+::: ex 2T.6 lean Two selections, one union
+Prove `select_or` (Question 2T.D).
+:::
+
+::: ex 2T.7 lean Selecting everything
+Prove `select_true`. `True` is the statement with a proof, `trivial`.
+:::
+
+::: ex 2T.8 stretch Union is associative
+Prove `union_assoc`. There are three cases on each side.
+
+::: hint
+Nested `elim`s: on the left, `h.elim (fun hr => …) (fun hst => hst.elim (fun hs => …) (fun ht => …))`.
+:::
+:::
+
+:::

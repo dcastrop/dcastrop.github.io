@@ -1,0 +1,206 @@
+::: glance
+build: `optimise`, a function from queries to queries.
+prove: that `optimise q` and `q` have the same answer, on every database.
+learn: write recursive functions from queries to queries | [@tpil-structrec]
+learn: prove by induction on a query, one case for each constructor | [@tpil-indtac] · [@fpil-indother]
+learn: write proofs that follow your function's cases | [@tpil-funind]
+learn: prove termination when the recursion is not structural | [@tpil-wf]
+:::
+
+::: milestones
+- A first `optimise`, which merges selections, runs on the club's queries (Exercise 8.1).
+- `mergeSel` is correct, by law 1 (Exercise 8.2).
+- `optimise_correct`, by induction on the query (Exercise 8.3).
+- An optimiser that moves selections through products, side condition checked, proved correct (Exercise 8.4).
+:::
+
+@toc
+
+::: part theory Query trees, rewritten by the laws
+
+### An optimiser rewrites query trees by the laws
+
+A query is a term (Definition 5F.3), which we can draw as a tree. With $p$: $\att{dept} = \val{CS}$ and $q$: $\att{topic} = \val{Lists}$:
+
+::: row
+::: figure Before: the query as written
+<svg viewBox="0 0 300 235" width="300" height="235" role="img" aria-labelledby="tree1-t tree1-d">
+<title id="tree1-t">The query before optimising</title>
+<desc id="tree1-d">Project name, over select p and q, over the join of (Member join Attended) with Session.</desc>
+<g class="svg-line" stroke-width="1.5"><line x1="150" y1="27" x2="150" y2="55"/><line x1="150" y1="77" x2="150" y2="105"/><line x1="150" y1="127" x2="92" y2="155"/><line x1="150" y1="127" x2="222" y2="155"/><line x1="92" y1="177" x2="48" y2="205"/><line x1="92" y1="177" x2="142" y2="205"/></g>
+<g class="svg-text" font-size="17" text-anchor="middle"><text x="150" y="21">π<tspan font-size="12" dy="4" font-style="italic">name</tspan></text><text x="150" y="71">σ<tspan font-size="12" dy="4" font-style="italic">p ∧ q</tspan></text><text x="150" y="121">⋈</text><text x="92" y="171">⋈</text><text x="222" y="171" font-style="italic">Session</text><text x="48" y="221" font-style="italic">Member</text><text x="142" y="221" font-style="italic">Attended</text></g>
+</svg>
+:::
+
+::: figure After laws 1, 6 and 10
+<svg viewBox="0 0 300 235" width="300" height="235" role="img" aria-labelledby="tree2-t tree2-d">
+<title id="tree2-t">The query after optimising</title>
+<desc id="tree2-d">Project name, over the join of (select p of Member, joined with Attended) with (select q of Session). The selections now sit next to the tables.</desc>
+<g class="svg-line" stroke-width="1.5"><line x1="150" y1="27" x2="150" y2="55"/><line x1="150" y1="77" x2="92" y2="105"/><line x1="150" y1="77" x2="222" y2="105"/><line x1="92" y1="127" x2="48" y2="155"/><line x1="92" y1="127" x2="142" y2="155"/><line x1="222" y1="127" x2="222" y2="155"/><line x1="48" y1="177" x2="48" y2="205"/></g>
+<g class="svg-text" font-size="17" text-anchor="middle"><text x="150" y="21">π<tspan font-size="12" dy="4" font-style="italic">name</tspan></text><text x="150" y="71">⋈</text><text x="92" y="121">⋈</text><text x="222" y="121">σ<tspan font-size="12" dy="4" font-style="italic">q</tspan></text><text x="48" y="171">σ<tspan font-size="12" dy="4" font-style="italic">p</tspan></text><text x="142" y="171" font-style="italic">Attended</text><text x="222" y="171" font-style="italic">Session</text><text x="48" y="221" font-style="italic">Member</text></g>
+</svg>
+:::
+:::
+
+Same answer, but only CS members and the Lists session reach the joins. Law 1 splits $\sigma_{p \wedge q}$ into two selections, and law 6 (with law 10, to reach the right side) moves each one down to the only table it mentions. On a real database, with thousands of members, that is the difference between a fast query and a slow one.
+
+### A correct optimiser never changes an answer
+
+::: box Definition 8.1 (Correct optimiser)
+An *optimiser* is a function $\mathit{opt}$ from queries to queries. It is *correct* if $\lBrack \mathit{opt}(q) \rBrack = \lBrack q \rBrack$ for every query $q$ and every database (Definition 5F.4).
+:::
+
+- To prove it: induction on $q$, one case for each operator, as on lists in Levels 5T and 6.
+- In each case, the rewrite is one of the laws of [[7]], and the law's side condition is exactly what $\mathit{opt}$ must check before it rewrites.
+
+### A first optimiser: merge selections
+
+Start small: an optimiser that only merges a selection into the selection below it, by law 1.
+
+::: box Definition 8.2 (Merging selections)
+$$\begin{aligned}
+\mathit{merge}_p(\sel{q}(r)) &= \sel{p \wedge q}(r) \\
+\mathit{merge}_p(r) &= \sel{p}(r) && \text{if } r \text{ is not a selection} \\
+\mathit{opt}(\sel{p}(q)) &= \mathit{merge}_p(\mathit{opt}(q)) \\
+\mathit{opt}(q_1 \cup q_2) &= \mathit{opt}(q_1) \cup \mathit{opt}(q_2) && \text{and the same for } -,\ \times,\ \pi_A,\ \rho_{a \to b} \\
+\mathit{opt}(T) &= T
+\end{aligned}$$
+:::
+
+::: box Fact 8.3
+$\lBrack \mathit{merge}_p(r) \rBrack = \lBrack \sel{p}(r) \rBrack$, for every query $r$.
+:::
+
+::: proof
+If $r = \sel{q}(r')$: $\lBrack \sel{p \wedge q}(r') \rBrack = \sel{p \wedge q}(\lBrack r' \rBrack) = \sel{p}(\sel{q}(\lBrack r' \rBrack)) = \lBrack \sel{p}(\sel{q}(r')) \rBrack$, by law 1 in the middle. Otherwise, the two sides are the same query.
+:::
+
+::: box Theorem 8.4
+$\mathit{opt}$ is correct.
+:::
+
+::: proof
+By induction on $q$. For a name $T$, $\mathit{opt}(T) = T$. For $\sel{p}(q)$:
+$$\lBrack \mathit{opt}(\sel{p}(q)) \rBrack = \lBrack \mathit{merge}_p(\mathit{opt}(q)) \rBrack = \sel{p}(\lBrack \mathit{opt}(q) \rBrack) = \sel{p}(\lBrack q \rBrack) = \lBrack \sel{p}(q) \rBrack,$$
+by Fact 8.3, then the induction hypothesis. Every other operator: the induction hypotheses for its parts, and Definition 5F.4.
+:::
+
+### Moving selections down, side conditions checked
+
+The next optimiser moves a selection through a product, by law 5, whenever its side condition holds:
+
+$$\mathit{opt}(\sel{p}(q_1 \times q_2)) = \sel{p}(\mathit{opt}(q_1)) \times \mathit{opt}(q_2) \quad \text{if } \mathit{attrs}(p) \subseteq \mathit{schema}(q_1).$$
+
+The check $\mathit{attrs}(p) \subseteq \mathit{schema}(q_1)$ is computed, by the program, on the query; in the proof, it is exactly the hypothesis that law 5 needs. If the check fails, the optimiser leaves the query as it is, which is always correct.
+
+### Questions
+
+::: q 8.A The laziest optimiser
+Is $\mathit{opt}(q) = q$ a correct optimiser?
+
+::: answer
+Yes: $\lBrack q \rBrack = \lBrack q \rBrack$. It is correct and useless. Correctness says that the answer never changes; it says nothing about speed. Proving an optimiser *faster* needs a cost model: a stretch goal.
+:::
+:::
+
+::: q 8.B A rewrite without its check
+What goes wrong if $\mathit{opt}$ moves $\sel{\att{topic} = \val{Lists}}$ onto $\rel{Member}$ in $\sel{\att{topic} = \val{Lists}}(\rel{Member} \times \rel{Session})$?
+
+::: answer
+$\rel{Member}$ has no $\att{topic}$, so $\sel{\att{topic} = \val{Lists}}(\rel{Member})$ breaks the schema rule of selection. In a typed design it cannot be written; in the simpler design of [[5f]] it keeps no row (no row has a topic to compare), and the answer becomes empty, which is wrong.
+:::
+:::
+
+::: q 8.C Run the first optimiser
+Compute $\mathit{opt}(\sel{p}(\sel{q}(\sel{r}(T))))$.
+
+::: answer
+$\mathit{opt}(\sel{r}(T)) = \mathit{merge}_r(T) = \sel{r}(T)$; then $\mathit{opt}(\sel{q}(\sel{r}(T))) = \mathit{merge}_q(\sel{r}(T)) = \sel{q \wedge r}(T)$; and finally $\sel{p \wedge (q \wedge r)}(T)$. All three selections are merged, because $\mathit{opt}$ works from the bottom up.
+:::
+:::
+
+::: q 8.D Why does it terminate?
+Why does $\mathit{opt}$ always terminate?
+
+::: answer
+It calls itself only on the parts of its argument ($q$, $q_1$, $q_2$), which are smaller terms, and $\mathit{merge}_p$ does not call $\mathit{opt}$ at all: the recursion is *structural*. An optimiser that rewrites and then calls itself again on the result, until nothing changes, is not structural, and needs a termination proof ([@tpil-wf]).
+:::
+:::
+
+:::
+
+::: part lean A correct optimiser
+
+### Definition 8.1 in Lean is one theorem
+
+```lean goal.lean (sketch)
+-- The optimiser never changes an answer
+theorem optimise_correct (db : Database) (q : Query) :
+    eval db (optimise q) = eval db q := by sorry
+```
+
+Prove it by induction on `q`, using your laws of [[7]]. With the simpler design of [[5f]], `eval` computes lists, and law 1 holds even as lists (Fact 5T.4): the first optimiser needs no finite sets.
+
+### A first optimiser, in Lean
+
+```lean optimise.lean
+-- Definition 8.2, for the simpler design of Level 5F
+def mergeSel (c : Cond) : Query → Query
+  | .select d q => .select (.and c d) q
+  | q => .select c q
+
+def optimise : Query → Query
+  | .table n => .table n
+  | .select c q => mergeSel c (optimise q)
+  | .project attrs q => .project attrs (optimise q)
+  | .rename a b q => .rename a b (optimise q)
+  | .union q r => .union (optimise q) (optimise r)
+  | .diff q r => .diff (optimise q) (optimise r)
+  | .product q r => .product (optimise q) (optimise r)
+```
+
+The second case of `mergeSel` applies only when the first does not: Lean tries the cases in order.
+
+::: ex 8.1 lean Run it
+Write a query with three selections in a row (Question 8.C), and `#eval optimise` on it. Then check that `eval clubDb` gives the same answer before and after.
+
+::: hint
+To print a `Query`, add `deriving Repr` to its definition (and to `Cond`).
+:::
+:::
+
+::: ex 8.2 lean Fact 8.3
+Prove that merging is correct:
+
+```lean
+theorem mergeSel_correct (db : Database) (c : Cond) (q : Query) :
+    eval db (mergeSel c q) = eval db (.select c q) := by
+  sorry
+```
+
+::: hint
+`cases q`. In the `select` case, unfold with `simp [mergeSel, eval, Cond.holds]`, and use `select_select` of [[5t]]. Every other case is `rfl`.
+:::
+:::
+
+::: ex 8.3 lean Theorem 8.4
+Prove `optimise_correct`, by induction on `q`, with Exercise 8.2 in the `select` case.
+
+::: hint
+`induction q with` and one case per constructor. In the `select` case: `rw [optimise, mergeSel_correct]`, then `simp [eval, ih]`.
+:::
+:::
+
+::: ex 8.4 lean Move selections through products
+Add the rewrite of "Moving selections down" to `optimise`, with its check, and extend the proof with your law 5 of [[7]]. Prove that the check is what makes it correct: the hypothesis of law 5 comes from the `if`.
+
+::: hint
+In the proof, `split` on the `if` of your new case ([@tpil-split]): one branch has the check as a hypothesis, the other leaves the query alone.
+:::
+:::
+
+::: ex 8.5 stretch Your own rewrite
+Pick a law of [[7]] and turn it into a rewrite: law 7 merges projections, law 3 moves a selection into a union. Add it, and keep the proof.
+:::
+
+:::

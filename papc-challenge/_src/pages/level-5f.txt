@@ -1,0 +1,296 @@
+::: glance
+build: rows of any schema, a type of queries with the six operators, and `eval`, which computes a query's answer.
+prove: that `eval` answers the club's queries correctly, by computing.
+learn: define structures, and inductive types, and match on them | [@fpil-struct] · [@fpil-data]
+learn: derive equality and printing for your types | [@fpil-deriving]
+learn: index a type by values, as in `Query : Schema → Type` | [@fpil-indexed] · [@fpil-universe] · [@fpil-tq]
+:::
+
+::: milestones
+- The club's three tables, with named columns (Exercise 5F.1).
+- `Query`, and conditions as their own type (Exercise 5F.2).
+- `eval`, with one case for each operator (Exercise 5F.3).
+- `#eval` answers "CS members who attended the session on Lists" with Alan (Exercise 5F.4).
+- The natural join and division, derived from the six and tested (Exercise 5F.5).
+:::
+
+@toc
+
+::: part theory Named columns; queries and their meaning
+
+### From positions to names: a row is a function
+
+Until now a column was known by its position. Now it gets a name. Fix a set $\mathcal{A}$ of *attributes* (column names) and, for each $a \in \mathcal{A}$, a set $\mathit{dom}(a)$ of values.
+
+::: box Definition 5F.1 (Schema, row, table)
+A *schema* is a finite set $U \subseteq \mathcal{A}$. A *row* over $U$ is a function $t$ giving each $a \in U$ a value $t(a) \in \mathit{dom}(a)$. A *table* over $U$, written $R : U$, is a finite set of rows over $U$.
+:::
+
+For example, Alan's row of $\rel{Member} : \{\att{name}, \att{dept}\}$ is the function $t$ with $t(\att{name}) = \text{Alan}$ and $t(\att{dept}) = \text{CS}$. A row has no first or second column any more, only named ones. Read more in [@ahv3].
+
+### Rows that agree can be glued together
+
+::: box Definition 5F.2 (Restriction, agreement)
+For a row $t$ over $U$ and $A \subseteq U$, $t[A]$ is $t$ restricted to $A$. Rows $t : U$ and $s : V$ *agree* if $t[U \cap V] = s[U \cap V]$; then $t \cup s$ is their union, a row over $U \cup V$.
+:::
+
+For example, these two rows agree on $\att{week}$, the attribute they share, so they glue into one:
+
+$$\begin{aligned}
+t &= \{\att{name} \mapsto \text{Alan},\ \att{week} \mapsto 1\} \\
+s &= \{\att{week} \mapsto 1,\ \att{topic} \mapsto \text{Lists}\} \\
+t \cup s &= \{\att{name} \mapsto \text{Alan},\ \att{week} \mapsto 1,\ \att{topic} \mapsto \text{Lists}\}
+\end{aligned}$$
+
+If $t$ said week 2, the rows would not agree, and $t \cup s$ would give $\att{week}$ two values: it would not be a row.
+
+### Each operator has a schema rule and a row rule
+
+| Query | Defined when | Schema | Rows |
+|---|---|---|---|
+| $\sel{p}(R)$ | $R : U$, $p$ on rows over $U$ | $U$ | $\{t \in R \mid p(t) = \true\}$ |
+| $\proj{A}(R)$ | $R : U$, $A \subseteq U$ | $A$ | $\{t[A] \mid t \in R\}$ |
+| $\ren{a}{b}(R)$ | $R : U$, $a \in U$, $b \notin U$ | $(U \setminus \{a\}) \cup \{b\}$ | $\{t \circ \beta \mid t \in R\}$ |
+| $R \cup S$ | $R, S : U$ | $U$ | $\{t \mid t \in R \text{ or } t \in S\}$ |
+| $R - S$ | $R, S : U$ | $U$ | $\{t \in R \mid t \notin S\}$ |
+| $R \times S$ | $R : U$, $S : V$, $U \cap V = \emptyset$ | $U \cup V$ | $\{t \cup s \mid t \in R,\ s \in S\}$ |
+
+The operators of Levels 2F to 4F, now with names, and one new one, *renaming*: $\beta$ maps $b$ to $a$, and every other attribute to itself, so the row $t \circ \beta$ has the value of $a$ under the name $b$. The schema rule says when a query makes sense. For example, $\proj{\att{name}}(\rel{Attended})$ has schema $\{\att{name}\}$, but $\proj{\att{topic}}(\rel{Attended})$ makes no sense: $\rel{Attended}$ has no $\att{topic}$. Read more in [@ahv4] and [@ahv5].
+
+### Every other operator is derived from the six
+
+| Operator | Definition | Gives |
+|---|---|---|
+| $R \cap S$ | $R - (R - S)$ | the rows in both |
+| $R \join_{\theta} S$ | $\sel{\theta}(R \times S)$ | the pairs that satisfy $\theta$ (theta join) |
+| $R \join S$ | $\proj{U \cup V}(\sel{\vec{a} = \vec{a}'}(R \times \ren{\vec{a}}{\vec{a}'}(S)))$ | the rows that agree, glued (natural join) |
+| $R \ltimes S$ | $\proj{U}(R \join S)$ | the rows of $R$ with a partner in $S$ (semijoin) |
+| $R \div S$ | $\proj{U}(R) - \proj{U}((\proj{U}(R) \times S) - R)$ | what relates to *every* row of $S$ (division) |
+
+Joins: $R : U$, $S : V$, and $\vec{a}$ lists the shared attributes $U \cap V$, renamed to fresh $\vec{a}'$. Division: $R : U \cup V$, $S : V$. For example, the natural join glues each attendance to its session:
+
+Table: $\rel{Attended} \join \rel{Session}$
+| $\att{name}$ | $\att{week}$ | $\att{topic}$ |
+|---|--:|---|
+| Ada | 1 | Lists |
+| Alan | 1 | Lists |
+| Alan | 2 | Proofs |
+| Grace | 3 | Types |
+
+Who attended every session? $\rel{Attended} \div \proj{\att{week}}(\rel{Session})$: nobody, yet. Who attended every session of the first two weeks? $\rel{Attended} \div \proj{\att{week}}(\sel{\att{week} \leq 2}(\rel{Session})) = \{\text{Alan}\}$.
+
+### A query is a term; its meaning is a table
+
+::: box Definition 5F.3 (Query)
+Queries are the terms $\ q ::= T \mid \sel{p}(q) \mid \proj{A}(q) \mid \ren{a}{b}(q) \mid q \cup q \mid q - q \mid q \times q$, where $T$ is a table name.
+:::
+
+::: box Definition 5F.4 (Meaning)
+For a *database* $\mathit{db}$, which gives a table $\mathit{db}(T)$ to each name $T$: $\lBrack T \rBrack = \mathit{db}(T)$, $\ \lBrack \sel{p}(q) \rBrack = \sel{p}(\lBrack q \rBrack)$, …, $\ \lBrack q_1 \times q_2 \rBrack = \lBrack q_1 \rBrack \times \lBrack q_2 \rBrack$.
+:::
+
+One equation for each operator: the meaning of a query comes from the meanings of its parts. In Lean, queries are an inductive type, and their meaning is a recursive function, `eval` ([@fpil-tq]).
+
+::: box Fact 5F.5 (Queries mean tables of their schema)
+If the schema rules give the query $q$ the schema $U$, then $\lBrack q \rBrack$ is a table over $U$.
+:::
+
+::: proof
+By induction on $q$: for a name $T$, it is the schema of $\mathit{db}(T)$; for each operator, the row rule builds rows over exactly the schema its schema rule gives, from rows of the right schemas, which the induction gives.
+:::
+
+Fact 5F.5 is what the schema rules are for: a query that passes them always has a meaningful answer. FPIL's design makes Lean check the schema rules for you, so a bad query cannot even be written.
+
+### SQL is relational algebra, almost
+
+```sql club-query.sql
+-- Which CS members attended the session on Lists?
+SELECT DISTINCT m.name
+FROM Member m
+  JOIN Attended a ON m.name = a.name
+  JOIN Session  s ON a.week = s.week
+WHERE m.dept = 'CS' AND s.topic = 'Lists';
+```
+
+$$= \proj{\att{name}}\bigl(\sel{\att{dept} = \val{CS} \,\wedge\, \att{topic} = \val{Lists}}(\rel{Member} \join \rel{Attended} \join \rel{Session})\bigr) = \{\text{Alan}\}$$
+
+With only the six operators, the joins become a product of renamed tables, and a selection:
+
+$$\proj{\att{name}}\bigl(\sel{\att{name} = \att{who} \,\wedge\, \att{week} = \att{wk} \,\wedge\, \att{dept} = \val{CS} \,\wedge\, \att{topic} = \val{Lists}}(\rel{Member} \times \ren{\att{name}}{\att{who}}(\rel{Attended}) \times \ren{\att{week}}{\att{wk}}(\rel{Session}))\bigr)$$
+
+*Almost*: SQL keeps duplicate rows unless you write `DISTINCT` (its tables are *bags*), and it has `NULL`, with conditions of three truth values. Both are stretch goals, at the end of [[9]]. Read P. Guagliardo and L. Libkin, [A Formal Semantics of SQL Queries, Its Validation, and Applications](https://doi.org/10.14778/3151113.3151116), PVLDB 11(1), 2017.
+
+### Questions
+
+::: q 5F.A Schemas
+What are the schemas of $\rel{Attended} \join \rel{Session}$ and of $\rel{Member} \join \rel{Session}$? What is the second one?
+
+::: answer
+$\{\att{name}, \att{week}, \att{topic}\}$, and $\{\att{name}, \att{dept}, \att{week}, \att{topic}\}$. $\rel{Member}$ and $\rel{Session}$ share no attribute, so every pair of rows agrees: their natural join is their product, with $3 \cdot 4 = 12$ rows.
+:::
+:::
+
+::: q 5F.B Why must a product's schemas be disjoint?
+Why does $R \times S$ require $U \cap V = \emptyset$?
+
+::: answer
+If $R$ and $S$ shared an attribute $a$, a row $t \in R$ and a row $s \in S$ could give $a$ different values, and then $t \cup s$ is not a row (Definition 5F.2). Gluing only the rows that agree is the natural join; the product renames first, so that nothing is shared.
+:::
+:::
+
+::: q 5F.C Division
+Check that $\rel{Attended} \div \proj{\att{week}}(\sel{\att{week} \leq 2}(\rel{Session})) = \{\text{Alan}\}$ with the definition of $\div$.
+
+::: answer
+With $U = \{\att{name}\}$ and $S = \{1, 2\}$ (weeks): $\proj{U}(\rel{Attended}) = \{\text{Ada}, \text{Alan}, \text{Grace}\}$. Its product with $S$ has 6 rows; removing the rows of $\rel{Attended}$ leaves $(\text{Ada}, 2)$, $(\text{Grace}, 1)$ and $(\text{Grace}, 2)$, whose names are Ada and Grace. So the answer is $\{\text{Ada}, \text{Alan}, \text{Grace}\} - \{\text{Ada}, \text{Grace}\} = \{\text{Alan}\}$.
+:::
+:::
+
+::: q 5F.D A query of your own
+Write a query for "the topics of the sessions that Grace attended", with the six operators.
+
+::: answer
+One answer: $\proj{\att{topic}}(\sel{\att{name} = \val{Grace} \,\wedge\, \att{week} = \att{wk}}(\rel{Attended} \times \ren{\att{week}}{\att{wk}}(\rel{Session})))$, whose answer is $\{\text{Types}\}$.
+:::
+:::
+
+:::
+
+::: part lean A query language for the club
+
+### Two ways to start
+
+The book's way is the right one in the end, but it needs dependent types. If they feel too much at first, start with the simpler design below, and move to the book's later.
+
+- **The book's way**: work through [@fpil-tq]. A schema is a list of columns, `Row s` is a type that depends on the schema `s`, and `Query s` has only the queries that make sense: Lean checks the schema rules for you.
+- **A simpler way**: one type of values, rows as lists of pairs (attribute, value), and one type of queries. A bad query can be written, and gives a meaningless answer.
+
+```lean the simpler design
+inductive Value where
+  | str (s : String)
+  | nat (n : Nat)
+  deriving BEq, Repr
+
+abbrev Row := List (String × Value)   -- attribute ↦ value
+abbrev Table := List Row
+abbrev Database := String → Table
+
+inductive Cond where
+  | eqConst (a : String) (v : Value)  -- a = v
+  | eqAttr (a b : String)             -- a = b
+  | not (c : Cond)
+  | and (c d : Cond)
+
+inductive Query where
+  | table (name : String)
+  | select (c : Cond) (q : Query)
+  | project (attrs : List String) (q : Query)
+  | rename (a b : String) (q : Query)
+  | union (q r : Query)
+  | diff (q r : Query)
+  | product (q r : Query)
+```
+
+- `deriving BEq, Repr` gives `Value` an equality test and a way to print ([@fpil-deriving]).
+- `List.lookup a t` finds the value of attribute `a` in the row `t`, if there is one: an `Option Value`.
+
+```lean meaning
+def Cond.holds : Cond → Row → Bool
+  | .eqConst a v, t => List.lookup a t == some v
+  | .eqAttr a b, t => List.lookup a t == List.lookup b t
+  | .not c, t => !(c.holds t)
+  | .and c d, t => c.holds t && d.holds t
+
+def eval (db : Database) : Query → Table
+  | .table n => db n
+  | .select c q => select (fun t => c.holds t) (eval db q)
+  | .project attrs q => sorry
+  | .rename a b q => sorry
+  | .union q r => sorry
+  | .diff q r => sorry
+  | .product q r => sorry
+```
+
+`eval` reuses your `select` of [[2f]]. The other cases reuse your `project`, `union`, `diff` and `product`.
+
+### Exercises
+
+::: ex 5F.1 lean The club's tables, with names
+Write the club's three tables with named columns, and a database that gives each name its table.
+
+```lean
+def memberT : Table :=
+  [ [("name", .str "Ada"), ("dept", .str "Maths")],
+    [("name", .str "Alan"), ("dept", .str "CS")],
+    [("name", .str "Grace"), ("dept", .str "CS")] ]
+
+def attendedT : Table := sorry
+def sessionT : Table := sorry
+
+def clubDb : Database
+  | "Member" => memberT
+  | "Attended" => attendedT
+  | "Session" => sessionT
+  | _ => []
+```
+
+If you follow the book, write the same three tables with its `Row` and `Table`.
+:::
+
+::: ex 5F.2 lean Queries and conditions
+In the simpler design they are given above. In the book's design, define `Query`, with one constructor for each case of Definition 5F.3, and conditions as their own inductive type, so that [[7]] can inspect them.
+:::
+
+::: ex 5F.3 lean The meaning of a query
+Define `eval`, one case for each equation of Definition 5F.4, reusing your operators of Levels 2F to 4F.
+
+::: hint Projection
+Keep, in each row, the pairs whose attribute is in `attrs`: `t.filter (fun p => attrs.contains p.1)`.
+:::
+
+::: hint Renaming
+Change the name of the pair whose attribute is `a`: `t.map (fun p => if p.1 == a then (b, p.2) else p)`.
+:::
+
+::: hint Product
+Glue the two rows of each pair: a row is a list, so gluing is `++`. Use your `product`, then your `project`.
+:::
+:::
+
+::: ex 5F.4 lean The question of the SQL query
+Write the query "CS members who attended the session on Lists" as a `Query`, and `#eval eval clubDb` on it. The answer is one row: Alan's name.
+
+::: hint
+Follow the last formula of "SQL is relational algebra, almost". It starts:
+
+```lean
+def listsQuery : Query :=
+  .project ["name"]
+    (.select (.and (.eqAttr "name" "who") sorry)
+      (.product (.table "Member") sorry))
+```
+:::
+:::
+
+::: ex 5F.5 lean Derived operators
+Define the natural join and division from the six (as functions from queries to queries), and test them on the club's tables: the attendances glued to their sessions, and Question 5F.C.
+
+::: hint
+In the simpler design, a function `naturalJoin (q r : Query) : Query` needs to know the shared attributes. Pass them as an argument at first: `naturalJoin (shared : List String) (q r : Query)`.
+:::
+:::
+
+### Your design decides how hard the proofs are
+
+- **Columns**: named or positional? Names make $R \times S = S \times R$ true.
+- **Values**: one type for all columns, or a type per column?
+- **Bad queries**: rejected when evaluated, or impossible to write?
+- **Tables**: lists for now; finite sets at [[7]].
+- **Conditions**: syntax you can inspect, for the side conditions of [[7]].
+- **Rows**: in the simpler design, two lists with the same pairs in a different order are different rows. Is that a problem for `diff`?
+
+::: note
+No design is right first time: if the proofs hurt, change the definitions. Read [@fpil-universe] and [@fpil-pitfalls] before you choose.
+:::
+
+:::

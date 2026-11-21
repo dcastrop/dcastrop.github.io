@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Level 3T: Difference, Proved: “Not”, and Classical Logic · PaPC challenge</title>
+<meta name="description" content="Level 3T of the PaPC challenge: Difference, Proved: “Not”, and Classical Logic.">
+<link rel="icon" href="assets/papc-logo.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simpledotcss@2.3.7/simple.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="assets/challenge.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="assets/challenge.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the content</a>
+<header>
+<p class="club"><a href="https://papc-rhul.github.io/"><img src="assets/papc-logo.png" alt="" width="38" height="48"> The Proofs and Programs Club @ RHUL</a></p>
+<p class="kicker"><span class="chip track-t">Proofs track · follows TPIL</span></p><h1><span class="lvl-k">Level 3T</span> Difference, Proved: “Not”, and Classical Logic</h1>
+<nav aria-label="The challenge"><ul><li><a href="index.html">The challenge</a></li><li><a href="index.html#levels">All levels</a></li><li><a href="laws.html">Laws at a glance</a></li></ul></nav>
+</header>
+<main id="main"><p class="crumbs">After <a href="level-2t.html">Level 2T</a> · Next: <a href="level-4t.html">Level 4T</a> · <a href="https://dcastrop.github.io/tex/2026-papc-challenge/level-3t/level-3t.pdf">Slides (PDF)</a></p><section class="glance" aria-labelledby="at-a-glance"><h2 id="at-a-glance">At a glance</h2><dl><div><dt>You build</dt><dd>difference and intersection, on tables as properties of rows.</dd></div><div><dt>You prove</dt><dd>law 4, and that \(R \cap S = R - (R - S)\): one half of it needs classical logic.</dd></div></dl><div class="table-wrap"><table class="reads"><caption>What to learn first, and where</caption><thead><tr><th scope="col">Learn to</th><th scope="col">Read</th></tr></thead><tbody><tr><td>prove and use "not": \(\neg A\) means "if \(A\), then false"</td><td><a class="ref" href="https://lean-lang.org/theorem_proving_in_lean4/Propositions-and-Proofs/#propositional-logic">TPIL 3.3 <cite>Propositional Logic</cite></a></td></tr><tr><td>reason classically: prove \(A\) by refuting \(\neg A\)</td><td><a class="ref" href="https://lean-lang.org/theorem_proving_in_lean4/Propositions-and-Proofs/#classical-logic">TPIL 3.5 <cite>Classical Logic</cite></a></td></tr></tbody></table></div></section>
+<section class="milestones" aria-labelledby="milestones"><h2 id="milestones">Milestones</h2><p class="ms-intro">Tick each one when Lean accepts your work. Your ticks stay in this browser.</p><ul><li><label><input type="checkbox" data-milestone="3t:m1"> <span><code>Sets.diff</code> and <code>Sets.inter</code> are in your file, and <code>inter_sub</code> is accepted.</span></label></li><li><label><input type="checkbox" data-milestone="3t:m2"> <span>Law 4, for every table (Exercise 3T.1).</span></label></li><li><label><input type="checkbox" data-milestone="3t:m3"> <span>The classical half of Fact 3T.3 (Exercise 3T.2).</span></label></li><li><label><input type="checkbox" data-milestone="3t:m4"> <span><code>#print axioms</code> shows you which of your proofs are classical (Exercise 3T.6).</span></label></li></ul><p class="ms-progress" data-progress="3t:m1 3t:m2 3t:m3 3t:m4"><progress max="4" value="0"></progress> <span class="ms-count" aria-live="polite">0 of 4 done</span></p></section>
+<nav class="toc" aria-label="On this page"><details><summary>On this page</summary><ol><li><a href="#at-a-glance">At a glance</a></li><li><a href="#milestones">Milestones</a></li><li><a href="#theory-on-paper">Theory, on paper</a><ol><li><a href="#difference-removes-the-rows-of-another-table">Difference removes the rows of another table</a></li><li><a href="#what-not-means">What "not" means</a></li><li><a href="#intersection-comes-from-difference-classically">Intersection comes from difference, classically</a></li><li><a href="#constructive-and-classical">Constructive and classical</a></li><li><a href="#questions">Questions</a></li></ol></li><li><a href="#lean-on-your-computer">Lean, on your computer</a><ol><li><a href="#difference-and-intersection-are-formulas-too">Difference and intersection are formulas too</a></li><li><a href="#half-of-fact-3t-3-with-no-classical-logic">Half of Fact 3T.3, with no classical logic</a></li><li><a href="#your-turn-law-4-and-the-classical-half">Your turn: law 4, and the classical half</a></li><li><a href="#more-exercises">More exercises</a></li></ol></li></ol></details></nav>
+<section class="part part-theory" aria-labelledby="theory-on-paper"><h2 id="theory-on-paper"><span class="part-k">Theory, on paper</span><span class="part-t">Difference and intersection</span></h2><h3 id="difference-removes-the-rows-of-another-table">Difference removes the rows of another table</h3>
+<div class="box def" id="definition-3t-1"><p class="box-h"><span class="box-n">Definition 3T.1</span> (Difference, intersection)</p><p>For tables \(R\) and \(S\) of the same rows: \(R - S = \{t \in R \mid t \notin S\}\) and \(R \cap S = \{t \in R \mid t \in S\}\).</p></div>
+<p>Which sessions had nobody? With one-column tables:</p>
+<div class="math-display">\[\pi_1[\rel{Session}] - \pi_2[\rel{Attended}] = \{1, 2, 3, 4\} - \{1, 2, 3\} = \{4\}.\]</div>
+<p>In SQL: <code>EXCEPT</code> and <code>INTERSECT</code>. Read more in <a class="ref" href="https://webdam.di.ens.fr/Alice/pdfs/Chapter-5.pdf">Abiteboul, Hull, Vianu, Foundations of Databases (1995), ch. 5: <cite>Adding Negation: Algebra and Calculus</cite></a>.</p>
+<div class="box law" id="law-4"><p class="box-h"><span class="box-n">Law 4</span></p><p>\(\sel{p}(R - S) = \sel{p}(R) - S\).</p></div>
+<div class="proof"><p><em>Proof.</em> For every row \(t\):</p>
+<div class="math-display">\[\begin{aligned}
+t \in \sel{p}(R - S) &amp;\iff t \in R,\ t \notin S \text{ and } p(t) \\
+&amp;\iff t \in \sel{p}(R) \text{ and } t \notin S \\
+&amp;\iff t \in \sel{p}(R) - S.
+\end{aligned}\]</div><p class="qed-line"><span class="qed" role="img" aria-label="End of proof">∎</span></p></div>
+<p>Law 4 says: to remove rows and then filter, filter first. Note that \(S\) is not filtered on the right: filtering it too would also be correct, but it is not needed.</p>
+<h3 id="what-not-means">What "not" means</h3>
+<div class="box def" id="definition-3t-2"><p class="box-h"><span class="box-n">Definition 3T.2</span> (Not)</p><p>"Not \(A\)" means: if \(A\), then a contradiction. So \(t \notin S\) means: if \(t \in S\), then a contradiction.</p></div>
+<p>So to prove "not \(A\)", assume \(A\) and reach a contradiction; and to use a proof of "not \(A\)", give it a proof of \(A\), and you have a contradiction. Nothing else.</p>
+<h3 id="intersection-comes-from-difference-classically">Intersection comes from difference, classically</h3>
+<div class="box fact" id="fact-3t-3"><p class="box-h"><span class="box-n">Fact 3T.3</span></p><p>\(R \cap S = R - (R - S)\).</p></div>
+<div class="proof"><p><em>Proof.</em> \(t \in R - (R - S)\) means: \(t \in R\), and not (\(t \in R\) and \(t \notin S\)).</p>
+<ul><li>If \(t \in R\) and \(t \in S\): then not (\(t \in R\) and \(t \notin S\)), since \(t \notin S\) would contradict \(t \in S\).</li><li>If \(t \in R\) and not (\(t \in R\) and \(t \notin S\)): then \(t \notin S\) is impossible, so <strong>classically</strong> \(t \in S\).</li></ul><p class="qed-line"><span class="qed" role="img" aria-label="End of proof">∎</span></p></div>
+<p>The last step uses: if not-\(A\) is impossible, then \(A\). It is not provable from Definition 3T.2 alone.</p>
+<h3 id="constructive-and-classical">Constructive and classical</h3>
+<p>The first half of the proof above <em>builds</em> what it claims: from proofs of \(t \in R\) and \(t \in S\), it makes a proof of the right side. The second half does not: it shows that \(t \notin S\) is impossible, and concludes \(t \in S\) without ever finding a reason why \(t\) is in \(S\).</p>
+<p>Logic without that step is called <em>constructive</em>. Lean is constructive by default, and adds classical logic on request, with two equivalent principles (<a class="ref" href="https://lean-lang.org/theorem_proving_in_lean4/Propositions-and-Proofs/#classical-logic">TPIL 3.5 <cite>Classical Logic</cite></a>):</p>
+<ul><li><strong>Excluded middle</strong>: for every statement \(A\), \(A\) or not \(A\). In Lean: <code>Classical.em A</code>.</li><li><strong>Proof by contradiction</strong>: if not-\(A\) is impossible, then \(A\). In Lean: <code>Classical.byContradiction</code>.</li></ul>
+<p>On the programs track, the question never comes up: whether a row is in a list can be <em>computed</em> (<a href="level-4f.html">Level 4F</a>), and a computed answer is always yes or no. Tables as properties may be infinite, and then nothing computes membership for you.</p>
+<h3 id="questions">Questions</h3>
+<div class="q" id="q-3t-a"><p class="ex-h"><span class="ex-n">Question 3T.A</span> <span class="ex-t">Nothing minus nothing</span></p><p>Prove \(R - R = \emptyset\): no row is in \(R - R\).</p>
+<details class="answer"><summary>Answer</summary><p>If \(t \in R - R\), then \(t \in R\) and \(t \notin R\): a contradiction. So no row is in \(R - R\).</p></details></div>
+<div class="q" id="q-3t-b"><p class="ex-h"><span class="ex-n">Question 3T.B</span> <span class="ex-t">Removing a union</span></p><p>Prove \(R - (S \cup T) = (R - S) - T\).</p>
+<details class="answer"><summary>Answer</summary><p>\(t \in R - (S \cup T) \iff t \in R\) and not (\(t \in S\) or \(t \in T\)) \(\iff t \in R\), \(t \notin S\) and \(t \notin T\) \(\iff t \in (R - S) - T\). The middle step is constructive in both directions: "not (\(A\) or \(B\))" is the same as "not \(A\) and not \(B\)".</p></details></div>
+<div class="q" id="q-3t-c"><p class="ex-h"><span class="ex-n">Question 3T.C</span> <span class="ex-t">Is it the other table?</span></p><p>Is \(R - (R - S) = S\)?</p>
+<details class="answer"><summary>Answer</summary><p>Not in general: by Fact 3T.3 it is \(R \cap S\), which misses the rows of \(S\) that are not in \(R\). For example, \(R = \emptyset\) and \(S = \{a\}\).</p></details></div>
+<div class="q" id="q-3t-d"><p class="ex-h"><span class="ex-n">Question 3T.D</span> <span class="ex-t">Removing an intersection</span></p><p>Prove \((R - S) \cup (R - T) \subseteq R - (S \cap T)\). Is the other inclusion constructive?</p>
+<details class="answer"><summary>Answer</summary><p>If \(t \in R - S\), then \(t \in R\), and \(t \in S \cap T\) would give \(t \in S\), a contradiction; the same for \(R - T\). The other inclusion is classical: from \(t \in R\) and not (\(t \in S\) and \(t \in T\)), you must decide whether \(t \in S\) to know which side \(t\) is on. Excluded middle does it.</p></details></div></section>
+<section class="part part-lean" aria-labelledby="lean-on-your-computer"><h2 id="lean-on-your-computer"><span class="part-k">Lean, on your computer</span><span class="part-t">Difference, and a classical proof</span></h2><h3 id="difference-and-intersection-are-formulas-too">Difference and intersection are formulas too</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">diff.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="k">namespace</span> Sets
+<span class="k">def</span> diff {α : <span class="ty">Type</span>} (R S : Table α) : Table α :=
+  <span class="k">fun</span> t =&gt; R t ∧ ¬ S t
+
+<span class="k">def</span> inter {α : <span class="ty">Type</span>} (R S : Table α) : Table α :=
+  <span class="k">fun</span> t =&gt; R t ∧ S t
+<span class="k">end</span> Sets</code></pre></div>
+<ul><li>Put this after your code of <a href="level-2t.html">Level 2T</a>: <code>Table</code> and <code>select</code> come from there.</li><li><code>¬ A</code> is <code>A → False</code>: a function that turns a proof of <code>A</code> into a proof of <code>False</code>, which has no proof. Type <code>¬</code> as <code>\not</code>.</li></ul>
+<h3 id="half-of-fact-3t-3-with-no-classical-logic">Half of Fact 3T.3, with no classical logic</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">first.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="c">-- Inside namespace Sets: one half of Fact 3T.3</span>
+<span class="k">theorem</span> inter_sub {α : <span class="ty">Type</span>} (R S : Table α) (t : α) :
+    inter R S t → diff R (diff R S) t :=
+  <span class="k">fun</span> ⟨hr, hs⟩ =&gt; ⟨hr, <span class="k">fun</span> ⟨_, hns⟩ =&gt; hns hs⟩</code></pre></div>
+<ul><li><code>fun ⟨hr, hs⟩ =&gt; …</code> takes the pair apart: <code>hr</code> proves <code>R t</code>, and <code>hs</code> proves <code>S t</code>.</li><li>The second half of the answer proves a <code>¬</code>: it receives a proof of <code>diff R S t</code>, whose <code>hns : ¬ S t</code> meets <code>hs</code>. <code>hns hs</code> is the contradiction, a proof of <code>False</code>.</li></ul>
+<h3 id="your-turn-law-4-and-the-classical-half">Your turn: law 4, and the classical half</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">exercises.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="c">-- Inside namespace Sets: law 4</span>
+<span class="k">theorem</span> select_diff {α : <span class="ty">Type</span>} (p : α → <span class="ty">Prop</span>) (R S : Table α) (t : α) :
+    select p (diff R S) t ↔ diff (select p R) S t :=
+  <span class="sorry">sorry</span>
+
+<span class="c">-- The other half of Fact 3T.3: this one needs classical logic</span>
+<span class="k">theorem</span> diff_diff_sub {α : <span class="ty">Type</span>} (R S : Table α) (t : α) :
+    diff R (diff R S) t → inter R S t :=
+  <span class="sorry">sorry</span></code></pre></div>
+<div class="ex" id="ex-3t-1"><p class="ex-h"><span class="ex-n">Exercise 3T.1</span> <span class="chip lean">In Lean</span> <span class="ex-t">Law 4</span></p><p>Prove <code>select_diff</code>.</p>
+<details class="hint"><summary>Hint</summary><p>Unfolded: <code>(R t ∧ ¬ S t) ∧ p t ↔ (R t ∧ p t) ∧ ¬ S t</code>. No classical logic: the <code>¬ S t</code> is only moved around, like any other proof.</p></details></div>
+<div class="ex" id="ex-3t-2"><p class="ex-h"><span class="ex-n">Exercise 3T.2</span> <span class="chip lean">In Lean</span> <span class="ex-t">The classical half</span></p><p>Prove <code>diff_diff_sub</code>, with <code>Classical.byContradiction : (¬ A → False) → A</code>.</p>
+<details class="hint"><summary>Hint 1</summary><p>Start with <code>fun ⟨hr, hn⟩ =&gt; ⟨hr, _⟩</code>. Here <code>hn : ¬ diff R S t</code>, and <code>_</code> must prove <code>S t</code>.</p></details>
+<details class="hint"><summary>Hint 2</summary><p><code>Classical.byContradiction (fun hns =&gt; _)</code>: now <code>hns : ¬ S t</code>, and <code>_</code> must prove <code>False</code>. Give <code>hn</code> a proof of <code>diff R S t</code>.</p></details></div>
+<h3 id="more-exercises">More exercises</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">more.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="c">-- Inside namespace Sets</span>
+<span class="k">theorem</span> diff_self {α : <span class="ty">Type</span>} (R : Table α) (t : α) :
+    diff R R t ↔ <span class="ty">False</span> :=
+  <span class="sorry">sorry</span>
+
+<span class="k">theorem</span> diff_union {α : <span class="ty">Type</span>} (R S T : Table α) (t : α) :
+    diff R (union S T) t ↔ diff (diff R S) T t :=
+  <span class="sorry">sorry</span>
+
+<span class="k">theorem</span> union_diff_sub {α : <span class="ty">Type</span>} (R S T : Table α) (t : α) :
+    union (diff R S) (diff R T) t → diff R (inter S T) t :=
+  <span class="sorry">sorry</span>
+
+<span class="k">theorem</span> diff_inter_sub {α : <span class="ty">Type</span>} (R S T : Table α) (t : α) :
+    diff R (inter S T) t → union (diff R S) (diff R T) t :=
+  <span class="sorry">sorry</span></code></pre></div>
+<div class="ex" id="ex-3t-3"><p class="ex-h"><span class="ex-n">Exercise 3T.3</span> <span class="chip lean">In Lean</span> <span class="ex-t">Nothing minus nothing</span></p><p>Prove <code>diff_self</code> (Question 3T.A).</p>
+<details class="hint"><summary>Hint</summary><p>From left to right, <code>fun ⟨h, hn⟩ =&gt; hn h</code>. From right to left, there is nothing to do: <code>fun h =&gt; h.elim</code>, since <code>False</code> has no proof.</p></details></div>
+<div class="ex" id="ex-3t-4"><p class="ex-h"><span class="ex-n">Exercise 3T.4</span> <span class="chip lean">In Lean</span> <span class="ex-t">Removing a union</span></p><p>Prove <code>diff_union</code> (Question 3T.B), with no classical logic.</p></div>
+<div class="ex" id="ex-3t-5"><p class="ex-h"><span class="ex-n">Exercise 3T.5</span> <span class="chip stretch">Stretch</span> <span class="ex-t">Removing an intersection</span></p><p>Prove <code>union_diff_sub</code> without classical logic. Then prove <code>diff_inter_sub</code> (Question 3T.D) with it.</p>
+<details class="hint"><summary>Hint</summary><p>For <code>diff_inter_sub</code>: <code>(Classical.em (S t)).elim (fun hs =&gt; …) (fun hns =&gt; …)</code>. If <code>S t</code>, then <code>T t</code> is impossible, so <code>t</code> is in <code>diff R T</code>.</p></details></div>
+<div class="ex" id="ex-3t-6"><p class="ex-h"><span class="ex-n">Exercise 3T.6</span> <span class="chip lean">In Lean</span> <span class="ex-t">Which proofs are classical?</span></p><p>Lean can list the principles a proof uses. Run:</p>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="cmd">#print</span> axioms Sets.inter_sub
+<span class="cmd">#print</span> axioms Sets.diff_diff_sub</code></pre></div>
+<details class="answer"><summary>Answer</summary><p>The first uses none. The second lists <code>Classical.choice</code>, among others: the principle that classical logic rests on in Lean.</p></details></div></section><section class="next" aria-labelledby="next-h"><h2 id="next-h">Next</h2><ol class="next-cards"><li><a class="lvl lvl-t" href="level-4t.html" data-progress="4t:m1 4t:m2 4t:m3 4t:m4"><span class="lvl-id">Level 4T</span> <span class="lvl-t">Product and projection</span><span class="lvl-p"></span></a></li></ol><p class="stuck">Stuck, or curious? Ask us: on Discord, or any Thursday.</p></section></main>
+<footer>
+<p>The first challenge of the <a href="https://papc-rhul.github.io/">Proofs and Programs Club @ RHUL</a>.</p>
+<p>Your ticked milestones are kept in this browser only.</p>
+</footer>
+</body>
+</html>

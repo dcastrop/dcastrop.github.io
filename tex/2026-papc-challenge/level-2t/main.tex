@@ -1,0 +1,168 @@
+% !LW recipe = make-deck
+% Level 2T (proofs track, TPIL): selection and union, proved. Theory:
+% conditions, selection, union, laws 1-3 with proofs. Lean: tables as
+% properties of rows (namespace Sets); laws 1-3 as ↔, in term mode.
+% Build: make (rules in ../common/deck.mk).
+\DocumentMetadata{
+  lang        = en-GB,
+  pdfstandard = ua-2,
+  tagging     = on,
+}
+\documentclass{ltx-talk}
+
+\input{preamble}
+
+\title{Level 2T: Selection and Union, Proved}
+\author{The Proofs and Programs Club}
+\institute{Royal Holloway, University of London}
+
+\begin{document}
+
+\leveltitle{2T}{Selection and Union, Proved}{Proofs track: follows TPIL}
+  {After \levellink{1}}{Next: \levellink{3t}}
+
+\levelframe{2T}{Level 2T at a Glance}{%
+  tables as properties of rows, and selection and union on them.}{%
+  laws 1, 2 and 3, for every table.}{%
+  read a proof of ``if $A$ then $B$'' as a function from proofs of $A$ to
+    proofs of $B$ & \rds{tpil-pat} \\
+  prove ``and'', ``or'' and ``if and only if'', and use them &
+    \rds{tpil-proplogic} \\
+}
+
+% ---------------------------------------------------------------- theory
+\theorypart{Selection, union, and three laws}
+
+\begin{frame}
+  \frametitle{A Condition Is a Property of Rows}
+  \defn{Definition 2T.1 (Condition)}{A \emph{condition} on rows of
+    $D_1 \times D_2$ is a property $p$ of rows: for each row $t$, $p(t)$
+    is a statement, which holds or does not.}
+  For example, on $\rel{Member}$ and on $\rel{Attended}$:
+  \[
+    \mathit{cs}(n, d) \text{ holds when } d = \text{CS}, \qquad
+    \mathit{late}(n, w) \text{ holds when } w \geq 2.
+  \]
+  \defn{Definition 2T.2 (Both conditions)}{$(p \wedge q)(t)$ holds exactly
+    when $p(t)$ holds and $q(t)$ holds.}
+  \theorytag{2T}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Selection Keeps the Rows That Satisfy a Condition}
+  \defn{Definition 2T.3 (Selection)}{For a table $R$ and a condition $p$,
+    \ $\sel{p}(R) = \{t \in R \mid p(t)\}$.}
+  {\centering
+    \smalltable{$\sel{\mathit{cs}}(\rel{Member})$}{ll}
+      {$\att{name}$ & $\att{dept}$}
+      {Alan & CS \\ Grace & CS}\hspace{16mm}
+    \smalltable{$\sel{\mathit{late}}(\rel{Attended})$}{lr}
+      {$\att{name}$ & $\att{week}$}
+      {Alan & 2 \\ Grace & 3}\par}
+  \medskip
+  A selection never adds rows: $\sel{p}(R) \subseteq R$. In SQL, a
+  selection is a \code{WHERE} clause.
+  \slideref{\lnk{ahv4}}
+  \theorytag{2T}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Two Selections Are One: Law 1}
+  \defn{Law 1}{For every table $R$ and conditions $p$ and $q$:
+    \ $\sel{p}(\sel{q}(R)) = \sel{p \wedge q}(R)$.}
+  \emph{Proof.} Two sets are equal when they have the same elements. For
+  every row $t$:
+  \[
+    \begin{array}{@{}r@{\quad}l@{}}
+      t \in \sel{p}(\sel{q}(R)) & \iff t \in \sel{q}(R) \text{ and }
+        p(t) \\
+      & \iff t \in R \text{ and } q(t) \text{ and } p(t) \\
+      & \iff t \in \sel{p \wedge q}(R). \\
+    \end{array}
+  \]
+  \proofend\par
+  Each step unfolds a definition: 2T.3, then 2T.3 again, then 2T.2 and
+  2T.3.
+  \defn{Law 2}{$\sel{p}(\sel{q}(R)) = \sel{q}(\sel{p}(R))$.
+    \textbf{Try}: prove it on paper, in the same way.}
+  \theorytag{2T}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Union Combines Two Tables; Selection Distributes}
+  \defn{Definition 2T.4 (Union)}{For tables $R$ and $S$ of the same rows:
+    \ $R \cup S = \{t \mid t \in R \text{ or } t \in S\}$.}
+  \defn{Law 3}{$\sel{p}(R \cup S) = \sel{p}(R) \cup \sel{p}(S)$.}
+  \emph{Proof.}
+  \[
+    \begin{array}{@{}r@{\quad}l@{}}
+      t \in \sel{p}(R \cup S) & \iff (t \in R \text{ or } t \in S)
+        \text{ and } p(t) \\
+      & \iff (t \in R \text{ and } p(t)) \text{ or } (t \in S
+        \text{ and } p(t)) \\
+      & \iff t \in \sel{p}(R) \cup \sel{p}(S). \\
+    \end{array}
+  \]
+  \proofend
+  \slideref{\lnk{ahv5}}
+  \theorytag{2T}
+\end{frame}
+
+% ---------------------------------------------------------------- Lean
+\leanpart{Tables as properties, and the three laws}
+
+\begin{frame*}
+  \frametitle{In Lean, a Table Can Be a Property of Rows}
+  \leanblock{sets.lean}
+  \begin{itemize}
+    \item \code{R t} is the statement ``$t$ is a row of $R$''. So
+      \code{select} and \code{union} are formulas, with \code{∧} and
+      \code{∨}.
+    \item Each name inside \code{namespace Sets} starts with \code{Sets.}:
+      put your theorems inside too.
+  \end{itemize}
+  \leantag{2T}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Your First Proof About Every Table}
+  \leanblock{first.lean}
+  \begin{itemize}
+    \item A proof of ``if $A$ then $B$'' is a function: from a proof
+      \code{h} of $A$, it makes a proof of $B$.
+    \item A proof \code{h} of \code{A ∧ B} is a pair: \code{h.1} proves
+      \code{A}, \code{h.2} proves \code{B}, and \code{⟨a, b⟩} proves
+      \code{A ∧ B}.
+    \item \ex{2T.1} Prove \code{select p R t → p t}.
+  \end{itemize}
+  \slideref{\lnk{tpil-pat} \rfsep \lnk{tpil-proplogic}}
+  \leantag{2T}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Your Turn: Laws 1 and 2}
+  \leanblock{laws12.lean}
+  \begin{itemize}
+    \item A proof of \code{A ↔ B} is a pair of functions: \code{⟨fun h =>
+      \ldots, fun h => \ldots⟩}.
+    \item \ex{2T.2} Prove law 1. \ex{2T.3} Prove law 2.
+  \end{itemize}
+  \slideref{\lnk{tpil-proplogic}}
+  \leantag{2T}
+\end{frame*}
+
+\begin{frame*}
+  \frametitle{Your Turn: Law 3, with ``Or''}
+  \leanblock{law3.lean}
+  \begin{itemize}
+    \item \code{Or.inl a} proves \code{A ∨ B} from a proof \code{a} of
+      \code{A}; \code{Or.inr b}, from a proof \code{b} of \code{B}.
+    \item To use \code{h : A ∨ B}, take both cases:
+      \code{h.elim (fun a => \ldots) (fun b => \ldots)}.
+    \item \ex{2T.4} Prove law 3.
+  \end{itemize}
+  \slideref{\lnk{tpil-proplogic}}
+  \leantag{2T}
+\end{frame*}
+
+\end{document}

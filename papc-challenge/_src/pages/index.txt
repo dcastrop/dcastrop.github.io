@@ -1,0 +1,84 @@
+::: callout
+## We welcome your challenges!
+
+Got a program you wish were proved correct? A theorem you would love to see Lean check?
+
+**Pitch it to us: it could be the club's next challenge.**
+
+Discord, or any Thursday · [papc-rhul.github.io](https://papc-rhul.github.io/)
+:::
+
+## Our challenge: teach Lean to answer questions about tables
+
+Here are two tables of our club: who is a member, in which department; and who came to which weekly session.
+
+@club Member Attended
+
+::: note
+Which CS members came in week 1? Alan.
+:::
+
+- To answer, keep some rows, keep some columns, and match two tables: **relational algebra**, the maths inside every database.
+- The challenge: write it in **Lean**, and prove, by hand, that it always gives the right answer.
+
+In the language you will learn, the question is $\proj{\att{name}}(\sel{\att{dept} = \val{CS}}(\rel{Member}) \join \sel{\att{week} = 1}(\rel{Attended}))$. If that means nothing yet, good: every symbol in it gets a level of its own, and [[1]] starts from what a table is.
+
+## Why prove it? Databases rewrite your questions
+
+- To answer fast, a database rewrites your question into a quicker one, which must have the same answer.
+- Each rewrite follows a **law**, such as "filter first, then combine". Some laws hold only under a side condition.
+- Get one wrong, and the database silently answers wrongly. Testing tools have found hundreds of such bugs in mature databases ([SQLancer](https://github.com/sqlancer/sqlancer); M. Rigger and Z. Su, [ESEC/FSE 2020](https://doi.org/10.1145/3368089.3409710)).
+
+::: note
+A law can be **proved**. In this challenge, you prove them.
+:::
+
+## Start at Level 1, then pick a track, or both {#levels}
+
+Everyone starts at [[1]]. Then two tracks, which you can take in either order, or side by side:
+
+- **Programs first** follows [@fpil], chapter by chapter: you build the operators of relational algebra as Lean programs, and run them on the club's tables.
+- **Proofs first** follows [@tpil], chapter by chapter: you prove the laws of relational algebra in Lean, for every table.
+
+@map
+
+The tracks meet at [[6]], which needs both: there, you prove that your programs compute exactly what the laws are about. After it, [[7]] then [[8]], and [[9]], in either order.
+
+Each level is a page of short lecture notes: what you build and prove, the book sections to read first, a little theory on paper (with questions and their answers), then Lean on your computer (with exercises and hints), and milestones to tick. Each level also exists as slides, in PDF.
+
+## What you will have built
+
+1. **Your first proof**, one word long: Lean checks a fact about the club's tables ([[1]]).
+2. **A query engine on lists**: selection, projection, product, union, difference and joins, run on the club's tables (Levels [[2f|2F]] to [[4f|4F]]).
+3. **Laws for every table**: laws 1 to 5, proved once for all tables, including a side condition (Levels [[2t|2T]] to [[4t|4T]]).
+4. **A query language**: queries as terms, and `eval`, which answers them ([[5f]]); and **induction**, which proves facts about every list ([[5t]]).
+5. **Programs proved correct**: your programs compute the operators, so every law holds for them ([[6]]).
+6. **Laws for every query**, each side condition a checkable hypothesis ([[7]]).
+7. **A verified optimiser**, which rewrites queries and never changes an answer ([[8]]).
+8. **A verified fast join**, which computes the same table as the definition, much faster ([[9]]).
+
+## How to start, this week
+
+1. Play the [@nng], in your browser: start with its Tutorial World. There is nothing to install.
+2. Open [[1]]: it shows how to install Lean, what a table is, and your first proof, one word long.
+3. Then pick a track, or both.
+
+::: note
+Stuck, or curious? Ask us: on Discord, or any Thursday.
+:::
+
+## Your progress
+
+Tick the milestones on each level page as you go: the map above shows how far you are. Your ticks are kept in this browser only, and nowhere else.
+
+@reset
+
+## Slides and references
+
+- [[laws|Laws at a glance]]: every definition, fact and law of the challenge on one page, with links to where each is proved.
+- The books: [@fpil], [@tpil], and [@mil] from Level 7 on. Every level links the exact sections to read.
+- For the theory of databases: [@ahv], free online.
+
+The same material, as slides:
+
+@pdfs

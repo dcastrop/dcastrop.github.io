@@ -1,6 +1,7 @@
 % !LW recipe = make-deck
-% Build: make. Requires LaTeX 2025-11-01+, LuaLaTeX and pygmentize.
-% (The magic comment above makes VS Code's LaTeX Workshop build with make.)
+% The challenge, presented gently: no theory, no code. The levels are
+% separate decks (../level-*/), linked from the map of the tracks.
+% Build: make (rules in ../common/deck.mk).
 \DocumentMetadata{
   lang        = en-GB,
   pdfstandard = ua-2,
@@ -13,17 +14,176 @@
 \title{We Have a Challenge for You! A Verified Relational Algebra Library in Lean}
 \author{The Proofs and Programs Club}
 \institute{Royal Holloway, University of London}
-\date{19 November 2026}
+
+% The two tracks, in the map of the levels
+\colorlet{progcol}{teal!60!black}
+\colorlet{proofcol}{violet!70!black}
 
 \begin{document}
 
-\input{sections/00-challenge}
-\input{sections/01-tables}
-\input{sections/02-queries}
-\input{sections/03-laws}
-\input{sections/04-optimiser}
-\input{sections/05-joins}
-\input{sections/06-beyond}
-\input{sections/07-yours}
+% ---------------------------------------------------------------- title
+\stepcounter{dcpskipped}% no footer, not counted (see preamble)
+\begin{frame}
+  \thispagestyle{talknofooter}
+  \begin{center}
+    {\huge We Have a Challenge for You!\par}
+    \medskip
+    {\Large A verified relational algebra library in Lean, by hand\par}
+    \smallskip
+    {\large (Ask us more)\par}
+    \vspace{5mm}
+    \includegraphics[height = 26mm, alt = {The Proofs and Programs Club
+      logo: a lambda in a hat and its reflection in a mirror, wearing a
+      different hat, with an ampersand between them}]{papc-logo.png}\par
+    \medskip
+    {\large The Proofs and Programs Club @ RHUL\par}
+    {\small\url{https://papc-rhul.github.io/}\par}
+  \end{center}
+  \vfill
+  {\hfill\includegraphics[height = 8mm, alt = {Royal Holloway, University
+    of London logo}]{RHULLogo.png}\par}
+\end{frame}
+
+% ---------------------------------------------------------------- yours
+\stepcounter{dcpskipped}% no footer, not counted
+\begin{frame}
+  \thispagestyle{talknofooter}
+  \vfill
+  \begin{center}
+    \begin{minipage}{.9\textwidth}
+      \begin{sticky}[halign = center]
+        % Latin Modern's 17pt design has a tight word space at \Huge
+        {\Huge\spaceskip = .36em\relax We Welcome Your Challenges!\par}
+        \bigskip
+        {\large Got a program you wish were proved correct?\par
+          A theorem you would love to see Lean check?\par}
+        \medskip
+        {\large Pitch it to us: it could be the club's next
+          challenge.\par}
+        \bigskip
+        Discord, or any Thursday\par
+        \smallskip
+        \url{https://papc-rhul.github.io/}\par
+      \end{sticky}
+    \end{minipage}
+  \end{center}
+  \vfill
+\end{frame}
+
+% ---------------------------------------------------------------- what
+\begin{frame}
+  \frametitle{Our Challenge: Teach Lean to Answer Questions About Tables}
+  {\centering\small
+    \smalltable{$\rel{Member}$}{ll}{$\att{name}$ & $\att{dept}$}
+      {Ada & Maths \\ Alan & CS \\ Grace & CS}\hspace{12mm}
+    \smalltable{$\rel{Attended}$}{lr}{$\att{name}$ & $\att{week}$}
+      {Ada & 1 \\ Alan & 1 \\ Alan & 2 \\ Grace & 3}\par}
+  \medskip
+  \begin{sticky}[halign = center]
+    Which CS members came in week 1? \quad Alan.
+  \end{sticky}
+  \begin{itemize}
+    \item To answer, keep some rows, keep some columns, and match two
+      tables: \textbf{relational algebra}, the maths inside every
+      database.
+    \item The challenge: write it in \textbf{Lean}, and prove, by hand,
+      that it always gives the right answer.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------- why
+\begin{frame}
+  \frametitle{Why Prove It? Databases Rewrite Your Questions}
+  \begin{itemize}
+    \item To answer fast, a database rewrites your question into a quicker
+      one, which must have the same answer.
+    \item Each rewrite follows a \textbf{law}, such as ``filter first, then
+      combine''. Some laws hold only under a side condition.
+    \item Get one wrong, and the database silently answers wrongly. Testing
+      tools have found hundreds of such bugs in mature databases.
+  \end{itemize}
+  \begin{sticky}[halign = center]
+    A law can be \textbf{proved}. In this challenge, you prove them.
+  \end{sticky}
+  \slideref{SQLancer: \url{https://github.com/sqlancer/sqlancer} \rfsep
+    M. Rigger, Z. Su. \textbf{Detecting Optimization Bugs in Database Engines via Non-Optimizing Reference Engine Construction}. ESEC/FSE 2020.}
+\end{frame}
+
+% ---------------------------------------------------------------- map
+\begin{frame}
+  \frametitle{Start at Level 1, Then Pick a Track, or Both}
+  {\centering
+    \begin{tikzpicture}[alt = {A map of the levels, each linked to its
+        PDF. Everyone starts at Level 1, tables and a first proof. Then two
+        tracks, which can be done in either order or side by side.
+        Programs first, following FPIL: Level 2F selection, 3F projection,
+        product and union, 4F difference and joins, 5F named columns and
+        queries. Proofs first, following TPIL: Level 2T selection and
+        union, 3T difference, 4T product and projection, 5T induction on
+        lists. Both tracks lead to Level 6, lists represent tables. After
+        it, Level 9, fast joins, which leans on FPIL; and Level 7, laws for
+        every query, then Level 8, an optimiser, which lean on TPIL.},
+      x = 1mm, y = 1mm,
+      lvl/.style = {draw = #1, fill = #1!8, rounded corners = 2pt,
+        text width = 60mm, align = center, inner sep = 1.5pt,
+        font = \small},
+      lvl/.default = levelcol,
+      arr/.style = {->, black!45, thick}]
+      \node[lvl] (1) at (0, 0) {\levellink{1}: tables, and a first proof};
+      \node[text = progcol, align = center, font = \small] at (-66, 0)
+        {\textbf{Programs first}\\ follows FPIL};
+      \node[text = proofcol, align = center, font = \small] at (66, 0)
+        {\textbf{Proofs first}\\ follows TPIL};
+      \node[lvl = progcol] (2f) at (-37, -10) {\levellink{2f}: selection};
+      \node[lvl = progcol] (3f) at (-37, -18)
+        {\levellink{3f}: projection, product, union};
+      \node[lvl = progcol] (4f) at (-37, -26)
+        {\levellink{4f}: difference and joins};
+      \node[lvl = progcol] (5f) at (-37, -34)
+        {\levellink{5f}: named columns, queries};
+      \node[lvl = proofcol] (2t) at (37, -10)
+        {\levellink{2t}: selection and union};
+      \node[lvl = proofcol] (3t) at (37, -18) {\levellink{3t}: difference};
+      \node[lvl = proofcol] (4t) at (37, -26)
+        {\levellink{4t}: product and projection};
+      \node[lvl = proofcol] (5t) at (37, -34)
+        {\levellink{5t}: induction on lists};
+      \node[lvl] (6) at (0, -43) {\levellink{6}: lists represent tables};
+      \node[lvl = progcol] (9) at (-37, -52) {\levellink{9}: fast joins};
+      \node[lvl = proofcol] (7) at (37, -52)
+        {\levellink{7}: laws for every query};
+      \node[lvl = proofcol] (8) at (37, -60) {\levellink{8}: an optimiser};
+      \draw[arr] (1) -- (2f);
+      \draw[arr] (1) -- (2t);
+      \draw[arr] (2f) -- (3f);
+      \draw[arr] (3f) -- (4f);
+      \draw[arr] (4f) -- (5f);
+      \draw[arr] (2t) -- (3t);
+      \draw[arr] (3t) -- (4t);
+      \draw[arr] (4t) -- (5t);
+      \draw[arr] (5f) -- (6);
+      \draw[arr] (5t) -- (6);
+      \draw[arr] (6) -- (9);
+      \draw[arr] (6) -- (7);
+      \draw[arr] (7) -- (8);
+    \end{tikzpicture}\par}
+\end{frame}
+
+% ---------------------------------------------------------------- start
+\begin{frame}
+  \frametitle{How to Start, This Week}
+  \begin{enumerate}
+    \item Play the \lnk{nng}, in your browser: start with its Tutorial
+      World. There is nothing to install.
+    \item Open \levellink{1}: it shows how to install Lean, what a table
+      is, and your first proof, one word long.
+    \item Then pick a track, or both. Each level is a short PDF: a little
+      theory, on paper, then Lean, on your computer, with the book
+      sections to read.
+  \end{enumerate}
+  \begin{sticky}[halign = center]
+    Stuck, or curious? Ask us: on Discord, or any Thursday.
+  \end{sticky}
+\end{frame}
 
 \end{document}

@@ -292,6 +292,11 @@ defaults:
       path: "tex/2026-papc-challenge"
     values:
       sitemap: false
+  # Unlisted website of the PaPC challenge (delete with papc-challenge/)
+  - scope:
+      path: "papc-challenge"
+    values:
+      sitemap: false
 
 
 # Sass/SCSS

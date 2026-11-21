@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Level 4F: Difference and Joins, by Comparing Rows · PaPC challenge</title>
+<meta name="description" content="Level 4F of the PaPC challenge: Difference and Joins, by Comparing Rows.">
+<link rel="icon" href="assets/papc-logo.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simpledotcss@2.3.7/simple.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="assets/challenge.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="assets/challenge.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the content</a>
+<header>
+<p class="club"><a href="https://papc-rhul.github.io/"><img src="assets/papc-logo.png" alt="" width="38" height="48"> The Proofs and Programs Club @ RHUL</a></p>
+<p class="kicker"><span class="chip track-f">Programs track · follows FPIL</span></p><h1><span class="lvl-k">Level 4F</span> Difference and Joins, by Comparing Rows</h1>
+<nav aria-label="The challenge"><ul><li><a href="index.html">The challenge</a></li><li><a href="index.html#levels">All levels</a></li><li><a href="laws.html">Laws at a glance</a></li></ul></nav>
+</header>
+<main id="main"><p class="crumbs">After <a href="level-3f.html">Level 3F</a> · Next: <a href="level-5f.html">Level 5F</a> · <a href="https://dcastrop.github.io/tex/2026-papc-challenge/level-4f/level-4f.pdf">Slides (PDF)</a></p><section class="glance" aria-labelledby="at-a-glance"><h2 id="at-a-glance">At a glance</h2><dl><div><dt>You build</dt><dd><code>dedup</code>, <code>diff</code> and <code>inter</code>; and <code>joinOn</code>, a join, as a selection of a product.</dd></div><div><dt>You prove</dt><dd>which sessions had nobody, and the size of a join, by computing.</dd></div></dl><div class="table-wrap"><table class="reads"><caption>What to learn first, and where</caption><thead><tr><th scope="col">Learn to</th><th scope="col">Read</th></tr></thead><tbody><tr><td>write functions for every type whose values can be compared</td><td><a class="ref" href="https://lean-lang.org/functional_programming_in_lean/Overloading-and-Type-Classes/Type-Classes-and-Polymorphism/#tc-polymorphism">FPIL 3.2 <cite>Type Classes and Polymorphism</cite></a></td></tr><tr><td>compare values with <code>==</code>, and test membership in a list</td><td><a class="ref" href="https://lean-lang.org/functional_programming_in_lean/Overloading-and-Type-Classes/Standard-Classes/#equality-and-ordering">FPIL 3.5.3 <cite>Equality and Ordering</cite></a></td></tr></tbody></table></div></section>
+<section class="milestones" aria-labelledby="milestones"><h2 id="milestones">Milestones</h2><p class="ms-intro">Tick each one when Lean accepts your work. Your ticks stay in this browser.</p><ul><li><label><input type="checkbox" data-milestone="4f:m1"> <span><code>dedup</code> removes repeats, and Lean proves the example (Exercise 4F.1).</span></label></li><li><label><input type="checkbox" data-milestone="4f:m2"> <span><code>diff</code> and <code>inter</code> work: Lean proves that week 4 had nobody (Exercises 4F.2 and 4F.3).</span></label></li><li><label><input type="checkbox" data-milestone="4f:m3"> <span><code>joinOn</code> joins \(\rel{Attended}\) and \(\rel{Session}\) on the week (Exercise 4F.4).</span></label></li><li><label><input type="checkbox" data-milestone="4f:m4"> <span>You answered a question about the club with a join, a selection and a projection (Exercise 4F.6).</span></label></li></ul><p class="ms-progress" data-progress="4f:m1 4f:m2 4f:m3 4f:m4"><progress max="4" value="0"></progress> <span class="ms-count" aria-live="polite">0 of 4 done</span></p></section>
+<nav class="toc" aria-label="On this page"><details><summary>On this page</summary><ol><li><a href="#at-a-glance">At a glance</a></li><li><a href="#milestones">Milestones</a></li><li><a href="#theory-on-paper">Theory, on paper</a><ol><li><a href="#comparing-rows-needs-an-equality-test">Comparing rows needs an equality test</a></li><li><a href="#difference-removes-the-rows-of-another-table">Difference removes the rows of another table</a></li><li><a href="#a-join-is-a-selection-of-a-product">A join is a selection of a product</a></li><li><a href="#questions">Questions</a></li></ol></li><li><a href="#lean-on-your-computer">Lean, on your computer</a><ol><li><a href="#your-turn-build-dedup">Your turn: build dedup</a></li><li><a href="#your-turn-build-diff-and-inter">Your turn: build diff and inter</a></li><li><a href="#your-turn-derive-a-join-from-select-and-product">Your turn: derive a join from select and product</a></li><li><a href="#more-exercises">More exercises</a></li></ol></li></ol></details></nav>
+<section class="part part-theory" aria-labelledby="theory-on-paper"><h2 id="theory-on-paper"><span class="part-k">Theory, on paper</span><span class="part-t">Equal rows, difference, and joins</span></h2><h3 id="comparing-rows-needs-an-equality-test">Comparing rows needs an equality test</h3>
+<p>Selection, projection, product and union never compare two rows. Removing repeats, difference and joins do, so a program needs a way to tell whether two values are equal.</p>
+<div class="box def" id="definition-4f-1"><p class="box-h"><span class="box-n">Definition 4F.1</span> (Equality test)</p><p>An <em>equality test</em> on \(D\) is a function \(\mathit{eq} : D \times D \to \B\) with \(\mathit{eq}(t, s) = \true\) exactly when \(t = s\).</p></div>
+<div class="box def" id="definition-4f-2"><p class="box-h"><span class="box-n">Definition 4F.2</span> (Membership, duplicates)</p><p>With \(\mathit{eq}\):</p>
+<div class="math-display">\[\begin{aligned}
+\mathit{contains}\ [\,]\ t &amp;= \false \\
+\mathit{contains}\ (s :: l)\ t &amp;= \mathit{eq}(s, t) \text{ or } \mathit{contains}\ l\ t \\
+\mathit{dedup}\ [\,] &amp;= [\,] \\
+\mathit{dedup}\ (t :: l) &amp;= \mathit{dedup}\ l &amp;&amp; \text{if } \mathit{contains}\ l\ t = \true \\
+\mathit{dedup}\ (t :: l) &amp;= t :: \mathit{dedup}\ l &amp;&amp; \text{if } \mathit{contains}\ l\ t = \false
+\end{aligned}\]</div></div>
+<p>So \(\mathit{contains}\ l\ t = \true\) exactly when \(t\) is in the table \(l\) represents. \(\mathit{dedup}\) drops a row when another copy comes later, so it keeps the last copy of each row:</p>
+<div class="math-display">\[\mathit{dedup}\ [1, 1, 2, 3] = \mathit{dedup}\ [1, 2, 3] = 1 :: \mathit{dedup}\ [2, 3] = \cdots = [1, 2, 3].\]</div>
+<p>In Lean, <code>==</code> is the equality test, from the type class <code>BEq</code> (<a class="ref" href="https://lean-lang.org/functional_programming_in_lean/Overloading-and-Type-Classes/Standard-Classes/#equality-and-ordering">FPIL 3.5.3 <cite>Equality and Ordering</cite></a>).</p>
+<h3 id="difference-removes-the-rows-of-another-table">Difference removes the rows of another table</h3>
+<div class="box def" id="definition-4f-3"><p class="box-h"><span class="box-n">Definition 4F.3</span> (Difference, intersection)</p><p>For tables \(R\) and \(S\) of the same rows: \(R - S = \{t \in R \mid t \notin S\}\) and \(R \cap S = \{t \in R \mid t \in S\}\).</p></div>
+<p>Which sessions had nobody? With one-column tables:</p>
+<div class="math-display">\[\pi_1[\rel{Session}] - \pi_2[\rel{Attended}] = \{1, 2, 3, 4\} - \{1, 2, 3\} = \{4\}.\]</div>
+<p>On lists, a difference is a selection (<a href="level-2f.html">Level 2F</a>), with the condition "not in \(m\)":</p>
+<div class="math-display">\[\mathit{diff}\ l\ m = \mathit{select}\ (t \mapsto \text{not } \mathit{contains}\ m\ t)\ l.\]</div>
+<p>In SQL: <code>EXCEPT</code>. Read more in <a class="ref" href="https://webdam.di.ens.fr/Alice/pdfs/Chapter-5.pdf">Abiteboul, Hull, Vianu, Foundations of Databases (1995), ch. 5: <cite>Adding Negation: Algebra and Calculus</cite></a>.</p>
+<div class="box fact" id="fact-4f-4"><p class="box-h"><span class="box-n">Fact 4F.4</span></p><p>\(R \cap S = R - (R - S)\).</p></div>
+<p>So intersection needs no program of its own. <a href="level-3t.html">Level 3T</a> proves Fact 4F.4, and finds that one half of it needs classical logic.</p>
+<h3 id="a-join-is-a-selection-of-a-product">A join is a selection of a product</h3>
+<div class="box def" id="definition-4f-5"><p class="box-h"><span class="box-n">Definition 4F.5</span> (Join)</p><p>For functions \(k_1\) on the rows of \(R\) and \(k_2\) on the rows of \(S\) (their <em>keys</em>): \(\ R \join_{k_1 = k_2} S = \{(t, s) \in R \times S \mid k_1(t) = k_2(s)\}\).</p></div>
+<p>It is a selection of the product (<a href="level-2f.html">Level 2F</a> and <a href="level-3f.html">Level 3F</a>), with the condition \(\mathit{eq}(k_1(t), k_2(s))\). Joining on the week, with \(k_1 = \pi_2\) and \(k_2 = \pi_1\):</p>
+<div class="table-wrap"><table><caption>\(\rel{Attended} \join_{\pi_2 = \pi_1} \rel{Session}\)</caption><thead><tr><th scope="col">row of \(\rel{Attended}\)</th><th scope="col">row of \(\rel{Session}\)</th></tr></thead><tbody><tr><td>(Ada, 1)</td><td>(1, Lists)</td></tr><tr><td>(Alan, 1)</td><td>(1, Lists)</td></tr><tr><td>(Alan, 2)</td><td>(2, Proofs)</td></tr><tr><td>(Grace, 3)</td><td>(3, Types)</td></tr></tbody></table></div>
+<p>Of the 16 pairs in the product, the join keeps the 4 whose weeks agree. In SQL: <code>Attended a JOIN Session s ON a.week = s.week</code>. Joins are how a database answers questions that need two tables, such as "who came to the session on Proofs?".</p>
+<h3 id="questions">Questions</h3>
+<div class="q" id="q-4f-a"><p class="ex-h"><span class="ex-n">Question 4F.A</span> <span class="ex-t">Two differences</span></p><p>Compute \(\pi_1[\rel{Session}] - \pi_2[\rel{Attended}]\) and \(\pi_2[\rel{Attended}] - \pi_1[\rel{Session}]\).</p>
+<details class="answer"><summary>Answer</summary><p>\(\{4\}\), and \(\emptyset\): every week someone attended had a session.</p></details></div>
+<div class="q" id="q-4f-b"><p class="ex-h"><span class="ex-n">Question 4F.B</span> <span class="ex-t">Is difference symmetric?</span></p><p>Is \(R - S = S - R\) for every \(R\) and \(S\)?</p>
+<details class="answer"><summary>Answer</summary><p>No: Question 4F.A gives \(\{4\} \neq \emptyset\). In fact \(R - S\) and \(S - R\) never share a row.</p></details></div>
+<div class="q" id="q-4f-c"><p class="ex-h"><span class="ex-n">Question 4F.C</span> <span class="ex-t">Join on the name</span></p><p>Compute \(\rel{Member} \join_{\pi_1 = \pi_1} \rel{Attended}\).</p>
+<details class="answer"><summary>Answer</summary><p>Four pairs: \(((\text{Ada}, \text{Maths}), (\text{Ada}, 1))\), \(((\text{Alan}, \text{CS}), (\text{Alan}, 1))\), \(((\text{Alan}, \text{CS}), (\text{Alan}, 2))\) and \(((\text{Grace}, \text{CS}), (\text{Grace}, 3))\).</p></details></div>
+<div class="q" id="q-4f-d"><p class="ex-h"><span class="ex-n">Question 4F.D</span> <span class="ex-t">A broken equality test</span></p><p>Suppose \(\mathit{eq}(t, s) = \true\) for all \(t\) and \(s\), which breaks Definition 4F.1. What do \(\mathit{dedup}\) and \(\mathit{diff}\) compute?</p>
+<details class="answer"><summary>Answer</summary><p>\(\mathit{contains}\ l\ t = \true\) whenever \(l\) is not empty. So \(\mathit{dedup}\ l\) keeps only the last row of \(l\), and \(\mathit{diff}\ l\ m = [\,]\) whenever \(m\) is not empty. The programs are only as correct as the equality test: <a href="level-6.html">Level 6</a> assumes a lawful one.</p></details></div>
+<div class="q" id="q-4f-e"><p class="ex-h"><span class="ex-n">Question 4F.E</span> <span class="ex-t">Intersection, two ways</span></p><p>Check Fact 4F.4 on \(R = \{1, 2, 3\}\) and \(S = \{2, 3, 4\}\).</p>
+<details class="answer"><summary>Answer</summary><p>\(R - S = \{1\}\), so \(R - (R - S) = \{2, 3\} = R \cap S\).</p></details></div></section>
+<section class="part part-lean" aria-labelledby="lean-on-your-computer"><h2 id="lean-on-your-computer"><span class="part-k">Lean, on your computer</span><span class="part-t">Build dedup, diff, inter and joinOn</span></h2><h3 id="your-turn-build-dedup">Your turn: build dedup</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">dedup.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="k">def</span> dedup {α : <span class="ty">Type</span>} [BEq α] : <span class="ty">List</span> α → <span class="ty">List</span> α
+  | [] =&gt; <span class="sorry">sorry</span>
+  | row :: rest =&gt; <span class="sorry">sorry</span>   <span class="c">-- hint: rest.contains row</span>
+
+<span class="k">example</span> : dedup (project (<span class="k">fun</span> row =&gt; row.<span class="n">2</span>) attended) = [<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>] := <span class="t">rfl</span></code></pre></div>
+<ul><li><code>[BEq α]</code>: rows of type <code>α</code> have an equality test, <code>==</code>, and <code>l.contains row</code> uses it (<a class="ref" href="https://lean-lang.org/functional_programming_in_lean/Overloading-and-Type-Classes/Type-Classes-and-Polymorphism/#tc-polymorphism">FPIL 3.2 <cite>Type Classes and Polymorphism</cite></a>).</li><li>Pairs of strings and numbers have one already, so <code>dedup</code> works on all our tables.</li></ul>
+<div class="ex" id="ex-4f-1"><p class="ex-h"><span class="ex-n">Exercise 4F.1</span> <span class="chip lean">In Lean</span> <span class="ex-t">Build dedup</span></p><p>Complete <code>dedup</code> with Definition 4F.2, and prove the example.</p>
+<details class="hint"><summary>Hint</summary><p><code>if rest.contains row then … else …</code>, with <code>dedup rest</code> in both branches.</p></details></div>
+<h3 id="your-turn-build-diff-and-inter">Your turn: build diff and inter</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">diff.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="k">def</span> diff {α : <span class="ty">Type</span>} [BEq α] (r s : <span class="ty">List</span> α) : <span class="ty">List</span> α := <span class="sorry">sorry</span>
+<span class="k">def</span> inter {α : <span class="ty">Type</span>} [BEq α] (r s : <span class="ty">List</span> α) : <span class="ty">List</span> α := <span class="sorry">sorry</span>
+
+<span class="c">-- Which sessions had nobody?</span>
+<span class="k">example</span> : diff (project (<span class="k">fun</span> s =&gt; s.<span class="n">1</span>) session)
+               (project (<span class="k">fun</span> a =&gt; a.<span class="n">2</span>) attended) = [<span class="n">4</span>] := <span class="t">rfl</span></code></pre></div>
+<div class="ex" id="ex-4f-2"><p class="ex-h"><span class="ex-n">Exercise 4F.2</span> <span class="chip lean">In Lean</span> <span class="ex-t">Build diff</span></p><p><code>diff</code>: a selection, with <code>s.contains row</code>.</p>
+<details class="hint"><summary>Hint</summary><p><code>select (fun row =&gt; !(s.contains row)) r</code>. <code>!</code> is "not" on <code>Bool</code>.</p></details></div>
+<div class="ex" id="ex-4f-3"><p class="ex-h"><span class="ex-n">Exercise 4F.3</span> <span class="chip lean">In Lean</span> <span class="ex-t">Build inter</span></p><p><code>inter</code>: from <code>diff</code> alone (Fact 4F.4). Then prove the example.</p>
+<details class="hint"><summary>Hint</summary><p><code>diff r (diff r s)</code>. Check it: <code>#eval inter [1, 2, 3] [2, 3, 4]</code> should print <code>[2, 3]</code>.</p></details></div>
+<h3 id="your-turn-derive-a-join-from-select-and-product">Your turn: derive a join from select and product</h3>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><span class="code-cap">join.lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="k">def</span> joinOn {α β κ : <span class="ty">Type</span>} [BEq κ] (k₁ : α → κ) (k₂ : β → κ)
+    (r : <span class="ty">List</span> α) (s : <span class="ty">List</span> β) : <span class="ty">List</span> (α × β) :=
+  <span class="sorry">sorry</span>
+
+<span class="c">-- Attended ⋈ Session, on the week</span>
+<span class="k">example</span> : (joinOn (<span class="k">fun</span> a =&gt; a.<span class="n">2</span>) (<span class="k">fun</span> s =&gt; s.<span class="n">1</span>) attended session).length = <span class="n">4</span> :=
+  <span class="t">rfl</span></code></pre></div>
+<ul><li><code>k₁</code> and <code>k₂</code> are the keys of Definition 4F.5: here, each row's week. Their values, of type <code>κ</code>, need an equality test.</li><li>Type <code>k₁</code> as <code>k\1</code> in VS Code, and <code>κ</code> as <code>\kappa</code>.</li></ul>
+<div class="ex" id="ex-4f-4"><p class="ex-h"><span class="ex-n">Exercise 4F.4</span> <span class="chip lean">In Lean</span> <span class="ex-t">Build joinOn</span></p><p>Complete <code>joinOn</code>: <code>select</code> the pairs of <code>product r s</code> whose keys are equal. Then prove the example.</p>
+<details class="hint"><summary>Hint</summary><p>A pair <code>x</code> of the product has <code>x.1</code> from <code>r</code> and <code>x.2</code> from <code>s</code>: compare <code>k₁ x.1</code> with <code>k₂ x.2</code>.</p></details></div>
+<h3 id="more-exercises">More exercises</h3>
+<div class="ex" id="ex-4f-5"><p class="ex-h"><span class="ex-n">Exercise 4F.5</span> <span class="chip lean">In Lean</span> <span class="ex-t">Join on the name</span></p><p><code>#eval</code> Question 4F.C: join <code>member</code> and <code>attended</code> on the name. You should see four pairs.</p>
+<details class="hint"><summary>Hint</summary><p><code>joinOn (fun m =&gt; m.1) (fun a =&gt; a.1) member attended</code>.</p></details></div>
+<div class="ex" id="ex-4f-6"><p class="ex-h"><span class="ex-n">Exercise 4F.6</span> <span class="chip lean">In Lean</span> <span class="ex-t">Who came to the session on Proofs?</span></p><p>Answer it with <code>joinOn</code>, <code>select</code> and <code>project</code>, in one expression. <code>#eval</code> it: the answer is <code>["Alan"]</code>.</p>
+<details class="hint"><summary>Hint 1</summary><p>Join <code>attended</code> and <code>session</code> on the week; keep the pairs whose session's topic is <code>"Proofs"</code>; then project each pair to the name.</p></details>
+<details class="hint"><summary>Hint 2</summary><p>In a pair <code>x</code> of the join, the topic is <code>x.2.2</code> and the name is <code>x.1.1</code>.</p></details></div>
+<div class="ex" id="ex-4f-7"><p class="ex-h"><span class="ex-n">Exercise 4F.7</span> <span class="chip lean">In Lean</span> <span class="ex-t">Who never came?</span></p><p>Compute the names of members who attended no session, with <code>diff</code> and <code>project</code>. What do you get, and why?</p>
+<details class="answer"><summary>Answer</summary><p><code>diff (project (fun m =&gt; m.1) member) (project (fun a =&gt; a.1) attended)</code> is <code>[]</code>: every member attended at least once.</p></details></div>
+<div class="ex" id="ex-4f-8"><p class="ex-h"><span class="ex-n">Exercise 4F.8</span> <span class="chip stretch">Stretch</span> <span class="ex-t">A semijoin</span></p><p>The <em>semijoin</em> keeps the rows of \(R\) that have at least one partner in \(S\), without pairing them. Define it, and find the members who attended in week 2:</p>
+<div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="k">def</span> semijoin {α β κ : <span class="ty">Type</span>} [BEq κ] (k₁ : α → κ) (k₂ : β → κ)
+    (r : <span class="ty">List</span> α) (s : <span class="ty">List</span> β) : <span class="ty">List</span> α :=
+  <span class="sorry">sorry</span></code></pre></div>
+<details class="hint"><summary>Hint</summary><p><code>select (fun a =&gt; s.any (fun b =&gt; k₁ a == k₂ b)) r</code>. Then use it on <code>member</code> and the week-2 rows of <code>attended</code>.</p></details></div></section><section class="next" aria-labelledby="next-h"><h2 id="next-h">Next</h2><ol class="next-cards"><li><a class="lvl lvl-f" href="level-5f.html" data-progress="5f:m1 5f:m2 5f:m3 5f:m4 5f:m5"><span class="lvl-id">Level 5F</span> <span class="lvl-t">Named columns, queries</span><span class="lvl-p"></span></a></li></ol><p class="stuck">Stuck, or curious? Ask us: on Discord, or any Thursday.</p></section></main>
+<footer>
+<p>The first challenge of the <a href="https://papc-rhul.github.io/">Proofs and Programs Club @ RHUL</a>.</p>
+<p>Your ticked milestones are kept in this browser only.</p>
+</footer>
+</body>
+</html>
