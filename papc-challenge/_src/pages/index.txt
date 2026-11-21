@@ -3,7 +3,9 @@
 
 Got a program you wish were proved correct? A theorem you would love to see Lean check?
 
-**Pitch it to us: it could be the club's next challenge.**
+**Pitch it to us: it could be another challenge for the club!**
+
+Have a go at the challenges you find intriguing.
 
 Discord, or any Thursday · [papc-rhul.github.io](https://papc-rhul.github.io/)
 :::
@@ -57,7 +59,7 @@ Each level is a page of short lecture notes: what you build and prove, the book 
 7. **A verified optimiser**, which rewrites queries and never changes an answer ([[8]]).
 8. **A verified fast join**, which computes the same table as the definition, much faster ([[9]]).
 
-## How to start, this week
+## How to start, whenever you like
 
 1. Play the [@nng], in your browser: start with its Tutorial World. There is nothing to install.
 2. Open [[1]]: it shows how to install Lean, what a table is, and your first proof, one word long.

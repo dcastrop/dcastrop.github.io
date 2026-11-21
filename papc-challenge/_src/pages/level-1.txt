@@ -241,5 +241,5 @@ Prove the example. Then, on paper: which table does `twice` represent, and what 
 - **Proofs first**, from [[2t]]: prove the laws of relational algebra in Lean, for every table. It follows [@tpil], chapter by chapter.
 
 ::: note Not sure which?
-If you enjoy writing programs, start with 2F. If you enjoy puzzles and logic, start with 2T. Many people alternate: one level of each, week by week. The tracks meet at [[6]], which needs both.
+If you enjoy writing programs, start with 2F. If you enjoy puzzles and logic, start with 2T. Many people alternate: one level of each, in turn. The tracks meet at [[6]], which needs both.
 :::

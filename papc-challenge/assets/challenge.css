@@ -201,6 +201,7 @@ section.part-beyond > h2 { border-color: var(--law); }
 }
 .callout h2 { margin-top: 1.1rem; font-size: 1.7rem; }
 .callout p { margin: .8rem auto; max-width: 34rem; }
+.callout a { white-space: nowrap; }
 
 /* -------------------------------------------- exercises and questions */
 .ex, .q {
