@@ -25,7 +25,7 @@ The PDFs link to each other with absolute URLs (`\challengeurl` in
 
 | Path              | What |
 |-------------------|------|
-| `papc-challenge/` | the presentation: title; "We welcome your challenges!"; the challenge in plain words; why prove it; the map of the levels (linked); how to start. No theory, no code. Published as `slides.pdf` |
+| `papc-challenge/` | the presentation: title; "We welcome your challenges!"; the challenge in plain words; why prove it; the map of the levels (linked); how to start. It has no theory and no code. Published as `slides.pdf` |
 | `level-1/`        | everyone starts here: install Lean and create a project; what a table is; a first proof by `rfl`; choose a track |
 | `level-2f/`…`level-5f/` | **programs track**, follows FPIL in order: `select` (FPIL 1.5–1.6); `project`, `product`, `union` (1.6); `dedup`, `diff`, `joinOn`, comparing rows (3.2, 3.5.3); named columns and a query language (1.4, 3.5.5, 7.1–7.3) |
 | `level-2t/`…`level-5t/` | **proofs track**, follows TPIL in order: selection and union as `∧`/`∨`, laws 1–3 (3.1, 3.3); difference, `¬` and classical logic, law 4 (3.3, 3.5); products, images, `∀`/`∃`, tactics, law 5 (4.1, 4.4, 5.2); induction on lists (5.6–5.8, 7.6) |

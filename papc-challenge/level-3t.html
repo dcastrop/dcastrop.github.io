@@ -39,7 +39,7 @@ t \in \sel{p}(R - S) &amp;\iff t \in R,\ t \notin S \text{ and } p(t) \\
 <p>Law 4 says: to remove rows and then filter, filter first. Note that \(S\) is not filtered on the right: filtering it too would also be correct, but it is not needed.</p>
 <h3 id="what-not-means">What "not" means</h3>
 <div class="box def" id="definition-3t-2"><p class="box-h"><span class="box-n">Definition 3T.2</span> (Not)</p><p>"Not \(A\)" means: if \(A\), then a contradiction. So \(t \notin S\) means: if \(t \in S\), then a contradiction.</p></div>
-<p>So to prove "not \(A\)", assume \(A\) and reach a contradiction; and to use a proof of "not \(A\)", give it a proof of \(A\), and you have a contradiction. Nothing else.</p>
+<p>So to prove "not \(A\)", assume \(A\) and reach a contradiction; and to use a proof of "not \(A\)", give it a proof of \(A\), and you have a contradiction.</p>
 <h3 id="intersection-comes-from-difference-classically">Intersection comes from difference, classically</h3>
 <div class="box fact" id="fact-3t-3"><p class="box-h"><span class="box-n">Fact 3T.3</span></p><p>\(R \cap S = R - (R - S)\).</p></div>
 <div class="proof"><p><em>Proof.</em> \(t \in R - (R - S)\) means: \(t \in R\), and not (\(t \in R\) and \(t \notin S\)).</p>
@@ -114,7 +114,7 @@ t \in \sel{p}(R - S) &amp;\iff t \in R,\ t \notin S \text{ and } p(t) \\
 <div class="ex" id="ex-3t-6"><p class="ex-h"><span class="ex-n">Exercise 3T.6</span> <span class="chip lean">In Lean</span> <span class="ex-t">Which proofs are classical?</span></p><p>Lean can list the principles a proof uses. Run:</p>
 <div class="code code-lean"><div class="code-bar"><span class="code-lang">Lean</span><button type="button" class="copy" hidden>Copy</button></div><pre tabindex="0"><code><span class="cmd">#print</span> axioms Sets.inter_sub
 <span class="cmd">#print</span> axioms Sets.diff_diff_sub</code></pre></div>
-<details class="answer"><summary>Answer</summary><p>The first uses none. The second lists <code>Classical.choice</code>, among others: the principle that classical logic rests on in Lean.</p></details></div></section><section class="next" aria-labelledby="next-h"><h2 id="next-h">Next</h2><ol class="next-cards"><li><a class="lvl lvl-t" href="level-4t.html" data-progress="4t:m1 4t:m2 4t:m3 4t:m4"><span class="lvl-id">Level 4T</span> <span class="lvl-t">Product and projection</span><span class="lvl-p"></span></a></li></ol><p class="stuck">Stuck, or curious? Ask us: on Discord, or any Thursday.</p></section></main>
+<details class="answer"><summary>Answer</summary><p>The first uses none. The second lists <code>Classical.choice</code>, among others: the principle that classical logic rests on in Lean.</p></details></div></section><section class="next" aria-labelledby="next-h"><h2 id="next-h">Next</h2><ol class="next-cards"><li><a class="lvl lvl-t" href="level-4t.html" data-progress="4t:m1 4t:m2 4t:m3 4t:m4"><span class="lvl-id">Level 4T</span> <span class="lvl-t">Product and projection</span><span class="lvl-p"></span></a></li></ol><p class="stuck">Stuck, or curious? Ask us on Discord, or come along any Thursday.</p></section></main>
 <footer>
 <p>The first challenge of the <a href="https://papc-rhul.github.io/">Proofs and Programs Club @ RHUL</a>.</p>
 <p>Your ticked milestones are kept in this browser only.</p>

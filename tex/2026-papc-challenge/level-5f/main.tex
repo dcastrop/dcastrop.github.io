@@ -144,14 +144,14 @@
 \end{frame}
 
 \begin{frame*}
-  \frametitle{SQL Is Relational Algebra, Almost}
+  \frametitle{SQL Is Almost Relational Algebra}
   \mainblock{club-query.sql}
   \[
     = \proj{\att{name}}\bigl(\sel{\att{dept} = \val{CS} \,\wedge\,
       \att{topic} = \val{Lists}}(\rel{Member} \join \rel{Attended} \join
       \rel{Session})\bigr) = \{\text{Alan}\}
   \]
-  \emph{Almost}: SQL keeps duplicate rows unless you write
+  The difference is that SQL keeps duplicate rows unless you write
   \code{DISTINCT} (its tables are \emph{bags}), and it has \code{NULL},
   with conditions of three truth values. Both are stretch goals.
   \slideref{P. Guagliardo, L. Libkin. \textbf{A Formal Semantics of SQL Queries, Its Validation, and Applications}. PVLDB 11(1), 2017.}

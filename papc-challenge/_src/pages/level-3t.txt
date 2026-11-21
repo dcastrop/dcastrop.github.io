@@ -49,7 +49,7 @@ Law 4 says: to remove rows and then filter, filter first. Note that $S$ is not f
 "Not $A$" means: if $A$, then a contradiction. So $t \notin S$ means: if $t \in S$, then a contradiction.
 :::
 
-So to prove "not $A$", assume $A$ and reach a contradiction; and to use a proof of "not $A$", give it a proof of $A$, and you have a contradiction. Nothing else.
+So to prove "not $A$", assume $A$ and reach a contradiction; and to use a proof of "not $A$", give it a proof of $A$, and you have a contradiction.
 
 ### Intersection comes from difference, classically
 

@@ -101,7 +101,7 @@ By induction on $q$: for a name $T$, it is the schema of $\mathit{db}(T)$; for e
 
 Fact 5F.5 is what the schema rules are for: a query that passes them always has a meaningful answer. FPIL's design makes Lean check the schema rules for you, so a bad query cannot even be written.
 
-### SQL is relational algebra, almost
+### SQL is almost relational algebra
 
 ```sql club-query.sql
 -- Which CS members attended the session on Lists?
@@ -118,7 +118,7 @@ With only the six operators, the joins become a product of renamed tables, and a
 
 $$\proj{\att{name}}\bigl(\sel{\att{name} = \att{who} \,\wedge\, \att{week} = \att{wk} \,\wedge\, \att{dept} = \val{CS} \,\wedge\, \att{topic} = \val{Lists}}(\rel{Member} \times \ren{\att{name}}{\att{who}}(\rel{Attended}) \times \ren{\att{week}}{\att{wk}}(\rel{Session}))\bigr)$$
 
-*Almost*: SQL keeps duplicate rows unless you write `DISTINCT` (its tables are *bags*), and it has `NULL`, with conditions of three truth values. Both are stretch goals, at the end of [[9]]. Read P. Guagliardo and L. Libkin, [A Formal Semantics of SQL Queries, Its Validation, and Applications](https://doi.org/10.14778/3151113.3151116), PVLDB 11(1), 2017.
+The difference is that SQL keeps duplicate rows unless you write `DISTINCT` (its tables are *bags*), and it has `NULL`, with conditions of three truth values. Both are stretch goals, at the end of [[9]]. Read P. Guagliardo and L. Libkin, [A Formal Semantics of SQL Queries, Its Validation, and Applications](https://doi.org/10.14778/3151113.3151116), PVLDB 11(1), 2017.
 
 ### Questions
 
@@ -261,7 +261,7 @@ Glue the two rows of each pair: a row is a list, so gluing is `++`. Use your `pr
 Write the query "CS members who attended the session on Lists" as a `Query`, and `#eval eval clubDb` on it. The answer is one row: Alan's name.
 
 ::: hint
-Follow the last formula of "SQL is relational algebra, almost". It starts:
+Follow the last formula of "SQL is almost relational algebra". It starts:
 
 ```lean
 def listsQuery : Query :=

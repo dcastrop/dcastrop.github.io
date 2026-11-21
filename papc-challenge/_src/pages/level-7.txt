@@ -28,11 +28,11 @@ WHERE u.country = 'UK';
 --   filter(join(orders, users)) = join(orders, filter(users))
 ```
 
-- Faster: the join meets only the users from the UK. And correct only because the filter mentions only `users`: a **side condition**.
+- The rewrite is faster, because the join meets only the users from the UK. It is correct only under a **side condition**: the filter mentions only `users`.
 - Get it wrong, and the database silently answers wrongly. Testing tools such as [SQLancer](https://github.com/sqlancer/sqlancer) have found hundreds of such bugs in mature databases (M. Rigger, Z. Su, [Detecting Optimization Bugs in Database Engines via Non-Optimizing Reference Engine Construction](https://doi.org/10.1145/3368089.3409710), ESEC/FSE 2020).
 
 ::: note
-Each rewrite is a **law**, and a law can be **proved**, side condition included.
+Each rewrite is a **law**, and a law can be **proved**, together with its side condition.
 :::
 
 ### Selections move down, under side conditions

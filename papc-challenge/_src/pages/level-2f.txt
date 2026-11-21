@@ -89,7 +89,7 @@ If $l$ represents $R$ (Definition 1.2), then $\mathit{select}\ p\ l$ represents 
 
 [[6]] proves it, for every list. Here, you check it on examples.
 
-### Laws: two questions, one answer
+### Laws: two questions with the same answer
 
 A *law* says that two ways of asking give the same answer, on every table. The first one:
 

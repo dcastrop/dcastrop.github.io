@@ -173,7 +173,7 @@ In a pattern, `rfl` in place of a proof of `x = e` replaces `x` by `e` everywher
 :::
 :::
 
-### Your turn: law 5, side condition included
+### Your turn: law 5, with its side condition
 
 ```lean law5.lean
 -- Inside namespace Sets: law 5, with its side condition h

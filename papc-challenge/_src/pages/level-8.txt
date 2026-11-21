@@ -99,7 +99,7 @@ The check $\mathit{attrs}(p) \subseteq \mathit{schema}(q_1)$ is computed, by the
 Is $\mathit{opt}(q) = q$ a correct optimiser?
 
 ::: answer
-Yes: $\lBrack q \rBrack = \lBrack q \rBrack$. It is correct and useless. Correctness says that the answer never changes; it says nothing about speed. Proving an optimiser *faster* needs a cost model: a stretch goal.
+Yes: $\lBrack q \rBrack = \lBrack q \rBrack$. It is correct, but it does nothing useful. Correctness says that the answer never changes; it says nothing about speed. Proving an optimiser *faster* needs a cost model: a stretch goal.
 :::
 :::
 

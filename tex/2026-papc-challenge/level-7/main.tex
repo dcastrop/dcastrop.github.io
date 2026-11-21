@@ -38,14 +38,14 @@
   \frametitle{Databases Rewrite Your Queries Using Laws}
   \mainblock{sql-pushdown.sql}
   \begin{itemize}
-    \item Faster, and correct only because the filter mentions only
-      \code{users}: a \textbf{side condition}.
+    \item It is faster, but correct only under a \textbf{side
+      condition}: the filter mentions only \code{users}.
     \item Get it wrong, and the database silently answers wrongly: SQLancer
       found hundreds of such bugs in mature databases.
   \end{itemize}
   \begin{sticky}
-    Each rewrite is a \textbf{law}, and a law can be \textbf{proved}, side
-    condition included.
+    Each rewrite is a \textbf{law}, and a law can be \textbf{proved},
+    together with its side condition.
   \end{sticky}
   \slideref{SQLancer: \url{https://github.com/sqlancer/sqlancer} \rfsep
     M. Rigger, Z. Su. \textbf{Detecting Optimization Bugs in Database Engines via Non-Optimizing Reference Engine Construction}. ESEC/FSE 2020.}

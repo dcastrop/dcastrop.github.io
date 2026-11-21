@@ -610,7 +610,7 @@ def level_map():
 
 def pdf_list():
     items = [f'<li><a href="{PDF_BASE}/slides.pdf">The presentation</a> '
-             '(6 pages, no theory, no code)</li>']
+             '</li>']
     for i in LEVEL:
         items.append(f'<li><a href="{lpdf(i)}">{lname(i)}: '
                      f'{esc(LEVEL[i]["title"])}</a></li>')
@@ -719,8 +719,8 @@ def next_section(i):
                  'or pitch us your own challenge.</p>')
     return (f'<section class="next" aria-labelledby="next-h"><h2 id="next-h">Next</h2>'
             f'<ol class="next-cards">{cards}</ol>{extra}'
-            '<p class="stuck">Stuck, or curious? Ask us: on Discord, or any '
-            'Thursday.</p></section>')
+            '<p class="stuck">Stuck, or curious? Ask us on Discord, or come '
+            'along any Thursday.</p></section>')
 
 
 def read_page(pid):
